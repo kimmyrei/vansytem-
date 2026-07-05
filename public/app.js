@@ -36,8 +36,58 @@ function getChildren() {
     return getData(VS.childrenKey);
 }
 
-function saveChildren(children) {
-    saveData(VS.childrenKey, children);
+async function saveChild(event) {
+    event.preventDefault();
+
+    const parent = requireParentLogin();
+    if (!parent) return;
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Saving...";
+    }
+
+    const childData = {
+        parentId: parent.id,
+        name: document.getElementById("studentName").value.trim(),
+        school: document.getElementById("schoolName").value,
+        classYear: document.getElementById("classYear").value.trim(),
+        session: document.getElementById("session").value,
+        homeAddress: document.getElementById("homeAddress").value.trim(),
+        pickupLocation: document.getElementById("pickupLocation").value.trim(),
+        notes: document.getElementById("notes") ? document.getElementById("notes").value.trim() : ""
+    };
+
+    try {
+        const response = await fetch("/api/add-student", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(childData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to save child details.");
+            return;
+        }
+
+        alert("Child details saved successfully in MongoDB. Waiting for admin approval.");
+        window.location.href = "parent-dashboard.html";
+    } catch (error) {
+        alert("Add child error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
 }
 
 function getPayments() {
