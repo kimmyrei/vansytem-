@@ -3,7 +3,6 @@ const { connectToDatabase } = require("./_db");
 
 function cleanDate(value) {
   if (!value) return "";
-
   try {
     return new Date(value).toLocaleDateString("en-GB");
   } catch (error) {
@@ -65,9 +64,7 @@ module.exports = async function handler(req, res) {
 
     const { db } = await connectToDatabase();
 
-    const parent = await db.collection("parents").findOne({
-      _id: parentObjectId
-    });
+    const parent = await db.collection("parents").findOne({ _id: parentObjectId });
 
     if (!parent) {
       return res.status(404).json({
@@ -101,7 +98,7 @@ module.exports = async function handler(req, res) {
       announcementsRaw = [];
     }
 
-    const children = studentsRaw.map(student => ({
+    const students = studentsRaw.map(student => ({
       id: student._id.toString(),
       parentId: student.parentId,
       parentName: student.parentName,
@@ -135,18 +132,17 @@ module.exports = async function handler(req, res) {
       createdSort: payment.createdAt || new Date()
     }));
 
-    const announcements =
-      announcementsRaw.length > 0
-        ? announcementsRaw.map(item => ({
-            id: item._id.toString(),
-            title: item.title,
-            type: item.type || item.category || "General",
-            priority: item.priority || "Normal",
-            message: item.message,
-            date: cleanDate(item.createdAt || item.date),
-            status: item.status || "Active"
-          }))
-        : defaultAnnouncements();
+    const announcements = announcementsRaw.length > 0
+      ? announcementsRaw.map(item => ({
+          id: item._id.toString(),
+          title: item.title,
+          type: item.type || item.category || "General",
+          priority: item.priority || "Normal",
+          message: item.message,
+          date: cleanDate(item.createdAt || item.date),
+          status: item.status || "Active"
+        }))
+      : defaultAnnouncements();
 
     return res.status(200).json({
       success: true,
@@ -158,7 +154,7 @@ module.exports = async function handler(req, res) {
         status: parent.status || "Active",
         role: parent.role || "parent"
       },
-      children,
+      children: students,
       payments,
       announcements
     });

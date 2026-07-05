@@ -36,7 +36,16 @@ module.exports = async function handler(req, res) {
 
     const { db } = await connectToDatabase();
 
-    const parentObjectId = new ObjectId(parentId);
+    let parentObjectId;
+    try {
+      parentObjectId = new ObjectId(parentId);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid parent ID. Please login again."
+      });
+    }
+
     const parent = await db.collection("parents").findOne({ _id: parentObjectId });
 
     if (!parent) {
