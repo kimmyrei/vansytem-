@@ -1,0 +1,15 @@
+{
+  "name": "mutahus-global-vercel",
+  "version": "1.0.0",
+  "description": "Mutahus Global school van service website with Vercel API routes and MongoDB Atlas",
+  "main": "app.js",
+  "scripts": {
+    "build": "echo \"Static HTML site - no build needed\"",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mongodb": "^6.8.0"
+  },
+  "devDependencies": {}
+}

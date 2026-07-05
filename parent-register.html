@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Registration | Mutahus Global</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+
+<header class="top-taskbar">
+    <a href="index.html" class="brand-block">
+        <span class="brand-icon">🚐</span>
+        <div>
+            <strong>Mutahus Global</strong>
+            <small>School Van Service</small>
+        </div>
+    </a>
+
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
+    <nav class="taskbar-links" id="mobileMenu">
+        <a href="index.html" class="">Home</a>
+        <a href="index.html#service">Service</a>
+        <a href="index.html#schools">Schools</a>
+        <a href="terms-rules.html">Rules</a>
+        <a href="parent-register.html" class="active">Register</a>
+        <a href="parent-login.html" class="">Parent Login</a>
+        <a href="admin-login.html" class="admin-pill ">Admin</a>
+    </nav>
+</header>
+
+
+<main class="auth-page-pro">
+    <section class="auth-info-panel">
+        <div class="badge-pro">PARENT REGISTRATION</div>
+        <h1>Create Your Parent Account</h1>
+        <p>
+            Register your parent account first. After login, you can add your child’s school van information,
+            pickup location and payment proof.
+        </p>
+
+        <div class="info-list-pro">
+            <div><span>01</span><strong>Register parent profile</strong><p>Save name, phone number and email.</p></div>
+            <div><span>02</span><strong>Login dashboard</strong><p>Access your parent dashboard anytime.</p></div>
+            <div><span>03</span><strong>Add child details</strong><p>Submit school, class, session and pickup point.</p></div>
+        </div>
+    </section>
+
+    <section class="auth-card-pro">
+        <div class="form-header">
+            <div class="form-icon">👨‍👩‍👧</div>
+            <h1>Parent Registration</h1>
+            <p>Please fill in your information below.</p>
+        </div>
+
+        
+                <div class="form-note mongodb-note">
+                    <strong>MongoDB Step 2:</strong>
+                    Parent registration is now connected to MongoDB. Login will be connected in the next step.
+                </div>
+
+                <form onsubmit="registerParent(event)">
+            <label>Parent Full Name</label>
+            <input type="text" id="parentName" placeholder="Example: Ahmad Bin Ali" required>
+
+            <label>Phone Number</label>
+            <input type="tel" id="parentPhone" placeholder="Example: 0123456789" required>
+
+            <label>Email Address</label>
+            <input type="email" id="parentEmail" placeholder="Example: parent@email.com" required>
+
+            <div class="form-two-column">
+                <div>
+                    <label>Password</label>
+                    <input type="password" id="parentPassword" placeholder="Create password" required>
+                </div>
+
+                <div>
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+                </div>
+            </div>
+
+            <button class="btn btn-primary-pro full-btn" type="submit">Create Account</button>
+        </form>
+
+        <p class="small-text">Already registered? <a href="parent-login.html">Login here</a></p>
+    </section>
+</main>
+
+<script src="app.js"></script>
+
+<a class="whatsapp-float" href="https://wa.me/60123456789?text=Assalamualaikum,%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global." target="_blank" aria-label="Contact Mutahus Global on WhatsApp">
+    <span>💬</span>
+    <div>
+        <strong>WhatsApp</strong>
+        <small>Contact Us</small>
+    </div>
+</a>
+
+</body>
+</html>
