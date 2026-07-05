@@ -284,37 +284,6 @@ function adminLogin(event) {
 }
 
 
-function saveChild(event) {
-    event.preventDefault();
-
-    const parent = requireParentLogin();
-    if (!parent) return;
-
-    const child = {
-        id: makeId("STU"),
-        parentId: parent.id,
-        parentName: parent.name,
-        parentPhone: parent.phone,
-        parentEmail: parent.email,
-        name: document.getElementById("studentName").value.trim(),
-        school: document.getElementById("schoolName").value,
-        classYear: document.getElementById("classYear").value.trim(),
-        session: document.getElementById("session").value,
-        homeAddress: document.getElementById("homeAddress").value.trim(),
-        pickupLocation: document.getElementById("pickupLocation").value.trim(),
-        notes: document.getElementById("notes") ? document.getElementById("notes").value.trim() : "",
-        paymentStatus: "Unpaid",
-        status: "Pending Review",
-        createdAt: new Date().toLocaleDateString("en-GB")
-    };
-
-    const children = getChildren();
-    children.push(child);
-    saveChildren(children);
-
-    alert("Child details saved successfully!");
-    window.location.href = "parent-dashboard.html";
-}
 
 
 function getStudentStatusBadgeClass(status) {
