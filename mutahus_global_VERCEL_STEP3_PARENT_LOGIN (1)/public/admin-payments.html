@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Management | Mutahus Global</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    
+<aside class="pro-sidebar admin-side">
+    <div class="sidebar-brand">
+        <span>🚐</span>
+        <div>
+            <strong>Mutahus Global</strong>
+            <small>Admin Control</small>
+        </div>
+    </div>
+
+    <nav class="sidebar-menu">
+        <a class="" href="admin-dashboard.html"><span>📊</span> Dashboard</a>
+        <a class="" href="admin-students.html"><span>🎒</span> Students</a>
+        <a class="" href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
+        <a class="active" href="admin-payments.html"><span>💳</span> Payments</a>
+        <a class="" href="admin-announcements.html"><span>📢</span> Announcements</a>
+        <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="mini-help">
+            <strong>Admin Mode</strong>
+            <p>Manage students, parents, payments and notices.</p>
+        </div>
+        <a href="#" onclick="adminLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+    </div>
+</aside>
+
+
+    <main class="app-main">
+
+    <div class="mobile-app-header mobile-admin-header">
+        <div class="mobile-brand">
+            <span>🚐</span>
+            <div>
+                <strong>Mutahus Global</strong>
+                <small>Admin Control</small>
+            </div>
+        </div>
+        <a href="#" onclick="adminLogout()" class="mobile-logout">Logout</a>
+    </div>
+
+    <nav class="mobile-bottom-nav admin-mobile-bottom">
+        <a href="admin-dashboard.html" class="">
+            <span>📊</span>
+            <small>Home</small>
+        </a>
+        <a href="admin-students.html" class="">
+            <span>🎒</span>
+            <small>Students</small>
+        </a>
+        <a href="admin-parents.html" class="">
+            <span>👨‍👩‍👧</span>
+            <small>Parents</small>
+        </a>
+        <a href="admin-payments.html" class="active">
+            <span>💳</span>
+            <small>Pay</small>
+        </a>
+        <a href="admin-announcements.html" class="">
+            <span>📢</span>
+            <small>Notice</small>
+        </a>
+        <a href="admin-rules.html" class="">
+            <span>📘</span>
+            <small>Rules</small>
+        </a>
+    </nav>
+
+        <div class="page-hero-bar">
+            <div>
+                <span class="page-kicker">PAYMENT REVIEW</span>
+                <h1>Payment Management</h1>
+                <p>Review uploaded receipts and update payment status.</p>
+            </div>
+
+            <button class="btn btn-light-pro" onclick="window.print()">Export Report</button>
+        </div>
+
+        <section class="stats stats-pro">
+            <div class="stat-card pro-stat"><span>💰</span><h3>Total Collection</h3><h2 id="paymentTotalCollection">RM0</h2></div>
+            <div class="stat-card pro-stat"><span>✅</span><h3>Paid</h3><h2 id="paymentPaidCount">0</h2></div>
+            <div class="stat-card pro-stat"><span>⏳</span><h3>Pending Review</h3><h2 id="paymentPendingCount">0</h2></div>
+            <div class="stat-card pro-stat"><span>⚠️</span><h3>Unpaid</h3><h2 id="paymentUnpaidCount">0</h2></div>
+        </section>
+
+        <section class="payment-alert payment-alert-pro">
+            <div>
+                <h3>💳 Monthly Payment Tracking</h3>
+                <p>Parents upload receipt proof. Admin can approve or reject submitted payments here.</p>
+            </div>
+        </section>
+
+        <section class="table-box table-box-pro">
+            <div class="table-header">
+                <div>
+                    <h2>Payment Records</h2>
+                    <p>Payment proof submitted by parents will appear here.</p>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parent</th>
+                        <th>Student</th>
+                        <th>Month</th>
+                        <th>Amount</th>
+                        <th>Receipt</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="adminPaymentsTable"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>loadAdminPayments();</script>
+</body>
+</html>
