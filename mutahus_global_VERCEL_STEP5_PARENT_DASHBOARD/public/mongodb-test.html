@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MongoDB Test | Mutahus Global</title>
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #f4f8ff;
+    }
+    .test-card {
+      width: min(720px, 100%);
+      background: white;
+      border: 1px solid #dbeafe;
+      border-radius: 28px;
+      padding: 34px;
+      box-shadow: 0 24px 70px rgba(15,60,104,.12);
+    }
+    .test-card h1 {
+      color: #0f3c68;
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+    .test-card p {
+      color: #64748b;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+    #resultBox {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 18px;
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      color: #0f172a;
+      white-space: pre-wrap;
+      min-height: 90px;
+      font-family: Consolas, monospace;
+      font-size: 14px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: #1d6fd1;
+      font-weight: 900;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="test-card">
+    <h1>MongoDB Connection Test</h1>
+    <p>
+      Click the button below to test whether your Vercel API Route can connect
+      to MongoDB Atlas using the MONGODB_URI environment variable.
+    </p>
+
+    <button class="btn btn-primary-pro" onclick="testMongoDB()">Test MongoDB Connection</button>
+
+    <div id="resultBox">Waiting for test...</div>
+
+    <a class="back-link" href="index.html">← Back to website</a>
+  </div>
+
+<script>
+async function testMongoDB() {
+  const box = document.getElementById("resultBox");
+  box.innerText = "Testing connection...";
+
+  try {
+    const response = await fetch("/api/test-db");
+    const data = await response.json();
+
+    if (data.success) {
+      box.innerText =
+        "✅ SUCCESS\\n\\n" +
+        "Message: " + data.message + "\\n" +
+        "Database: " + data.database + "\\n" +
+        "Collection: " + data.collection + "\\n" +
+        "Inserted ID: " + data.insertedId;
+    } else {
+      box.innerText = "❌ FAILED\\n\\n" + JSON.stringify(data, null, 2);
+    }
+  } catch (error) {
+    box.innerText = "❌ ERROR\\n\\n" + error.message;
+  }
+}
+</script>
+
+</body>
+</html>

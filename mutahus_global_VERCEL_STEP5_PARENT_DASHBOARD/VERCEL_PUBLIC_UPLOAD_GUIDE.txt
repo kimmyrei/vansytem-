@@ -1,0 +1,26 @@
+HOW TO FIX VERCEL 502 / OUTPUT DIRECTORY ERROR
+
+Use this version because all frontend files are inside the public folder.
+
+GitHub:
+1. Upload all files/folders from this extracted project to your GitHub repo.
+2. Make sure GitHub shows:
+   public/
+   api/
+   package.json
+   vercel.json
+
+Vercel:
+1. Import/redeploy the GitHub repo.
+2. Use settings:
+   Build Command: npm run build
+   Output Directory: public
+   Install Command: npm install
+
+3. Add Environment Variable:
+   MONGODB_URI = your MongoDB connection string
+
+4. Redeploy.
+
+Test:
+https://YOUR-SITE.vercel.app/api/test-db
