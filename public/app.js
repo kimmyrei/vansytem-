@@ -85,8 +85,23 @@ function saveAnnouncements(announcements) {
 }
 
 function getCurrentParent() {
-    const parentId = localStorage.getItem(VS.currentParentKey);
-    return getParents().find(parent => parent.id === parentId) || null;
+    const savedParent = localStorage.getItem(VS.currentParentKey);
+
+    if (!savedParent) {
+        return null;
+    }
+
+    try {
+        const parent = JSON.parse(savedParent);
+
+        if (parent && parent.id) {
+            return parent;
+        }
+    } catch (error) {
+        return getParents().find(parent => parent.id === savedParent) || null;
+    }
+
+    return null;
 }
 
 function requireParentLogin() {
@@ -189,7 +204,7 @@ async function parentLogin(event) {
             return;
         }
 
-        localStorage.setItem(CURRENT_PARENT_KEY, JSON.stringify(result.parent));
+        localStorage.setItem(VS.currentParentKey, JSON.stringify(result.parent));
 
         alert("Login successful.");
         window.location.href = "parent-dashboard.html";
