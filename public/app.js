@@ -157,22 +157,50 @@ async function registerParent(event) {
     }
 }
 
-function parentLogin(event) {
+async function parentLogin(event) {
     event.preventDefault();
 
-    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-    const password = document.getElementById("loginPassword").value;
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
 
-    const parent = getParents().find(parent => parent.email === email && parent.password === password);
-
-    if (!parent) {
-        alert("Invalid email or password. Please register first or check your login details.");
-        return;
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Logging in...";
     }
 
-    localStorage.setItem(VS.currentParentKey, parent.id);
-    alert("Login successful!");
-    window.location.href = "parent-dashboard.html";
+    const loginData = {
+        email: document.getElementById("loginEmail").value.trim(),
+        password: document.getElementById("loginPassword").value
+    };
+
+    try {
+        const response = await fetch("/api/login-parent", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(loginData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Invalid email or password.");
+            return;
+        }
+
+        localStorage.setItem(CURRENT_PARENT_KEY, JSON.stringify(result.parent));
+
+        alert("Login successful.");
+        window.location.href = "parent-dashboard.html";
+    } catch (error) {
+        alert("Login error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
 }
 
 function adminLogin(event) {
