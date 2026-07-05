@@ -1,92 +1,56 @@
-# Mutahus Global - Vercel Ready Version
+# Mutahus Global - Vercel Public Folder Ready
 
-This version is for:
+This version is made for:
 
 ```text
-GitHub → Vercel → MongoDB Atlas
+GitHub → Vercel Free Hobby → MongoDB Atlas Free
 ```
 
-It does not use Netlify.
-
-## What Works Now
-
-- MongoDB connection test
-- Parent registration saves to MongoDB
-
-## Important
-
-GitHub Pages only hosts static files. It cannot run MongoDB backend code.
-This project needs Vercel API Routes for MongoDB.
-
-## Files Added for Vercel
+## Project Structure
 
 ```text
-api/_db.js
-api/test-db.js
-api/register-parent.js
-vercel.json
+public/
+  index.html
+  style.css
+  app.js
+  parent-register.html
+api/
+  _db.js
+  test-db.js
+  register-parent.js
 package.json
-.env.example
+vercel.json
 ```
 
-## Environment Variable Required
+## Vercel Settings
 
-In Vercel project settings, add:
+Use these settings:
+
+```text
+Framework Preset: Other
+Build Command: npm run build
+Output Directory: public
+Install Command: npm install
+```
+
+## Environment Variable
+
+Add this in Vercel:
 
 ```text
 MONGODB_URI
 ```
 
-Value format:
+## Test
+
+After deploy:
 
 ```text
-mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/mutahus_global?appName=vansystem
+https://YOUR-SITE.vercel.app/api/test-db
 ```
 
-Do not upload your real `.env` file to GitHub.
-
-## Deploy Steps
-
-1. Upload this folder to GitHub.
-2. Go to Vercel.
-3. Add New Project.
-4. Import your GitHub repository.
-5. Deploy.
-6. Go to Project Settings → Environment Variables.
-7. Add `MONGODB_URI`.
-8. Redeploy.
-
-## Test MongoDB
-
-Open:
+Then test:
 
 ```text
-https://YOUR-VERCEL-SITE.vercel.app/api/test-db
+https://YOUR-SITE.vercel.app/parent-register.html
 ```
-
-or:
-
-```text
-https://YOUR-VERCEL-SITE.vercel.app/mongodb-test.html
-```
-
-## Test Parent Register
-
-Open:
-
-```text
-https://YOUR-VERCEL-SITE.vercel.app/parent-register.html
-```
-
-Register a parent, then check MongoDB Atlas:
-
-```text
-mutahus_global → parents
-```
-
-## Still Not Done Yet
-
-- Parent Login with MongoDB
-- Add Child with MongoDB
-- Payment with MongoDB
-- Admin data from MongoDB
