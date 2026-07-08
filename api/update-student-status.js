@@ -1,58 +1,75 @@
+const { ObjectId } = require("mongodb");
 const { connectToDatabase } = require("./_db");
 
-function cleanDate(value) {
-  if (!value) return "";
-  try {
-    return new Date(value).toLocaleDateString("en-GB");
-  } catch (error) {
-    return "";
-  }
-}
-
 module.exports = async function handler(req, res) {
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(405).json({
       success: false,
-      message: "Method not allowed. Use GET only."
+      message: "Method not allowed. Use POST only."
     });
   }
 
   try {
+    const data = req.body || {};
+    const studentId = (data.studentId || "").trim();
+    const status = (data.status || "").trim();
+
+    const allowedStatuses = ["Pending Review", "Accepted", "Rejected", "Active"];
+
+    if (!studentId || !status) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID and status are required."
+      });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student status."
+      });
+    }
+
+    let studentObjectId;
+
+    try {
+      studentObjectId = new ObjectId(studentId);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student ID."
+      });
+    }
+
     const { db } = await connectToDatabase();
 
-    const studentsRaw = await db
-      .collection("students")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const result = await db.collection("students").updateOne(
+      { _id: studentObjectId },
+      {
+        $set: {
+          status,
+          reviewedAt: new Date(),
+          updatedAt: new Date()
+        }
+      }
+    );
 
-    const students = studentsRaw.map(student => ({
-      id: student._id.toString(),
-      parentId: student.parentId || "",
-      parentName: student.parentName || "",
-      parentPhone: student.parentPhone || "",
-      parentEmail: student.parentEmail || "",
-      name: student.name || "",
-      school: student.school || "",
-      classYear: student.classYear || "",
-      session: student.session || "",
-      homeAddress: student.homeAddress || "",
-      pickupLocation: student.pickupLocation || "",
-      notes: student.notes || "",
-      paymentStatus: student.paymentStatus || "Unpaid",
-      status: student.status || "Pending Review",
-      createdAt: cleanDate(student.createdAt),
-      updatedAt: cleanDate(student.updatedAt)
-    }));
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Student record not found."
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      students
+      message: "Student status updated successfully.",
+      status
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to load admin students.",
+      message: "Failed to update student status.",
       error: {
         name: error.name,
         message: error.message
