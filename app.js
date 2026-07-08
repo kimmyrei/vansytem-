@@ -564,77 +564,14 @@ function getPaymentBadgeClass(status) {
 
 
 
-function loadAdminAnnouncements() {
-    const announcements = getAnnouncements();
-    const table = document.getElementById("announcementTable");
-    const preview = document.getElementById("announcementPreviewList");
 
-    document.getElementById("announcementTotal").innerText = announcements.length;
-    document.getElementById("announcementMonth").innerText = announcements.length;
-    document.getElementById("announcementImportant").innerText = announcements.filter(item => item.priority === "Important" || item.priority === "Urgent" || item.type === "Emergency Notice").length;
-    document.getElementById("announcementGeneral").innerText = announcements.filter(item => item.priority === "Normal").length;
 
-    table.innerHTML = "";
-    preview.innerHTML = "";
 
-    announcements.slice().reverse().forEach(item => {
-        const priorityClass = item.priority === "Urgent" ? "rejected" : item.priority === "Important" ? "pending" : "morning";
-        const categoryClass = getAnnouncementCategoryBadgeClass(item.type);
 
-        table.innerHTML += `
-            <tr>
-                <td><strong>${item.title}</strong><br><small>${item.message}</small></td>
-                <td><span class="badge ${categoryClass}">${item.type}</span></td>
-                <td><span class="badge ${priorityClass}">${item.priority}</span></td>
-                <td>${item.date}</td>
-                <td><span class="badge paid">${item.status}</span></td>
-                <td><button class="small-btn danger" onclick="deleteAnnouncement('${item.id}')">Delete</button></td>
-            </tr>
-        `;
 
-        preview.innerHTML += `
-            <div class="announcement announcement-card-pro ${item.priority === "Urgent" ? "urgent-box" : item.priority === "Important" ? "important-box" : "normal-box"}">
-                <div class="announcement-top-row">
-                    <span class="badge ${categoryClass}">${item.type}</span>
-                    <small>${item.date}</small>
-                </div>
-                <strong>📢 ${item.title}</strong>
-                <p>${item.message}</p>
-            </div>
-        `;
-    });
-}
 
-function postAnnouncement(event) {
-    event.preventDefault();
 
-    const announcement = {
-        id: makeId("ANN"),
-        title: document.getElementById("announcementTitle").value.trim(),
-        type: document.getElementById("announcementType").value,
-        priority: document.getElementById("announcementPriority").value,
-        message: document.getElementById("announcementMessage").value.trim(),
-        date: new Date().toLocaleDateString("en-GB"),
-        status: "Active"
-    };
 
-    const announcements = getAnnouncements();
-    announcements.push(announcement);
-    saveAnnouncements(announcements);
-
-    alert("Announcement posted successfully!");
-    document.getElementById("announcementForm").reset();
-    loadAdminAnnouncements();
-}
-
-function deleteAnnouncement(id) {
-    const confirmDelete = confirm("Delete this announcement?");
-    if (!confirmDelete) return;
-
-    const announcements = getAnnouncements().filter(item => item.id !== id);
-    saveAnnouncements(announcements);
-    loadAdminAnnouncements();
-}
 
 function clearAllDemoData() {
     const confirmClear = confirm("This will delete all localStorage data in this browser. Continue?");
@@ -1473,4 +1410,217 @@ function viewParentDetails(parentId) {
     `;
 
     modal.classList.add("show");
+}
+
+async function loadAdminAnnouncements() {
+    const table = document.getElementById("announcementTable");
+    const preview = document.getElementById("announcementPreviewList");
+
+    if (table) {
+        table.innerHTML = `<tr><td colspan="6" class="empty-row">Loading announcements from MongoDB...</td></tr>`;
+    }
+
+    try {
+        const response = await fetch("/api/admin-dashboard?action=announcements");
+        const result = await response.json();
+
+        console.log("ADMIN ANNOUNCEMENTS RESULT:", result);
+
+        if (!result.success) {
+            alert(result.message || "Failed to load announcements.");
+            if (table) {
+                table.innerHTML = `<tr><td colspan="6" class="empty-row">Failed to load announcements.</td></tr>`;
+            }
+            return;
+        }
+
+        const announcements = result.announcements || [];
+        const summary = result.summary || {};
+
+        const totalEl = document.getElementById("announcementTotal");
+        const monthEl = document.getElementById("announcementMonth");
+        const importantEl = document.getElementById("announcementImportant");
+        const generalEl = document.getElementById("announcementGeneral");
+
+        if (totalEl) totalEl.innerText = summary.totalAnnouncements || 0;
+        if (monthEl) monthEl.innerText = summary.thisMonth || 0;
+        if (importantEl) importantEl.innerText = summary.importantNotices || 0;
+        if (generalEl) generalEl.innerText = summary.generalUpdates || 0;
+
+        if (table) table.innerHTML = "";
+        if (preview) preview.innerHTML = "";
+
+        if (announcements.length === 0) {
+            if (table) {
+                table.innerHTML = `<tr><td colspan="6" class="empty-row">No announcements posted yet.</td></tr>`;
+            }
+
+            if (preview) {
+                preview.innerHTML = `
+                    <div class="announcement announcement-card-pro normal-box">
+                        <strong>No announcement yet.</strong>
+                        <p>Announcements posted here will appear on the parent dashboard.</p>
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+        announcements.forEach(item => {
+            const priorityClass = item.priority === "Urgent" ? "rejected" : item.priority === "Important" ? "pending" : "morning";
+            const categoryClass = getAnnouncementCategoryBadgeClass(item.type);
+            const statusClass = item.status === "Active" ? "paid" : "unpaid";
+            const nextStatus = item.status === "Active" ? "Inactive" : "Active";
+
+            if (table) {
+                table.innerHTML += `
+                    <tr>
+                        <td><strong>${item.title}</strong><br><small>${item.message}</small></td>
+                        <td><span class="badge ${categoryClass}">${item.type}</span></td>
+                        <td><span class="badge ${priorityClass}">${item.priority}</span></td>
+                        <td>${item.date || ""}</td>
+                        <td><span class="badge ${statusClass}">${item.status}</span></td>
+                        <td>
+                            <button class="small-btn edit" onclick="updateAnnouncementStatus('${item.id}', '${nextStatus}')">${nextStatus}</button>
+                            <button class="small-btn danger" onclick="deleteAnnouncement('${item.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (preview && item.status === "Active") {
+                preview.innerHTML += `
+                    <div class="announcement announcement-card-pro ${item.priority === "Urgent" ? "urgent-box" : item.priority === "Important" ? "important-box" : "normal-box"}">
+                        <div class="announcement-top-row">
+                            <span class="badge ${categoryClass}">${item.type}</span>
+                            <small>${item.date || ""}</small>
+                        </div>
+                        <strong>📢 ${item.title}</strong>
+                        <p>${item.message}</p>
+                    </div>
+                `;
+            }
+        });
+
+        if (preview && preview.innerHTML.trim() === "") {
+            preview.innerHTML = `
+                <div class="announcement announcement-card-pro normal-box">
+                    <strong>No active announcement.</strong>
+                    <p>Inactive announcements will not appear on the parent dashboard.</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        alert("Announcements error: " + error.message);
+        if (table) {
+            table.innerHTML = `<tr><td colspan="6" class="empty-row">Failed to load announcements.</td></tr>`;
+        }
+    }
+}
+
+async function postAnnouncement(event) {
+    event.preventDefault();
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Posting...";
+    }
+
+    const announcementData = {
+        action: "post-announcement",
+        title: document.getElementById("announcementTitle").value.trim(),
+        type: document.getElementById("announcementType").value,
+        priority: document.getElementById("announcementPriority").value,
+        message: document.getElementById("announcementMessage").value.trim()
+    };
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(announcementData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to post announcement.");
+            return;
+        }
+
+        alert("Announcement posted successfully in MongoDB.");
+        document.getElementById("announcementForm").reset();
+        loadAdminAnnouncements();
+    } catch (error) {
+        alert("Post announcement error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+async function updateAnnouncementStatus(id, status) {
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "update-announcement-status",
+                announcementId: id,
+                status
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to update announcement.");
+            return;
+        }
+
+        alert("Announcement status changed to " + status + ".");
+        loadAdminAnnouncements();
+    } catch (error) {
+        alert("Update announcement error: " + error.message);
+    }
+}
+
+async function deleteAnnouncement(id) {
+    const confirmDelete = confirm("Delete this announcement from MongoDB?");
+    if (!confirmDelete) return;
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "delete-announcement",
+                announcementId: id
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to delete announcement.");
+            return;
+        }
+
+        alert("Announcement deleted successfully.");
+        loadAdminAnnouncements();
+    } catch (error) {
+        alert("Delete announcement error: " + error.message);
+    }
 }
