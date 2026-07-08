@@ -43,28 +43,30 @@ module.exports = async function handler(req, res) {
 
   try {
     const parentId = (req.query.parentId || "").trim();
+    const queryEmail = (req.query.email || "").trim().toLowerCase();
 
-    if (!parentId) {
+    if (!parentId && !queryEmail) {
       return res.status(400).json({
         success: false,
-        message: "Parent ID is missing. Please login again."
-      });
-    }
-
-    let parentObjectId;
-
-    try {
-      parentObjectId = new ObjectId(parentId);
-    } catch (error) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid parent ID. Please login again."
+        message: "Parent ID or email is missing. Please login again."
       });
     }
 
     const { db } = await connectToDatabase();
 
-    const parent = await db.collection("parents").findOne({ _id: parentObjectId });
+    let parent = null;
+
+    if (parentId) {
+      try {
+        parent = await db.collection("parents").findOne({ _id: new ObjectId(parentId) });
+      } catch (error) {
+        parent = null;
+      }
+    }
+
+    if (!parent && queryEmail) {
+      parent = await db.collection("parents").findOne({ email: queryEmail });
+    }
 
     if (!parent) {
       return res.status(404).json({
@@ -73,15 +75,28 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const parentEmail = (parent.email || queryEmail || "").toLowerCase();
+    const parentIdString = parent._id.toString();
+
     const studentsRaw = await db
       .collection("students")
-      .find({ parentId: parent._id.toString() })
+      .find({
+        $or: [
+          { parentId: parentIdString },
+          { parentEmail: parentEmail }
+        ]
+      })
       .sort({ createdAt: -1 })
       .toArray();
 
     const paymentsRaw = await db
       .collection("payments")
-      .find({ parentId: parent._id.toString() })
+      .find({
+        $or: [
+          { parentId: parentIdString },
+          { parentEmail: parentEmail }
+        ]
+      })
       .sort({ createdAt: -1 })
       .toArray();
 
@@ -98,7 +113,7 @@ module.exports = async function handler(req, res) {
       announcementsRaw = [];
     }
 
-    const students = studentsRaw.map(student => ({
+    const children = studentsRaw.map(student => ({
       id: student._id.toString(),
       parentId: student.parentId,
       parentName: student.parentName,
@@ -132,17 +147,18 @@ module.exports = async function handler(req, res) {
       createdSort: payment.createdAt || new Date()
     }));
 
-    const announcements = announcementsRaw.length > 0
-      ? announcementsRaw.map(item => ({
-          id: item._id.toString(),
-          title: item.title,
-          type: item.type || item.category || "General",
-          priority: item.priority || "Normal",
-          message: item.message,
-          date: cleanDate(item.createdAt || item.date),
-          status: item.status || "Active"
-        }))
-      : defaultAnnouncements();
+    const announcements =
+      announcementsRaw.length > 0
+        ? announcementsRaw.map(item => ({
+            id: item._id.toString(),
+            title: item.title,
+            type: item.type || item.category || "General",
+            priority: item.priority || "Normal",
+            message: item.message,
+            date: cleanDate(item.createdAt || item.date),
+            status: item.status || "Active"
+          }))
+        : defaultAnnouncements();
 
     return res.status(200).json({
       success: true,
@@ -154,7 +170,7 @@ module.exports = async function handler(req, res) {
         status: parent.status || "Active",
         role: parent.role || "parent"
       },
-      children: students,
+      children,
       payments,
       announcements
     });

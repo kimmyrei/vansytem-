@@ -13,6 +13,7 @@ module.exports = async function handler(req, res) {
     const data = req.body || {};
 
     const parentId = (data.parentId || "").trim();
+    const parentEmailFromClient = (data.parentEmail || "").trim().toLowerCase();
     const studentId = (data.studentId || "").trim();
     const month = (data.month || "").trim();
     const amount = Number(data.amount || 0);
@@ -20,7 +21,7 @@ module.exports = async function handler(req, res) {
     const receiptName = (data.receiptName || "").trim();
     const note = (data.note || "").trim();
 
-    if (!parentId) {
+    if (!parentId && !parentEmailFromClient) {
       return res.status(400).json({
         success: false,
         message: "Parent ID is missing. Please login again."
@@ -34,22 +35,32 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    let parentObjectId;
     let studentObjectId;
 
     try {
-      parentObjectId = new ObjectId(parentId);
       studentObjectId = new ObjectId(studentId);
     } catch (error) {
       return res.status(400).json({
         success: false,
-        message: "Invalid parent or student ID. Please refresh and try again."
+        message: "Invalid student ID. Please refresh and try again."
       });
     }
 
     const { db } = await connectToDatabase();
 
-    const parent = await db.collection("parents").findOne({ _id: parentObjectId });
+    let parent = null;
+
+    if (parentId) {
+      try {
+        parent = await db.collection("parents").findOne({ _id: new ObjectId(parentId) });
+      } catch (error) {
+        parent = null;
+      }
+    }
+
+    if (!parent && parentEmailFromClient) {
+      parent = await db.collection("parents").findOne({ email: parentEmailFromClient });
+    }
 
     if (!parent) {
       return res.status(404).json({
@@ -58,9 +69,15 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const parentIdString = parent._id.toString();
+    const parentEmail = (parent.email || parentEmailFromClient || "").toLowerCase();
+
     const student = await db.collection("students").findOne({
       _id: studentObjectId,
-      parentId: parent._id.toString()
+      $or: [
+        { parentId: parentIdString },
+        { parentEmail: parentEmail }
+      ]
     });
 
     if (!student) {
@@ -71,7 +88,7 @@ module.exports = async function handler(req, res) {
     }
 
     const payment = {
-      parentId: parent._id.toString(),
+      parentId: parentIdString,
       parentName: parent.name,
       parentPhone: parent.phone,
       parentEmail: parent.email,

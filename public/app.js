@@ -84,25 +84,8 @@ function saveAnnouncements(announcements) {
     saveData(VS.announcementsKey, announcements);
 }
 
-function getCurrentParent() {
-    const savedParent = localStorage.getItem(VS.currentParentKey);
 
-    if (!savedParent) {
-        return null;
-    }
 
-    try {
-        const parent = JSON.parse(savedParent);
-
-        if (parent && parent.id) {
-            return parent;
-        }
-    } catch (error) {
-        return getParents().find(parent => parent.id === savedParent) || null;
-    }
-
-    return null;
-}
 
 function requireParentLogin() {
     const parent = getCurrentParent();
@@ -479,67 +462,11 @@ function deleteChild(childId) {
     alert("Delete child from MongoDB will be connected in a later admin step. For now, please manage this record from MongoDB if needed.");
 }
 
-function loadPaymentUploadPage() {
-    const parent = requireParentLogin();
-    if (!parent) return;
 
-    const children = getChildren().filter(child => child.parentId === parent.id);
-    const select = document.getElementById("paymentStudent");
-    select.innerHTML = `<option value="">Select student</option>`;
 
-    children.forEach(child => {
-        select.innerHTML += `<option value="${child.id}">${child.name} - ${child.school}</option>`;
-    });
 
-    if (children.length === 0) {
-        document.getElementById("paymentNotice").innerHTML = `
-            <strong>No child found.</strong>
-            Please add your child first before uploading payment.
-        `;
-    }
-}
 
-function submitPayment(event) {
-    event.preventDefault();
 
-    const parent = requireParentLogin();
-    if (!parent) return;
-
-    const studentId = document.getElementById("paymentStudent").value;
-    const child = getChildren().find(child => child.id === studentId);
-
-    if (!child) {
-        alert("Please choose a student.");
-        return;
-    }
-
-    const receiptFile = document.getElementById("receiptFile").files[0];
-
-    const payment = {
-        id: makeId("PAY"),
-        parentId: parent.id,
-        parentName: parent.name,
-        parentPhone: parent.phone,
-        parentEmail: parent.email,
-        studentId: child.id,
-        studentName: child.name,
-        month: document.getElementById("paymentMonth").value,
-        amount: Number(document.getElementById("paymentAmount").value),
-        datePaid: document.getElementById("paymentDate").value,
-        receiptName: receiptFile ? receiptFile.name : "No file",
-        note: document.getElementById("paymentNote") ? document.getElementById("paymentNote").value.trim() : "",
-        status: "Pending",
-        createdAt: new Date().toLocaleDateString("en-GB"),
-        createdSort: new Date().toISOString()
-    };
-
-    const payments = getPayments();
-    payments.push(payment);
-    savePayments(payments);
-
-    alert("Payment proof uploaded successfully! Waiting for admin approval.");
-    window.location.href = "parent-dashboard.html";
-}
 
 function loadAdminDashboard() {
     const parents = getParents();
@@ -1336,3 +1263,138 @@ window.addEventListener("click", function(event) {
         closeParentDetails();
     }
 });
+
+function getCurrentParent() {
+    const savedParent = localStorage.getItem(VS.currentParentKey);
+
+    if (!savedParent) {
+        return null;
+    }
+
+    try {
+        const parent = JSON.parse(savedParent);
+
+        if (parent && parent.id) {
+            return parent;
+        }
+    } catch (error) {
+        return getParents().find(parent => parent.id === savedParent) || null;
+    }
+
+    return null;
+}
+
+async function loadPaymentUploadPage() {
+    const parent = requireParentLogin();
+    if (!parent) return;
+
+    const select = document.getElementById("paymentStudent");
+    const notice = document.getElementById("paymentNotice");
+
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Loading students from MongoDB...</option>`;
+
+    try {
+        const response = await fetch(`/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}&email=${encodeURIComponent(parent.email || "")}`);
+        const result = await response.json();
+
+        console.log("PAYMENT PAGE DASHBOARD RESULT:", result);
+
+        if (!result.success) {
+            select.innerHTML = `<option value="">No student found</option>`;
+            if (notice) {
+                notice.innerHTML = `<strong>Error:</strong> ${result.message || "Failed to load students."}`;
+            }
+            return;
+        }
+
+        const children = result.children || [];
+
+        select.innerHTML = `<option value="">Select student</option>`;
+
+        children.forEach(child => {
+            select.innerHTML += `<option value="${child.id}">${child.name} - ${child.school} (${child.status || "Pending Review"})</option>`;
+        });
+
+        if (children.length === 0 && notice) {
+            notice.innerHTML = `
+                <strong>No child found.</strong>
+                This page checked MongoDB but no child is linked to this parent account.
+                Please make sure you are logged in with the same parent email used when registering the child.
+            `;
+        } else if (notice) {
+            notice.innerHTML = `
+                <strong>${children.length} child found.</strong>
+                Select the student and upload payment proof.
+            `;
+        }
+    } catch (error) {
+        select.innerHTML = `<option value="">Failed to load students</option>`;
+        if (notice) {
+            notice.innerHTML = `<strong>Error:</strong> ${error.message}`;
+        }
+    }
+}
+
+async function submitPayment(event) {
+    event.preventDefault();
+
+    const parent = requireParentLogin();
+    if (!parent) return;
+
+    const studentId = document.getElementById("paymentStudent").value;
+
+    if (!studentId) {
+        alert("Please choose a student.");
+        return;
+    }
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Uploading...";
+    }
+
+    const receiptFile = document.getElementById("receiptFile").files[0];
+
+    const paymentData = {
+        parentId: parent.id,
+        parentEmail: parent.email || "",
+        studentId,
+        month: document.getElementById("paymentMonth").value,
+        amount: Number(document.getElementById("paymentAmount").value),
+        datePaid: document.getElementById("paymentDate").value,
+        receiptName: receiptFile ? receiptFile.name : "No file",
+        note: document.getElementById("paymentNote") ? document.getElementById("paymentNote").value.trim() : ""
+    };
+
+    try {
+        const response = await fetch("/api/upload-payment", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(paymentData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to upload payment.");
+            return;
+        }
+
+        alert("Payment proof saved successfully in MongoDB. Waiting for admin approval.");
+        window.location.href = "parent-dashboard.html";
+    } catch (error) {
+        alert("Payment upload error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
