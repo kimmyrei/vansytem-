@@ -5,81 +5,312 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parent Profile | Mutahus Global</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        :root{
+            --primary:#123f73;
+            --primary2:#1f63b8;
+            --accent:#eff5ff;
+            --border:#d9e5f5;
+            --text:#163150;
+            --muted:#6b7a90;
+            --card:#ffffff;
+            --bg:#edf4ff;
+            --success:#1e9b57;
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family:Arial, Helvetica, sans-serif;
+            background:linear-gradient(180deg,#edf4ff 0%, #f7fbff 100%);
+            color:var(--text);
+        }
+        .profile-shell{display:flex;min-height:100vh}
+        .profile-sidebar{
+            width:280px;background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);color:#fff;
+            padding:24px 20px;display:flex;flex-direction:column;gap:22px;
+            box-shadow:12px 0 24px rgba(10,40,80,.08);position:sticky;top:0;height:100vh;
+        }
+        .brand-box{display:flex;gap:14px;align-items:center;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.15)}
+        .brand-icon{
+            width:58px;height:58px;border-radius:18px;display:grid;place-items:center;
+            background:rgba(255,255,255,.12);font-size:28px;border:1px solid rgba(255,255,255,.16)
+        }
+        .brand-box strong{display:block;font-size:18px}
+        .brand-box small{display:block;opacity:.85;margin-top:3px}
+        .side-links{display:flex;flex-direction:column;gap:10px}
+        .side-links a{
+            color:#fff;text-decoration:none;padding:14px 16px;border-radius:16px;
+            display:flex;align-items:center;gap:12px;font-weight:700;background:transparent;
+        }
+        .side-links a:hover,.side-links a.active{background:rgba(255,255,255,.14)}
+        .sidebar-note{
+            margin-top:auto;background:rgba(255,255,255,.1);padding:16px;border-radius:18px;
+            font-size:14px;line-height:1.5
+        }
+        .logout-link{margin-top:10px;background:#ef5d5d !important;justify-content:center}
+        .profile-main{flex:1;padding:32px 34px 100px}
+        .mobile-topbar,.mobile-bottom-nav{display:none}
+        .hero-card{
+            background:linear-gradient(90deg,rgba(255,255,255,.95), rgba(239,245,255,.95));
+            border:1px solid var(--border);border-radius:28px;padding:30px 32px;display:flex;
+            justify-content:space-between;align-items:flex-start;gap:20px;box-shadow:0 8px 24px rgba(30,70,120,.06)
+        }
+        .hero-card h1{margin:8px 0 10px;font-size:56px;line-height:1;color:#113d71}
+        .hero-card p{margin:0;color:var(--muted);font-size:18px;max-width:720px;line-height:1.6}
+        .kicker{display:inline-block;color:#2368c4;font-weight:800;letter-spacing:1.2px;font-size:15px}
+        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+        .btnx{
+            display:inline-flex;align-items:center;justify-content:center;gap:8px;
+            min-height:48px;padding:0 18px;border-radius:14px;text-decoration:none;border:none;cursor:pointer;
+            font-weight:700;font-size:15px
+        }
+        .btn-primary{background:linear-gradient(180deg,#2873d1,#1657a9);color:#fff;box-shadow:0 10px 18px rgba(40,115,209,.24)}
+        .btn-light{background:#fff;color:#1b4a84;border:1px solid var(--border)}
+        .profile-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:24px;margin-top:24px}
+        .panel{
+            background:#fff;border:1px solid var(--border);border-radius:26px;padding:26px;
+            box-shadow:0 8px 24px rgba(30,70,120,.05)
+        }
+        .panel h2{margin:0 0 8px;font-size:34px;color:#143f73}
+        .panel p{margin:0 0 20px;color:var(--muted);line-height:1.6}
+        .summary-card{
+            display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px;
+            padding:22px;border-radius:22px;background:linear-gradient(135deg,#f6faff,#edf4ff);border:1px solid var(--border)
+        }
+        .avatar-circle{width:78px;height:78px;border-radius:22px;background:linear-gradient(180deg,#2d79d6,#154f99);color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800;flex-shrink:0}
+        .summary-meta strong{display:block;font-size:24px;color:#143f73}
+        .summary-meta .mini{font-size:15px;color:var(--muted);margin-top:3px}
+        .status-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#e9f9ef;color:var(--success);font-weight:800;font-size:14px;margin-top:10px}
+        .mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+        .mini-stat{background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px}
+        .mini-stat span{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+        .mini-stat strong{font-size:17px;color:#143f73}
+        .form-grid{display:grid;grid-template-columns:1fr;gap:14px}
+        .form-row{display:grid;gap:8px}
+        .form-grid label{font-weight:800;color:#143f73;font-size:15px}
+        .form-grid input{
+            width:100%;height:52px;border:1px solid var(--border);border-radius:14px;padding:0 16px;
+            background:#fbfdff;font-size:15px;color:#1d3555;outline:none
+        }
+        .form-grid input:focus{border-color:#7ea9e4;box-shadow:0 0 0 4px rgba(77,133,219,.12)}
+        .submit-row{margin-top:10px;display:flex;gap:12px;flex-wrap:wrap}
+        .quick-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+        .quick-actions a{text-decoration:none}
+        .quick-actions .btn-light{background:#f8fbff}
+        .section-title{margin:0 0 4px;font-size:22px;color:#143f73}
+        .section-sub{margin:0 0 18px;color:var(--muted)}
+        .marker{display:none}
+        @media (max-width: 1080px){
+            .profile-grid{grid-template-columns:1fr}
+            .hero-card h1{font-size:46px}
+        }
+        @media (max-width: 860px){
+            .profile-sidebar{display:none}
+            .profile-main{padding:20px 16px 95px}
+            .mobile-topbar{
+                display:flex;justify-content:space-between;align-items:center;gap:10px;
+                padding:14px 16px;background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);color:#fff;position:sticky;top:0;z-index:50
+            }
+            .mobile-topbar strong{display:block;font-size:16px}
+            .mobile-topbar small{display:block;opacity:.85}
+            .mobile-actions{display:flex;gap:8px;flex-wrap:wrap}
+            .mobile-actions a{color:#fff;text-decoration:none;font-size:13px;background:rgba(255,255,255,.14);padding:8px 12px;border-radius:10px}
+            .mobile-bottom-nav{
+                display:grid;grid-template-columns:repeat(5,1fr);gap:6px;position:fixed;left:10px;right:10px;bottom:10px;
+                background:#fff;border:1px solid var(--border);border-radius:22px;padding:10px;z-index:60;box-shadow:0 10px 24px rgba(20,60,115,.14)
+            }
+            .mobile-bottom-nav a{text-decoration:none;color:#4c5d78;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;padding:6px;border-radius:14px}
+            .mobile-bottom-nav a.active{background:#edf4ff;color:#1754a7;font-weight:700}
+            .hero-card{padding:22px 18px;flex-direction:column}
+            .hero-card h1{font-size:38px}
+            .panel{padding:20px}
+        }
+    </style>
 </head>
 <body onload="loadParentProfilePage()">
-    <header class="parent-header">
+    <div class="mobile-topbar">
         <div>
-            <h2>Mutahus Global Parent Portal</h2>
-            <p>Update your parent profile and account password.</p>
+            <strong>🚐 Mutahus Global</strong>
+            <small>Parent Profile</small>
         </div>
-        <div class="hero-actions">
-            <a href="parent-dashboard.html" class="secondary-btn">Back to Dashboard</a>
-            <button class="logout-btn" onclick="parentLogout()">Logout</button>
+        <div class="mobile-actions">
+            <a href="parent-dashboard.html">Dashboard</a>
+            <a href="#" onclick="parentLogout()">Logout</a>
         </div>
-    </header>
+    </div>
 
-    <main class="dashboard-main">
-        <section class="dashboard-hero parent-hero">
-            <div>
-                <span class="eyebrow">PARENT ACCOUNT</span>
-                <h1>My Profile</h1>
-                <p>Keep your contact details updated so Mutahus Global can contact you easily.</p>
+    <div class="profile-shell">
+        <aside class="profile-sidebar">
+            <div class="brand-box">
+                <div class="brand-icon">🚐</div>
+                <div>
+                    <strong>Mutahus Global</strong>
+                    <small>Parent Portal</small>
+                </div>
             </div>
 
-            <div class="profile-summary-card" id="profileInfoBox">
-                <strong>Loading profile...</strong>
-                <p>Please wait.</p>
+            <nav class="side-links">
+                <a href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
+                <a href="parent-profile.html" class="active"><span>👤</span> My Profile</a>
+                <a href="add-student.html"><span>🎒</span> Register Child</a>
+                <a href="upload-payment.html"><span>💳</span> Payment Proof</a>
+                <a href="index.html"><span>🌐</span> Main Website</a>
+                <a href="terms-rules.html"><span>📘</span> Rules</a>
+            </nav>
+
+            <div class="sidebar-note">
+                <strong>Parent Account</strong>
+                <p style="margin:8px 0 0;opacity:.9">Update your personal details and password here anytime.</p>
+                <a href="#" onclick="parentLogout()" class="side-links logout-link" style="display:flex;text-decoration:none;color:#fff;margin-top:14px;padding:12px 14px;border-radius:14px;font-weight:700;">🚪 Logout</a>
             </div>
-        </section>
+        </aside>
 
-        <section class="dashboard-grid two-column-grid">
-            <div class="panel-card">
-                <h2>Update Profile</h2>
-                <p>Update your name, phone number and email address.</p>
+        <main class="profile-main">
+            <section class="hero-card">
+                <div>
+                    <span class="kicker">PARENT ACCOUNT</span>
+                    <h1>My Profile</h1>
+                    <p>Keep your contact details updated so Mutahus Global can contact you easily and manage your school van account smoothly.</p>
+                </div>
+                <div class="hero-actions">
+                    <a href="parent-dashboard.html" class="btnx btn-light">← Back to Dashboard</a>
+                    <a href="upload-payment.html" class="btnx btn-primary">Upload Payment</a>
+                </div>
+            </section>
 
-                <form class="form-card flat-form" onsubmit="updateParentProfile(event)">
-                    <label>Full Name</label>
-                    <input type="text" id="profileName" placeholder="Parent full name" required>
+            <section class="profile-grid">
+                <div class="panel">
+                    <h2>Update Profile</h2>
+                    <p>Edit your parent information below. Make sure your email and phone number are correct.</p>
 
-                    <label>Phone Number</label>
-                    <input type="text" id="profilePhone" placeholder="Example: 0123456789" required>
+                    <form class="form-grid" onsubmit="updateParentProfile(event)">
+                        <div class="form-row">
+                            <label for="profileName">Full Name</label>
+                            <input type="text" id="profileName" placeholder="Parent full name" required>
+                        </div>
 
-                    <label>Email Address</label>
-                    <input type="email" id="profileEmail" placeholder="example@email.com" required>
+                        <div class="form-row">
+                            <label for="profilePhone">Phone Number</label>
+                            <input type="text" id="profilePhone" placeholder="Example: 0123456789" required>
+                        </div>
 
-                    <button type="submit" class="primary-btn">Save Profile</button>
-                </form>
-            </div>
+                        <div class="form-row">
+                            <label for="profileEmail">Email Address</label>
+                            <input type="email" id="profileEmail" placeholder="example@email.com" required>
+                        </div>
 
-            <div class="panel-card">
-                <h2>Change Password</h2>
-                <p>Use a password with at least 6 characters.</p>
+                        <div class="submit-row">
+                            <button type="submit" class="btnx btn-primary">Save Profile</button>
+                            <a href="parent-dashboard.html" class="btnx btn-light">Cancel</a>
+                        </div>
+                    </form>
+                </div>
 
-                <form class="form-card flat-form" onsubmit="changeParentPassword(event)">
-                    <label>Current Password</label>
-                    <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                <div>
+                    <div class="panel" style="margin-bottom:24px;">
+                        <div class="summary-card">
+                            <div class="avatar-circle" id="profileAvatar">P</div>
+                            <div class="summary-meta" id="profileInfoBox" style="flex:1;min-width:0;">
+                                <strong>Loading profile...</strong>
+                                <div class="mini">Please wait.</div>
+                            </div>
+                        </div>
 
-                    <label>New Password</label>
-                    <input type="password" id="newPassword" placeholder="Enter new password" required>
+                        <div class="mini-stats">
+                            <div class="mini-stat">
+                                <span>Portal Access</span>
+                                <strong>Parent Account</strong>
+                            </div>
+                            <div class="mini-stat">
+                                <span>Account Status</span>
+                                <strong>Active</strong>
+                            </div>
+                        </div>
+                    </div>
 
-                    <label>Confirm New Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                    <div class="panel">
+                        <h2 class="section-title">Change Password</h2>
+                        <p class="section-sub">Use a strong password with at least 6 characters.</p>
 
-                    <button type="submit" class="primary-btn">Change Password</button>
-                </form>
-            </div>
-        </section>
+                        <form class="form-grid" onsubmit="changeParentPassword(event)">
+                            <div class="form-row">
+                                <label for="currentPassword">Current Password</label>
+                                <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                            </div>
 
-        <section class="panel-card">
-            <h2>Quick Actions</h2>
-            <div class="hero-actions">
-                <a href="parent-dashboard.html" class="secondary-btn">Dashboard</a>
-                <a href="add-student.html" class="secondary-btn">Register Child</a>
-                <a href="upload-payment.html" class="secondary-btn">Upload Payment</a>
-            </div>
-        </section>
-    </main>
+                            <div class="form-row">
+                                <label for="newPassword">New Password</label>
+                                <input type="password" id="newPassword" placeholder="Enter new password" required>
+                            </div>
+
+                            <div class="form-row">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                            </div>
+
+                            <div class="submit-row">
+                                <button type="submit" class="btnx btn-primary">Change Password</button>
+                            </div>
+                        </form>
+
+                        <div class="quick-actions">
+                            <a href="parent-dashboard.html" class="btnx btn-light">Dashboard</a>
+                            <a href="add-student.html" class="btnx btn-light">Register Child</a>
+                            <a href="upload-payment.html" class="btnx btn-light">Upload Payment</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <nav class="mobile-bottom-nav">
+        <a href="parent-dashboard.html">
+            <span>🏠</span>
+            <small>Home</small>
+        </a>
+        <a href="parent-profile.html" class="active">
+            <span>👤</span>
+            <small>Profile</small>
+        </a>
+        <a href="add-student.html">
+            <span>🎒</span>
+            <small>Child</small>
+        </a>
+        <a href="upload-payment.html">
+            <span>💳</span>
+            <small>Pay</small>
+        </a>
+        <a href="terms-rules.html">
+            <span>📘</span>
+            <small>Rules</small>
+        </a>
+    </nav>
 
     <script src="app.js"></script>
+    <script>
+        setTimeout(function(){
+            var nameInput = document.getElementById('profileName');
+            var avatar = document.getElementById('profileAvatar');
+            var infoBox = document.getElementById('profileInfoBox');
+            function refreshAvatar(){
+                if(nameInput && avatar){
+                    var value = (nameInput.value || '').trim();
+                    avatar.textContent = value ? value.charAt(0).toUpperCase() : 'P';
+                }
+            }
+            refreshAvatar();
+            if(nameInput){ nameInput.addEventListener('input', refreshAvatar); }
+            var observer = setInterval(function(){
+                if(infoBox){
+                    var t = infoBox.innerText || '';
+                    if(t && !t.includes('Loading profile')){
+                        refreshAvatar();
+                        clearInterval(observer);
+                    }
+                }
+            },300);
+        },300);
+    </script>
 </body>
 </html>
