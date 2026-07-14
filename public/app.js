@@ -411,7 +411,7 @@ async function loadParentDashboard() {
 
 
 function deleteChild(childId) {
-    alert("Delete child from MongoDB will be connected in a later admin step. For now, please manage this record from MongoDB if needed.");
+    alert("Please contact admin to delete this child record.");
 }
 
 
@@ -3594,3 +3594,5 @@ window.addEventListener("load", loadHomeStats);
 
 
 // MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE
+
+// MUTAHUS_FIX_DELETE_CHILD_CONTACT_ADMIN
