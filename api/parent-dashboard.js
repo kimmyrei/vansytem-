@@ -208,6 +208,66 @@ async function changeParentPassword(db, data, res) {
   });
 }
 
+
+function normalizePhone(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+async function resetParentPassword(db, data, res) {
+  const email = (data.email || "").trim().toLowerCase();
+  const phone = normalizePhone(data.phone);
+  const newPassword = data.newPassword || "";
+
+  if (!email || !phone || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Please enter registered email, phone number and new password."
+    });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: "New password must be at least 6 characters."
+    });
+  }
+
+  const parent = await db.collection("parents").findOne({ email });
+
+  if (!parent) {
+    return res.status(404).json({
+      success: false,
+      message: "Parent account not found."
+    });
+  }
+
+  const savedPhone = normalizePhone(parent.phone);
+
+  if (!savedPhone || savedPhone !== phone) {
+    return res.status(401).json({
+      success: false,
+      message: "Phone number does not match this parent account."
+    });
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  await db.collection("parents").updateOne(
+    { _id: parent._id },
+    {
+      $set: {
+        passwordHash,
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Password reset successfully."
+  });
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === "POST") {
     try {
@@ -217,6 +277,10 @@ module.exports = async function handler(req, res) {
 
       if (action === "update-parent-profile") {
         return updateParentProfile(db, data, res);
+      }
+
+      if (action === "reset-parent-password") {
+        return resetParentPassword(db, data, res);
       }
 
       if (action === "change-parent-password") {
@@ -395,3 +459,5 @@ module.exports = async function handler(req, res) {
 };
 
 // MUTAHUS_STEP19_PARENT_PROFILE_PASSWORD
+
+// MUTAHUS_FIX_PARENT_RESET_PASSWORD_ACTION

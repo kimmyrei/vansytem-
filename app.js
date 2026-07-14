@@ -2566,3 +2566,65 @@ document.addEventListener("DOMContentLoaded", protectParentProfilePage);
 
 // MUTAHUS_STEP19_PARENT_PROFILE_PASSWORD
 
+
+async function resetParentPassword(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("resetEmail").value.trim();
+    const phone = document.getElementById("resetPhone").value.trim();
+    const newPassword = document.getElementById("resetNewPassword").value;
+    const confirmPassword = document.getElementById("resetConfirmPassword").value;
+
+    if (newPassword.length < 6) {
+        alert("New password must be at least 6 characters.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("New password and confirm password do not match.");
+        return;
+    }
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Resetting...";
+    }
+
+    try {
+        const response = await fetch("/api/parent-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "reset-parent-password",
+                email,
+                phone,
+                newPassword
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to reset password.");
+            return;
+        }
+
+        alert("Password reset successfully. Please login with your new password.");
+        window.location.href = "parent-login.html";
+    } catch (error) {
+        alert("Reset password error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+// MUTAHUS_FIX_PARENT_PROFILE_LOGIN_FORGOT
+

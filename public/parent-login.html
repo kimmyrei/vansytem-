@@ -63,10 +63,17 @@
             <label>Password</label>
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
 
+            <div class="form-link-row" style="display:flex; justify-content:flex-end; margin: 6px 0 14px;">
+                <a href="parent-forgot-password.html">Forgot password?</a>
+            </div>
+
             <button class="btn btn-primary-pro full-btn" type="submit">Login to Dashboard</button>
         </form>
 
-        <p class="small-text">New parent? <a href="parent-register.html">Create account</a></p>
+        <div class="auth-extra-actions" style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center;">
+            <span class="small-text">New parent?</span>
+            <a href="parent-register.html" class="btn btn-light-pro">Create Account</a>
+        </div>
     </section>
 </main>
 
@@ -82,3 +89,4 @@
 
 </body>
 </html>
+<!-- MUTAHUS_FIX_PARENT_LOGIN_CREATE_FORGOT -->

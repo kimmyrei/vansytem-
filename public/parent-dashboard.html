@@ -21,6 +21,7 @@
 
     <nav class="sidebar-menu">
         <a class="active" href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
+        <a class="" href="parent-profile.html"><span>👤</span> My Profile</a>
         <a class="" href="add-student.html"><span>🎒</span> Register Child</a>
         <a class="" href="upload-payment.html"><span>💳</span> Payment Proof</a>
         <a href="index.html"><span>🌐</span> Main Website</a>
@@ -47,7 +48,7 @@
                 <small>Parent Portal</small>
             </div>
         </div>
-        <a href="#" onclick="parentLogout()" class="mobile-logout">Logout</a>
+        <div class="mobile-top-actions"><a href="parent-profile.html" class="mobile-profile-link">Profile</a><a href="#" onclick="parentLogout()" class="mobile-logout">Logout</a></div>
     </div>
 
     <nav class="mobile-bottom-nav">
@@ -55,9 +56,11 @@
             <span>🏠</span>
             <small>Home</small>
         </a>
-        
-                <a href="parent-profile.html" class="secondary-btn">My Profile</a>
-                <a href="add-student.html" class="">
+        <a href="parent-profile.html">
+            <span>👤</span>
+            <small>Profile</small>
+        </a>
+        <a href="add-student.html" class="">
             <span>🎒</span>
             <small>Child</small>
         </a>
@@ -83,7 +86,10 @@
                 <p>Welcome back, <strong id="parentNameDisplay">Parent</strong>. Manage child records and payment status here.</p>
             </div>
 
-            <a href="upload-payment.html" class="btn btn-primary-pro">Upload Payment</a>
+            <div class="hero-actions" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
+                <a href="parent-profile.html" class="btn btn-light-pro">My Profile</a>
+                <a href="upload-payment.html" class="btn btn-primary-pro">Upload Payment</a>
+            </div>
         </div>
 
         <section class="stats stats-pro">
@@ -200,4 +206,4 @@
 
 </body>
 </html>
-<!-- MUTAHUS_FIX_PARENT_DASHBOARD_PROFILE_BUTTON_ORIGINAL_LAYOUT -->
+<!-- MUTAHUS_FIX_PARENT_DASHBOARD_PROFILE_VISIBLE -->
