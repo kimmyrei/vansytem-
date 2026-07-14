@@ -2202,3 +2202,236 @@ if (typeof loadPaymentUploadPage === "function") {
 
 // MUTAHUS_STEP17_PARENT_PAGE_PROTECTION
 
+
+function csvEscape(value) {
+    const text = String(value ?? "").replace(/"/g, '""');
+    return `"${text}"`;
+}
+
+function downloadCSV(filename, rows) {
+    if (!rows || rows.length === 0) {
+        alert("No data available to export.");
+        return;
+    }
+
+    const csvContent = rows.map(row => row.map(csvEscape).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+function todayFileDate() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+async function exportStudentsCSV() {
+    try {
+        const response = await fetch("/api/admin-students");
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to export students.");
+            return;
+        }
+
+        const students = result.students || [];
+        const rows = [
+            [
+                "Student ID",
+                "Student Name",
+                "Parent Name",
+                "Parent Phone",
+                "Parent Email",
+                "School",
+                "Class/Year",
+                "Session",
+                "Home Address",
+                "Pickup Location",
+                "Student Status",
+                "Payment Status",
+                "Created At"
+            ]
+        ];
+
+        students.forEach(student => {
+            rows.push([
+                student.id,
+                student.name,
+                student.parentName,
+                student.parentPhone,
+                student.parentEmail,
+                student.school,
+                student.classYear,
+                student.session,
+                student.homeAddress,
+                student.pickupLocation,
+                student.status,
+                student.paymentStatus,
+                student.createdAt
+            ]);
+        });
+
+        downloadCSV(`mutahus-students-${todayFileDate()}.csv`, rows);
+    } catch (error) {
+        alert("Export students error: " + error.message);
+    }
+}
+
+async function exportParentsCSV() {
+    try {
+        const response = await fetch("/api/admin-parents");
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to export parents.");
+            return;
+        }
+
+        const parents = result.parents || [];
+        const rows = [
+            [
+                "Parent ID",
+                "Parent Name",
+                "Phone",
+                "Email",
+                "Status",
+                "Children Count",
+                "Payment Status",
+                "Created At"
+            ]
+        ];
+
+        parents.forEach(parent => {
+            rows.push([
+                parent.id,
+                parent.name,
+                parent.phone,
+                parent.email,
+                parent.status,
+                parent.childrenCount,
+                parent.paymentStatus,
+                parent.createdAt
+            ]);
+        });
+
+        downloadCSV(`mutahus-parents-${todayFileDate()}.csv`, rows);
+    } catch (error) {
+        alert("Export parents error: " + error.message);
+    }
+}
+
+async function exportPaymentsCSV() {
+    try {
+        const response = await fetch("/api/admin-payments");
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to export payments.");
+            return;
+        }
+
+        const payments = result.payments || [];
+        const rows = [
+            [
+                "Payment ID",
+                "Parent Name",
+                "Parent Phone",
+                "Parent Email",
+                "Student Name",
+                "Month",
+                "Amount",
+                "Date Paid",
+                "Receipt Name",
+                "Status",
+                "Created At",
+                "Reviewed At",
+                "Note"
+            ]
+        ];
+
+        payments.forEach(payment => {
+            rows.push([
+                payment.id,
+                payment.parentName,
+                payment.parentPhone,
+                payment.parentEmail,
+                payment.studentName,
+                payment.month,
+                payment.amount,
+                payment.datePaid,
+                payment.receiptName,
+                payment.status,
+                payment.createdAt,
+                payment.reviewedAt,
+                payment.note
+            ]);
+        });
+
+        downloadCSV(`mutahus-payments-${todayFileDate()}.csv`, rows);
+    } catch (error) {
+        alert("Export payments error: " + error.message);
+    }
+}
+
+function addExportButtons() {
+    const page = window.location.pathname.split("/").pop() || "index.html";
+
+    const configs = {
+        "admin-students.html": {
+            buttonText: "Export Students CSV",
+            action: "exportStudentsCSV()"
+        },
+        "admin-parents.html": {
+            buttonText: "Export Parents CSV",
+            action: "exportParentsCSV()"
+        },
+        "admin-payments.html": {
+            buttonText: "Export Payments CSV",
+            action: "exportPaymentsCSV()"
+        }
+    };
+
+    const config = configs[page];
+
+    if (!config) return;
+    if (document.getElementById("adminExportCsvBtn")) return;
+
+    const topbar = document.querySelector(".admin-topbar");
+    const headingRow = document.querySelector(".section-heading-row");
+    const target = topbar || headingRow;
+
+    if (!target) return;
+
+    const button = document.createElement("button");
+    button.id = "adminExportCsvBtn";
+    button.className = "primary-btn";
+    button.type = "button";
+    button.innerText = config.buttonText;
+    button.setAttribute("onclick", config.action);
+
+    if (topbar) {
+        topbar.appendChild(button);
+    } else {
+        headingRow.appendChild(button);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(addExportButtons, 500);
+});
+
+// MUTAHUS_STEP18_ADMIN_EXPORT_REPORTS
+
