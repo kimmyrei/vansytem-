@@ -2169,7 +2169,8 @@ function protectParentPages() {
     const protectedParentPages = [
         "parent-dashboard.html",
         "add-student.html",
-        "upload-payment.html"
+        "upload-payment.html",
+        "parent-rules.html"
     ];
 
     if (protectedParentPages.includes(page)) {
@@ -2944,7 +2945,8 @@ function isMutahusMobileParentProtectedPage(page) {
         "parent-dashboard.html",
         "parent-profile.html",
         "add-student.html",
-        "upload-payment.html"
+        "upload-payment.html",
+        "parent-rules.html"
     ].includes(page);
 }
 
@@ -3002,8 +3004,7 @@ function buildMutahusMobileFeatureItems(page) {
         items += mutahusMobileLink("parent-profile.html", "👤", "My Profile", page);
         items += mutahusMobileLink("add-student.html", "🎒", "Register Child", page);
         items += mutahusMobileLink("upload-payment.html", "💳", "Upload Payment", page);
-        items += mutahusMobileLink("terms-rules.html", "📘", "Rules", page);
-        items += mutahusMobileLink("index.html", "🌐", "Main Website", page);
+        items += mutahusMobileLink("parent-rules.html", "📘", "Rules", page);
         items += mutahusMobileButton("parentLogout", "🚪", "Logout", "danger");
         note = "All important desktop parent actions are available here for mobile view.";
     } else if (isMutahusMobileParentAuthPage(page)) {
@@ -3591,3 +3592,5 @@ window.addEventListener("load", loadHomeStats);
 
 // MUTAHUS_STEP24_HOME_STATS_MONGODB
 
+
+// MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE

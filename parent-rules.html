@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Rules | Mutahus Global</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        :root{
+            --primary:#123f73;
+            --primary-dark:#0e335d;
+            --border:#d9e5f5;
+            --muted:#6b7a90;
+            --bg:#edf4ff;
+            --card:#ffffff;
+        }
+
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:Arial, Helvetica, sans-serif;
+            background:linear-gradient(180deg,#edf4ff 0%, #f7fbff 100%);
+            color:#163150;
+        }
+
+        .rules-shell{display:flex;min-height:100vh}
+
+        .rules-sidebar{
+            width:280px;
+            background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
+            color:#fff;
+            padding:24px 20px;
+            display:flex;
+            flex-direction:column;
+            gap:22px;
+            position:sticky;
+            top:0;
+            height:100vh;
+            box-shadow:12px 0 24px rgba(10,40,80,.08);
+        }
+
+        .brand-box{
+            display:flex;
+            gap:14px;
+            align-items:center;
+            padding-bottom:22px;
+            border-bottom:1px solid rgba(255,255,255,.15);
+        }
+
+        .brand-icon{
+            width:58px;
+            height:58px;
+            border-radius:18px;
+            display:grid;
+            place-items:center;
+            background:rgba(255,255,255,.12);
+            font-size:28px;
+            border:1px solid rgba(255,255,255,.16);
+        }
+
+        .brand-box strong{display:block;font-size:18px}
+        .brand-box small{display:block;opacity:.85;margin-top:3px}
+
+        .side-links{display:flex;flex-direction:column;gap:10px}
+
+        .side-links a{
+            color:#fff;
+            text-decoration:none;
+            padding:14px 16px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            font-weight:700;
+        }
+
+        .side-links a:hover,.side-links a.active{background:rgba(255,255,255,.14)}
+
+        .sidebar-note{
+            margin-top:auto;
+            background:rgba(255,255,255,.1);
+            padding:16px;
+            border-radius:18px;
+            font-size:14px;
+            line-height:1.5;
+        }
+
+        .logout-link{
+            margin-top:14px;
+            background:#ef5d5d !important;
+            justify-content:center;
+        }
+
+        .rules-main{flex:1;padding:32px 34px 100px}
+
+        .mobile-topbar,.mobile-bottom-nav{display:none}
+
+        .hero-card{
+            background:linear-gradient(90deg,rgba(255,255,255,.96), rgba(239,245,255,.96));
+            border:1px solid var(--border);
+            border-radius:28px;
+            padding:30px 32px;
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:20px;
+            box-shadow:0 8px 24px rgba(30,70,120,.06);
+            margin-bottom:24px;
+        }
+
+        .hero-card h1{
+            margin:8px 0 10px;
+            font-size:54px;
+            line-height:1;
+            color:#113d71;
+        }
+
+        .hero-card p{
+            margin:0;
+            color:var(--muted);
+            font-size:18px;
+            max-width:760px;
+            line-height:1.6;
+        }
+
+        .kicker{
+            display:inline-block;
+            color:#2368c4;
+            font-weight:800;
+            letter-spacing:1.2px;
+            font-size:15px;
+        }
+
+        .hero-actions{
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            justify-content:flex-end;
+        }
+
+        .btnx{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            min-height:48px;
+            padding:0 18px;
+            border-radius:14px;
+            text-decoration:none;
+            border:none;
+            cursor:pointer;
+            font-weight:700;
+            font-size:15px;
+        }
+
+        .btn-primary{
+            background:linear-gradient(180deg,#2873d1,#1657a9);
+            color:#fff;
+            box-shadow:0 10px 18px rgba(40,115,209,.24);
+        }
+
+        .btn-light{
+            background:#fff;
+            color:#1b4a84;
+            border:1px solid var(--border);
+        }
+
+        .rules-panel{
+            background:#fff;
+            border:1px solid var(--border);
+            border-radius:26px;
+            padding:26px;
+            box-shadow:0 8px 24px rgba(30,70,120,.05);
+        }
+
+        .rules-panel h2{
+            margin:0 0 8px;
+            color:#143f73;
+            font-size:34px;
+        }
+
+        .rules-panel > p{
+            margin:0 0 22px;
+            color:var(--muted);
+            line-height:1.6;
+        }
+
+        #publicRulesList{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+            gap:16px;
+        }
+
+        .rule-card-pro{
+            background:linear-gradient(135deg,#ffffff,#f6faff);
+            border:1px solid var(--border);
+            border-radius:22px;
+            padding:20px;
+            display:flex;
+            gap:14px;
+            min-height:140px;
+        }
+
+        .rule-icon{
+            width:52px;
+            height:52px;
+            border-radius:17px;
+            display:grid;
+            place-items:center;
+            flex-shrink:0;
+            background:#edf4ff;
+            border:1px solid var(--border);
+            font-size:24px;
+        }
+
+        .rule-card-pro h3{
+            margin:0 0 8px;
+            color:#143f73;
+            font-size:18px;
+        }
+
+        .rule-card-pro p{
+            margin:0;
+            color:#60748d;
+            line-height:1.5;
+            font-size:14px;
+        }
+
+        .normal-box{
+            background:#fff8e6;
+            border:1px solid #ffe2a4;
+            color:#77510c;
+            border-radius:18px;
+            padding:18px;
+        }
+
+        @media(max-width:860px){
+            .rules-sidebar{display:none}
+            .rules-main{padding:20px 16px 95px}
+
+            .mobile-topbar{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:10px;
+                padding:14px 16px;
+                background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
+                color:#fff;
+                position:sticky;
+                top:0;
+                z-index:50;
+            }
+
+            .mobile-topbar strong{display:block;font-size:16px}
+            .mobile-topbar small{display:block;opacity:.85}
+
+            .mobile-actions{display:flex;gap:8px;flex-wrap:wrap}
+            .mobile-actions a{
+                color:#fff;
+                text-decoration:none;
+                font-size:13px;
+                background:rgba(255,255,255,.14);
+                padding:8px 12px;
+                border-radius:10px;
+            }
+
+            .mobile-bottom-nav{
+                display:grid;
+                grid-template-columns:repeat(5,1fr);
+                gap:6px;
+                position:fixed;
+                left:10px;
+                right:10px;
+                bottom:10px;
+                background:#fff;
+                border:1px solid var(--border);
+                border-radius:22px;
+                padding:10px;
+                z-index:60;
+                box-shadow:0 10px 24px rgba(20,60,115,.14);
+            }
+
+            .mobile-bottom-nav a{
+                text-decoration:none;
+                color:#4c5d78;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                gap:4px;
+                font-size:11px;
+                padding:6px;
+                border-radius:14px;
+            }
+
+            .mobile-bottom-nav a.active{
+                background:#edf4ff;
+                color:#1754a7;
+                font-weight:700;
+            }
+
+            .hero-card{
+                padding:22px 18px;
+                flex-direction:column;
+            }
+
+            .hero-card h1{font-size:38px}
+            .rules-panel{padding:20px}
+            #publicRulesList{grid-template-columns:1fr}
+        }
+    </style>
+</head>
+<body onload="loadPublicRules()">
+    <div class="mobile-topbar">
+        <div>
+            <strong>🚐 Mutahus Global</strong>
+            <small>Parent Rules</small>
+        </div>
+        <div class="mobile-actions">
+            <a href="parent-dashboard.html">Dashboard</a>
+            <a href="#" onclick="parentLogout()">Logout</a>
+        </div>
+    </div>
+
+    <div class="rules-shell">
+        <aside class="rules-sidebar">
+            <div class="brand-box">
+                <div class="brand-icon">🚐</div>
+                <div>
+                    <strong>Mutahus Global</strong>
+                    <small>Parent Portal</small>
+                </div>
+            </div>
+
+            <nav class="side-links">
+                <a href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
+                <a href="parent-profile.html"><span>👤</span> My Profile</a>
+                <a href="add-student.html"><span>🎒</span> Register Child</a>
+                <a href="upload-payment.html"><span>💳</span> Payment Proof</a>
+                <a href="parent-rules.html" class="active"><span>📘</span> Rules</a>
+            </nav>
+
+            <div class="sidebar-note">
+                <strong>Service Rules</strong>
+                <p style="margin:8px 0 0;opacity:.9">These rules are shown inside the parent portal only.</p>
+                <a href="#" onclick="parentLogout()" class="side-links logout-link" style="display:flex;text-decoration:none;color:#fff;margin-top:14px;padding:12px 14px;border-radius:14px;font-weight:700;">🚪 Logout</a>
+            </div>
+        </aside>
+
+        <main class="rules-main">
+            <section class="hero-card">
+                <div>
+                    <span class="kicker">PARENT PORTAL</span>
+                    <h1>Service Rules</h1>
+                    <p>Read the latest service rules and reminders for Mutahus Global school van service.</p>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="parent-dashboard.html" class="btnx btn-light">← Back to Dashboard</a>
+                    <a href="upload-payment.html" class="btnx btn-primary">Upload Payment</a>
+                </div>
+            </section>
+
+            <section class="rules-panel">
+                <h2>Rules & Guidelines</h2>
+                <p>Rules added or updated by admin will appear here automatically.</p>
+
+                <div id="publicRulesList">
+                    <div class="normal-box">
+                        <strong>Loading rules...</strong>
+                        <p>Please wait while we load the latest rules.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <nav class="mobile-bottom-nav">
+        <a href="parent-dashboard.html">
+            <span>🏠</span>
+            <small>Home</small>
+        </a>
+        <a href="parent-profile.html">
+            <span>👤</span>
+            <small>Profile</small>
+        </a>
+        <a href="add-student.html">
+            <span>🎒</span>
+            <small>Child</small>
+        </a>
+        <a href="upload-payment.html">
+            <span>💳</span>
+            <small>Pay</small>
+        </a>
+        <a href="parent-rules.html" class="active">
+            <span>📘</span>
+            <small>Rules</small>
+        </a>
+    </nav>
+
+    <script src="app.js"></script>
+</body>
+</html>
+<!-- MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE -->
