@@ -115,19 +115,7 @@
                         <div>
                             <label>Payment Month</label>
                             <select id="paymentMonth" required>
-                                <option value="">Select month</option>
-                                <option>January 2026</option>
-                                <option>February 2026</option>
-                                <option>March 2026</option>
-                                <option>April 2026</option>
-                                <option>May 2026</option>
-                                <option>June 2026</option>
-                                <option>July 2026</option>
-                                <option>August 2026</option>
-                                <option>September 2026</option>
-                                <option>October 2026</option>
-                                <option>November 2026</option>
-                                <option>December 2026</option>
+                                <option value="">Select month and year</option>
                             </select>
                         </div>
 
@@ -157,6 +145,47 @@
 </div>
 
 <script src="app.js"></script>
+
+<script>
+function populatePaymentMonthAllYears() {
+    const select = document.getElementById("paymentMonth");
+    if (!select) return;
+
+    const currentValue = select.value;
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 5;
+    const endYear = currentYear + 10;
+
+    select.innerHTML = '<option value="">Select month and year</option>';
+
+    for (let year = startYear; year <= endYear; year++) {
+        const group = document.createElement("optgroup");
+        group.label = year;
+
+        months.forEach(month => {
+            const option = document.createElement("option");
+            option.value = month + " " + year;
+            option.textContent = month + " " + year;
+            group.appendChild(option);
+        });
+
+        select.appendChild(group);
+    }
+
+    if (currentValue) {
+        select.value = currentValue;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", populatePaymentMonthAllYears);
+window.addEventListener("load", populatePaymentMonthAllYears);
+</script>
+
 <script>loadPaymentUploadPage();</script>
 
 <a class="whatsapp-float" href="https://wa.me/60178078271?text=Assalamualaikum,%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global." target="_blank" aria-label="Contact Mutahus Global on WhatsApp">
@@ -174,3 +203,5 @@
 <!-- MUTAHUS_FIX_PAYMENT_BANK_DETAILS_LEFT_ONLY -->
 
 <!-- MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE -->
+
+<!-- MUTAHUS_FIX_PAYMENT_MONTH_ALL_YEARS -->
