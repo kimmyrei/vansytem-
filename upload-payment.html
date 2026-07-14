@@ -6,6 +6,42 @@
     <title>Upload Payment Proof | Mutahus Global</title>
     <link rel="stylesheet" href="./style.css">
 
+
+<style>
+    .pretty-month-picker {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .pretty-month-picker select {
+        width: 100%;
+        min-height: 48px;
+        padding: 0 14px;
+        border: 1px solid #d8e7fb;
+        border-radius: 14px;
+        background: #f8fbff;
+        color: #123f73;
+        font-weight: 700;
+        outline: none;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    .pretty-month-picker select:focus {
+        border-color: #7eb0ef;
+        box-shadow: 0 0 0 4px rgba(30, 111, 209, 0.12);
+        background: #ffffff;
+    }
+
+    @media (max-width: 760px) {
+        .pretty-month-picker {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- MUTAHUS_FIX_PAYMENT_MONTH_PRETTY_STYLE -->
 </head>
 <body>
 
@@ -114,9 +150,28 @@
                     <div class="form-two-column">
                         <div>
                             <label>Payment Month</label>
-                            <select id="paymentMonth" required>
-                                <option value="">Select month and year</option>
-                            </select>
+                            <div class="pretty-month-picker">
+                                <select id="paymentMonthName" required>
+                                    <option value="">Month</option>
+                                    <option value="January">January</option>
+                                    <option value="February">February</option>
+                                    <option value="March">March</option>
+                                    <option value="April">April</option>
+                                    <option value="May">May</option>
+                                    <option value="June">June</option>
+                                    <option value="July">July</option>
+                                    <option value="August">August</option>
+                                    <option value="September">September</option>
+                                    <option value="October">October</option>
+                                    <option value="November">November</option>
+                                    <option value="December">December</option>
+                                </select>
+
+                                <select id="paymentYear" required>
+                                    <option value="">Year</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="paymentMonth">
                         </div>
 
                         <div>
@@ -147,44 +202,72 @@
 <script src="app.js"></script>
 
 <script>
-function populatePaymentMonthAllYears() {
-    const select = document.getElementById("paymentMonth");
-    if (!select) return;
+function populatePrettyPaymentYears() {
+    const yearSelect = document.getElementById("paymentYear");
+    if (!yearSelect) return;
 
-    const currentValue = select.value;
-    const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
+    if (yearSelect.options.length > 1) return;
 
     const currentYear = new Date().getFullYear();
-    const startYear = currentYear - 5;
-    const endYear = currentYear + 10;
-
-    select.innerHTML = '<option value="">Select month and year</option>';
+    const startYear = 2026;
+    const endYear = currentYear + 5;
 
     for (let year = startYear; year <= endYear; year++) {
-        const group = document.createElement("optgroup");
-        group.label = year;
-
-        months.forEach(month => {
-            const option = document.createElement("option");
-            option.value = month + " " + year;
-            option.textContent = month + " " + year;
-            group.appendChild(option);
-        });
-
-        select.appendChild(group);
+        const option = document.createElement("option");
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
     }
 
-    if (currentValue) {
-        select.value = currentValue;
+    if (currentYear >= startYear && currentYear <= endYear) {
+        yearSelect.value = currentYear;
+    } else {
+        yearSelect.value = startYear;
     }
 }
 
-document.addEventListener("DOMContentLoaded", populatePaymentMonthAllYears);
-window.addEventListener("load", populatePaymentMonthAllYears);
+function updatePrettyPaymentMonthValue() {
+    const monthSelect = document.getElementById("paymentMonthName");
+    const yearSelect = document.getElementById("paymentYear");
+    const hiddenMonth = document.getElementById("paymentMonth");
+
+    if (!monthSelect || !yearSelect || !hiddenMonth) return;
+
+    if (monthSelect.value && yearSelect.value) {
+        hiddenMonth.value = monthSelect.value + " " + yearSelect.value;
+    } else {
+        hiddenMonth.value = "";
+    }
+}
+
+function setupPrettyPaymentMonth() {
+    populatePrettyPaymentYears();
+
+    const monthSelect = document.getElementById("paymentMonthName");
+    const yearSelect = document.getElementById("paymentYear");
+
+    if (monthSelect) monthSelect.addEventListener("change", updatePrettyPaymentMonthValue);
+    if (yearSelect) yearSelect.addEventListener("change", updatePrettyPaymentMonthValue);
+
+    updatePrettyPaymentMonthValue();
+
+    const form = document.querySelector("form[onsubmit='submitPayment(event)']");
+    if (form) {
+        form.addEventListener("submit", function(event) {
+            updatePrettyPaymentMonthValue();
+
+            if (!document.getElementById("paymentMonth").value) {
+                event.preventDefault();
+                alert("Please choose payment month and year.");
+            }
+        }, true);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", setupPrettyPaymentMonth);
+window.addEventListener("load", setupPrettyPaymentMonth);
 </script>
+
 
 <script>loadPaymentUploadPage();</script>
 
@@ -205,3 +288,5 @@ window.addEventListener("load", populatePaymentMonthAllYears);
 <!-- MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE -->
 
 <!-- MUTAHUS_FIX_PAYMENT_MONTH_ALL_YEARS -->
+
+<!-- MUTAHUS_FIX_PAYMENT_MONTH_START_2026 -->
