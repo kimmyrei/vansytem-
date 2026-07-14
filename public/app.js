@@ -2628,3 +2628,95 @@ async function resetParentPassword(event) {
 
 // MUTAHUS_FIX_PARENT_PROFILE_LOGIN_FORGOT
 
+
+function loadAdminSettingsPage() {
+    const admin = requireAdminLogin();
+
+    if (!admin) return;
+
+    const nameBox = document.getElementById("adminNameDisplay");
+    const usernameBox = document.getElementById("adminUsernameDisplay");
+    const roleBox = document.getElementById("adminRoleDisplay");
+    const statusBox = document.getElementById("adminStatusDisplay");
+
+    if (nameBox) nameBox.innerText = admin.name || "Admin";
+    if (usernameBox) usernameBox.innerText = admin.username || "admin";
+    if (roleBox) roleBox.innerText = admin.role || "admin";
+    if (statusBox) statusBox.innerText = admin.status || "Active";
+}
+
+async function changeAdminPasswordFromPage(event) {
+    event.preventDefault();
+
+    const admin = requireAdminLogin();
+
+    if (!admin) return;
+
+    const oldPassword = document.getElementById("adminCurrentPassword").value;
+    const newPassword = document.getElementById("adminNewPassword").value;
+    const confirmPassword = document.getElementById("adminConfirmPassword").value;
+
+    if (newPassword.length < 6) {
+        alert("New password must be at least 6 characters.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("New password and confirm password do not match.");
+        return;
+    }
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Changing...";
+    }
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "change-admin-password",
+                username: admin.username || "admin",
+                oldPassword,
+                newPassword
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to change admin password.");
+            return;
+        }
+
+        alert("Admin password changed successfully. Please login again.");
+        localStorage.removeItem(VS.adminKey);
+        window.location.href = "admin-login.html";
+    } catch (error) {
+        alert("Change admin password error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+function protectAdminSettingsPage() {
+    const page = window.location.pathname.split("/").pop() || "index.html";
+
+    if (page === "admin-settings.html") {
+        requireAdminLogin();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", protectAdminSettingsPage);
+
+// MUTAHUS_STEP20_ADMIN_SETTINGS_PASSWORD_UI
+
