@@ -3531,3 +3531,63 @@ window.addEventListener("load", startAdminSearchFilters);
 
 // MUTAHUS_STEP23_ADMIN_SEARCH_FILTERS
 
+
+function animateHomeNumber(element, target, suffix = "") {
+    if (!element) return;
+
+    const end = Number(target || 0);
+    const duration = 700;
+    const startTime = performance.now();
+
+    function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const value = Math.floor(progress * end);
+
+        element.innerText = value + suffix;
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            element.innerText = end + suffix;
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
+async function loadHomeStats() {
+    const studentsEl = document.getElementById("homeStudents");
+    const parentsEl = document.getElementById("homeParents");
+    const schoolsEl = document.getElementById("homeSchools");
+
+    if (!studentsEl && !parentsEl && !schoolsEl) return;
+
+    try {
+        const response = await fetch("/api/admin-dashboard");
+        const result = await response.json();
+
+        console.log("HOME STATS RESULT:", result);
+
+        if (!result.success) {
+            return;
+        }
+
+        const summary = result.summary || {};
+
+        animateHomeNumber(studentsEl, summary.totalStudents || 0, "+");
+        animateHomeNumber(parentsEl, summary.totalParents || 0, "+");
+
+        if (schoolsEl) {
+            const schoolCount = summary.totalSchools || 6;
+            animateHomeNumber(schoolsEl, schoolCount, "");
+        }
+    } catch (error) {
+        console.log("Home stats error:", error.message);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadHomeStats);
+window.addEventListener("load", loadHomeStats);
+
+// MUTAHUS_STEP24_HOME_STATS_MONGODB
+
