@@ -2048,3 +2048,117 @@ async function adminLogin(event) {
 
 // MUTAHUS_STEP15_ADMIN_LOGIN_MONGODB
 
+
+function getCurrentAdmin() {
+    const savedAdmin = localStorage.getItem(VS.adminKey);
+
+    if (!savedAdmin) {
+        return null;
+    }
+
+    try {
+        const admin = JSON.parse(savedAdmin);
+
+        if (admin && admin.username && admin.status !== "Inactive") {
+            return admin;
+        }
+    } catch (error) {
+        if (savedAdmin === "true") {
+            return {
+                username: "admin",
+                name: "Admin",
+                role: "admin",
+                status: "Active"
+            };
+        }
+    }
+
+    return null;
+}
+
+function requireAdminLogin() {
+    const admin = getCurrentAdmin();
+
+    if (!admin) {
+        alert("Please login as admin first.");
+        window.location.href = "admin-login.html";
+        return null;
+    }
+
+    return admin;
+}
+
+function protectAdminPages() {
+    const page = window.location.pathname.split("/").pop() || "index.html";
+
+    const protectedAdminPages = [
+        "admin-dashboard.html",
+        "admin-students.html",
+        "admin-parents.html",
+        "admin-payments.html",
+        "admin-announcements.html",
+        "admin-rules.html"
+    ];
+
+    if (protectedAdminPages.includes(page)) {
+        requireAdminLogin();
+    }
+
+    if (page === "admin-login.html" && getCurrentAdmin()) {
+        window.location.href = "admin-dashboard.html";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", protectAdminPages);
+
+// Wrap admin loader functions so direct page access is blocked before data loads.
+if (typeof loadAdminDashboard === "function") {
+    const originalLoadAdminDashboard = loadAdminDashboard;
+    loadAdminDashboard = function () {
+        if (!requireAdminLogin()) return;
+        return originalLoadAdminDashboard();
+    };
+}
+
+if (typeof loadAdminStudents === "function") {
+    const originalLoadAdminStudents = loadAdminStudents;
+    loadAdminStudents = function () {
+        if (!requireAdminLogin()) return;
+        return originalLoadAdminStudents();
+    };
+}
+
+if (typeof loadAdminParents === "function") {
+    const originalLoadAdminParents = loadAdminParents;
+    loadAdminParents = function () {
+        if (!requireAdminLogin()) return;
+        return originalLoadAdminParents();
+    };
+}
+
+if (typeof loadAdminPayments === "function") {
+    const originalLoadAdminPayments = loadAdminPayments;
+    loadAdminPayments = function () {
+        if (!requireAdminLogin()) return;
+        return originalLoadAdminPayments();
+    };
+}
+
+if (typeof loadAdminAnnouncements === "function") {
+    const originalLoadAdminAnnouncements = loadAdminAnnouncements;
+    loadAdminAnnouncements = function () {
+        if (!requireAdminLogin()) return;
+        return originalLoadAdminAnnouncements();
+    };
+}
+
+if (typeof loadAdminRules === "function") {
+    const originalLoadAdminRules = loadAdminRules;
+    loadAdminRules = function () {
+        if (!requireAdminLogin()) return;
+        return originalLoadAdminRules();
+    };
+}
+
+// MUTAHUS_STEP16_ADMIN_PAGE_PROTECTION
+
