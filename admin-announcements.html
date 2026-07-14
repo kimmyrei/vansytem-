@@ -4,129 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcement Management | Mutahus Global</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
-<body onload="loadAdminAnnouncements()">
-    <div class="admin-layout">
-        <aside class="admin-sidebar">
-            <div class="brand-block">
-                <h2>Mutahus Global</h2>
-                <p>Admin Control</p>
-            </div>
+<body>
 
-            <nav class="admin-nav">
-                <a href="admin-dashboard.html">Dashboard</a>
-                <a href="admin-students.html">Students</a>
-                <a href="admin-parents.html">Parents</a>
-                <a href="admin-payments.html">Payments</a>
-                <a href="admin-announcements.html" class="active">Announcements</a>
-                <a href="admin-rules.html">Manage Rules</a>
-            </nav>
-
-            <button class="logout-btn" onclick="adminLogout()">Logout</button>
-        </aside>
-
-        <main class="admin-main">
-            <header class="admin-topbar">
-                <div>
-                    <span class="eyebrow">ANNOUNCEMENTS</span>
-                    <h1>Announcement Management</h1>
-                    <p>Create categorized notices for parents such as delay, holiday, payment, route and emergency updates.</p>
-                </div>
-            </header>
-
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Announcements</h3>
-                    <h2 id="announcementTotal">0</h2>
-                </div>
-                <div class="stat-card">
-                    <h3>This Month</h3>
-                    <h2 id="announcementMonth">0</h2>
-                </div>
-                <div class="stat-card">
-                    <h3>Important Notices</h3>
-                    <h2 id="announcementImportant">0</h2>
-                </div>
-                <div class="stat-card">
-                    <h3>General Updates</h3>
-                    <h2 id="announcementGeneral">0</h2>
-                </div>
-            </section>
-
-            <section class="dashboard-grid two-column-grid">
-                <div class="panel-card">
-                    <h2>Create Announcement</h2>
-                    <p>Write a message that will be shown on the parent dashboard.</p>
-
-                    <form id="announcementForm" onsubmit="postAnnouncement(event)" class="form-card flat-form">
-                        <label>Announcement Title</label>
-                        <input type="text" id="announcementTitle" placeholder="Example: Payment Reminder" required>
-
-                        <label>Announcement Category</label>
-                        <select id="announcementType" required>
-                            <option value="">Select category</option>
-                            <option value="Delay Notice">Delay Notice</option>
-                            <option value="Holiday Notice">Holiday Notice</option>
-                            <option value="Payment Reminder">Payment Reminder</option>
-                            <option value="Route Update">Route Update</option>
-                            <option value="Emergency Notice">Emergency Notice</option>
-                            <option value="General Announcement">General Announcement</option>
-                        </select>
-
-                        <label>Priority</label>
-                        <select id="announcementPriority" required>
-                            <option value="Normal">Normal</option>
-                            <option value="Important">Important</option>
-                            <option value="Urgent">Urgent</option>
-                        </select>
-
-                        <label>Message</label>
-                        <textarea id="announcementMessage" rows="5" placeholder="Write your announcement here..." required></textarea>
-
-                        <button type="submit" class="primary-btn">Post Announcement</button>
-                    </form>
-                </div>
-
-                <div class="panel-card">
-                    <h2>Parent Preview</h2>
-                    <p>This is how announcements will look to parents.</p>
-                    <div id="announcementPreviewList">
-                        <div class="announcement announcement-card-pro normal-box">
-                            <strong>No announcement yet.</strong>
-                            <p>Announcements posted here will appear on the parent dashboard.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="panel-card table-card">
-                <h2>Previous Announcements</h2>
-                <p>Announcement history posted by admin.</p>
-
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Priority</th>
-                                <th>Date Posted</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="announcementTable">
-                            <tr>
-                                <td colspan="6" class="empty-row">Loading announcements from MongoDB...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+<div class="app-shell">
+    
+<aside class="pro-sidebar admin-side">
+    <div class="sidebar-brand">
+        <span>🚐</span>
+        <div>
+            <strong>Mutahus Global</strong>
+            <small>Admin Control</small>
+        </div>
     </div>
 
-    <script src="app.js"></script>
+    <nav class="sidebar-menu">
+        <a class="" href="admin-dashboard.html"><span>📊</span> Dashboard</a>
+        <a class="" href="admin-students.html"><span>🎒</span> Students</a>
+        <a class="" href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
+        <a class="" href="admin-payments.html"><span>💳</span> Payments</a>
+        <a class="active" href="admin-announcements.html"><span>📢</span> Announcements</a>
+        <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="mini-help">
+            <strong>Admin Mode</strong>
+            <p>Manage students, parents, payments and notices.</p>
+        </div>
+        <a href="#" onclick="adminLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+    </div>
+</aside>
+
+
+    <main class="app-main">
+
+    <div class="mobile-app-header mobile-admin-header">
+        <div class="mobile-brand">
+            <span>🚐</span>
+            <div>
+                <strong>Mutahus Global</strong>
+                <small>Admin Control</small>
+            </div>
+        </div>
+        <a href="#" onclick="adminLogout()" class="mobile-logout">Logout</a>
+    </div>
+
+    <nav class="mobile-bottom-nav admin-mobile-bottom">
+        <a href="admin-dashboard.html" class="">
+            <span>📊</span>
+            <small>Home</small>
+        </a>
+        <a href="admin-students.html" class="">
+            <span>🎒</span>
+            <small>Students</small>
+        </a>
+        <a href="admin-parents.html" class="">
+            <span>👨‍👩‍👧</span>
+            <small>Parents</small>
+        </a>
+        <a href="admin-payments.html" class="">
+            <span>💳</span>
+            <small>Pay</small>
+        </a>
+        <a href="admin-announcements.html" class="active">
+            <span>📢</span>
+            <small>Notice</small>
+        </a>
+        <a href="admin-rules.html" class="">
+            <span>📘</span>
+            <small>Rules</small>
+        </a>
+    </nav>
+
+        <div class="page-hero-bar">
+            <div>
+                <span class="page-kicker">ANNOUNCEMENTS</span>
+                <h1>Announcement Management</h1>
+                <p>Create categorized notices for parents such as delay, holiday, payment, route and emergency updates.</p>
+            </div>
+        </div>
+
+        <section class="stats stats-pro">
+            <div class="stat-card pro-stat"><span>📢</span><h3>Total Announcements</h3><h2 id="announcementTotal">0</h2></div>
+            <div class="stat-card pro-stat"><span>📅</span><h3>This Month</h3><h2 id="announcementMonth">0</h2></div>
+            <div class="stat-card pro-stat"><span>⚠️</span><h3>Important Notices</h3><h2 id="announcementImportant">0</h2></div>
+            <div class="stat-card pro-stat"><span>📝</span><h3>General Updates</h3><h2 id="announcementGeneral">0</h2></div>
+        </section>
+
+        <div class="announcement-layout announcement-layout-pro">
+            <section class="form-card-pro">
+                <h2>Create Announcement</h2>
+                <p>Write a message that will be shown on the parent dashboard.</p>
+
+                <form id="announcementForm" onsubmit="postAnnouncement(event)">
+                    <label>Announcement Title</label>
+                    <input type="text" id="announcementTitle" placeholder="Example: Payment Reminder" required>
+
+                    <label>Announcement Category</label>
+                    <select id="announcementType" required>
+                        <option value="">Select category</option>
+                        <option>Delay Notice</option>
+                        <option>Holiday Notice</option>
+                        <option>Payment Reminder</option>
+                        <option>Route Update</option>
+                        <option>Emergency Notice</option>
+                    </select>
+
+                    <label>Priority</label>
+                    <select id="announcementPriority" required>
+                        <option>Normal</option>
+                        <option>Important</option>
+                        <option>Urgent</option>
+                    </select>
+
+                    <label>Message</label>
+                    <textarea id="announcementMessage" placeholder="Write announcement message here..." required></textarea>
+
+                    <button class="btn btn-primary-pro full-btn" type="submit">Post Announcement</button>
+                </form>
+            </section>
+
+            <section class="form-card-pro">
+                <h2>Parent Preview</h2>
+                <p>This is how announcements will look to parents.</p>
+                <div id="announcementPreviewList"></div>
+            </section>
+        </div>
+
+        <section class="table-box table-box-pro">
+            <div class="table-header">
+                <div>
+                    <h2>Previous Announcements</h2>
+                    <p>Announcement history posted by admin.</p>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Date Posted</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="announcementTable"></tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script src="app.js"></script>
+<script>loadAdminAnnouncements();</script>
 </body>
 </html>
