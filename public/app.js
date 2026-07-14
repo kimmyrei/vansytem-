@@ -2775,3 +2775,349 @@ async function downloadSystemBackup() {
 
 // MUTAHUS_STEP21_ADMIN_BACKUP_DOWNLOAD
 
+
+function injectMutahusMobileFeatureStyles() {
+    if (document.getElementById("mutahusMobileFeatureStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "mutahusMobileFeatureStyles";
+    style.textContent = `
+        .mutahus-mobile-feature-btn,
+        .mutahus-mobile-feature-panel,
+        .mutahus-mobile-feature-backdrop {
+            display: none;
+        }
+
+        @media (max-width: 860px) {
+            .mutahus-mobile-feature-btn {
+                display: inline-flex;
+                position: fixed;
+                left: 14px;
+                bottom: 88px;
+                z-index: 9998;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                min-height: 48px;
+                padding: 0 16px;
+                border: none;
+                border-radius: 999px;
+                background: linear-gradient(180deg, #2873d1, #1657a9);
+                color: #ffffff;
+                font-weight: 800;
+                box-shadow: 0 14px 30px rgba(16, 66, 135, 0.28);
+                cursor: pointer;
+            }
+
+            .mutahus-mobile-feature-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                z-index: 9996;
+                background: rgba(6, 25, 52, 0.38);
+                backdrop-filter: blur(3px);
+            }
+
+            .mutahus-mobile-feature-backdrop.show {
+                display: block;
+            }
+
+            .mutahus-mobile-feature-panel {
+                display: block;
+                position: fixed;
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                z-index: 9997;
+                max-height: 78vh;
+                overflow-y: auto;
+                padding: 18px;
+                border-radius: 26px;
+                background: #ffffff;
+                border: 1px solid #d9e5f5;
+                box-shadow: 0 18px 45px rgba(13, 54, 105, 0.25);
+                transform: translateY(115%);
+                transition: transform 0.22s ease;
+            }
+
+            .mutahus-mobile-feature-panel.show {
+                transform: translateY(0);
+            }
+
+            .mutahus-mobile-feature-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 14px;
+            }
+
+            .mutahus-mobile-feature-header strong {
+                display: block;
+                color: #123f73;
+                font-size: 18px;
+            }
+
+            .mutahus-mobile-feature-header small {
+                display: block;
+                color: #6b7a90;
+                margin-top: 3px;
+                line-height: 1.4;
+            }
+
+            .mutahus-mobile-close-btn {
+                border: none;
+                background: #edf4ff;
+                color: #123f73;
+                width: 38px;
+                height: 38px;
+                border-radius: 14px;
+                font-weight: 900;
+                cursor: pointer;
+            }
+
+            .mutahus-mobile-feature-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .mutahus-mobile-feature-grid a,
+            .mutahus-mobile-feature-grid button {
+                min-height: 50px;
+                padding: 12px;
+                border-radius: 16px;
+                border: 1px solid #d9e5f5;
+                background: #f8fbff;
+                color: #163150;
+                text-decoration: none;
+                font-weight: 800;
+                text-align: left;
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .mutahus-mobile-feature-grid a.active {
+                background: #e8f1ff;
+                border-color: #9fc3f3;
+                color: #1754a7;
+            }
+
+            .mutahus-mobile-feature-grid button.danger,
+            .mutahus-mobile-feature-grid a.danger {
+                background: #fff1f1;
+                border-color: #ffd0d0;
+                color: #c93434;
+            }
+
+            .mutahus-mobile-feature-grid button.primary {
+                background: linear-gradient(180deg, #2873d1, #1657a9);
+                color: #ffffff;
+                border-color: #1657a9;
+            }
+
+            .mutahus-mobile-feature-note {
+                margin-top: 12px;
+                padding: 12px;
+                border-radius: 16px;
+                background: #fff8e6;
+                color: #77510c;
+                font-size: 13px;
+                line-height: 1.45;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+function getMutahusMobileCurrentPage() {
+    return window.location.pathname.split("/").pop() || "index.html";
+}
+
+function isMutahusMobileAdminPage(page) {
+    return page.startsWith("admin-") && page !== "admin-login.html";
+}
+
+function isMutahusMobileParentProtectedPage(page) {
+    return [
+        "parent-dashboard.html",
+        "parent-profile.html",
+        "add-student.html",
+        "upload-payment.html"
+    ].includes(page);
+}
+
+function isMutahusMobileParentAuthPage(page) {
+    return [
+        "parent-login.html",
+        "parent-register.html",
+        "parent-forgot-password.html"
+    ].includes(page);
+}
+
+function mutahusMobileLink(href, icon, label, page) {
+    const active = href === page ? " active" : "";
+    return `<a class="${active}" href="${href}"><span>${icon}</span> ${label}</a>`;
+}
+
+function mutahusMobileButton(actionName, icon, label, extraClass = "") {
+    return `<button type="button" class="${extraClass}" data-mobile-action="${actionName}"><span>${icon}</span> ${label}</button>`;
+}
+
+function buildMutahusMobileFeatureItems(page) {
+    let items = "";
+    let note = "";
+
+    if (isMutahusMobileAdminPage(page)) {
+        items += mutahusMobileLink("admin-dashboard.html", "📊", "Dashboard", page);
+        items += mutahusMobileLink("admin-students.html", "🎒", "Students", page);
+        items += mutahusMobileLink("admin-parents.html", "👨‍👩‍👧", "Parents", page);
+        items += mutahusMobileLink("admin-payments.html", "💳", "Payments", page);
+        items += mutahusMobileLink("admin-announcements.html", "📢", "Announcements", page);
+        items += mutahusMobileLink("admin-rules.html", "📘", "Rules", page);
+        items += mutahusMobileLink("admin-settings.html", "⚙️", "Settings", page);
+        items += mutahusMobileLink("index.html", "🌐", "Main Website", page);
+
+        if (page === "admin-students.html" && typeof exportStudentsCSV === "function") {
+            items += mutahusMobileButton("exportStudentsCSV", "⬇️", "Export Students CSV", "primary");
+        }
+
+        if (page === "admin-parents.html" && typeof exportParentsCSV === "function") {
+            items += mutahusMobileButton("exportParentsCSV", "⬇️", "Export Parents CSV", "primary");
+        }
+
+        if (page === "admin-payments.html" && typeof exportPaymentsCSV === "function") {
+            items += mutahusMobileButton("exportPaymentsCSV", "⬇️", "Export Payments CSV", "primary");
+        }
+
+        if (page === "admin-settings.html" && typeof downloadSystemBackup === "function") {
+            items += mutahusMobileButton("downloadSystemBackup", "🗄️", "Download Backup", "primary");
+        }
+
+        items += mutahusMobileButton("adminLogout", "🚪", "Logout", "danger");
+        note = "All important desktop admin actions are available here for mobile view.";
+    } else if (isMutahusMobileParentProtectedPage(page)) {
+        items += mutahusMobileLink("parent-dashboard.html", "🏠", "Dashboard", page);
+        items += mutahusMobileLink("parent-profile.html", "👤", "My Profile", page);
+        items += mutahusMobileLink("add-student.html", "🎒", "Register Child", page);
+        items += mutahusMobileLink("upload-payment.html", "💳", "Upload Payment", page);
+        items += mutahusMobileLink("terms-rules.html", "📘", "Rules", page);
+        items += mutahusMobileLink("index.html", "🌐", "Main Website", page);
+        items += mutahusMobileButton("parentLogout", "🚪", "Logout", "danger");
+        note = "All important desktop parent actions are available here for mobile view.";
+    } else if (isMutahusMobileParentAuthPage(page)) {
+        items += mutahusMobileLink("index.html", "🏠", "Home", page);
+        items += mutahusMobileLink("parent-login.html", "🔐", "Parent Login", page);
+        items += mutahusMobileLink("parent-register.html", "📝", "Create Account", page);
+        items += mutahusMobileLink("parent-forgot-password.html", "🔑", "Forgot Password", page);
+        items += mutahusMobileLink("terms-rules.html", "📘", "Rules", page);
+        items += mutahusMobileLink("admin-login.html", "🛡️", "Admin Login", page);
+        note = "Parent account actions are grouped here for mobile view.";
+    } else {
+        return null;
+    }
+
+    return { items, note };
+}
+
+function runMutahusMobileAction(actionName) {
+    const actionMap = {
+        adminLogout,
+        parentLogout
+    };
+
+    if (typeof exportStudentsCSV === "function") actionMap.exportStudentsCSV = exportStudentsCSV;
+    if (typeof exportParentsCSV === "function") actionMap.exportParentsCSV = exportParentsCSV;
+    if (typeof exportPaymentsCSV === "function") actionMap.exportPaymentsCSV = exportPaymentsCSV;
+    if (typeof downloadSystemBackup === "function") actionMap.downloadSystemBackup = downloadSystemBackup;
+
+    if (actionMap[actionName]) {
+        closeMutahusMobileFeatureMenu();
+        actionMap[actionName]();
+    }
+}
+
+function openMutahusMobileFeatureMenu() {
+    const panel = document.getElementById("mutahusMobileFeaturePanel");
+    const backdrop = document.getElementById("mutahusMobileFeatureBackdrop");
+
+    if (panel) panel.classList.add("show");
+    if (backdrop) backdrop.classList.add("show");
+}
+
+function closeMutahusMobileFeatureMenu() {
+    const panel = document.getElementById("mutahusMobileFeaturePanel");
+    const backdrop = document.getElementById("mutahusMobileFeatureBackdrop");
+
+    if (panel) panel.classList.remove("show");
+    if (backdrop) backdrop.classList.remove("show");
+}
+
+function createMutahusMobileFeatureMenu() {
+    if (document.getElementById("mutahusMobileFeatureBtn")) return;
+
+    const page = getMutahusMobileCurrentPage();
+    const content = buildMutahusMobileFeatureItems(page);
+
+    if (!content) return;
+
+    injectMutahusMobileFeatureStyles();
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "mutahusMobileFeatureBackdrop";
+    backdrop.className = "mutahus-mobile-feature-backdrop";
+    backdrop.addEventListener("click", closeMutahusMobileFeatureMenu);
+
+    const button = document.createElement("button");
+    button.id = "mutahusMobileFeatureBtn";
+    button.type = "button";
+    button.className = "mutahus-mobile-feature-btn";
+    button.innerHTML = "☰ More";
+    button.addEventListener("click", openMutahusMobileFeatureMenu);
+
+    const panel = document.createElement("div");
+    panel.id = "mutahusMobileFeaturePanel";
+    panel.className = "mutahus-mobile-feature-panel";
+    panel.innerHTML = `
+        <div class="mutahus-mobile-feature-header">
+            <div>
+                <strong>Mobile Actions</strong>
+                <small>Use this menu to access desktop features on phone.</small>
+            </div>
+            <button type="button" class="mutahus-mobile-close-btn" aria-label="Close menu">×</button>
+        </div>
+
+        <div class="mutahus-mobile-feature-grid">
+            ${content.items}
+        </div>
+
+        <div class="mutahus-mobile-feature-note">
+            ${content.note}
+        </div>
+    `;
+
+    panel.querySelector(".mutahus-mobile-close-btn").addEventListener("click", closeMutahusMobileFeatureMenu);
+
+    panel.querySelectorAll("[data-mobile-action]").forEach(button => {
+        button.addEventListener("click", function () {
+            runMutahusMobileAction(this.dataset.mobileAction);
+        });
+    });
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(button);
+    document.body.appendChild(panel);
+}
+
+function startMutahusMobileFeatureMenu() {
+    createMutahusMobileFeatureMenu();
+    setTimeout(createMutahusMobileFeatureMenu, 300);
+    setTimeout(createMutahusMobileFeatureMenu, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", startMutahusMobileFeatureMenu);
+window.addEventListener("load", startMutahusMobileFeatureMenu);
+
+// MUTAHUS_STEP22_MOBILE_ALL_DESKTOP_FEATURES
+
