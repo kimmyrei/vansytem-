@@ -11,22 +11,13 @@ module.exports = async function handler(req, res) {
 
   try {
     const data = req.body || {};
+    const action = (data.action || "update-status").trim();
     const studentId = (data.studentId || "").trim();
-    const status = (data.status || "").trim();
 
-    const allowedStatuses = ["Pending Review", "Accepted", "Rejected", "Active"];
-
-    if (!studentId || !status) {
+    if (!studentId) {
       return res.status(400).json({
         success: false,
-        message: "Student ID and status are required."
-      });
-    }
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid student status."
+        message: "Student ID is required."
       });
     }
 
@@ -43,7 +34,36 @@ module.exports = async function handler(req, res) {
 
     const { db } = await connectToDatabase();
 
-    const result = await db.collection("students").updateOne(
+    const student = await db.collection("students").findOne({ _id: studentObjectId });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student record not found."
+      });
+    }
+
+    if (action === "remove-student") {
+      await db.collection("students").deleteOne({ _id: studentObjectId });
+      await db.collection("payments").deleteMany({ studentId: studentId });
+
+      return res.status(200).json({
+        success: true,
+        message: "Student and related payment records removed successfully."
+      });
+    }
+
+    const status = (data.status || "").trim();
+    const allowedStatuses = ["Pending Review", "Accepted", "Rejected", "Active"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student status."
+      });
+    }
+
+    await db.collection("students").updateOne(
       { _id: studentObjectId },
       {
         $set: {
@@ -54,17 +74,9 @@ module.exports = async function handler(req, res) {
       }
     );
 
-    if (result.matchedCount === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Student record not found."
-      });
-    }
-
     return res.status(200).json({
       success: true,
-      message: "Student status updated successfully.",
-      status
+      message: "Student status updated successfully."
     });
   } catch (error) {
     return res.status(500).json({

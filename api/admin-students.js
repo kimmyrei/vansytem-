@@ -42,12 +42,25 @@ module.exports = async function handler(req, res) {
       paymentStatus: student.paymentStatus || "Unpaid",
       status: student.status || "Pending Review",
       createdAt: cleanDate(student.createdAt),
-      updatedAt: cleanDate(student.updatedAt)
+      updatedAt: cleanDate(student.updatedAt),
+      reviewedAt: cleanDate(student.reviewedAt)
     }));
+
+    const summary = {
+      totalStudents: students.length,
+      morningCount: students.filter(student => student.session === "Morning").length,
+      afternoonCount: students.filter(student => student.session === "Afternoon").length,
+      totalSchools: new Set(students.map(student => student.school).filter(Boolean)).size,
+      pendingReview: students.filter(student => student.status === "Pending Review").length,
+      accepted: students.filter(student => student.status === "Accepted").length,
+      active: students.filter(student => student.status === "Active").length,
+      rejected: students.filter(student => student.status === "Rejected").length
+    };
 
     return res.status(200).json({
       success: true,
-      students
+      students,
+      summary
     });
   } catch (error) {
     return res.status(500).json({

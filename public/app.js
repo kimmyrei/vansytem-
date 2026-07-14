@@ -435,79 +435,14 @@ function deleteChild(childId) {
 
 
 
-function loadAdminStudents() {
-    const children = getChildren();
-    const table = document.getElementById("adminStudentsTable");
-    table.innerHTML = "";
 
-    document.getElementById("adminTotalStudents").innerText = children.length;
-    document.getElementById("adminMorningStudents").innerText = children.filter(child => child.session === "Morning").length;
-    document.getElementById("adminAfternoonStudents").innerText = children.filter(child => child.session === "Afternoon").length;
-    document.getElementById("adminTotalSchools").innerText = new Set(children.map(child => child.school)).size;
 
-    if (children.length === 0) {
-        table.innerHTML = `<tr><td colspan="8" class="empty-row">No students added yet.</td></tr>`;
-        return;
-    }
 
-    children.forEach(child => {
-        const sessionClass = child.session === "Morning" ? "morning" : "afternoon";
-        const status = child.status || "Pending Review";
-        const statusClass = getStudentStatusBadgeClass(status);
 
-        table.innerHTML += `
-            <tr>
-                <td><strong>${child.name}</strong><br><small>Student ID: ${child.id}</small></td>
-                <td>${child.parentName}<br><small>${child.parentPhone}</small></td>
-                <td>${child.school}</td>
-                <td>${child.classYear}</td>
-                <td><span class="badge ${sessionClass}">${child.session}</span></td>
-                <td>${child.pickupLocation}</td>
-                <td><span class="badge ${statusClass}">${status}</span></td>
-                <td>
-                    <div class="student-action-row">
-                        <button class="small-btn edit" onclick="updateStudentStatus('${child.id}', 'Accepted')">Accept</button>
-                        <button class="small-btn warning" onclick="updateStudentStatus('${child.id}', 'Rejected')">Reject</button>
-                        <button class="small-btn" onclick="updateStudentStatus('${child.id}', 'Active')">Mark Active</button>
-                        <button class="small-btn danger" onclick="removeStudent('${child.id}')">Remove</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-}
 
-function updateStudentStatus(childId, status) {
-    const children = getChildren();
-    const childIndex = children.findIndex(child => child.id === childId);
 
-    if (childIndex === -1) {
-        alert("Student record not found.");
-        return;
-    }
 
-    children[childIndex].status = status;
-    children[childIndex].reviewedAt = new Date().toLocaleDateString("en-GB");
 
-    saveChildren(children);
-
-    alert("Student status updated to " + status + ".");
-    loadAdminStudents();
-}
-
-function removeStudent(childId) {
-    const confirmRemove = confirm("Are you sure you want to remove this student? Related payment records will also be removed.");
-    if (!confirmRemove) return;
-
-    const children = getChildren().filter(child => child.id !== childId);
-    const payments = getPayments().filter(payment => payment.studentId !== childId);
-
-    saveChildren(children);
-    savePayments(payments);
-
-    alert("Student removed successfully.");
-    loadAdminStudents();
-}
 
 
 
@@ -1842,4 +1777,159 @@ async function resetDefaultRules() {
 }
 
 // MUTAHUS_STEP12_RULES_MONGODB
+
+
+async function loadAdminStudents() {
+    const table = document.getElementById("adminStudentsTable");
+
+    if (table) {
+        table.innerHTML = `<tr><td colspan="8" class="empty-row">Loading students from MongoDB...</td></tr>`;
+    }
+
+    try {
+        const response = await fetch("/api/admin-students");
+        const result = await response.json();
+
+        console.log("ADMIN STUDENTS RESULT:", result);
+
+        if (!result.success) {
+            alert(result.message || "Failed to load students.");
+            if (table) {
+                table.innerHTML = `<tr><td colspan="8" class="empty-row">Failed to load students.</td></tr>`;
+            }
+            return;
+        }
+
+        const children = result.students || [];
+        const summary = result.summary || {
+            totalStudents: children.length,
+            morningCount: 0,
+            afternoonCount: 0,
+            totalSchools: 0
+        };
+
+        const totalEl = document.getElementById("adminTotalStudents");
+        const morningEl = document.getElementById("adminMorningStudents");
+        const afternoonEl = document.getElementById("adminAfternoonStudents");
+        const schoolEl = document.getElementById("adminTotalSchools");
+
+        if (totalEl) totalEl.innerText = summary.totalStudents || 0;
+        if (morningEl) morningEl.innerText = summary.morningCount || 0;
+        if (afternoonEl) afternoonEl.innerText = summary.afternoonCount || 0;
+        if (schoolEl) schoolEl.innerText = summary.totalSchools || 0;
+
+        if (!table) return;
+
+        table.innerHTML = "";
+
+        if (children.length === 0) {
+            table.innerHTML = `<tr><td colspan="8" class="empty-row">No students added yet.</td></tr>`;
+            return;
+        }
+
+        children.forEach(child => {
+            const sessionClass = child.session === "Morning" ? "morning" : "afternoon";
+            const status = child.status || "Pending Review";
+            const statusClass = getStudentStatusBadgeClass(status);
+            const paymentClass = getPaymentBadgeClass(child.paymentStatus || "Unpaid");
+
+            table.innerHTML += `
+                <tr>
+                    <td>
+                        <strong>${child.name || "-"}</strong>
+                        <br><small>Student ID: ${child.id}</small>
+                    </td>
+                    <td>
+                        ${child.parentName || "-"}
+                        <br><small>${child.parentPhone || ""}</small>
+                        <br><small>${child.parentEmail || ""}</small>
+                    </td>
+                    <td>${child.school || "-"}</td>
+                    <td>${child.classYear || "-"}</td>
+                    <td><span class="badge ${sessionClass}">${child.session || "-"}</span></td>
+                    <td>${child.pickupLocation || "-"}</td>
+                    <td>
+                        <span class="badge ${statusClass}">${status}</span>
+                        <br><small>Payment: <span class="badge ${paymentClass}">${child.paymentStatus || "Unpaid"}</span></small>
+                    </td>
+                    <td>
+                        <div class="action-row">
+                            <button class="small-btn edit" onclick="updateStudentStatus('${child.id}', 'Accepted')" ${status === "Accepted" ? "disabled" : ""}>Accept</button>
+                            <button class="small-btn danger" onclick="updateStudentStatus('${child.id}', 'Rejected')" ${status === "Rejected" ? "disabled" : ""}>Reject</button>
+                            <button class="small-btn warning" onclick="updateStudentStatus('${child.id}', 'Active')" ${status === "Active" ? "disabled" : ""}>Mark Active</button>
+                            <button class="small-btn danger" onclick="removeStudent('${child.id}')">Remove</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        alert("Admin students error: " + error.message);
+
+        if (table) {
+            table.innerHTML = `<tr><td colspan="8" class="empty-row">Failed to load students.</td></tr>`;
+        }
+    }
+}
+
+async function updateStudentStatus(childId, status) {
+    try {
+        const response = await fetch("/api/update-student-status", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "update-status",
+                studentId: childId,
+                status
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to update student status.");
+            return;
+        }
+
+        alert("Student status updated to " + status + " in MongoDB.");
+        loadAdminStudents();
+    } catch (error) {
+        alert("Update student error: " + error.message);
+    }
+}
+
+async function removeStudent(childId) {
+    const confirmRemove = confirm("Are you sure you want to remove this student from MongoDB? Related payment records will also be removed.");
+
+    if (!confirmRemove) return;
+
+    try {
+        const response = await fetch("/api/update-student-status", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "remove-student",
+                studentId: childId
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to remove student.");
+            return;
+        }
+
+        alert("Student removed successfully from MongoDB.");
+        loadAdminStudents();
+    } catch (error) {
+        alert("Remove student error: " + error.message);
+    }
+}
+
+// MUTAHUS_STEP13_ADMIN_STUDENTS_MONGODB_FINAL
 
