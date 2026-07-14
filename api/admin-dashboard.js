@@ -10,34 +10,100 @@ function cleanDate(value) {
   }
 }
 
-function isThisMonth(value) {
-  if (!value) return false;
-
-  const date = new Date(value);
-  const now = new Date();
-
-  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+function defaultAnnouncements() {
+  return [
+    {
+      title: "Payment Reminder",
+      type: "Payment Reminder",
+      priority: "Important",
+      message: "Please upload your monthly payment receipt before the 5th of every month.",
+      status: "Active",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      title: "Delay Notice",
+      type: "Delay Notice",
+      priority: "Urgent",
+      message: "The van may be late by 10 minutes due to traffic. Thank you for your patience.",
+      status: "Active",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ];
 }
 
-async function getDashboard(req, res, db) {
-  const [parents, students, payments] = await Promise.all([
-    db.collection("parents").find({}).toArray(),
-    db.collection("students").find({}).toArray(),
-    db.collection("payments").find({}).sort({ createdAt: -1 }).toArray()
-  ]);
+function defaultRules() {
+  return [
+    {
+      icon: "💳",
+      title: "Monthly Payment",
+      description: "Monthly payment should be made according to the agreed date. Parents are required to upload the payment receipt through the parent portal after making payment.",
+      order: 1
+    },
+    {
+      icon: "⏰",
+      title: "Pickup Time",
+      description: "Students must be ready at the pickup point before the van arrives. Late students may affect the route schedule for other students.",
+      order: 2
+    },
+    {
+      icon: "🏠",
+      title: "Pickup Location",
+      description: "Parents must provide a clear and accurate pickup location. Any change of address or pickup point should be informed earlier.",
+      order: 3
+    },
+    {
+      icon: "📢",
+      title: "Absence Notice",
+      description: "If a student will not attend school or does not need van service for that day, parents should inform Mutahus Global as early as possible.",
+      order: 4
+    },
+    {
+      icon: "🛡️",
+      title: "Student Safety",
+      description: "Students must follow safety instructions while inside the van. Parents should remind children to behave properly and avoid disturbing the driver.",
+      order: 5
+    },
+    {
+      icon: "📱",
+      title: "Emergency Contact",
+      description: "Parents should make sure their phone number is active and reachable. For urgent matters, parents may contact Mutahus Global through WhatsApp.",
+      order: 6
+    },
+    {
+      icon: "🌧️",
+      title: "Delay Notice",
+      description: "Delays may happen due to traffic, weather, school events or route changes. Parents can check announcements in the parent dashboard.",
+      order: 7
+    },
+    {
+      icon: "✅",
+      title: "Student Approval",
+      description: "New child registrations will be reviewed by admin first. The student status may show Pending Review, Accepted, Active or Rejected.",
+      order: 8
+    }
+  ];
+}
 
-  const paidPayments = payments.filter(payment => payment.status === "Paid");
+async function getDashboard(db, res) {
+  const parents = await db.collection("parents").find({}).toArray();
+  const students = await db.collection("students").find({}).toArray();
+  const payments = await db.collection("payments").find({}).sort({ createdAt: -1 }).limit(5).toArray();
+
+  const paidPayments = await db.collection("payments").find({ status: "Paid" }).toArray();
+  const pendingPayments = await db.collection("payments").find({ status: "Pending" }).toArray();
 
   const summary = {
     totalParents: parents.length,
     totalStudents: students.length,
     morningCount: students.filter(student => student.session === "Morning").length,
     afternoonCount: students.filter(student => student.session === "Afternoon").length,
-    pendingPayments: payments.filter(payment => payment.status === "Pending").length,
+    pendingPayments: pendingPayments.length,
     totalPaidMonth: paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
   };
 
-  const recentPayments = payments.slice(0, 5).map(payment => ({
+  const recentPayments = payments.map(payment => ({
     id: payment._id.toString(),
     parentName: payment.parentName || "",
     parentPhone: payment.parentPhone || "",
@@ -56,14 +122,15 @@ async function getDashboard(req, res, db) {
   });
 }
 
-async function getAnnouncements(req, res, db) {
-  const announcementsRaw = await db
-    .collection("announcements")
-    .find({})
-    .sort({ createdAt: -1 })
-    .toArray();
+async function getAnnouncements(db, res) {
+  let announcements = await db.collection("announcements").find({}).sort({ createdAt: -1 }).toArray();
 
-  const announcements = announcementsRaw.map(item => ({
+  if (announcements.length === 0) {
+    await db.collection("announcements").insertMany(defaultAnnouncements());
+    announcements = await db.collection("announcements").find({}).sort({ createdAt: -1 }).toArray();
+  }
+
+  const formatted = announcements.map(item => ({
     id: item._id.toString(),
     title: item.title || "",
     type: item.type || "General Announcement",
@@ -71,40 +138,75 @@ async function getAnnouncements(req, res, db) {
     message: item.message || "",
     status: item.status || "Active",
     date: cleanDate(item.createdAt || item.date),
-    createdAt: item.createdAt || null
+    createdAt: cleanDate(item.createdAt),
+    updatedAt: cleanDate(item.updatedAt)
   }));
 
+  const now = new Date();
+  const thisMonth = formatted.filter(item => {
+    const raw = announcements.find(a => a._id.toString() === item.id);
+    if (!raw || !raw.createdAt) return false;
+    const created = new Date(raw.createdAt);
+    return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+  }).length;
+
   const summary = {
-    totalAnnouncements: announcements.length,
-    thisMonth: announcementsRaw.filter(item => isThisMonth(item.createdAt || item.date)).length,
-    importantNotices: announcements.filter(item =>
-      item.priority === "Important" ||
-      item.priority === "Urgent" ||
-      item.type === "Emergency Notice"
-    ).length,
-    generalUpdates: announcements.filter(item =>
-      item.priority === "Normal" ||
-      item.type === "General Announcement"
-    ).length
+    totalAnnouncements: formatted.length,
+    thisMonth,
+    importantNotices: formatted.filter(item => item.priority === "Important" || item.priority === "Urgent").length,
+    generalUpdates: formatted.filter(item => item.type === "General Announcement").length
   };
 
   return res.status(200).json({
     success: true,
-    announcements,
+    announcements: formatted,
     summary
   });
 }
 
-async function postAnnouncement(req, res, db, data) {
+async function getRules(db, res) {
+  let rules = await db.collection("rules").find({}).sort({ order: 1, createdAt: 1 }).toArray();
+
+  if (rules.length === 0) {
+    const seeds = defaultRules().map(rule => ({
+      ...rule,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
+
+    await db.collection("rules").insertMany(seeds);
+    rules = await db.collection("rules").find({}).sort({ order: 1, createdAt: 1 }).toArray();
+  }
+
+  const formatted = rules.map((rule, index) => ({
+    id: rule._id.toString(),
+    icon: rule.icon || "✅",
+    title: rule.title || "",
+    description: rule.description || "",
+    order: Number(rule.order || index + 1),
+    createdAt: cleanDate(rule.createdAt),
+    updatedAt: cleanDate(rule.updatedAt)
+  }));
+
+  return res.status(200).json({
+    success: true,
+    rules: formatted,
+    summary: {
+      totalRules: formatted.length
+    }
+  });
+}
+
+async function postAnnouncement(db, data, res) {
   const title = (data.title || "").trim();
-  const type = (data.type || "").trim();
+  const type = (data.type || "General Announcement").trim();
   const priority = (data.priority || "Normal").trim();
   const message = (data.message || "").trim();
 
-  if (!title || !type || !priority || !message) {
+  if (!title || !message) {
     return res.status(400).json({
       success: false,
-      message: "Please fill in all announcement details."
+      message: "Please fill in announcement title and message."
     });
   }
 
@@ -127,7 +229,7 @@ async function postAnnouncement(req, res, db, data) {
   });
 }
 
-async function updateAnnouncementStatus(req, res, db, data) {
+async function updateAnnouncementStatus(db, data, res) {
   const announcementId = (data.announcementId || "").trim();
   const status = (data.status || "").trim();
 
@@ -138,26 +240,8 @@ async function updateAnnouncementStatus(req, res, db, data) {
     });
   }
 
-  if (!["Active", "Inactive"].includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid announcement status."
-    });
-  }
-
-  let announcementObjectId;
-
-  try {
-    announcementObjectId = new ObjectId(announcementId);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid announcement ID."
-    });
-  }
-
-  const result = await db.collection("announcements").updateOne(
-    { _id: announcementObjectId },
+  await db.collection("announcements").updateOne(
+    { _id: new ObjectId(announcementId) },
     {
       $set: {
         status,
@@ -166,21 +250,13 @@ async function updateAnnouncementStatus(req, res, db, data) {
     }
   );
 
-  if (result.matchedCount === 0) {
-    return res.status(404).json({
-      success: false,
-      message: "Announcement not found."
-    });
-  }
-
   return res.status(200).json({
     success: true,
-    message: "Announcement status updated successfully.",
-    status
+    message: "Announcement status updated successfully."
   });
 }
 
-async function deleteAnnouncement(req, res, db, data) {
+async function deleteAnnouncement(db, data, res) {
   const announcementId = (data.announcementId || "").trim();
 
   if (!announcementId) {
@@ -190,31 +266,97 @@ async function deleteAnnouncement(req, res, db, data) {
     });
   }
 
-  let announcementObjectId;
-
-  try {
-    announcementObjectId = new ObjectId(announcementId);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid announcement ID."
-    });
-  }
-
-  const result = await db.collection("announcements").deleteOne({
-    _id: announcementObjectId
-  });
-
-  if (result.deletedCount === 0) {
-    return res.status(404).json({
-      success: false,
-      message: "Announcement not found."
-    });
-  }
+  await db.collection("announcements").deleteOne({ _id: new ObjectId(announcementId) });
 
   return res.status(200).json({
     success: true,
     message: "Announcement deleted successfully."
+  });
+}
+
+async function saveRule(db, data, res) {
+  const ruleId = (data.ruleId || "").trim();
+  const icon = (data.icon || "✅").trim();
+  const title = (data.title || "").trim();
+  const description = (data.description || "").trim();
+
+  if (!title || !description) {
+    return res.status(400).json({
+      success: false,
+      message: "Please fill in rule title and description."
+    });
+  }
+
+  if (ruleId) {
+    await db.collection("rules").updateOne(
+      { _id: new ObjectId(ruleId) },
+      {
+        $set: {
+          icon,
+          title,
+          description,
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Rule updated successfully in MongoDB."
+    });
+  }
+
+  const totalRules = await db.collection("rules").countDocuments();
+
+  const result = await db.collection("rules").insertOne({
+    icon,
+    title,
+    description,
+    order: totalRules + 1,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "New rule added successfully in MongoDB.",
+    ruleId: result.insertedId
+  });
+}
+
+async function deleteRule(db, data, res) {
+  const ruleId = (data.ruleId || "").trim();
+
+  if (!ruleId) {
+    return res.status(400).json({
+      success: false,
+      message: "Rule ID is required."
+    });
+  }
+
+  await db.collection("rules").deleteOne({ _id: new ObjectId(ruleId) });
+
+  return res.status(200).json({
+    success: true,
+    message: "Rule deleted successfully."
+  });
+}
+
+async function resetRules(db, res) {
+  await db.collection("rules").deleteMany({});
+
+  const seeds = defaultRules().map(rule => ({
+    ...rule,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }));
+
+  await db.collection("rules").insertMany(seeds);
+
+  return res.status(200).json({
+    success: true,
+    message: "Rules reset to default successfully.",
+    totalRules: seeds.length
   });
 }
 
@@ -223,13 +365,17 @@ module.exports = async function handler(req, res) {
     const { db } = await connectToDatabase();
 
     if (req.method === "GET") {
-      const action = (req.query.action || "dashboard").trim();
+      const action = (req.query.action || "").trim();
 
       if (action === "announcements") {
-        return await getAnnouncements(req, res, db);
+        return getAnnouncements(db, res);
       }
 
-      return await getDashboard(req, res, db);
+      if (action === "rules") {
+        return getRules(db, res);
+      }
+
+      return getDashboard(db, res);
     }
 
     if (req.method === "POST") {
@@ -237,15 +383,27 @@ module.exports = async function handler(req, res) {
       const action = (data.action || "").trim();
 
       if (action === "post-announcement") {
-        return await postAnnouncement(req, res, db, data);
+        return postAnnouncement(db, data, res);
       }
 
       if (action === "update-announcement-status") {
-        return await updateAnnouncementStatus(req, res, db, data);
+        return updateAnnouncementStatus(db, data, res);
       }
 
       if (action === "delete-announcement") {
-        return await deleteAnnouncement(req, res, db, data);
+        return deleteAnnouncement(db, data, res);
+      }
+
+      if (action === "save-rule") {
+        return saveRule(db, data, res);
+      }
+
+      if (action === "delete-rule") {
+        return deleteRule(db, data, res);
+      }
+
+      if (action === "reset-rules") {
+        return resetRules(db, res);
       }
 
       return res.status(400).json({

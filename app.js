@@ -596,203 +596,35 @@ document.addEventListener("click", function(event) {
 
 const RULES_KEY = "vansystem_rules";
 
-function getDefaultRules() {
-    return [
-        {
-            id: makeId("RULE"),
-            icon: "💳",
-            title: "Monthly Payment",
-            description: "Monthly payment should be made according to the agreed date. Parents are required to upload the payment receipt through the parent portal after making payment."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "⏰",
-            title: "Pickup Time",
-            description: "Students must be ready at the pickup point before the van arrives. Late students may affect the route schedule for other students."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "🏠",
-            title: "Pickup Location",
-            description: "Parents must provide a clear and accurate pickup location. Any change of address or pickup point should be informed earlier."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "📢",
-            title: "Absence Notice",
-            description: "If a student will not attend school or does not need van service for that day, parents should inform Mutahus Global as early as possible."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "🛡️",
-            title: "Student Safety",
-            description: "Students must follow safety instructions while inside the van. Parents should remind children to behave properly and avoid disturbing the driver."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "📱",
-            title: "Emergency Contact",
-            description: "Parents should make sure their phone number is active and reachable. For urgent matters, parents may contact Mutahus Global through WhatsApp."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "🌧️",
-            title: "Delay Notice",
-            description: "Delays may happen due to traffic, weather, school events or route changes. Parents can check announcements in the parent dashboard."
-        },
-        {
-            id: makeId("RULE"),
-            icon: "✅",
-            title: "Student Approval",
-            description: "New child registrations will be reviewed by admin first. The student status may show Pending Review, Accepted, Active or Rejected."
-        }
-    ];
-}
 
-function getRules() {
-    let rules = JSON.parse(localStorage.getItem(RULES_KEY)) || [];
 
-    if (rules.length === 0) {
-        rules = getDefaultRules();
-        localStorage.setItem(RULES_KEY, JSON.stringify(rules));
-    }
 
-    return rules;
-}
 
-function saveRules(rules) {
-    localStorage.setItem(RULES_KEY, JSON.stringify(rules));
-}
 
-function loadPublicRules() {
-    const list = document.getElementById("publicRulesList");
-    if (!list) return;
 
-    const rules = getRules();
-    list.innerHTML = "";
 
-    rules.forEach((rule, index) => {
-        list.innerHTML += `
-            <div class="rule-card">
-                <div class="rule-icon">${rule.icon}</div>
-                <h2>${index + 1}. ${rule.title}</h2>
-                <p>${rule.description}</p>
-            </div>
-        `;
-    });
-}
 
-function loadAdminRules() {
-    const table = document.getElementById("adminRulesTable");
-    if (!table) return;
 
-    const rules = getRules();
-    table.innerHTML = "";
 
-    if (rules.length === 0) {
-        table.innerHTML = `<tr><td colspan="4" class="empty-row">No rules added yet.</td></tr>`;
-        return;
-    }
 
-    rules.forEach(rule => {
-        table.innerHTML += `
-            <tr>
-                <td><span class="admin-rule-icon">${rule.icon}</span></td>
-                <td><strong>${rule.title}</strong></td>
-                <td>${rule.description}</td>
-                <td>
-                    <div class="student-action-row">
-                        <button class="small-btn edit" onclick="editRule('${rule.id}')">Edit</button>
-                        <button class="small-btn danger" onclick="deleteRule('${rule.id}')">Delete</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-}
 
-function saveRuleFromAdmin(event) {
-    event.preventDefault();
 
-    const id = document.getElementById("ruleId").value;
-    const icon = document.getElementById("ruleIcon").value;
-    const title = document.getElementById("ruleTitle").value.trim();
-    const description = document.getElementById("ruleDescription").value.trim();
 
-    let rules = getRules();
 
-    if (id) {
-        rules = rules.map(rule => {
-            if (rule.id === id) {
-                return { id, icon, title, description };
-            }
-            return rule;
-        });
 
-        alert("Rule updated successfully.");
-    } else {
-        rules.push({
-            id: makeId("RULE"),
-            icon,
-            title,
-            description
-        });
 
-        alert("New rule added successfully.");
-    }
 
-    saveRules(rules);
-    cancelRuleEdit();
-    loadAdminRules();
-}
 
-function editRule(id) {
-    const rules = getRules();
-    const rule = rules.find(item => item.id === id);
 
-    if (!rule) {
-        alert("Rule not found.");
-        return;
-    }
 
-    document.getElementById("ruleId").value = rule.id;
-    document.getElementById("ruleIcon").value = rule.icon;
-    document.getElementById("ruleTitle").value = rule.title;
-    document.getElementById("ruleDescription").value = rule.description;
-    document.getElementById("ruleFormTitle").innerText = "Edit Rule";
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
 
-function cancelRuleEdit() {
-    const form = document.getElementById("ruleForm");
-    if (form) form.reset();
 
-    const id = document.getElementById("ruleId");
-    if (id) id.value = "";
 
-    const title = document.getElementById("ruleFormTitle");
-    if (title) title.innerText = "Add New Rule";
-}
 
-function deleteRule(id) {
-    const confirmDelete = confirm("Are you sure you want to delete this rule?");
-    if (!confirmDelete) return;
 
-    const rules = getRules().filter(rule => rule.id !== id);
-    saveRules(rules);
-    loadAdminRules();
-}
 
-function resetDefaultRules() {
-    const confirmReset = confirm("Reset all rules to default? This will remove your edited rules.");
-    if (!confirmReset) return;
 
-    saveRules(getDefaultRules());
-    cancelRuleEdit();
-    loadAdminRules();
-    alert("Rules reset to default.");
-}
 
 
 
@@ -1770,3 +1602,244 @@ function viewAdminReceipt(paymentId) {
 }
 
 // MUTAHUS_STEP11_RECEIPT_IMAGE_UPLOAD_MONGODB
+
+
+async function fetchRulesFromMongoDB() {
+    const response = await fetch("/api/admin-dashboard?action=rules");
+    const result = await response.json();
+
+    if (!result.success) {
+        throw new Error(result.message || "Failed to load rules.");
+    }
+
+    return result.rules || [];
+}
+
+async function loadPublicRules() {
+    const list = document.getElementById("publicRulesList");
+
+    if (!list) return;
+
+    list.innerHTML = `
+        <div class="normal-box">
+            <strong>Loading rules...</strong>
+            <p>Please wait while we load the latest service rules.</p>
+        </div>
+    `;
+
+    try {
+        const rules = await fetchRulesFromMongoDB();
+
+        list.innerHTML = "";
+
+        if (rules.length === 0) {
+            list.innerHTML = `
+                <div class="normal-box">
+                    <strong>No rules available yet.</strong>
+                    <p>Rules added by admin will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+
+        rules.forEach((rule, index) => {
+            list.innerHTML += `
+                <div class="rule-card-pro">
+                    <div class="rule-icon">${rule.icon || "✅"}</div>
+                    <div>
+                        <h3>${index + 1}. ${rule.title}</h3>
+                        <p>${rule.description}</p>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (error) {
+        list.innerHTML = `
+            <div class="normal-box">
+                <strong>Failed to load rules.</strong>
+                <p>${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+async function loadAdminRules() {
+    const table = document.getElementById("adminRulesTable");
+
+    if (!table) return;
+
+    table.innerHTML = `<tr><td colspan="4" class="empty-row">Loading rules from MongoDB...</td></tr>`;
+
+    try {
+        const rules = await fetchRulesFromMongoDB();
+
+        window.adminRulesData = rules;
+
+        table.innerHTML = "";
+
+        if (rules.length === 0) {
+            table.innerHTML = `<tr><td colspan="4" class="empty-row">No rules added yet.</td></tr>`;
+            return;
+        }
+
+        rules.forEach(rule => {
+            table.innerHTML += `
+                <tr>
+                    <td>${rule.icon || "✅"}</td>
+                    <td><strong>${rule.title}</strong></td>
+                    <td>${rule.description}</td>
+                    <td>
+                        <button class="small-btn edit" onclick="editRule('${rule.id}')">Edit</button>
+                        <button class="small-btn danger" onclick="deleteRule('${rule.id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        table.innerHTML = `<tr><td colspan="4" class="empty-row">Failed to load rules: ${error.message}</td></tr>`;
+    }
+}
+
+async function saveRuleFromAdmin(event) {
+    event.preventDefault();
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Saving...";
+    }
+
+    const ruleData = {
+        action: "save-rule",
+        ruleId: document.getElementById("ruleId").value,
+        icon: document.getElementById("ruleIcon").value,
+        title: document.getElementById("ruleTitle").value.trim(),
+        description: document.getElementById("ruleDescription").value.trim()
+    };
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(ruleData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to save rule.");
+            return;
+        }
+
+        alert(result.message || "Rule saved successfully in MongoDB.");
+        cancelRuleEdit();
+        loadAdminRules();
+    } catch (error) {
+        alert("Save rule error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+function editRule(id) {
+    const rules = window.adminRulesData || [];
+    const rule = rules.find(item => item.id === id);
+
+    if (!rule) {
+        alert("Rule not found. Please refresh the page.");
+        return;
+    }
+
+    document.getElementById("ruleId").value = rule.id;
+    document.getElementById("ruleIcon").value = rule.icon || "✅";
+    document.getElementById("ruleTitle").value = rule.title || "";
+    document.getElementById("ruleDescription").value = rule.description || "";
+
+    const title = document.getElementById("ruleFormTitle");
+    if (title) title.innerText = "Edit Rule";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function cancelRuleEdit() {
+    const form = document.getElementById("ruleForm");
+    if (form) form.reset();
+
+    const id = document.getElementById("ruleId");
+    if (id) id.value = "";
+
+    const title = document.getElementById("ruleFormTitle");
+    if (title) title.innerText = "Add New Rule";
+}
+
+async function deleteRule(id) {
+    const confirmDelete = confirm("Delete this rule from MongoDB?");
+
+    if (!confirmDelete) return;
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "delete-rule",
+                ruleId: id
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to delete rule.");
+            return;
+        }
+
+        alert("Rule deleted successfully.");
+        loadAdminRules();
+    } catch (error) {
+        alert("Delete rule error: " + error.message);
+    }
+}
+
+async function resetDefaultRules() {
+    const confirmReset = confirm("Reset all rules to default in MongoDB? This will remove your edited rules.");
+
+    if (!confirmReset) return;
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "reset-rules"
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to reset rules.");
+            return;
+        }
+
+        cancelRuleEdit();
+        loadAdminRules();
+        alert("Rules reset to default in MongoDB.");
+    } catch (error) {
+        alert("Reset rules error: " + error.message);
+    }
+}
+
+// MUTAHUS_STEP12_RULES_MONGODB
+
