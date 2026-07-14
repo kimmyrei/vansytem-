@@ -779,221 +779,11 @@ async function loadAdminDashboard() {
     }
 }
 
-async function loadAdminParents() {
-    const table = document.getElementById("adminParentsTable");
 
-    if (table) {
-        table.innerHTML = `<tr><td colspan="7" class="empty-row">Loading parents from MongoDB...</td></tr>`;
-    }
 
-    try {
-        const response = await fetch("/api/admin-parents");
-        const result = await response.json();
 
-        console.log("ADMIN PARENTS RESULT:", result);
 
-        if (!result.success) {
-            alert(result.message || "Failed to load parents.");
-            if (table) {
-                table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load parents.</td></tr>`;
-            }
-            return;
-        }
 
-        const parents = result.parents || [];
-        const summary = result.summary || {};
-
-        window.adminParentsData = parents;
-
-        const totalParentsEl = document.getElementById("parentTotalParents");
-        const activeParentsEl = document.getElementById("parentActiveParents");
-        const pendingParentsEl = document.getElementById("parentPendingParents");
-        const totalChildrenEl = document.getElementById("parentTotalChildren");
-
-        if (totalParentsEl) totalParentsEl.innerText = summary.totalParents || 0;
-        if (activeParentsEl) activeParentsEl.innerText = summary.activeParents || 0;
-        if (pendingParentsEl) pendingParentsEl.innerText = summary.pendingParents || 0;
-        if (totalChildrenEl) totalChildrenEl.innerText = summary.totalChildren || 0;
-
-        if (!table) return;
-
-        table.innerHTML = "";
-
-        if (parents.length === 0) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">No parents registered yet.</td></tr>`;
-            return;
-        }
-
-        parents.forEach(parent => {
-            const payStatus = parent.paymentStatus || "Unpaid";
-            const payClass = getPaymentBadgeClass(payStatus);
-            const parentStatusClass = parent.status === "Pending" ? "pending" : parent.status === "Rejected" ? "rejected" : "paid";
-
-            table.innerHTML += `
-                <tr>
-                    <td><strong>${parent.name || "-"}</strong><br><small>Parent ID: ${parent.id}</small></td>
-                    <td>${parent.phone || "-"}</td>
-                    <td>${parent.email || "-"}</td>
-                    <td>${parent.childrenCount || 0}</td>
-                    <td><span class="badge ${payClass}">${payStatus}</span></td>
-                    <td><span class="badge ${parentStatusClass}">${parent.status || "Active"}</span></td>
-                    <td>
-                        <button class="small-btn edit" onclick="viewParentDetails('${parent.id}')">View</button>
-                    </td>
-                </tr>
-            `;
-        });
-    } catch (error) {
-        alert("Admin parents error: " + error.message);
-
-        if (table) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load parents.</td></tr>`;
-        }
-    }
-}
-
-function viewParentDetails(parentId) {
-    const parents = window.adminParentsData || [];
-    const parent = parents.find(item => item.id === parentId);
-
-    if (!parent) {
-        alert("Parent record not found. Please refresh the page.");
-        return;
-    }
-
-    const parentChildren = parent.children || [];
-    const parentPayments = parent.payments || [];
-
-    const modal = document.getElementById("parentDetailModal");
-    const modalBody = document.getElementById("parentDetailBody");
-
-    if (!modal || !modalBody) {
-        alert("Parent detail modal is missing from this page.");
-        return;
-    }
-
-    const paidTotal = parentPayments
-        .filter(payment => payment.status === "Paid")
-        .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-
-    const pendingCount = parentPayments.filter(payment => payment.status === "Pending").length;
-
-    let childrenRows = "";
-
-    if (parentChildren.length === 0) {
-        childrenRows = `
-            <tr>
-                <td colspan="6" class="empty-row">No child registered under this parent.</td>
-            </tr>
-        `;
-    } else {
-        parentChildren.forEach(child => {
-            const statusClass = getStudentStatusBadgeClass(child.status || "Pending Review");
-
-            childrenRows += `
-                <tr>
-                    <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                    <td>${child.school}</td>
-                    <td>${child.classYear}</td>
-                    <td>${child.session}</td>
-                    <td>${child.pickupLocation}</td>
-                    <td><span class="badge ${statusClass}">${child.status || "Pending Review"}</span></td>
-                </tr>
-            `;
-        });
-    }
-
-    let paymentRows = "";
-
-    if (parentPayments.length === 0) {
-        paymentRows = `
-            <tr>
-                <td colspan="5" class="empty-row">No payment submitted by this parent yet.</td>
-            </tr>
-        `;
-    } else {
-        parentPayments.forEach(payment => {
-            const badgeClass = getPaymentBadgeClass(payment.status || "Pending");
-
-            paymentRows += `
-                <tr>
-                    <td>${payment.month}</td>
-                    <td>${payment.studentName}</td>
-                    <td><strong>RM${payment.amount}</strong></td>
-                    <td><span class="badge ${badgeClass}">${payment.status}</span></td>
-                    <td>
-                        <button class="receipt-button" onclick="showReceiptInfo('${payment.receiptName}', '${payment.note || ""}')">View</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    modalBody.innerHTML = `
-        <div class="parent-detail-header">
-            <div class="parent-avatar">${(parent.name || "P").charAt(0).toUpperCase()}</div>
-            <div>
-                <h3>${parent.name}</h3>
-                <p>${parent.phone || "-"} • ${parent.email || "-"}</p>
-                <p><span class="badge paid">${parent.status || "Active"}</span></p>
-            </div>
-        </div>
-
-        <div class="detail-grid">
-            <div class="detail-card">
-                <strong>${parentChildren.length}</strong>
-                <span>Registered Children</span>
-            </div>
-            <div class="detail-card">
-                <strong>${parentPayments.length}</strong>
-                <span>Payment Records</span>
-            </div>
-            <div class="detail-card">
-                <strong>RM${paidTotal}</strong>
-                <span>Total Paid</span>
-            </div>
-            <div class="detail-card">
-                <strong>${pendingCount}</strong>
-                <span>Pending Payments</span>
-            </div>
-        </div>
-
-        <h3>Children</h3>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Child</th>
-                        <th>School</th>
-                        <th>Class</th>
-                        <th>Session</th>
-                        <th>Pickup</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>${childrenRows}</tbody>
-            </table>
-        </div>
-
-        <h3>Payments</h3>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Student</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Receipt</th>
-                    </tr>
-                </thead>
-                <tbody>${paymentRows}</tbody>
-            </table>
-        </div>
-    `;
-
-    modal.classList.add("show");
-}
 
 async function loadAdminAnnouncements() {
     const table = document.getElementById("announcementTable");
@@ -1932,4 +1722,291 @@ async function removeStudent(childId) {
 }
 
 // MUTAHUS_STEP13_ADMIN_STUDENTS_MONGODB_FINAL
+
+
+async function loadAdminParents() {
+    const table = document.getElementById("adminParentsTable");
+
+    if (table) {
+        table.innerHTML = `<tr><td colspan="7" class="empty-row">Loading parents from MongoDB...</td></tr>`;
+    }
+
+    try {
+        const response = await fetch("/api/admin-parents");
+        const result = await response.json();
+
+        console.log("ADMIN PARENTS RESULT:", result);
+
+        if (!result.success) {
+            alert(result.message || "Failed to load parents.");
+            if (table) {
+                table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load parents.</td></tr>`;
+            }
+            return;
+        }
+
+        const parents = result.parents || [];
+        const summary = result.summary || {};
+
+        window.adminParentsData = parents;
+
+        const totalParentsEl = document.getElementById("parentTotalParents");
+        const activeParentsEl = document.getElementById("parentActiveParents");
+        const pendingParentsEl = document.getElementById("parentPendingParents");
+        const totalChildrenEl = document.getElementById("parentTotalChildren");
+
+        if (totalParentsEl) totalParentsEl.innerText = summary.totalParents || 0;
+        if (activeParentsEl) activeParentsEl.innerText = summary.activeParents || 0;
+        if (pendingParentsEl) pendingParentsEl.innerText = summary.pendingParents || 0;
+        if (totalChildrenEl) totalChildrenEl.innerText = summary.totalChildren || 0;
+
+        if (!table) return;
+
+        table.innerHTML = "";
+
+        if (parents.length === 0) {
+            table.innerHTML = `<tr><td colspan="7" class="empty-row">No parents registered yet.</td></tr>`;
+            return;
+        }
+
+        parents.forEach(parent => {
+            const payStatus = parent.paymentStatus || "Unpaid";
+            const payClass = getPaymentBadgeClass(payStatus);
+            const parentStatus = parent.status || "Active";
+            const parentStatusClass = parentStatus === "Pending" ? "pending" : parentStatus === "Rejected" ? "rejected" : "paid";
+
+            table.innerHTML += `
+                <tr>
+                    <td>
+                        <strong>${parent.name || "-"}</strong>
+                        <br><small>Parent ID: ${parent.id}</small>
+                    </td>
+                    <td>${parent.phone || "-"}</td>
+                    <td>${parent.email || "-"}</td>
+                    <td>${parent.childrenCount || 0}</td>
+                    <td><span class="badge ${payClass}">${payStatus}</span></td>
+                    <td><span class="badge ${parentStatusClass}">${parentStatus}</span></td>
+                    <td>
+                        <div class="action-row">
+                            <button class="small-btn view" onclick="viewParentDetails('${parent.id}')">View</button>
+                            <button class="small-btn edit" onclick="updateParentStatus('${parent.id}', 'Active')" ${parentStatus === "Active" ? "disabled" : ""}>Active</button>
+                            <button class="small-btn warning" onclick="updateParentStatus('${parent.id}', 'Pending')" ${parentStatus === "Pending" ? "disabled" : ""}>Pending</button>
+                            <button class="small-btn danger" onclick="updateParentStatus('${parent.id}', 'Rejected')" ${parentStatus === "Rejected" ? "disabled" : ""}>Reject</button>
+                            <button class="small-btn danger" onclick="removeParentAndRecords('${parent.id}')">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        alert("Admin parents error: " + error.message);
+        if (table) {
+            table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load parents.</td></tr>`;
+        }
+    }
+}
+
+function viewParentDetails(parentId) {
+    const parents = window.adminParentsData || [];
+    const parent = parents.find(item => item.id === parentId);
+
+    if (!parent) {
+        alert("Parent record not found. Please refresh the page.");
+        return;
+    }
+
+    const parentChildren = parent.children || [];
+    const parentPayments = parent.payments || [];
+
+    const modal = document.getElementById("parentDetailModal");
+    const modalBody = document.getElementById("parentDetailBody");
+
+    if (!modal || !modalBody) {
+        alert("Parent detail modal is missing from this page.");
+        return;
+    }
+
+    const paidTotal = parentPayments
+        .filter(payment => payment.status === "Paid")
+        .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+
+    const pendingCount = parentPayments.filter(payment => payment.status === "Pending").length;
+
+    let childrenRows = "";
+
+    if (parentChildren.length === 0) {
+        childrenRows = `
+            <tr>
+                <td colspan="6" class="empty-row">No child registered under this parent.</td>
+            </tr>
+        `;
+    } else {
+        parentChildren.forEach(child => {
+            const statusClass = getStudentStatusBadgeClass(child.status || "Pending Review");
+
+            childrenRows += `
+                <tr>
+                    <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
+                    <td>${child.school}</td>
+                    <td>${child.classYear}</td>
+                    <td>${child.session}</td>
+                    <td>${child.pickupLocation}</td>
+                    <td><span class="badge ${statusClass}">${child.status || "Pending Review"}</span></td>
+                </tr>
+            `;
+        });
+    }
+
+    let paymentRows = "";
+
+    if (parentPayments.length === 0) {
+        paymentRows = `
+            <tr>
+                <td colspan="5" class="empty-row">No payment submitted by this parent yet.</td>
+            </tr>
+        `;
+    } else {
+        parentPayments.forEach(payment => {
+            const badgeClass = getPaymentBadgeClass(payment.status || "Pending");
+
+            paymentRows += `
+                <tr>
+                    <td>${payment.month}</td>
+                    <td>${payment.studentName}</td>
+                    <td>RM${payment.amount}</td>
+                    <td><span class="badge ${badgeClass}">${payment.status}</span></td>
+                    <td>
+                        <button class="receipt-button" onclick="showReceiptInfo('${payment.receiptName || ""}', '${payment.note || ""}', '${payment.receiptDataUrl || ""}')">View</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    modalBody.innerHTML = `
+        <div class="parent-profile-card">
+            <div class="profile-avatar">${(parent.name || "P").charAt(0).toUpperCase()}</div>
+            <div>
+                <h2>${parent.name}</h2>
+                <p>${parent.phone || "-"} • ${parent.email || "-"}</p>
+                <span class="badge paid">${parent.status || "Active"}</span>
+            </div>
+        </div>
+
+        <div class="stats-grid mini-stats-grid">
+            <div class="stat-card">
+                <h3>Registered Children</h3>
+                <h2>${parentChildren.length}</h2>
+            </div>
+            <div class="stat-card">
+                <h3>Payment Records</h3>
+                <h2>${parentPayments.length}</h2>
+            </div>
+            <div class="stat-card">
+                <h3>Total Paid</h3>
+                <h2>RM${paidTotal}</h2>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Payments</h3>
+                <h2>${pendingCount}</h2>
+            </div>
+        </div>
+
+        <h3>Children</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Child</th>
+                        <th>School</th>
+                        <th>Class</th>
+                        <th>Session</th>
+                        <th>Pickup</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>${childrenRows}</tbody>
+            </table>
+        </div>
+
+        <h3>Payments</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Student</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>${paymentRows}</tbody>
+            </table>
+        </div>
+    `;
+
+    modal.classList.add("show");
+}
+
+async function updateParentStatus(parentId, status) {
+    try {
+        const response = await fetch("/api/admin-parents", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "update-parent-status",
+                parentId,
+                status
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to update parent status.");
+            return;
+        }
+
+        alert("Parent status updated to " + status + " in MongoDB.");
+        loadAdminParents();
+    } catch (error) {
+        alert("Update parent error: " + error.message);
+    }
+}
+
+async function removeParentAndRecords(parentId) {
+    const confirmRemove = confirm("Delete this parent from MongoDB? This will also delete their children and payment records.");
+
+    if (!confirmRemove) return;
+
+    try {
+        const response = await fetch("/api/admin-parents", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "delete-parent",
+                parentId
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to delete parent.");
+            return;
+        }
+
+        alert("Parent, children and payment records deleted successfully.");
+        loadAdminParents();
+    } catch (error) {
+        alert("Delete parent error: " + error.message);
+    }
+}
+
+// MUTAHUS_STEP14_ADMIN_PARENTS_MONGODB_FINAL
 
