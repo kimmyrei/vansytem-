@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Profile | Mutahus Global</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadParentProfilePage()">
+    <header class="parent-header">
+        <div>
+            <h2>Mutahus Global Parent Portal</h2>
+            <p>Update your parent profile and account password.</p>
+        </div>
+        <div class="hero-actions">
+            <a href="parent-dashboard.html" class="secondary-btn">Back to Dashboard</a>
+            <button class="logout-btn" onclick="parentLogout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-hero parent-hero">
+            <div>
+                <span class="eyebrow">PARENT ACCOUNT</span>
+                <h1>My Profile</h1>
+                <p>Keep your contact details updated so Mutahus Global can contact you easily.</p>
+            </div>
+
+            <div class="profile-summary-card" id="profileInfoBox">
+                <strong>Loading profile...</strong>
+                <p>Please wait.</p>
+            </div>
+        </section>
+
+        <section class="dashboard-grid two-column-grid">
+            <div class="panel-card">
+                <h2>Update Profile</h2>
+                <p>Update your name, phone number and email address.</p>
+
+                <form class="form-card flat-form" onsubmit="updateParentProfile(event)">
+                    <label>Full Name</label>
+                    <input type="text" id="profileName" placeholder="Parent full name" required>
+
+                    <label>Phone Number</label>
+                    <input type="text" id="profilePhone" placeholder="Example: 0123456789" required>
+
+                    <label>Email Address</label>
+                    <input type="email" id="profileEmail" placeholder="example@email.com" required>
+
+                    <button type="submit" class="primary-btn">Save Profile</button>
+                </form>
+            </div>
+
+            <div class="panel-card">
+                <h2>Change Password</h2>
+                <p>Use a password with at least 6 characters.</p>
+
+                <form class="form-card flat-form" onsubmit="changeParentPassword(event)">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" placeholder="Enter current password" required>
+
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password" required>
+
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+
+                    <button type="submit" class="primary-btn">Change Password</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <h2>Quick Actions</h2>
+            <div class="hero-actions">
+                <a href="parent-dashboard.html" class="secondary-btn">Dashboard</a>
+                <a href="add-student.html" class="secondary-btn">Register Child</a>
+                <a href="upload-payment.html" class="secondary-btn">Upload Payment</a>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

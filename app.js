@@ -2395,3 +2395,174 @@ async function exportPaymentsCSV() {
 
 
 // MUTAHUS_FIX_EXPORT_CSV_CLEAN_LAYOUT
+
+
+async function loadParentProfilePage() {
+    const parent = requireParentLogin();
+
+    if (!parent) return;
+
+    const nameInput = document.getElementById("profileName");
+    const phoneInput = document.getElementById("profilePhone");
+    const emailInput = document.getElementById("profileEmail");
+    const infoBox = document.getElementById("profileInfoBox");
+
+    if (nameInput) nameInput.value = parent.name || "";
+    if (phoneInput) phoneInput.value = parent.phone || "";
+    if (emailInput) emailInput.value = parent.email || "";
+
+    try {
+        const response = await fetch(`/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}&email=${encodeURIComponent(parent.email || "")}`);
+        const result = await response.json();
+
+        if (!result.success) {
+            if (infoBox) infoBox.innerHTML = `<p>${result.message || "Failed to load profile."}</p>`;
+            return;
+        }
+
+        const currentParent = result.parent || parent;
+
+        localStorage.setItem(VS.currentParentKey, JSON.stringify(currentParent));
+
+        if (nameInput) nameInput.value = currentParent.name || "";
+        if (phoneInput) phoneInput.value = currentParent.phone || "";
+        if (emailInput) emailInput.value = currentParent.email || "";
+
+        if (infoBox) {
+            infoBox.innerHTML = `
+                <strong>${currentParent.name || "Parent"}</strong>
+                <p>${currentParent.phone || "-"} • ${currentParent.email || "-"}</p>
+                <span class="badge paid">${currentParent.status || "Active"}</span>
+            `;
+        }
+    } catch (error) {
+        if (infoBox) infoBox.innerHTML = `<p>Profile error: ${error.message}</p>`;
+    }
+}
+
+async function updateParentProfile(event) {
+    event.preventDefault();
+
+    const parent = requireParentLogin();
+    if (!parent) return;
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Saving...";
+    }
+
+    const profileData = {
+        action: "update-parent-profile",
+        parentId: parent.id,
+        name: document.getElementById("profileName").value.trim(),
+        phone: document.getElementById("profilePhone").value.trim(),
+        email: document.getElementById("profileEmail").value.trim()
+    };
+
+    try {
+        const response = await fetch("/api/parent-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(profileData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to update profile.");
+            return;
+        }
+
+        localStorage.setItem(VS.currentParentKey, JSON.stringify(result.parent));
+
+        alert("Profile updated successfully.");
+        loadParentProfilePage();
+    } catch (error) {
+        alert("Update profile error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+async function changeParentPassword(event) {
+    event.preventDefault();
+
+    const parent = requireParentLogin();
+    if (!parent) return;
+
+    const oldPassword = document.getElementById("currentPassword").value;
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (newPassword.length < 6) {
+        alert("New password must be at least 6 characters.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("New password and confirm password do not match.");
+        return;
+    }
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Changing...";
+    }
+
+    try {
+        const response = await fetch("/api/parent-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "change-parent-password",
+                parentId: parent.id,
+                oldPassword,
+                newPassword
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to change password.");
+            return;
+        }
+
+        alert("Password changed successfully. Please login again.");
+        localStorage.removeItem(VS.currentParentKey);
+        window.location.href = "parent-login.html";
+    } catch (error) {
+        alert("Change password error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+function protectParentProfilePage() {
+    const page = window.location.pathname.split("/").pop() || "index.html";
+
+    if (page === "parent-profile.html") {
+        requireParentLogin();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", protectParentProfilePage);
+
+// MUTAHUS_STEP19_PARENT_PROFILE_PASSWORD
+

@@ -1,4 +1,5 @@
 const { ObjectId } = require("mongodb");
+const bcrypt = require("bcryptjs");
 const { connectToDatabase } = require("./_db");
 
 function cleanDate(value) {
@@ -33,11 +34,215 @@ function defaultAnnouncements() {
   ];
 }
 
+
+async function updateParentProfile(db, data, res) {
+  const parentId = (data.parentId || "").trim();
+  const name = (data.name || "").trim();
+  const phone = (data.phone || "").trim();
+  const email = (data.email || "").trim().toLowerCase();
+
+  if (!parentId || !name || !phone || !email) {
+    return res.status(400).json({
+      success: false,
+      message: "Please fill in name, phone and email."
+    });
+  }
+
+  let parentObjectId;
+
+  try {
+    parentObjectId = new ObjectId(parentId);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid parent ID. Please login again."
+    });
+  }
+
+  const parent = await db.collection("parents").findOne({ _id: parentObjectId });
+
+  if (!parent) {
+    return res.status(404).json({
+      success: false,
+      message: "Parent account not found."
+    });
+  }
+
+  const existingEmail = await db.collection("parents").findOne({
+    email,
+    _id: { $ne: parentObjectId }
+  });
+
+  if (existingEmail) {
+    return res.status(409).json({
+      success: false,
+      message: "This email is already used by another parent account."
+    });
+  }
+
+  const oldEmail = (parent.email || "").toLowerCase();
+
+  await db.collection("parents").updateOne(
+    { _id: parentObjectId },
+    {
+      $set: {
+        name,
+        phone,
+        email,
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  await db.collection("students").updateMany(
+    {
+      $or: [
+        { parentId },
+        { parentEmail: oldEmail }
+      ]
+    },
+    {
+      $set: {
+        parentName: name,
+        parentPhone: phone,
+        parentEmail: email,
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  await db.collection("payments").updateMany(
+    {
+      $or: [
+        { parentId },
+        { parentEmail: oldEmail }
+      ]
+    },
+    {
+      $set: {
+        parentName: name,
+        parentPhone: phone,
+        parentEmail: email,
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Parent profile updated successfully.",
+    parent: {
+      id: parentId,
+      name,
+      phone,
+      email,
+      status: parent.status || "Active",
+      role: parent.role || "parent"
+    }
+  });
+}
+
+async function changeParentPassword(db, data, res) {
+  const parentId = (data.parentId || "").trim();
+  const oldPassword = data.oldPassword || "";
+  const newPassword = data.newPassword || "";
+
+  if (!parentId || !oldPassword || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Current password and new password are required."
+    });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: "New password must be at least 6 characters."
+    });
+  }
+
+  let parentObjectId;
+
+  try {
+    parentObjectId = new ObjectId(parentId);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid parent ID. Please login again."
+    });
+  }
+
+  const parent = await db.collection("parents").findOne({ _id: parentObjectId });
+
+  if (!parent) {
+    return res.status(404).json({
+      success: false,
+      message: "Parent account not found."
+    });
+  }
+
+  const passwordMatch = await bcrypt.compare(oldPassword, parent.passwordHash || "");
+
+  if (!passwordMatch) {
+    return res.status(401).json({
+      success: false,
+      message: "Current password is incorrect."
+    });
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  await db.collection("parents").updateOne(
+    { _id: parentObjectId },
+    {
+      $set: {
+        passwordHash,
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Parent password changed successfully."
+  });
+}
+
 module.exports = async function handler(req, res) {
+  if (req.method === "POST") {
+    try {
+      const { db } = await connectToDatabase();
+      const data = req.body || {};
+      const action = (data.action || "").trim();
+
+      if (action === "update-parent-profile") {
+        return updateParentProfile(db, data, res);
+      }
+
+      if (action === "change-parent-password") {
+        return changeParentPassword(db, data, res);
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid parent dashboard action."
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Parent profile request failed.",
+        error: {
+          name: error.name,
+          message: error.message
+        }
+      });
+    }
+  }
+
   if (req.method !== "GET") {
     return res.status(405).json({
       success: false,
-      message: "Method not allowed. Use GET only."
+      message: "Method not allowed. Use GET or POST only."
     });
   }
 
@@ -188,3 +393,5 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+// MUTAHUS_STEP19_PARENT_PROFILE_PASSWORD
