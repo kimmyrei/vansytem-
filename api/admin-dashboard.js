@@ -493,6 +493,74 @@ async function changeAdminPassword(db, data, res) {
   });
 }
 
+
+async function getSystemBackup(db, res) {
+  const parentsRaw = await db.collection("parents").find({}).sort({ createdAt: -1 }).toArray();
+  const studentsRaw = await db.collection("students").find({}).sort({ createdAt: -1 }).toArray();
+  const paymentsRaw = await db.collection("payments").find({}).sort({ createdAt: -1 }).toArray();
+  const announcementsRaw = await db.collection("announcements").find({}).sort({ createdAt: -1 }).toArray();
+  const rulesRaw = await db.collection("rules").find({}).sort({ order: 1, createdAt: 1 }).toArray();
+  const adminsRaw = await db.collection("admins").find({}).sort({ createdAt: -1 }).toArray();
+
+  const sanitizeId = item => {
+    const clean = { ...item };
+    clean.id = clean._id ? clean._id.toString() : clean.id;
+    delete clean._id;
+    return clean;
+  };
+
+  const parents = parentsRaw.map(parent => {
+    const clean = sanitizeId(parent);
+    delete clean.passwordHash;
+    return clean;
+  });
+
+  const students = studentsRaw.map(sanitizeId);
+
+  const payments = paymentsRaw.map(payment => {
+    const clean = sanitizeId(payment);
+    clean.hasReceiptDataUrl = Boolean(clean.receiptDataUrl);
+    delete clean.receiptDataUrl;
+    return clean;
+  });
+
+  const announcements = announcementsRaw.map(sanitizeId);
+  const rules = rulesRaw.map(sanitizeId);
+
+  const admins = adminsRaw.map(admin => {
+    const clean = sanitizeId(admin);
+    delete clean.passwordHash;
+    return clean;
+  });
+
+  const backup = {
+    system: "Mutahus Global Van System",
+    database: "mutahus_global",
+    exportedAt: new Date().toISOString(),
+    note: "Password hashes and large receiptDataUrl fields are excluded from this backup.",
+    counts: {
+      parents: parents.length,
+      students: students.length,
+      payments: payments.length,
+      announcements: announcements.length,
+      rules: rules.length,
+      admins: admins.length
+    },
+    parents,
+    students,
+    payments,
+    announcements,
+    rules,
+    admins
+  };
+
+  return res.status(200).json({
+    success: true,
+    message: "System backup generated successfully.",
+    backup
+  });
+}
+
 module.exports = async function handler(req, res) {
   try {
     const { db } = await connectToDatabase();
@@ -506,6 +574,10 @@ module.exports = async function handler(req, res) {
 
       if (action === "rules") {
         return getRules(db, res);
+      }
+
+      if (action === "backup") {
+        return getSystemBackup(db, res);
       }
 
       return getDashboard(db, res);
@@ -570,3 +642,5 @@ module.exports = async function handler(req, res) {
 };
 
 // MUTAHUS_STEP15_ADMIN_LOGIN_MONGODB
+
+// MUTAHUS_STEP21_ADMIN_BACKUP_DOWNLOAD

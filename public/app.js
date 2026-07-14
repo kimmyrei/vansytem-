@@ -2720,3 +2720,58 @@ document.addEventListener("DOMContentLoaded", protectAdminSettingsPage);
 
 // MUTAHUS_STEP20_ADMIN_SETTINGS_PASSWORD_UI
 
+
+function downloadJSON(filename, data) {
+    const jsonText = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonText], { type: "application/json;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+function todayBackupDate() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+
+    return `${yyyy}-${mm}-${dd}-${hh}${min}`;
+}
+
+async function downloadSystemBackup() {
+    const admin = requireAdminLogin();
+
+    if (!admin) return;
+
+    const confirmBackup = confirm("Download a JSON backup of parents, students, payments, announcements and rules?");
+
+    if (!confirmBackup) return;
+
+    try {
+        const response = await fetch("/api/admin-dashboard?action=backup");
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to download system backup.");
+            return;
+        }
+
+        downloadJSON(`mutahus-backup-${todayBackupDate()}.json`, result.backup);
+
+        alert("System backup downloaded successfully.");
+    } catch (error) {
+        alert("Backup download error: " + error.message);
+    }
+}
+
+// MUTAHUS_STEP21_ADMIN_BACKUP_DOWNLOAD
+
