@@ -3121,3 +3121,413 @@ window.addEventListener("load", startMutahusMobileFeatureMenu);
 
 // MUTAHUS_STEP22_MOBILE_ALL_DESKTOP_FEATURES
 
+
+function injectMutahusFilterStyles() {
+    if (document.getElementById("mutahusFilterStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "mutahusFilterStyles";
+    style.textContent = `
+        .mutahus-filter-panel {
+            background: #ffffff;
+            border: 1px solid #d9e5f5;
+            border-radius: 22px;
+            padding: 16px;
+            margin: 18px 0;
+            box-shadow: 0 8px 24px rgba(30,70,120,.05);
+        }
+
+        .mutahus-filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .mutahus-filter-header strong {
+            color: #123f73;
+            font-size: 17px;
+        }
+
+        .mutahus-filter-header small {
+            color: #6b7a90;
+        }
+
+        .mutahus-filter-grid {
+            display: grid;
+            grid-template-columns: 1.4fr .8fr .8fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .mutahus-filter-grid label {
+            display: block;
+            color: #123f73;
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .mutahus-filter-grid input,
+        .mutahus-filter-grid select {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #d9e5f5;
+            border-radius: 14px;
+            padding: 0 12px;
+            background: #fbfdff;
+            color: #163150;
+            outline: none;
+        }
+
+        .mutahus-filter-grid button {
+            min-height: 44px;
+            border: none;
+            border-radius: 14px;
+            padding: 0 14px;
+            background: #edf4ff;
+            color: #123f73;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .mutahus-filter-empty-row td {
+            text-align: center;
+            color: #6b7a90;
+            font-weight: 700;
+            padding: 20px !important;
+        }
+
+        @media (max-width: 760px) {
+            .mutahus-filter-panel {
+                border-radius: 18px;
+                padding: 14px;
+            }
+
+            .mutahus-filter-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .mutahus-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mutahus-filter-grid button {
+                width: 100%;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+function getCurrentAdminFilterPage() {
+    return window.location.pathname.split("/").pop() || "index.html";
+}
+
+function createAdminFilterPanel(config) {
+    injectMutahusFilterStyles();
+
+    if (document.getElementById(config.panelId)) return;
+
+    const panel = document.createElement("section");
+    panel.id = config.panelId;
+    panel.className = "mutahus-filter-panel";
+    panel.innerHTML = `
+        <div class="mutahus-filter-header">
+            <div>
+                <strong>${config.title}</strong><br>
+                <small>${config.subtitle}</small>
+            </div>
+        </div>
+
+        <div class="mutahus-filter-grid">
+            <div>
+                <label>Search</label>
+                <input type="text" id="${config.searchId}" placeholder="${config.searchPlaceholder}">
+            </div>
+
+            <div>
+                <label>${config.filterOneLabel}</label>
+                <select id="${config.filterOneId}">
+                    ${config.filterOneOptions}
+                </select>
+            </div>
+
+            <div>
+                <label>${config.filterTwoLabel}</label>
+                <select id="${config.filterTwoId}">
+                    ${config.filterTwoOptions}
+                </select>
+            </div>
+
+            <button type="button" id="${config.resetId}">Reset</button>
+        </div>
+    `;
+
+    const target =
+        document.querySelector(".table-box-pro") ||
+        document.querySelector(".table-card") ||
+        document.querySelector(".panel-card.table-card") ||
+        document.querySelector(".panel-card") ||
+        document.querySelector(".app-main") ||
+        document.querySelector(".admin-main") ||
+        document.body;
+
+    if (target && target.parentNode && target !== document.body) {
+        target.insertAdjacentElement("beforebegin", panel);
+    } else if (target && target !== document.body) {
+        target.insertBefore(panel, target.firstChild);
+    } else {
+        document.body.insertBefore(panel, document.body.firstChild);
+    }
+
+    document.getElementById(config.searchId).addEventListener("input", config.applyFunction);
+    document.getElementById(config.filterOneId).addEventListener("change", config.applyFunction);
+    document.getElementById(config.filterTwoId).addEventListener("change", config.applyFunction);
+
+    document.getElementById(config.resetId).addEventListener("click", function () {
+        document.getElementById(config.searchId).value = "";
+        document.getElementById(config.filterOneId).value = "";
+        document.getElementById(config.filterTwoId).value = "";
+        config.applyFunction();
+    });
+}
+
+function removeFilterEmptyRow(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    table.querySelectorAll(".mutahus-filter-empty-row").forEach(row => row.remove());
+}
+
+function showFilterEmptyRow(tableId, colspan, message) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    removeFilterEmptyRow(tableId);
+
+    const row = document.createElement("tr");
+    row.className = "mutahus-filter-empty-row";
+    row.innerHTML = `<td colspan="${colspan}">${message}</td>`;
+    table.appendChild(row);
+}
+
+function filterRowsByText(tableId, options) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    removeFilterEmptyRow(tableId);
+
+    const rows = Array.from(table.querySelectorAll("tr")).filter(row => !row.classList.contains("mutahus-filter-empty-row"));
+
+    const search = (document.getElementById(options.searchId)?.value || "").trim().toLowerCase();
+    const one = (document.getElementById(options.filterOneId)?.value || "").trim().toLowerCase();
+    const two = (document.getElementById(options.filterTwoId)?.value || "").trim().toLowerCase();
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+
+        const matchSearch = !search || text.includes(search);
+        const matchOne = !one || text.includes(one);
+        const matchTwo = !two || text.includes(two);
+
+        const show = matchSearch && matchOne && matchTwo;
+
+        row.style.display = show ? "" : "none";
+
+        if (show) visibleCount++;
+    });
+
+    if (rows.length > 0 && visibleCount === 0) {
+        showFilterEmptyRow(tableId, options.colspan, "No matching records found.");
+    }
+}
+
+function setupStudentFilters() {
+    createAdminFilterPanel({
+        panelId: "studentFilterPanel",
+        title: "Search & Filter Students",
+        subtitle: "Find student records faster by name, parent, school, status or session.",
+        searchId: "studentSearchInput",
+        searchPlaceholder: "Search student / parent / school...",
+        filterOneId: "studentStatusFilter",
+        filterOneLabel: "Student Status",
+        filterOneOptions: `
+            <option value="">All Status</option>
+            <option value="Pending Review">Pending Review</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Active">Active</option>
+            <option value="Rejected">Rejected</option>
+        `,
+        filterTwoId: "studentSessionFilter",
+        filterTwoLabel: "Session",
+        filterTwoOptions: `
+            <option value="">All Session</option>
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+        `,
+        resetId: "studentFilterReset",
+        applyFunction: applyStudentFilters
+    });
+
+    applyStudentFilters();
+}
+
+function applyStudentFilters() {
+    filterRowsByText("adminStudentsTable", {
+        searchId: "studentSearchInput",
+        filterOneId: "studentStatusFilter",
+        filterTwoId: "studentSessionFilter",
+        colspan: 8
+    });
+}
+
+function setupParentFilters() {
+    createAdminFilterPanel({
+        panelId: "parentFilterPanel",
+        title: "Search & Filter Parents",
+        subtitle: "Find parent records faster by name, phone, email, payment or account status.",
+        searchId: "parentSearchInput",
+        searchPlaceholder: "Search parent / phone / email...",
+        filterOneId: "parentStatusFilter",
+        filterOneLabel: "Parent Status",
+        filterOneOptions: `
+            <option value="">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+            <option value="Rejected">Rejected</option>
+        `,
+        filterTwoId: "parentPaymentFilter",
+        filterTwoLabel: "Payment Status",
+        filterTwoOptions: `
+            <option value="">All Payment</option>
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+            <option value="Unpaid">Unpaid</option>
+            <option value="Rejected">Rejected</option>
+        `,
+        resetId: "parentFilterReset",
+        applyFunction: applyParentFilters
+    });
+
+    applyParentFilters();
+}
+
+function applyParentFilters() {
+    filterRowsByText("adminParentsTable", {
+        searchId: "parentSearchInput",
+        filterOneId: "parentStatusFilter",
+        filterTwoId: "parentPaymentFilter",
+        colspan: 7
+    });
+}
+
+function setupPaymentFilters() {
+    createAdminFilterPanel({
+        panelId: "paymentFilterPanel",
+        title: "Search & Filter Payments",
+        subtitle: "Find payment records by parent, student, month, amount, receipt or status.",
+        searchId: "paymentSearchInput",
+        searchPlaceholder: "Search payment / parent / student / month...",
+        filterOneId: "paymentStatusFilter",
+        filterOneLabel: "Payment Status",
+        filterOneOptions: `
+            <option value="">All Status</option>
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Unpaid">Unpaid</option>
+        `,
+        filterTwoId: "paymentMonthFilter",
+        filterTwoLabel: "Month",
+        filterTwoOptions: `
+            <option value="">All Month</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+        `,
+        resetId: "paymentFilterReset",
+        applyFunction: applyPaymentFilters
+    });
+
+    applyPaymentFilters();
+}
+
+function applyPaymentFilters() {
+    filterRowsByText("adminPaymentsTable", {
+        searchId: "paymentSearchInput",
+        filterOneId: "paymentStatusFilter",
+        filterTwoId: "paymentMonthFilter",
+        colspan: 7
+    });
+}
+
+function startAdminSearchFilters() {
+    const page = getCurrentAdminFilterPage();
+
+    if (page === "admin-students.html") {
+        setTimeout(setupStudentFilters, 500);
+        setTimeout(applyStudentFilters, 1200);
+    }
+
+    if (page === "admin-parents.html") {
+        setTimeout(setupParentFilters, 500);
+        setTimeout(applyParentFilters, 1200);
+    }
+
+    if (page === "admin-payments.html") {
+        setTimeout(setupPaymentFilters, 500);
+        setTimeout(applyPaymentFilters, 1200);
+    }
+}
+
+// Re-apply filter after existing table loaders finish.
+if (typeof loadAdminStudents === "function") {
+    const mutahusOriginalLoadAdminStudents = loadAdminStudents;
+    loadAdminStudents = async function () {
+        const result = await mutahusOriginalLoadAdminStudents();
+        setTimeout(setupStudentFilters, 200);
+        setTimeout(applyStudentFilters, 400);
+        return result;
+    };
+}
+
+if (typeof loadAdminParents === "function") {
+    const mutahusOriginalLoadAdminParents = loadAdminParents;
+    loadAdminParents = async function () {
+        const result = await mutahusOriginalLoadAdminParents();
+        setTimeout(setupParentFilters, 200);
+        setTimeout(applyParentFilters, 400);
+        return result;
+    };
+}
+
+if (typeof loadAdminPayments === "function") {
+    const mutahusOriginalLoadAdminPayments = loadAdminPayments;
+    loadAdminPayments = async function () {
+        const result = await mutahusOriginalLoadAdminPayments();
+        setTimeout(setupPaymentFilters, 200);
+        setTimeout(applyPaymentFilters, 400);
+        return result;
+    };
+}
+
+document.addEventListener("DOMContentLoaded", startAdminSearchFilters);
+window.addEventListener("load", startAdminSearchFilters);
+
+// MUTAHUS_STEP23_ADMIN_SEARCH_FILTERS
+
