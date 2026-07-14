@@ -2162,3 +2162,43 @@ if (typeof loadAdminRules === "function") {
 
 // MUTAHUS_STEP16_ADMIN_PAGE_PROTECTION
 
+
+function protectParentPages() {
+    const page = window.location.pathname.split("/").pop() || "index.html";
+
+    const protectedParentPages = [
+        "parent-dashboard.html",
+        "add-student.html",
+        "upload-payment.html"
+    ];
+
+    if (protectedParentPages.includes(page)) {
+        requireParentLogin();
+    }
+
+    if (page === "parent-login.html" && getCurrentParent()) {
+        window.location.href = "parent-dashboard.html";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", protectParentPages);
+
+// Extra protection before parent page data loads.
+if (typeof loadParentDashboard === "function") {
+    const originalLoadParentDashboard = loadParentDashboard;
+    loadParentDashboard = function () {
+        if (!requireParentLogin()) return;
+        return originalLoadParentDashboard();
+    };
+}
+
+if (typeof loadPaymentUploadPage === "function") {
+    const originalLoadPaymentUploadPage = loadPaymentUploadPage;
+    loadPaymentUploadPage = function () {
+        if (!requireParentLogin()) return;
+        return originalLoadPaymentUploadPage();
+    };
+}
+
+// MUTAHUS_STEP17_PARENT_PAGE_PROTECTION
+
