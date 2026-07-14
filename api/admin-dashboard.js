@@ -1,4 +1,5 @@
 const { ObjectId } = require("mongodb");
+const bcrypt = require("bcryptjs");
 const { connectToDatabase } = require("./_db");
 
 function cleanDate(value) {
@@ -360,6 +361,138 @@ async function resetRules(db, res) {
   });
 }
 
+
+async function ensureDefaultAdmin(db) {
+  const totalAdmins = await db.collection("admins").countDocuments();
+
+  if (totalAdmins > 0) {
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash("admin123", 10);
+
+  await db.collection("admins").insertOne({
+    username: "admin",
+    name: "Main Admin",
+    passwordHash,
+    role: "superadmin",
+    status: "Active",
+    createdAt: new Date(),
+    updatedAt: new Date()
+  });
+}
+
+async function adminLogin(db, data, res) {
+  await ensureDefaultAdmin(db);
+
+  const username = (data.username || "").trim().toLowerCase();
+  const password = data.password || "";
+
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Please enter admin username and password."
+    });
+  }
+
+  const admin = await db.collection("admins").findOne({ username });
+
+  if (!admin || admin.status === "Inactive") {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid admin username or password."
+    });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, admin.passwordHash || "");
+
+  if (!passwordMatch) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid admin username or password."
+    });
+  }
+
+  await db.collection("admins").updateOne(
+    { _id: admin._id },
+    {
+      $set: {
+        lastLoginAt: new Date(),
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Admin login successful.",
+    admin: {
+      id: admin._id.toString(),
+      username: admin.username,
+      name: admin.name || "Admin",
+      role: admin.role || "admin",
+      status: admin.status || "Active"
+    }
+  });
+}
+
+async function changeAdminPassword(db, data, res) {
+  await ensureDefaultAdmin(db);
+
+  const username = (data.username || "admin").trim().toLowerCase();
+  const oldPassword = data.oldPassword || "";
+  const newPassword = data.newPassword || "";
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Old password and new password are required."
+    });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: "New password must be at least 6 characters."
+    });
+  }
+
+  const admin = await db.collection("admins").findOne({ username });
+
+  if (!admin) {
+    return res.status(404).json({
+      success: false,
+      message: "Admin account not found."
+    });
+  }
+
+  const passwordMatch = await bcrypt.compare(oldPassword, admin.passwordHash || "");
+
+  if (!passwordMatch) {
+    return res.status(401).json({
+      success: false,
+      message: "Old password is incorrect."
+    });
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  await db.collection("admins").updateOne(
+    { _id: admin._id },
+    {
+      $set: {
+        passwordHash,
+        updatedAt: new Date()
+      }
+    }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Admin password updated successfully."
+  });
+}
+
 module.exports = async function handler(req, res) {
   try {
     const { db } = await connectToDatabase();
@@ -381,6 +514,14 @@ module.exports = async function handler(req, res) {
     if (req.method === "POST") {
       const data = req.body || {};
       const action = (data.action || "").trim();
+
+      if (action === "admin-login") {
+        return adminLogin(db, data, res);
+      }
+
+      if (action === "change-admin-password") {
+        return changeAdminPassword(db, data, res);
+      }
 
       if (action === "post-announcement") {
         return postAnnouncement(db, data, res);
@@ -427,3 +568,5 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+// MUTAHUS_STEP15_ADMIN_LOGIN_MONGODB

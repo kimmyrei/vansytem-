@@ -201,20 +201,8 @@ async function parentLogin(event) {
     }
 }
 
-function adminLogin(event) {
-    event.preventDefault();
 
-    const username = document.getElementById("adminUsername").value.trim();
-    const password = document.getElementById("adminPassword").value;
 
-    if (username === "admin" && password === "admin123") {
-        localStorage.setItem(VS.adminKey, "true");
-        alert("Admin login successful!");
-        window.location.href = "admin-dashboard.html";
-    } else {
-        alert("Invalid admin username or password.");
-    }
-}
 
 
 async function saveChild(event) {
@@ -2009,4 +1997,54 @@ async function removeParentAndRecords(parentId) {
 }
 
 // MUTAHUS_STEP14_ADMIN_PARENTS_MONGODB_FINAL
+
+
+async function adminLogin(event) {
+    event.preventDefault();
+
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Logging in...";
+    }
+
+    const loginData = {
+        action: "admin-login",
+        username: document.getElementById("adminUsername").value.trim(),
+        password: document.getElementById("adminPassword").value
+    };
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(loginData)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Invalid admin username or password.");
+            return;
+        }
+
+        localStorage.setItem(VS.adminKey, JSON.stringify(result.admin));
+
+        alert("Admin login successful.");
+        window.location.href = "admin-dashboard.html";
+    } catch (error) {
+        alert("Admin login error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+    }
+}
+
+// MUTAHUS_STEP15_ADMIN_LOGIN_MONGODB
 
