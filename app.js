@@ -288,51 +288,139 @@ function getAnnouncementCategoryBadgeClass(type) {
     return "unpaid";
 }
 
-function showReceiptInfo(receiptName, note) {
-    alert("Receipt file: " + (receiptName || "No receipt file") + "\nPayment note: " + (note || "No note"));
+
+
+
+
+async function loadParentDashboard() {
+    const parent = requireParentLogin();
+    if (!parent) return;
+
+    const announcementBox = document.getElementById("announcementList");
+    const table = document.getElementById("childrenTable");
+
+    if (announcementBox) {
+        announcementBox.innerHTML = `<div class="announcement announcement-card-pro"><strong>Loading announcements...</strong></div>`;
+    }
+
+    if (table) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty-row">Loading dashboard data...</td>
+            </tr>
+        `;
+    }
+
+    try {
+        const response = await fetch(`/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}`);
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to load dashboard.");
+            return;
+        }
+
+        const currentParent = result.parent || parent;
+        const children = result.children || [];
+        const payments = result.payments || [];
+        const announcements = result.announcements || [];
+
+        localStorage.setItem(VS.currentParentKey, JSON.stringify(currentParent));
+
+        document.getElementById("parentNameDisplay").innerText = currentParent.name;
+        document.getElementById("totalChildren").innerText = children.length;
+
+        const pendingCount = payments.filter(payment => payment.status === "Pending").length;
+        const paidAmount = payments
+            .filter(payment => payment.status === "Paid")
+            .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+
+        document.getElementById("pendingPayment").innerText = pendingCount;
+        document.getElementById("totalPaid").innerText = "RM" + paidAmount;
+
+        if (announcementBox) {
+            announcementBox.innerHTML = "";
+
+            announcements.slice(0, 3).forEach(item => {
+                const categoryClass = getAnnouncementCategoryBadgeClass(item.type);
+
+                announcementBox.innerHTML += `
+                    <div class="announcement announcement-card-pro">
+                        <div class="announcement-top-row">
+                            <span class="badge ${categoryClass}">${item.type}</span>
+                            <small>${item.date || ""}</small>
+                        </div>
+                        <strong>📢 ${item.title}</strong>
+                        <p>${item.message}</p>
+                    </div>
+                `;
+            });
+
+            if (announcements.length === 0) {
+                announcementBox.innerHTML = `
+                    <div class="announcement announcement-card-pro">
+                        <strong>No announcements yet.</strong>
+                        <p>Updates from admin will appear here.</p>
+                    </div>
+                `;
+            }
+        }
+
+        if (!table) return;
+
+        table.innerHTML = "";
+
+        if (children.length === 0) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-row">
+                        No child registered yet. Click <strong>Register Child</strong> to register your child.
+                    </td>
+                </tr>
+            `;
+        } else {
+            children.forEach(child => {
+                const latestPayment = payments
+                    .filter(payment => payment.studentId === child.id)
+                    .sort((a, b) => new Date(b.createdSort) - new Date(a.createdSort))[0];
+
+                const paymentStatus = latestPayment ? latestPayment.status : (child.paymentStatus || "Unpaid");
+                const badgeClass = paymentStatus === "Paid" ? "paid" : paymentStatus === "Pending" ? "pending" : paymentStatus === "Rejected" ? "rejected" : "unpaid";
+                const studentStatusClass = getStudentStatusBadgeClass(child.status || "Pending Review");
+
+                table.innerHTML += `
+                    <tr>
+                        <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
+                        <td>${child.school}</td>
+                        <td>${child.classYear}</td>
+                        <td>${child.session}</td>
+                        <td>${child.pickupLocation}</td>
+                        <td><span class="badge ${studentStatusClass}">${child.status || "Pending Review"}</span></td>
+                        <td><span class="badge ${badgeClass}">${paymentStatus}</span></td>
+                        <td>
+                            <button class="small-btn danger" onclick="deleteChild('${child.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        loadParentPaymentHistory(payments);
+    } catch (error) {
+        alert("Dashboard error: " + error.message);
+
+        if (table) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-row">Failed to load dashboard data.</td>
+                </tr>
+            `;
+        }
+    }
 }
 
 
 
-
-
-function loadParentPaymentHistory(payments) {
-    const historyTable = document.getElementById("paymentHistoryTable");
-    const historyCount = document.getElementById("paymentHistoryCount");
-
-    if (!historyTable) return;
-
-    historyTable.innerHTML = "";
-
-    if (historyCount) {
-        historyCount.innerText = payments.length;
-    }
-
-    if (payments.length === 0) {
-        historyTable.innerHTML = `
-            <tr>
-                <td colspan="5" class="empty-row">No payment history yet.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    payments.slice().reverse().forEach(payment => {
-        const badgeClass = payment.status === "Paid" ? "paid" : payment.status === "Pending" ? "pending" : payment.status === "Rejected" ? "rejected" : "unpaid";
-
-        historyTable.innerHTML += `
-            <tr>
-                <td>${payment.month}</td>
-                <td>${payment.studentName}</td>
-                <td><strong>RM${payment.amount}</strong></td>
-                <td><span class="badge ${badgeClass}">${payment.status}</span></td>
-                <td>
-                    <button class="receipt-button" onclick="showReceiptInfo('${payment.receiptName}', '${payment.note || ""}')">View</button>
-                </td>
-            </tr>
-        `;
-    });
-}
 
 function deleteChild(childId) {
     alert("Delete child from MongoDB will be connected in a later admin step. For now, please manage this record from MongoDB if needed.");
@@ -347,14 +435,79 @@ function deleteChild(childId) {
 
 
 
+function loadAdminStudents() {
+    const children = getChildren();
+    const table = document.getElementById("adminStudentsTable");
+    table.innerHTML = "";
 
+    document.getElementById("adminTotalStudents").innerText = children.length;
+    document.getElementById("adminMorningStudents").innerText = children.filter(child => child.session === "Morning").length;
+    document.getElementById("adminAfternoonStudents").innerText = children.filter(child => child.session === "Afternoon").length;
+    document.getElementById("adminTotalSchools").innerText = new Set(children.map(child => child.school)).size;
 
+    if (children.length === 0) {
+        table.innerHTML = `<tr><td colspan="8" class="empty-row">No students added yet.</td></tr>`;
+        return;
+    }
 
+    children.forEach(child => {
+        const sessionClass = child.session === "Morning" ? "morning" : "afternoon";
+        const status = child.status || "Pending Review";
+        const statusClass = getStudentStatusBadgeClass(status);
 
+        table.innerHTML += `
+            <tr>
+                <td><strong>${child.name}</strong><br><small>Student ID: ${child.id}</small></td>
+                <td>${child.parentName}<br><small>${child.parentPhone}</small></td>
+                <td>${child.school}</td>
+                <td>${child.classYear}</td>
+                <td><span class="badge ${sessionClass}">${child.session}</span></td>
+                <td>${child.pickupLocation}</td>
+                <td><span class="badge ${statusClass}">${status}</span></td>
+                <td>
+                    <div class="student-action-row">
+                        <button class="small-btn edit" onclick="updateStudentStatus('${child.id}', 'Accepted')">Accept</button>
+                        <button class="small-btn warning" onclick="updateStudentStatus('${child.id}', 'Rejected')">Reject</button>
+                        <button class="small-btn" onclick="updateStudentStatus('${child.id}', 'Active')">Mark Active</button>
+                        <button class="small-btn danger" onclick="removeStudent('${child.id}')">Remove</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+}
 
+function updateStudentStatus(childId, status) {
+    const children = getChildren();
+    const childIndex = children.findIndex(child => child.id === childId);
 
+    if (childIndex === -1) {
+        alert("Student record not found.");
+        return;
+    }
 
+    children[childIndex].status = status;
+    children[childIndex].reviewedAt = new Date().toLocaleDateString("en-GB");
 
+    saveChildren(children);
+
+    alert("Student status updated to " + status + ".");
+    loadAdminStudents();
+}
+
+function removeStudent(childId) {
+    const confirmRemove = confirm("Are you sure you want to remove this student? Related payment records will also be removed.");
+    if (!confirmRemove) return;
+
+    const children = getChildren().filter(child => child.id !== childId);
+    const payments = getPayments().filter(payment => payment.studentId !== childId);
+
+    saveChildren(children);
+    savePayments(payments);
+
+    alert("Student removed successfully.");
+    loadAdminStudents();
+}
 
 
 
@@ -664,8 +817,25 @@ window.addEventListener("click", function(event) {
     }
 });
 
+function getCurrentParent() {
+    const savedParent = localStorage.getItem(VS.currentParentKey);
 
+    if (!savedParent) {
+        return null;
+    }
 
+    try {
+        const parent = JSON.parse(savedParent);
+
+        if (parent && parent.id) {
+            return parent;
+        }
+    } catch (error) {
+        return getParents().find(parent => parent.id === savedParent) || null;
+    }
+
+    return null;
+}
 
 async function loadPaymentUploadPage() {
     const parent = requireParentLogin();
@@ -720,159 +890,11 @@ async function loadPaymentUploadPage() {
     }
 }
 
-async function submitPayment(event) {
-    event.preventDefault();
 
-    const parent = requireParentLogin();
-    if (!parent) return;
 
-    const studentId = document.getElementById("paymentStudent").value;
 
-    if (!studentId) {
-        alert("Please choose a student.");
-        return;
-    }
 
-    const submitButton = event.target.querySelector("button[type='submit']");
-    const originalText = submitButton ? submitButton.innerText : "";
 
-    if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.innerText = "Uploading...";
-    }
-
-    const receiptFile = document.getElementById("receiptFile").files[0];
-
-    const paymentData = {
-        parentId: parent.id,
-        parentEmail: parent.email || "",
-        studentId,
-        month: document.getElementById("paymentMonth").value,
-        amount: Number(document.getElementById("paymentAmount").value),
-        datePaid: document.getElementById("paymentDate").value,
-        receiptName: receiptFile ? receiptFile.name : "No file",
-        note: document.getElementById("paymentNote") ? document.getElementById("paymentNote").value.trim() : ""
-    };
-
-    try {
-        const response = await fetch("/api/upload-payment", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(paymentData)
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-            alert(result.message || "Failed to upload payment.");
-            return;
-        }
-
-        alert("Payment proof saved successfully in MongoDB. Waiting for admin approval.");
-        window.location.href = "parent-dashboard.html";
-    } catch (error) {
-        alert("Payment upload error: " + error.message);
-    } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.innerText = originalText;
-        }
-    }
-}
-
-async function loadAdminPayments() {
-    const table = document.getElementById("adminPaymentsTable");
-
-    if (table) {
-        table.innerHTML = `<tr><td colspan="7" class="empty-row">Loading payments from MongoDB...</td></tr>`;
-    }
-
-    try {
-        const response = await fetch("/api/admin-payments");
-        const result = await response.json();
-
-        console.log("ADMIN PAYMENTS RESULT:", result);
-
-        if (!result.success) {
-            alert(result.message || "Failed to load payments.");
-            if (table) {
-                table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load payments.</td></tr>`;
-            }
-            return;
-        }
-
-        const payments = result.payments || [];
-        const summary = result.summary || {
-            totalCollection: 0,
-            paidCount: 0,
-            pendingCount: 0,
-            unpaidCount: 0
-        };
-
-        const totalCollectionEl = document.getElementById("paymentTotalCollection");
-        const paidCountEl = document.getElementById("paymentPaidCount");
-        const pendingCountEl = document.getElementById("paymentPendingCount");
-        const unpaidCountEl = document.getElementById("paymentUnpaidCount");
-
-        if (totalCollectionEl) totalCollectionEl.innerText = "RM" + summary.totalCollection;
-        if (paidCountEl) paidCountEl.innerText = summary.paidCount;
-        if (pendingCountEl) pendingCountEl.innerText = summary.pendingCount;
-        if (unpaidCountEl) unpaidCountEl.innerText = summary.unpaidCount;
-
-        if (!table) return;
-
-        table.innerHTML = "";
-
-        if (payments.length === 0) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">No payment proof uploaded yet.</td></tr>`;
-            return;
-        }
-
-        payments.forEach(payment => {
-            const badgeClass = getPaymentBadgeClass(payment.status);
-            const isPaid = payment.status === "Paid";
-            const isRejected = payment.status === "Rejected";
-
-            table.innerHTML += `
-                <tr>
-                    <td><strong>${payment.parentName || "-"}</strong><br><small>${payment.parentPhone || ""}</small></td>
-                    <td>${payment.studentName || "-"}</td>
-                    <td>${payment.month || "-"}</td>
-                    <td><strong>RM${payment.amount || 0}</strong></td>
-                    <td>
-                        <button class="receipt-button" data-receipt="${payment.receiptName || "No receipt file"}" data-note="${payment.note || ""}">
-                            View Receipt
-                        </button>
-                        <br><small>${payment.receiptName || "No receipt file"}</small>
-                    </td>
-                    <td><span class="badge ${badgeClass}">${payment.status || "Pending"}</span></td>
-                    <td>
-                        <div class="action-row">
-                            <button class="small-btn edit payment-action-btn" data-id="${payment.id}" data-status="Paid" ${isPaid ? "disabled" : ""}>
-                                Approve
-                            </button>
-                            <button class="small-btn danger payment-action-btn" data-id="${payment.id}" data-status="Rejected" ${isRejected ? "disabled" : ""}>
-                                Reject
-                            </button>
-                            <button class="small-btn warning payment-action-btn" data-id="${payment.id}" data-status="Pending" ${payment.status === "Pending" ? "disabled" : ""}>
-                                Pending
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-
-        connectPaymentButtons();
-    } catch (error) {
-        alert("Admin payments error: " + error.message);
-        if (table) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load payments.</td></tr>`;
-        }
-    }
-}
 
 function connectPaymentButtons() {
     const actionButtons = document.querySelectorAll(".payment-action-btn");
@@ -1419,261 +1441,332 @@ async function deleteAnnouncement(id) {
     }
 }
 
-function getCurrentParent() {
-    const savedParent = localStorage.getItem(VS.currentParentKey);
-
-    if (!savedParent) {
-        return null;
-    }
-
-    try {
-        const parent = JSON.parse(savedParent);
-
-        if (parent && parent.id) {
-            return parent;
+function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve("");
+            return;
         }
-    } catch (error) {
-        return getParents().find(parent => parent.id === savedParent) || null;
-    }
 
-    return null;
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Failed to read receipt file."));
+
+        reader.readAsDataURL(file);
+    });
 }
 
-async function loadParentDashboard() {
+function showReceiptInfo(receiptName, note, receiptDataUrl) {
+    const name = receiptName || "No receipt file";
+    const paymentNote = note || "No note";
+
+    if (receiptDataUrl && receiptDataUrl.startsWith("data:")) {
+        const win = window.open("", "_blank");
+
+        if (win) {
+            win.document.write(`
+                <html>
+                    <head>
+                        <title>${name}</title>
+                        <style>
+                            body {
+                                margin: 0;
+                                padding: 24px;
+                                font-family: Arial, sans-serif;
+                                background: #f5f5f5;
+                                color: #222;
+                            }
+                            .receipt-box {
+                                max-width: 900px;
+                                margin: auto;
+                                background: white;
+                                padding: 20px;
+                                border-radius: 16px;
+                                box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+                            }
+                            img {
+                                max-width: 100%;
+                                height: auto;
+                                display: block;
+                                margin-top: 16px;
+                                border-radius: 12px;
+                            }
+                            iframe {
+                                width: 100%;
+                                height: 80vh;
+                                border: none;
+                                margin-top: 16px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="receipt-box">
+                            <h2>Payment Receipt</h2>
+                            <p><strong>File:</strong> ${name}</p>
+                            <p><strong>Note:</strong> ${paymentNote}</p>
+                            ${
+                                receiptDataUrl.startsWith("data:application/pdf")
+                                    ? `<iframe src="${receiptDataUrl}"></iframe>`
+                                    : `<img src="${receiptDataUrl}" alt="Payment receipt">`
+                            }
+                        </div>
+                    </body>
+                </html>
+            `);
+            win.document.close();
+            return;
+        }
+    }
+
+    alert("Receipt file: " + name + "\nPayment note: " + paymentNote + "\n\nActual receipt image is not available for this older payment record.");
+}
+
+async function submitPayment(event) {
+    event.preventDefault();
+
     const parent = requireParentLogin();
     if (!parent) return;
 
-    const announcementBox = document.getElementById("announcementList");
-    const table = document.getElementById("childrenTable");
+    const studentId = document.getElementById("paymentStudent").value;
 
-    if (announcementBox) {
-        announcementBox.innerHTML = `<div class="announcement announcement-card-pro"><strong>Loading announcements...</strong></div>`;
+    if (!studentId) {
+        alert("Please choose a student.");
+        return;
     }
 
-    if (table) {
-        table.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty-row">Loading dashboard data...</td>
-            </tr>
-        `;
+    const submitButton = event.target.querySelector("button[type='submit']");
+    const originalText = submitButton ? submitButton.innerText : "";
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerText = "Uploading...";
     }
 
-    try {
-        const response = await fetch(`/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}&email=${encodeURIComponent(parent.email || "")}`);
-        const result = await response.json();
+    const receiptFile = document.getElementById("receiptFile").files[0];
 
-        if (!result.success) {
-            alert(result.message || "Failed to load dashboard.");
-            return;
+    if (!receiptFile) {
+        alert("Please upload a receipt image or PDF.");
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
         }
-
-        const currentParent = result.parent || parent;
-        const children = result.children || [];
-        const payments = result.payments || [];
-        const announcements = result.announcements || [];
-
-        localStorage.setItem(VS.currentParentKey, JSON.stringify(currentParent));
-
-        const parentNameDisplay = document.getElementById("parentNameDisplay");
-        const totalChildren = document.getElementById("totalChildren");
-        const pendingPayment = document.getElementById("pendingPayment");
-        const totalPaid = document.getElementById("totalPaid");
-
-        if (parentNameDisplay) parentNameDisplay.innerText = currentParent.name;
-        if (totalChildren) totalChildren.innerText = children.length;
-
-        const pendingCount = payments.filter(payment => payment.status === "Pending").length;
-        const paidAmount = payments
-            .filter(payment => payment.status === "Paid")
-            .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-
-        if (pendingPayment) pendingPayment.innerText = pendingCount;
-        if (totalPaid) totalPaid.innerText = "RM" + paidAmount;
-
-        if (announcementBox) {
-            announcementBox.innerHTML = "";
-
-            announcements.slice(0, 3).forEach(item => {
-                const categoryClass = getAnnouncementCategoryBadgeClass(item.type);
-
-                announcementBox.innerHTML += `
-                    <div class="announcement announcement-card-pro">
-                        <div class="announcement-top-row">
-                            <span class="badge ${categoryClass}">${item.type}</span>
-                            <small>${item.date || ""}</small>
-                        </div>
-                        <strong>📢 ${item.title}</strong>
-                        <p>${item.message}</p>
-                    </div>
-                `;
-            });
-
-            if (announcements.length === 0) {
-                announcementBox.innerHTML = `
-                    <div class="announcement announcement-card-pro">
-                        <strong>No announcements yet.</strong>
-                        <p>Updates from admin will appear here.</p>
-                    </div>
-                `;
-            }
-        }
-
-        if (!table) return;
-
-        table.innerHTML = "";
-
-        if (children.length === 0) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-row">
-                        No child registered yet. Click <strong>Register Child</strong> to register your child.
-                    </td>
-                </tr>
-            `;
-        } else {
-            children.forEach(child => {
-                const latestPayment = payments
-                    .filter(payment => payment.studentId === child.id)
-                    .sort((a, b) => new Date(b.createdSort) - new Date(a.createdSort))[0];
-
-                const paymentStatus = latestPayment ? latestPayment.status : (child.paymentStatus || "Unpaid");
-                const badgeClass = paymentStatus === "Paid" ? "paid" : paymentStatus === "Pending" ? "pending" : paymentStatus === "Rejected" ? "rejected" : "unpaid";
-                const studentStatusClass = getStudentStatusBadgeClass(child.status || "Pending Review");
-
-                table.innerHTML += `
-                    <tr>
-                        <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                        <td>${child.school}</td>
-                        <td>${child.classYear}</td>
-                        <td>${child.session}</td>
-                        <td>${child.pickupLocation}</td>
-                        <td><span class="badge ${studentStatusClass}">${child.status || "Pending Review"}</span></td>
-                        <td><span class="badge ${badgeClass}">${paymentStatus}</span></td>
-                        <td>
-                            <button class="small-btn danger" onclick="deleteChild('${child.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        loadParentPaymentHistory(payments);
-    } catch (error) {
-        alert("Dashboard error: " + error.message);
-
-        if (table) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-row">Failed to load dashboard data.</td>
-                </tr>
-            `;
-        }
+        return;
     }
-}
 
-async function loadAdminStudents() {
-    const table = document.getElementById("adminStudentsTable");
+    const maxSize = 1.5 * 1024 * 1024;
 
-    if (table) {
-        table.innerHTML = `<tr><td colspan="8" class="empty-row">Loading students from MongoDB...</td></tr>`;
+    if (receiptFile.size > maxSize) {
+        alert("Receipt file is too large. Please upload an image/PDF below 1.5MB.");
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
+        return;
     }
 
     try {
-        const response = await fetch("/api/admin-students");
-        const result = await response.json();
+        const receiptDataUrl = await fileToDataURL(receiptFile);
 
-        console.log("ADMIN STUDENTS RESULT:", result);
+        const paymentData = {
+            parentId: parent.id,
+            parentEmail: parent.email || "",
+            studentId,
+            month: document.getElementById("paymentMonth").value,
+            amount: Number(document.getElementById("paymentAmount").value),
+            datePaid: document.getElementById("paymentDate").value,
+            receiptName: receiptFile.name,
+            receiptType: receiptFile.type || "",
+            receiptSize: receiptFile.size || 0,
+            receiptDataUrl,
+            note: document.getElementById("paymentNote") ? document.getElementById("paymentNote").value.trim() : ""
+        };
 
-        if (!result.success) {
-            alert(result.message || "Failed to load students.");
-            if (table) {
-                table.innerHTML = `<tr><td colspan="8" class="empty-row">Failed to load students.</td></tr>`;
-            }
-            return;
-        }
-
-        const children = result.students || [];
-
-        const totalEl = document.getElementById("adminTotalStudents");
-        const morningEl = document.getElementById("adminMorningStudents");
-        const afternoonEl = document.getElementById("adminAfternoonStudents");
-        const schoolsEl = document.getElementById("adminTotalSchools");
-
-        if (totalEl) totalEl.innerText = children.length;
-        if (morningEl) morningEl.innerText = children.filter(child => child.session === "Morning").length;
-        if (afternoonEl) afternoonEl.innerText = children.filter(child => child.session === "Afternoon").length;
-        if (schoolsEl) schoolsEl.innerText = new Set(children.map(child => child.school)).size;
-
-        if (!table) return;
-
-        table.innerHTML = "";
-
-        if (children.length === 0) {
-            table.innerHTML = `<tr><td colspan="8" class="empty-row">No students added yet.</td></tr>`;
-            return;
-        }
-
-        children.forEach(child => {
-            const sessionClass = child.session === "Morning" ? "morning" : "afternoon";
-            const status = child.status || "Pending Review";
-            const statusClass = getStudentStatusBadgeClass(status);
-
-            table.innerHTML += `
-                <tr>
-                    <td><strong>${child.name}</strong><br><small>Student ID: ${child.id}</small></td>
-                    <td>${child.parentName || "-"}<br><small>${child.parentPhone || ""}</small></td>
-                    <td>${child.school}</td>
-                    <td>${child.classYear}</td>
-                    <td><span class="badge ${sessionClass}">${child.session}</span></td>
-                    <td>${child.pickupLocation}</td>
-                    <td><span class="badge ${statusClass}">${status}</span></td>
-                    <td>
-                        <div class="student-action-row">
-                            <button class="small-btn edit" onclick="updateStudentStatus('${child.id}', 'Accepted')">Accept</button>
-                            <button class="small-btn warning" onclick="updateStudentStatus('${child.id}', 'Rejected')">Reject</button>
-                            <button class="small-btn" onclick="updateStudentStatus('${child.id}', 'Active')">Mark Active</button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-    } catch (error) {
-        alert("Admin students error: " + error.message);
-        if (table) {
-            table.innerHTML = `<tr><td colspan="8" class="empty-row">Failed to load students.</td></tr>`;
-        }
-    }
-}
-
-async function updateStudentStatus(childId, status) {
-    try {
-        const response = await fetch("/api/update-student-status", {
+        const response = await fetch("/api/upload-payment", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                studentId: childId,
-                status
-            })
+            body: JSON.stringify(paymentData)
         });
 
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message || "Failed to update student status.");
+            alert(result.message || "Failed to upload payment.");
             return;
         }
 
-        alert("Student status updated to " + status + " in MongoDB.");
-        loadAdminStudents();
+        alert("Payment proof and receipt image saved successfully in MongoDB. Waiting for admin approval.");
+        window.location.href = "parent-dashboard.html";
     } catch (error) {
-        alert("Update student error: " + error.message);
+        alert("Payment upload error: " + error.message);
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerText = originalText;
+        }
     }
 }
 
-function removeStudent(childId) {
-    alert("Remove student is disabled on the free-plan build to stay under the 12 API limit. Manage records directly in MongoDB if needed.");
+function loadParentPaymentHistory(payments) {
+    const historyTable = document.getElementById("paymentHistoryTable");
+    const historyCount = document.getElementById("paymentHistoryCount");
+
+    if (!historyTable) return;
+
+    window.parentPaymentReceiptMap = {};
+
+    historyTable.innerHTML = "";
+
+    if (historyCount) {
+        historyCount.innerText = payments.length;
+    }
+
+    if (payments.length === 0) {
+        historyTable.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-row">No payment history yet.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    payments.slice().reverse().forEach(payment => {
+        window.parentPaymentReceiptMap[payment.id] = payment;
+
+        const badgeClass = payment.status === "Paid" ? "paid" : payment.status === "Pending" ? "pending" : payment.status === "Rejected" ? "rejected" : "unpaid";
+
+        historyTable.innerHTML += `
+            <tr>
+                <td>${payment.month}</td>
+                <td>${payment.studentName}</td>
+                <td>RM${payment.amount}</td>
+                <td><span class="badge ${badgeClass}">${payment.status}</span></td>
+                <td>
+                    <button class="receipt-button" onclick="viewParentReceipt('${payment.id}')">View</button>
+                </td>
+            </tr>
+        `;
+    });
 }
 
-// MUTAHUS_CLEAN_APPJS_FIXED_MARKER_STEP10
+function viewParentReceipt(paymentId) {
+    const payment = (window.parentPaymentReceiptMap || {})[paymentId];
+
+    if (!payment) {
+        alert("Receipt record not found. Please refresh the dashboard.");
+        return;
+    }
+
+    showReceiptInfo(payment.receiptName, payment.note, payment.receiptDataUrl);
+}
+
+async function loadAdminPayments() {
+    const table = document.getElementById("adminPaymentsTable");
+
+    if (table) {
+        table.innerHTML = `<tr><td colspan="7" class="empty-row">Loading payments from MongoDB...</td></tr>`;
+    }
+
+    try {
+        const response = await fetch("/api/admin-payments");
+        const result = await response.json();
+
+        console.log("ADMIN PAYMENTS RESULT:", result);
+
+        if (!result.success) {
+            alert(result.message || "Failed to load payments.");
+            if (table) {
+                table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load payments.</td></tr>`;
+            }
+            return;
+        }
+
+        const payments = result.payments || [];
+        const summary = result.summary || {
+            totalCollection: 0,
+            paidCount: 0,
+            pendingCount: 0,
+            unpaidCount: 0
+        };
+
+        window.adminPaymentReceiptMap = {};
+
+        const totalCollectionEl = document.getElementById("paymentTotalCollection");
+        const paidCountEl = document.getElementById("paymentPaidCount");
+        const pendingCountEl = document.getElementById("paymentPendingCount");
+        const unpaidCountEl = document.getElementById("paymentUnpaidCount");
+
+        if (totalCollectionEl) totalCollectionEl.innerText = "RM" + summary.totalCollection;
+        if (paidCountEl) paidCountEl.innerText = summary.paidCount;
+        if (pendingCountEl) pendingCountEl.innerText = summary.pendingCount;
+        if (unpaidCountEl) unpaidCountEl.innerText = summary.unpaidCount;
+
+        if (!table) return;
+
+        table.innerHTML = "";
+
+        if (payments.length === 0) {
+            table.innerHTML = `<tr><td colspan="7" class="empty-row">No payment proof uploaded yet.</td></tr>`;
+            return;
+        }
+
+        payments.forEach(payment => {
+            window.adminPaymentReceiptMap[payment.id] = payment;
+
+            const badgeClass = getPaymentBadgeClass(payment.status);
+            const isPaid = payment.status === "Paid";
+            const isRejected = payment.status === "Rejected";
+
+            table.innerHTML += `
+                <tr>
+                    <td><strong>${payment.parentName || "-"}</strong><br><small>${payment.parentPhone || ""}</small></td>
+                    <td>${payment.studentName || "-"}</td>
+                    <td>${payment.month || "-"}</td>
+                    <td><strong>RM${payment.amount || 0}</strong></td>
+                    <td>
+                        <button class="receipt-button" onclick="viewAdminReceipt('${payment.id}')">
+                            View Receipt
+                        </button>
+                        <br><small>${payment.receiptName || "No receipt file"}</small>
+                    </td>
+                    <td><span class="badge ${badgeClass}">${payment.status || "Pending"}</span></td>
+                    <td>
+                        <div class="action-row">
+                            <button class="small-btn edit payment-action-btn" data-id="${payment.id}" data-status="Paid" ${isPaid ? "disabled" : ""}>
+                                Approve
+                            </button>
+                            <button class="small-btn danger payment-action-btn" data-id="${payment.id}" data-status="Rejected" ${isRejected ? "disabled" : ""}>
+                                Reject
+                            </button>
+                            <button class="small-btn warning payment-action-btn" data-id="${payment.id}" data-status="Pending" ${payment.status === "Pending" ? "disabled" : ""}>
+                                Pending
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        connectPaymentButtons();
+    } catch (error) {
+        alert("Admin payments error: " + error.message);
+        if (table) {
+            table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load payments.</td></tr>`;
+        }
+    }
+}
+
+function viewAdminReceipt(paymentId) {
+    const payment = (window.adminPaymentReceiptMap || {})[paymentId];
+
+    if (!payment) {
+        alert("Receipt record not found. Please refresh admin payments.");
+        return;
+    }
+
+    showReceiptInfo(payment.receiptName, payment.note, payment.receiptDataUrl);
+}
+
+// MUTAHUS_STEP11_RECEIPT_IMAGE_UPLOAD_MONGODB

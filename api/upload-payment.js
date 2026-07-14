@@ -19,6 +19,9 @@ module.exports = async function handler(req, res) {
     const amount = Number(data.amount || 0);
     const datePaid = (data.datePaid || "").trim();
     const receiptName = (data.receiptName || "").trim();
+    const receiptType = (data.receiptType || "").trim();
+    const receiptSize = Number(data.receiptSize || 0);
+    const receiptDataUrl = (data.receiptDataUrl || "").trim();
     const note = (data.note || "").trim();
 
     if (!parentId && !parentEmailFromClient) {
@@ -28,10 +31,24 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (!studentId || !month || !amount || !datePaid || !receiptName) {
+    if (!studentId || !month || !amount || !datePaid || !receiptName || !receiptDataUrl) {
       return res.status(400).json({
         success: false,
-        message: "Please fill in all payment details."
+        message: "Please fill in all payment details and upload receipt."
+      });
+    }
+
+    if (!receiptDataUrl.startsWith("data:image/") && !receiptDataUrl.startsWith("data:application/pdf")) {
+      return res.status(400).json({
+        success: false,
+        message: "Only receipt image or PDF files are supported."
+      });
+    }
+
+    if (receiptSize > 1.5 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: "Receipt file is too large. Please upload a file below 1.5MB."
       });
     }
 
@@ -98,6 +115,9 @@ module.exports = async function handler(req, res) {
       amount,
       datePaid,
       receiptName,
+      receiptType,
+      receiptSize,
+      receiptDataUrl,
       note,
       status: "Pending",
       createdAt: new Date(),
@@ -118,7 +138,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: "Payment proof saved successfully.",
+      message: "Payment proof and receipt image saved successfully.",
       paymentId: result.insertedId
     });
   } catch (error) {
