@@ -5,54 +5,699 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Child | Mutahus Global</title>
     <link rel="stylesheet" href="./style.css">
+
+    <style>
+        :root{
+            --primary:#123f73;
+            --primary-dark:#0e335d;
+            --border:#d9e5f5;
+            --muted:#6b7a90;
+            --bg:#edf4ff;
+            --card:#ffffff;
+            --success:#1e9b67;
+            --warning:#c77b15;
+        }
+
+        *{box-sizing:border-box}
+
+        body{
+            margin:0;
+            font-family:Arial, Helvetica, sans-serif;
+            background:linear-gradient(180deg,#edf4ff 0%, #f7fbff 100%);
+            color:#163150;
+        }
+
+        .portal-shell{display:flex;min-height:100vh}
+
+        .portal-sidebar{
+            width:280px;
+            background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
+            color:#fff;
+            padding:24px 20px;
+            display:flex;
+            flex-direction:column;
+            gap:22px;
+            position:sticky;
+            top:0;
+            height:100vh;
+            box-shadow:12px 0 24px rgba(10,40,80,.08);
+        }
+
+        .brand-box{
+            display:flex;
+            gap:14px;
+            align-items:center;
+            padding-bottom:22px;
+            border-bottom:1px solid rgba(255,255,255,.15);
+        }
+
+        .brand-icon{
+            width:58px;
+            height:58px;
+            border-radius:18px;
+            display:grid;
+            place-items:center;
+            background:rgba(255,255,255,.12);
+            font-size:28px;
+            border:1px solid rgba(255,255,255,.16);
+        }
+
+        .brand-box strong{display:block;font-size:18px}
+        .brand-box small{display:block;opacity:.85;margin-top:3px}
+
+        .side-links{display:flex;flex-direction:column;gap:10px}
+
+        .side-links a{
+            color:#fff;
+            text-decoration:none;
+            padding:14px 16px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            font-weight:700;
+        }
+
+        .side-links a:hover,.side-links a.active{background:rgba(255,255,255,.14)}
+
+        .sidebar-note{
+            margin-top:auto;
+            background:rgba(255,255,255,.1);
+            padding:16px;
+            border-radius:18px;
+            font-size:14px;
+            line-height:1.5;
+        }
+
+        .logout-link{
+            margin-top:14px;
+            background:#ef5d5d !important;
+            justify-content:center;
+        }
+
+        .portal-main{flex:1;padding:32px 34px 100px}
+
+        .mobile-topbar,.mobile-bottom-nav{display:none}
+
+        .hero-card{
+            background:linear-gradient(90deg,rgba(255,255,255,.96), rgba(239,245,255,.96));
+            border:1px solid var(--border);
+            border-radius:28px;
+            padding:30px 32px;
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:20px;
+            box-shadow:0 8px 24px rgba(30,70,120,.06);
+            margin-bottom:24px;
+        }
+
+        .hero-card h1{
+            margin:8px 0 10px;
+            font-size:52px;
+            line-height:1;
+            color:#113d71;
+        }
+
+        .hero-card p{
+            margin:0;
+            color:var(--muted);
+            font-size:18px;
+            max-width:760px;
+            line-height:1.6;
+        }
+
+        .kicker{
+            display:inline-block;
+            color:#2368c4;
+            font-weight:800;
+            letter-spacing:1.2px;
+            font-size:15px;
+        }
+
+        .hero-actions{
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            justify-content:flex-end;
+        }
+
+        .btnx{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            min-height:48px;
+            padding:0 18px;
+            border-radius:14px;
+            text-decoration:none;
+            border:none;
+            cursor:pointer;
+            font-weight:800;
+            font-size:15px;
+        }
+
+        .btn-primary{
+            background:linear-gradient(180deg,#2873d1,#1657a9);
+            color:#fff;
+            box-shadow:0 10px 18px rgba(40,115,209,.24);
+        }
+
+        .btn-light{
+            background:#fff;
+            color:#1b4a84;
+            border:1px solid var(--border);
+        }
+
+        .content-grid{
+            display:grid;
+            grid-template-columns:minmax(0,1fr) 340px;
+            gap:22px;
+            align-items:start;
+        }
+
+        .portal-panel{
+            background:#fff;
+            border:1px solid var(--border);
+            border-radius:26px;
+            padding:26px;
+            box-shadow:0 8px 24px rgba(30,70,120,.05);
+        }
+
+        .portal-panel h2{
+            margin:0 0 8px;
+            color:#143f73;
+            font-size:30px;
+        }
+
+        .portal-panel > p{
+            margin:0 0 22px;
+            color:var(--muted);
+            line-height:1.6;
+        }
+
+        .form-section-title{
+            display:flex;
+            gap:12px;
+            align-items:center;
+            margin:24px 0 16px;
+        }
+
+        .form-section-title:first-child{margin-top:0}
+
+        .form-section-title span{
+            width:34px;
+            height:34px;
+            border-radius:12px;
+            display:grid;
+            place-items:center;
+            color:#fff;
+            background:linear-gradient(180deg,#2873d1,#1657a9);
+            font-weight:900;
+        }
+
+        .form-section-title h3{
+            margin:0;
+            color:#123f73;
+            font-size:18px;
+        }
+
+        label{
+            display:block;
+            margin:14px 0 7px;
+            color:#1c3f68;
+            font-weight:800;
+        }
+
+        input,select,textarea{
+            width:100%;
+            min-height:48px;
+            padding:12px 14px;
+            border:1px solid #d8e7fb;
+            border-radius:14px;
+            background:#f8fbff;
+            color:#123f73;
+            font-size:15px;
+            outline:none;
+            font-family:inherit;
+        }
+
+        textarea{
+            min-height:110px;
+            resize:vertical;
+            line-height:1.5;
+        }
+
+        input:focus,select:focus,textarea:focus{
+            border-color:#7eb0ef;
+            box-shadow:0 0 0 4px rgba(30,111,209,.12);
+            background:#fff;
+        }
+
+        .form-two-column{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+        }
+
+        .full-btn{
+            width:100%;
+            margin-top:20px;
+            min-height:54px;
+            font-size:16px;
+        }
+
+        .info-card{
+            background:linear-gradient(135deg,#ffffff,#f6faff);
+            border:1px solid var(--border);
+            border-radius:24px;
+            padding:22px;
+            box-shadow:0 8px 24px rgba(30,70,120,.05);
+        }
+
+        .info-card h3{
+            margin:0 0 12px;
+            color:#143f73;
+            font-size:20px;
+        }
+
+        .info-card p,.info-card li{
+            color:#60748d;
+            line-height:1.55;
+            font-size:14px;
+        }
+
+        .info-card ul{
+            margin:10px 0 0;
+            padding-left:20px;
+        }
+
+        .mini-stat{
+            display:flex;
+            gap:12px;
+            align-items:center;
+            padding:14px;
+            border-radius:18px;
+            background:#edf6ff;
+            border:1px solid #d8e7fb;
+            margin-top:12px;
+        }
+
+        .mini-stat span{
+            width:44px;
+            height:44px;
+            border-radius:15px;
+            display:grid;
+            place-items:center;
+            background:#fff;
+            font-size:22px;
+        }
+
+        .mini-stat strong{
+            display:block;
+            color:#123f73;
+        }
+
+        .mini-stat small{
+            display:block;
+            color:#60748d;
+            margin-top:2px;
+        }
+
+        .payment-note{
+            padding:14px 16px;
+            border-radius:18px;
+            background:#fff8e6;
+            border:1px solid #ffe2a4;
+            color:#77510c;
+            line-height:1.5;
+            margin-bottom:18px;
+        }
+
+        .bank-card-pro{
+            background:linear-gradient(135deg,#123f73,#1d6ac0);
+            color:#fff;
+            border-radius:24px;
+            padding:22px;
+            box-shadow:0 12px 28px rgba(18,63,115,.22);
+            margin-bottom:18px;
+        }
+
+        .bank-card-pro h3{
+            margin:0 0 16px;
+            font-size:22px;
+        }
+
+        .bank-row{
+            display:flex;
+            justify-content:space-between;
+            gap:14px;
+            padding:12px 0;
+            border-top:1px solid rgba(255,255,255,.18);
+        }
+
+        .bank-row span{
+            opacity:.85;
+            font-size:13px;
+        }
+
+        .bank-row strong{
+            text-align:right;
+            font-size:15px;
+        }
+
+        .pretty-month-picker{
+            display:grid;
+            grid-template-columns:1.25fr .75fr;
+            gap:12px;
+        }
+
+        .locked-payment-date{
+            display:flex;
+            gap:14px;
+            align-items:center;
+            padding:14px 16px;
+            border:1px solid #d8e7fb;
+            border-radius:18px;
+            background:linear-gradient(135deg,#ffffff,#edf6ff);
+            box-shadow:0 8px 18px rgba(22,73,130,.06);
+            margin-bottom:14px;
+        }
+
+        .locked-date-icon{
+            width:46px;
+            height:46px;
+            border-radius:15px;
+            display:grid;
+            place-items:center;
+            background:#e8f2ff;
+            border:1px solid #d8e7fb;
+            font-size:22px;
+            flex-shrink:0;
+        }
+
+        .locked-date-content{flex:1}
+
+        .locked-date-content small{
+            display:block;
+            color:#5f748e;
+            font-weight:800;
+            margin-bottom:4px;
+        }
+
+        #paymentDateDisplay{
+            width:100%;
+            border:none;
+            background:transparent;
+            color:#123f73;
+            font-size:18px;
+            font-weight:900;
+            padding:0;
+            min-height:auto;
+            outline:none;
+            cursor:default;
+        }
+
+        .locked-date-content p{
+            margin:4px 0 0;
+            color:#72839a;
+            font-size:13px;
+            line-height:1.4;
+        }
+
+        .upload-box-pro{
+            border:1px dashed #88b9f2;
+            border-radius:20px;
+            background:#f3f8ff;
+            padding:18px;
+        }
+
+        .upload-box-pro input{
+            background:#fff;
+        }
+
+        .upload-box-pro p{
+            margin:10px 0 0;
+            color:#60748d;
+            font-size:13px;
+        }
+
+        .whatsapp-float{
+            position:fixed;
+            right:20px;
+            bottom:20px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            background:#25d366;
+            color:#fff;
+            text-decoration:none;
+            border-radius:999px;
+            padding:12px 18px;
+            box-shadow:0 10px 24px rgba(37,211,102,.28);
+            z-index:80;
+            font-weight:800;
+        }
+
+        .whatsapp-float span{font-size:22px}
+        .whatsapp-float strong,.whatsapp-float small{display:block}
+        .whatsapp-float small{font-size:11px;opacity:.9}
+
+        @media(max-width:1040px){
+            .content-grid{grid-template-columns:1fr}
+        }
+
+        @media(max-width:860px){
+            .portal-sidebar{display:none}
+            .portal-main{padding:20px 16px 95px}
+
+            .mobile-topbar{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:10px;
+                padding:14px 16px;
+                background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
+                color:#fff;
+                position:sticky;
+                top:0;
+                z-index:50;
+            }
+
+            .mobile-topbar strong{display:block;font-size:16px}
+            .mobile-topbar small{display:block;opacity:.85}
+
+            .mobile-actions{display:flex;gap:8px;flex-wrap:wrap}
+            .mobile-actions a{
+                color:#fff;
+                text-decoration:none;
+                font-size:13px;
+                background:rgba(255,255,255,.14);
+                padding:8px 12px;
+                border-radius:10px;
+            }
+
+            .mobile-bottom-nav{
+                display:grid;
+                grid-template-columns:repeat(5,1fr);
+                gap:6px;
+                position:fixed;
+                left:10px;
+                right:10px;
+                bottom:10px;
+                background:#fff;
+                border:1px solid var(--border);
+                border-radius:22px;
+                padding:10px;
+                z-index:60;
+                box-shadow:0 10px 24px rgba(20,60,115,.14);
+            }
+
+            .mobile-bottom-nav a{
+                text-decoration:none;
+                color:#4c5d78;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                gap:4px;
+                font-size:11px;
+                padding:6px;
+                border-radius:14px;
+            }
+
+            .mobile-bottom-nav a.active{
+                background:#edf4ff;
+                color:#1754a7;
+                font-weight:800;
+            }
+
+            .hero-card{
+                padding:22px 18px;
+                flex-direction:column;
+            }
+
+            .hero-card h1{font-size:38px}
+            .portal-panel{padding:20px}
+            .form-two-column,.pretty-month-picker{grid-template-columns:1fr}
+            .whatsapp-float div{display:none}
+            .whatsapp-float{right:16px;bottom:92px;padding:12px 14px}
+        }
+    </style>
+
 </head>
 <body>
 
-<div class="app-shell">
-    
-<aside class="pro-sidebar parent-side">
-    <div class="sidebar-brand">
-        <span>🚐</span>
+    <div class="mobile-topbar">
         <div>
-            <strong>Mutahus Global</strong>
+            <strong>🚐 Mutahus Global</strong>
             <small>Parent Portal</small>
         </div>
-    </div>
-
-    <nav class="sidebar-menu">
-        <a class="" href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
-        <a class="active" href="add-student.html"><span>🎒</span> Register Child</a>
-        <a class="" href="upload-payment.html"><span>💳</span> Payment Proof</a>
-        <a href="parent-rules.html"><span>📘</span> Rules</a>
-    </nav>
-
-    <div class="sidebar-bottom">
-        <div class="mini-help">
-            <strong>Need update?</strong>
-            <p>Check announcement and payment status from your dashboard.</p>
+        <div class="mobile-actions">
+            <a href="parent-dashboard.html">Dashboard</a>
+            <a href="#" onclick="parentLogout()">Logout</a>
         </div>
-        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
     </div>
-</aside>
 
-
-    <main class="app-main">
-
-    <div class="mobile-app-header mobile-parent-header">
-        <div class="mobile-brand">
-            <span>🚐</span>
-            <div>
-                <strong>Mutahus Global</strong>
-                <small>Parent Portal</small>
+    <div class="portal-shell">
+        <aside class="portal-sidebar">
+            <div class="brand-box">
+                <div class="brand-icon">🚐</div>
+                <div>
+                    <strong>Mutahus Global</strong>
+                    <small>Parent Portal</small>
+                </div>
             </div>
-        </div>
-        <a href="#" onclick="parentLogout()" class="mobile-logout">Logout</a>
+
+            <nav class="side-links">
+                <a href="parent-dashboard.html" class=""><span>🏠</span> Dashboard</a>
+                <a href="parent-profile.html" class=""><span>👤</span> My Profile</a>
+                <a href="add-student.html" class="active"><span>🎒</span> Register Child</a>
+                <a href="upload-payment.html" class=""><span>💳</span> Payment Proof</a>
+                <a href="parent-rules.html" class=""><span>📘</span> Rules</a>
+            </nav>
+
+            <div class="sidebar-note">
+                <strong>Need help?</strong>
+                <p style="margin:8px 0 0;opacity:.9">Use this portal to manage your child registration and payment proof.</p>
+                <a href="#" onclick="parentLogout()" class="side-links logout-link" style="display:flex;text-decoration:none;color:#fff;margin-top:14px;padding:12px 14px;border-radius:14px;font-weight:700;">🚪 Logout</a>
+            </div>
+        </aside>
+
+        <main class="portal-main">
+            <section class="hero-card">
+                <div>
+                    <span class="kicker">PARENT PORTAL</span>
+                    <h1>Register Child</h1>
+                    <p>Add your child details for Mutahus Global school van service. Admin will review the registration before activating the record.</p>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="parent-dashboard.html" class="btnx btn-light">← Dashboard</a>
+                    <a href="upload-payment.html" class="btnx btn-primary">Payment Proof</a>
+                </div>
+            </section>
+
+            <div class="content-grid">
+                <section class="portal-panel">
+                    <h2>Child Registration Form</h2>
+                    <p>Please make sure the details are correct before submitting.</p>
+
+                    <form onsubmit="saveChild(event)">
+                        <div class="form-section-title">
+                            <span>1</span>
+                            <h3>Student Information</h3>
+                        </div>
+
+                        <label>Student Full Name</label>
+                        <input type="text" id="studentName" placeholder="Example: Adam Bin Ali" required>
+
+                        <div class="form-two-column">
+                            <div>
+                                <label>School Name</label>
+                                <select id="schoolName" required>
+                                    <option value="">Select school</option>
+                                    <option>SK Bertam Perdana</option>
+                                    <option>SMK Bertam Perdana</option>
+                                    <option>SMK Dato Kailan</option>
+                                    <option>KAFA Bertam Perdana</option>
+                                    <option>KAFA Masjid Abdullah Fahim</option>
+                                    <option>KAFA Paya Keladi</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Class / Year</label>
+                                <input type="text" id="classYear" placeholder="Example: Year 3 / Form 1" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section-title">
+                            <span>2</span>
+                            <h3>Session & Pickup</h3>
+                        </div>
+
+                        <div class="form-two-column">
+                            <div>
+                                <label>School Session</label>
+                                <select id="session" required>
+                                    <option value="">Choose session</option>
+                                    <option>Morning</option>
+                                    <option>Afternoon</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>Pickup Reference</label>
+                                <input type="text" id="pickupShort" placeholder="Example: Main gate / Lobby" oninput="document.getElementById('pickupLocation').value=this.value">
+                            </div>
+                        </div>
+
+                        <label>Home Address</label>
+                        <textarea id="homeAddress" placeholder="Enter full home address" required></textarea>
+
+                        <label>Pickup Location</label>
+                        <textarea id="pickupLocation" placeholder="Example: In front of guard house / Lobby / Main gate" required></textarea>
+
+                        <button class="btnx btn-primary full-btn" type="submit">Save Child Details</button>
+                    </form>
+                </section>
+
+                <aside class="info-card">
+                    <h3>Before submitting</h3>
+                    <ul>
+                        <li>Use the same parent account for child registration and payment.</li>
+                        <li>Admin will check the child details before accepting.</li>
+                        <li>Use a clear pickup location so the driver can identify the place easily.</li>
+                    </ul>
+
+                    <div class="mini-stat">
+                        <span>🎒</span>
+                        <div>
+                            <strong>Child Status</strong>
+                            <small>Pending until admin accepts.</small>
+                        </div>
+                    </div>
+
+                    <div class="mini-stat">
+                        <span>📍</span>
+                        <div>
+                            <strong>Pickup Details</strong>
+                            <small>Write specific place, not only house address.</small>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
     </div>
 
     <nav class="mobile-bottom-nav">
         <a href="parent-dashboard.html" class="">
             <span>🏠</span>
             <small>Home</small>
+        </a>
+        <a href="parent-profile.html" class="">
+            <span>👤</span>
+            <small>Profile</small>
         </a>
         <a href="add-student.html" class="active">
             <span>🎒</span>
@@ -62,107 +707,23 @@
             <span>💳</span>
             <small>Pay</small>
         </a>
-        <a href="parent-rules.html">
+        <a href="parent-rules.html" class="">
             <span>📘</span>
             <small>Rules</small>
         </a>
     </nav>
 
-        <div class="page-hero-bar">
-            <div>
-                <span class="page-kicker">CHILD REGISTRATION</span>
-                <h1>Register Child Details</h1>
-                <p>Fill in student school, session and pickup location for transport arrangement.</p>
-            </div>
 
-            <a href="parent-dashboard.html" class="btn btn-light-pro">Back to Dashboard</a>
+    <a class="whatsapp-float" href="https://wa.me/60178078271?text=Assalamualaikum,%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global." target="_blank" aria-label="Contact Mutahus Global on WhatsApp">
+        <span>💬</span>
+        <div>
+            <strong>WhatsApp</strong>
+            <small>Contact Us</small>
         </div>
+    </a>
 
-        <div class="split-form-layout">
-            <section class="route-summary-pro">
-                <div class="badge-pro">TRANSPORT ROUTE</div>
-                <h2>Home ↔ School Service</h2>
-                <p>These details help Mutahus Global arrange the correct route and pickup point.</p>
-
-                <div class="route-step-pro"><span>🏠</span><div><strong>Pickup From Home</strong><p>Use a clear pickup location.</p></div></div>
-                <div class="route-step-pro"><span>🏫</span><div><strong>Send to School</strong><p>Based on selected school and session.</p></div></div>
-                <div class="route-step-pro"><span>🚐</span><div><strong>Return Home</strong><p>Student will be sent back after session.</p></div></div>
-            </section>
-
-            <section class="form-card-pro">
-                <div class="form-header">
-                    <div class="form-icon">🎒</div>
-                    <h1>Child Details</h1>
-                    <p>Complete all required information below.</p>
-                </div>
-
-                <form onsubmit="saveChild(event)">
-                    <div class="form-section-title">
-                        <span>1</span>
-                        <h3>Student Information</h3>
-                    </div>
-
-                    <label>Student Full Name</label>
-                    <input type="text" id="studentName" placeholder="Example: Adam Bin Ali" required>
-
-                    <div class="form-two-column">
-                        <div>
-                            <label>School Name</label>
-                            <select id="schoolName" required>
-                                <option value="">Select school</option>
-                                <option>SK Bertam Perdana</option>
-                                <option>SMK Bertam Perdana</option>
-                                <option>SMK Dato Kailan</option>
-                                <option>KAFA Bertam Perdana</option>
-                                <option>KAFA Masjid Abdullah Fahim</option>
-                                <option>KAFA Paya Keladi</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label>Class / Year</label>
-                            <input type="text" id="classYear" placeholder="Example: Year 3 / Form 1" required>
-                        </div>
-                    </div>
-
-                    <div class="form-section-title">
-                        <span>2</span>
-                        <h3>Session & Pickup</h3>
-                    </div>
-
-                    <label>School Session</label>
-                    <select id="session" required>
-                        <option value="">Choose session</option>
-                        <option>Morning</option>
-                        <option>Afternoon</option>
-                    </select>
-
-                    <label>Home Address</label>
-                    <textarea id="homeAddress" placeholder="Enter full home address" required></textarea>
-
-                    <label>Pickup Location</label>
-                    <textarea id="pickupLocation" placeholder="Example: In front of guard house / Lobby / Main gate" required></textarea>
-
-                    <button class="btn btn-primary-pro full-btn" type="submit">Save Child Details</button>
-                </form>
-            </section>
-        </div>
-    </main>
-</div>
-
-<script src="app.js"></script>
-<script>requireParentLogin();</script>
-
-<a class="whatsapp-float" href="https://wa.me/60178078271?text=Assalamualaikum,%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global." target="_blank" aria-label="Contact Mutahus Global on WhatsApp">
-    <span>💬</span>
-    <div>
-        <strong>WhatsApp</strong>
-        <small>Contact Us</small>
-    </div>
-</a>
-
+    <script src="app.js"></script>
+    <script>requireParentLogin();</script>
 </body>
 </html>
-<!-- MUTAHUS_FIX_WHATSAPP_NUMBER_0178078271 -->
-
-<!-- MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE -->
+<!-- MUTAHUS_FIX_PARENT_PAGES_MATCH_DASHBOARD_RULES -->
