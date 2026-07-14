@@ -42,6 +42,64 @@
 </style>
 
 <!-- MUTAHUS_FIX_PAYMENT_MONTH_PRETTY_STYLE -->
+
+<style>
+    .locked-payment-date {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 16px;
+        border: 1px solid #d8e7fb;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #ffffff, #edf6ff);
+        box-shadow: 0 8px 18px rgba(22, 73, 130, 0.06);
+        margin-bottom: 14px;
+    }
+
+    .locked-date-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 15px;
+        display: grid;
+        place-items: center;
+        background: #e8f2ff;
+        border: 1px solid #d8e7fb;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .locked-date-content {
+        flex: 1;
+    }
+
+    .locked-date-content small {
+        display: block;
+        color: #5f748e;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    #paymentDateDisplay {
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: #123f73;
+        font-size: 18px;
+        font-weight: 900;
+        padding: 0;
+        outline: none;
+        cursor: default;
+    }
+
+    .locked-date-content p {
+        margin: 4px 0 0;
+        color: #72839a;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+</style>
+
+<!-- MUTAHUS_FIX_PAYMENT_DATE_TODAY_ONLY_STYLE -->
 </head>
 <body>
 
@@ -181,7 +239,15 @@
                     </div>
 
                     <label>Payment Date</label>
-                    <input type="date" id="paymentDate" required>
+                    <div class="locked-payment-date">
+                        <div class="locked-date-icon">🔒</div>
+                        <div class="locked-date-content">
+                            <small>Auto Date</small>
+                            <input type="text" id="paymentDateDisplay" readonly value="Today">
+                            <input type="hidden" id="paymentDate">
+                            <p>Payment date is automatically set to today and cannot be changed.</p>
+                        </div>
+                    </div>
 
                     <label>Upload Receipt</label>
                     <div class="upload-box-pro">
@@ -200,6 +266,45 @@
 </div>
 
 <script src="app.js"></script>
+
+<script>
+function getTodayDateForPayment() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function formatTodayDateForDisplay(dateValue) {
+    const [year, month, day] = dateValue.split("-").map(Number);
+    const localDate = new Date(year, month - 1, day);
+
+    return localDate.toLocaleDateString("en-MY", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+
+function lockPaymentDateToToday() {
+    const hiddenDate = document.getElementById("paymentDate");
+    const displayDate = document.getElementById("paymentDateDisplay");
+
+    if (!hiddenDate || !displayDate) return;
+
+    const today = getTodayDateForPayment();
+
+    hiddenDate.value = today;
+    displayDate.value = formatTodayDateForDisplay(today);
+}
+
+document.addEventListener("DOMContentLoaded", lockPaymentDateToToday);
+window.addEventListener("load", lockPaymentDateToToday);
+setInterval(lockPaymentDateToToday, 60000);
+</script>
+
 
 <script>
 function populatePrettyPaymentYears() {

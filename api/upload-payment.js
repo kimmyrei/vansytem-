@@ -1,6 +1,23 @@
 const { ObjectId } = require("mongodb");
 const { connectToDatabase } = require("./_db");
 
+
+function getMalaysiaTodayDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const year = parts.find(part => part.type === "year").value;
+  const month = parts.find(part => part.type === "month").value;
+  const day = parts.find(part => part.type === "day").value;
+
+  return `${year}-${month}-${day}`;
+}
+
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -17,7 +34,7 @@ module.exports = async function handler(req, res) {
     const studentId = (data.studentId || "").trim();
     const month = (data.month || "").trim();
     const amount = Number(data.amount || 0);
-    const datePaid = (data.datePaid || "").trim();
+    const datePaid = getMalaysiaTodayDate();
     const receiptName = (data.receiptName || "").trim();
     const receiptType = (data.receiptType || "").trim();
     const receiptSize = Number(data.receiptSize || 0);
@@ -31,7 +48,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (!studentId || !month || !amount || !datePaid || !receiptName || !receiptDataUrl) {
+    if (!studentId || !month || !amount || !receiptName || !receiptDataUrl) {
       return res.status(400).json({
         success: false,
         message: "Please fill in all payment details and upload receipt."
@@ -114,6 +131,7 @@ module.exports = async function handler(req, res) {
       month,
       amount,
       datePaid,
+      dateSource: "Auto server date - Asia/Kuala_Lumpur",
       receiptName,
       receiptType,
       receiptSize,
@@ -152,3 +170,5 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+// MUTAHUS_FIX_PAYMENT_DATE_TODAY_ONLY
