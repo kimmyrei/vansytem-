@@ -544,6 +544,89 @@
         }
     </style>
 
+
+<style>
+    .payment-mode-picker {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .payment-mode-card {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 14px;
+        border: 1px solid #d8e7fb;
+        border-radius: 18px;
+        background: #f8fbff;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .payment-mode-card.active {
+        border-color: #2873d1;
+        background: linear-gradient(135deg, #ffffff, #edf6ff);
+        box-shadow: 0 8px 20px rgba(40,115,209,.12);
+    }
+
+    .payment-mode-card input {
+        width: 18px;
+        min-height: 18px;
+        padding: 0;
+        accent-color: #2873d1;
+    }
+
+    .payment-mode-card span {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: #e8f2ff;
+        flex-shrink: 0;
+        font-size: 20px;
+    }
+
+    .payment-mode-card strong {
+        display: block;
+        color: #123f73;
+        font-size: 15px;
+    }
+
+    .payment-mode-card small {
+        display: block;
+        color: #60748d;
+        margin-top: 2px;
+        line-height: 1.35;
+    }
+
+    .all-children-box {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid #d8e7fb;
+        background: linear-gradient(135deg, #ffffff, #edf6ff);
+        margin: 10px 0 14px;
+    }
+
+    .all-children-box strong {
+        color: #123f73;
+    }
+
+    .all-children-box p {
+        margin: 8px 0 0;
+        color: #60748d;
+        line-height: 1.5;
+    }
+
+    @media (max-width:760px) {
+        .payment-mode-picker {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 </head>
 <body>
 
@@ -607,10 +690,38 @@
                     </div>
 
                     <form onsubmit="submitPayment(event)">
-                        <label>Choose Student</label>
-                        <select id="paymentStudent" required>
-                            <option value="">Loading students...</option>
-                        </select>
+                        <label>Payment For</label>
+                        <div class="payment-mode-picker">
+                            <label class="payment-mode-card active" id="payModeOneCard">
+                                <input type="radio" name="paymentMode" value="one" checked onchange="updatePaymentModeUI()">
+                                <span>👧</span>
+                                <div>
+                                    <strong>Pay 1 Child</strong>
+                                    <small>Choose one child only</small>
+                                </div>
+                            </label>
+
+                            <label class="payment-mode-card" id="payModeAllCard">
+                                <input type="radio" name="paymentMode" value="all" onchange="updatePaymentModeUI()">
+                                <span>👨‍👩‍👧‍👦</span>
+                                <div>
+                                    <strong>Pay All Children</strong>
+                                    <small>One receipt for all children</small>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="singleStudentBox">
+                            <label>Choose Student</label>
+                            <select id="paymentStudent">
+                                <option value="">Loading students...</option>
+                            </select>
+                        </div>
+
+                        <div id="allChildrenBox" class="all-children-box" style="display:none;">
+                            <strong>All registered children will be included.</strong>
+                            <p id="allChildrenSummary">Loading children...</p>
+                        </div>
 
                         <div class="form-two-column">
                             <div>
@@ -640,8 +751,9 @@
                             </div>
 
                             <div>
-                                <label>Amount Paid (RM)</label>
-                                <input type="number" id="paymentAmount" placeholder="Example: 120" min="1" step="0.01" required>
+                                <label>Payment Amount (RM)</label>
+                                <input type="number" id="paymentAmount" placeholder="Select student first" min="1" step="0.01" readonly required>
+                                <small id="paymentAmountInfo" style="display:block;margin-top:7px;color:#60748d;font-weight:700;">Amount is set by admin for each student.</small>
                             </div>
                         </div>
 
@@ -690,16 +802,17 @@
                         <h3>Payment Reminder</h3>
                         <ul>
                             <li>Choose the correct month and year.</li>
+                            <li>Payment amount is set by admin in RM.</li>
                             <li>Payment date is auto-set to today.</li>
                             <li>Upload clear receipt only.</li>
                             <li>Admin will verify the receipt before marking it paid.</li>
                         </ul>
 
                         <div class="mini-stat">
-                            <span>🔒</span>
+                            <span>💰</span>
                             <div>
-                                <strong>Date Locked</strong>
-                                <small>Parent cannot change the date.</small>
+                                <strong>Admin Set Amount</strong>
+                                <small>Parent cannot change the RM amount.</small>
                             </div>
                         </div>
                     </div>
@@ -813,6 +926,35 @@
         }
     }
 
+
+    function getSelectedPaymentMode() {
+        const checked = document.querySelector("input[name='paymentMode']:checked");
+        return checked ? checked.value : "one";
+    }
+
+    function updatePaymentModeUI() {
+        const mode = getSelectedPaymentMode();
+        const oneCard = document.getElementById("payModeOneCard");
+        const allCard = document.getElementById("payModeAllCard");
+        const singleBox = document.getElementById("singleStudentBox");
+        const allBox = document.getElementById("allChildrenBox");
+        const studentSelect = document.getElementById("paymentStudent");
+
+        if (oneCard) oneCard.classList.toggle("active", mode === "one");
+        if (allCard) allCard.classList.toggle("active", mode === "all");
+
+        if (singleBox) singleBox.style.display = mode === "one" ? "block" : "none";
+        if (allBox) allBox.style.display = mode === "all" ? "block" : "none";
+
+        if (studentSelect) {
+            studentSelect.required = mode === "one";
+        }
+
+        if (typeof updatePaymentAmountFromSelectedStudent === "function") {
+            updatePaymentAmountFromSelectedStudent();
+        }
+    }
+
     function setupPaymentUiHelpers() {
         lockPaymentDateToToday();
         populatePrettyPaymentYears();
@@ -824,6 +966,7 @@
         if (yearSelect) yearSelect.addEventListener("change", updatePrettyPaymentMonthValue);
 
         updatePrettyPaymentMonthValue();
+        if (typeof updatePaymentModeUI === "function") updatePaymentModeUI();
 
         const form = document.querySelector("form[onsubmit='submitPayment(event)']");
         if (form) {
@@ -848,3 +991,7 @@
 </body>
 </html>
 <!-- MUTAHUS_FIX_PARENT_PAGES_MATCH_DASHBOARD_RULES -->
+
+<!-- MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX -->
+
+<!-- MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD -->

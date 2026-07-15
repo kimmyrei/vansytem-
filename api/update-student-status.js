@@ -53,6 +53,34 @@ module.exports = async function handler(req, res) {
       });
     }
 
+
+    if (action === "update-amount") {
+      const monthlyAmount = Number(data.monthlyAmount || 0);
+
+      if (!monthlyAmount || monthlyAmount <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Please enter a valid payment amount in RM."
+        });
+      }
+
+      await db.collection("students").updateOne(
+        { _id: studentObjectId },
+        {
+          $set: {
+            monthlyAmount,
+            amountMode: "Admin Set Amount (RM)",
+            updatedAt: new Date()
+          }
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Student payment amount updated successfully."
+      });
+    }
+
     const status = (data.status || "").trim();
     const allowedStatuses = ["Pending Review", "Accepted", "Rejected", "Active"];
 
@@ -89,3 +117,5 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+// MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX

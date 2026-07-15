@@ -32,8 +32,12 @@ module.exports = async function handler(req, res) {
     const parentId = (data.parentId || "").trim();
     const parentEmailFromClient = (data.parentEmail || "").trim().toLowerCase();
     const studentId = (data.studentId || "").trim();
+    const paymentMode = (data.paymentMode || "one").trim();
+    const studentIdsFromClient = Array.isArray(data.studentIds)
+      ? data.studentIds.map(id => String(id || "").trim()).filter(Boolean)
+      : [];
     const month = (data.month || "").trim();
-    const amount = Number(data.amount || 0);
+    const clientAmountSubmitted = Number(data.amount || 0);
     const datePaid = getMalaysiaTodayDate();
     const receiptName = (data.receiptName || "").trim();
     const receiptType = (data.receiptType || "").trim();
@@ -48,7 +52,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (!studentId || !month || !amount || !receiptName || !receiptDataUrl) {
+    if ((!studentId && studentIdsFromClient.length === 0) || !month || !receiptName || !receiptDataUrl) {
       return res.status(400).json({
         success: false,
         message: "Please fill in all payment details and upload receipt."
@@ -69,10 +73,19 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    let studentObjectId;
+    const targetStudentIds = paymentMode === "all" ? studentIdsFromClient : [studentId];
+
+    if (targetStudentIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please choose at least one student."
+      });
+    }
+
+    let studentObjectIds;
 
     try {
-      studentObjectId = new ObjectId(studentId);
+      studentObjectIds = targetStudentIds.map(id => new ObjectId(id));
     } catch (error) {
       return res.status(400).json({
         success: false,
@@ -106,46 +119,69 @@ module.exports = async function handler(req, res) {
     const parentIdString = parent._id.toString();
     const parentEmail = (parent.email || parentEmailFromClient || "").toLowerCase();
 
-    const student = await db.collection("students").findOne({
-      _id: studentObjectId,
+    const students = await db.collection("students").find({
+      _id: { $in: studentObjectIds },
       $or: [
         { parentId: parentIdString },
         { parentEmail: parentEmail }
       ]
-    });
+    }).toArray();
 
-    if (!student) {
+    if (students.length !== targetStudentIds.length) {
       return res.status(404).json({
         success: false,
-        message: "Student record not found for this parent."
+        message: "One or more student records were not found for this parent."
       });
     }
 
-    const payment = {
-      parentId: parentIdString,
-      parentName: parent.name,
-      parentPhone: parent.phone,
-      parentEmail: parent.email,
-      studentId: student._id.toString(),
-      studentName: student.name,
-      month,
-      amount,
-      datePaid,
-      dateSource: "Auto server date - Asia/Kuala_Lumpur",
-      receiptName,
-      receiptType,
-      receiptSize,
-      receiptDataUrl,
-      note,
-      status: "Pending",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+    const studentsWithoutAmount = students.filter(student => !Number(student.monthlyAmount || 0));
 
-    const result = await db.collection("payments").insertOne(payment);
+    if (studentsWithoutAmount.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Admin has not set the payment amount for one or more selected students yet. Please contact admin."
+      });
+    }
 
-    await db.collection("students").updateOne(
-      { _id: student._id },
+    const batchId = paymentMode === "all"
+      ? `PAYALL_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      : "";
+
+    const paymentDocs = students.map(student => {
+      const amount = Number(student.monthlyAmount || 0);
+
+      return {
+        parentId: parentIdString,
+        parentName: parent.name,
+        parentPhone: parent.phone,
+        parentEmail: parent.email,
+        studentId: student._id.toString(),
+        studentName: student.name,
+        school: student.school || "",
+        kafa: student.kafa || "",
+        paymentMode: paymentMode === "all" ? "All Children" : "Single Child",
+        batchId,
+        month,
+        amount,
+        amountMode: "Admin Set Amount (RM)",
+        clientAmountSubmitted,
+        datePaid,
+        dateSource: "Auto server date - Asia/Kuala_Lumpur",
+        receiptName,
+        receiptType,
+        receiptSize,
+        receiptDataUrl,
+        note,
+        status: "Pending",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    });
+
+    const result = await db.collection("payments").insertMany(paymentDocs);
+
+    await db.collection("students").updateMany(
+      { _id: { $in: studentObjectIds } },
       {
         $set: {
           paymentStatus: "Pending",
@@ -156,8 +192,13 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: "Payment proof and receipt image saved successfully.",
-      paymentId: result.insertedId
+      message: paymentMode === "all"
+        ? "Payment proof saved for all selected children."
+        : "Payment proof and receipt image saved successfully.",
+      paymentMode,
+      paymentCount: paymentDocs.length,
+      paymentIds: Object.values(result.insertedIds || {}).map(id => id.toString()),
+      batchId
     });
   } catch (error) {
     return res.status(500).json({
@@ -172,3 +213,7 @@ module.exports = async function handler(req, res) {
 };
 
 // MUTAHUS_FIX_PAYMENT_DATE_TODAY_ONLY
+
+// MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
+
+// MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD

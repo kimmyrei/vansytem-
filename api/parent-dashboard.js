@@ -390,6 +390,10 @@ module.exports = async function handler(req, res) {
       parentEmail: student.parentEmail,
       name: student.name,
       school: student.school,
+      kafa: student.kafa || "",
+      schoolDisplay: student.schoolDisplay || (student.kafa ? `${student.school || ""} + ${student.kafa}` : (student.school || "")),
+      monthlyAmount: Number(student.monthlyAmount || 0),
+      amountMode: student.amountMode || "Admin Set Amount (RM)",
       classYear: student.classYear,
       session: student.session,
       homeAddress: student.homeAddress,
@@ -406,6 +410,9 @@ module.exports = async function handler(req, res) {
       studentId: payment.studentId,
       parentName: payment.parentName,
       studentName: payment.studentName,
+      school: payment.school || "",
+      kafa: payment.kafa || "",
+      amountMode: payment.amountMode || "Admin Set Amount (RM)",
       month: payment.month,
       amount: Number(payment.amount || 0),
       datePaid: payment.datePaid || "",
@@ -461,3 +468,5 @@ module.exports = async function handler(req, res) {
 // MUTAHUS_STEP19_PARENT_PROFILE_PASSWORD
 
 // MUTAHUS_FIX_PARENT_RESET_PASSWORD_ACTION
+
+// MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX

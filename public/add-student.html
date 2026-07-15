@@ -619,15 +619,29 @@
                                     <option>SK Bertam Perdana</option>
                                     <option>SMK Bertam Perdana</option>
                                     <option>SMK Dato Kailan</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>KAFA / Religious School</label>
+                                <select id="kafaName">
+                                    <option value="">No KAFA / Not applicable</option>
                                     <option>KAFA Bertam Perdana</option>
                                     <option>KAFA Masjid Abdullah Fahim</option>
                                     <option>KAFA Paya Keladi</option>
                                 </select>
                             </div>
+                        </div>
 
+                        <div class="form-two-column">
                             <div>
                                 <label>Class / Year</label>
                                 <input type="text" id="classYear" placeholder="Example: Year 3 / Form 1" required>
+                            </div>
+
+                            <div>
+                                <label>Payment Amount</label>
+                                <input type="text" value="Admin will set amount in RM" readonly>
                             </div>
                         </div>
 
@@ -666,7 +680,8 @@
                     <h3>Before submitting</h3>
                     <ul>
                         <li>Use the same parent account for child registration and payment.</li>
-                        <li>Admin will check the child details before accepting.</li>
+                        <li>Admin will check the child details and set the payment amount in RM.</li>
+                        <li>School and KAFA are separated because some children attend both while some attend school only.</li>
                         <li>Use a clear pickup location so the driver can identify the place easily.</li>
                     </ul>
 
@@ -727,3 +742,5 @@
 </body>
 </html>
 <!-- MUTAHUS_FIX_PARENT_PAGES_MATCH_DASHBOARD_RULES -->
+
+<!-- MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX -->

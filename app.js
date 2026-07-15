@@ -223,6 +223,7 @@ async function saveChild(event) {
         parentId: parent.id,
         name: document.getElementById("studentName").value.trim(),
         school: document.getElementById("schoolName").value,
+        kafa: document.getElementById("kafaName") ? document.getElementById("kafaName").value : "",
         classYear: document.getElementById("classYear").value.trim(),
         session: document.getElementById("session").value,
         homeAddress: document.getElementById("homeAddress").value.trim(),
@@ -379,7 +380,7 @@ async function loadParentDashboard() {
                 table.innerHTML += `
                     <tr>
                         <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                        <td>${child.school}</td>
+                        <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
                         <td>${child.classYear}</td>
                         <td>${child.session}</td>
                         <td>${child.pickupLocation}</td>
@@ -598,6 +599,9 @@ async function loadPaymentUploadPage() {
 
     const select = document.getElementById("paymentStudent");
     const notice = document.getElementById("paymentNotice");
+    const amountInput = document.getElementById("paymentAmount");
+    const amountInfo = document.getElementById("paymentAmountInfo");
+    const allSummary = document.getElementById("allChildrenSummary");
 
     if (!select) return;
 
@@ -618,12 +622,25 @@ async function loadPaymentUploadPage() {
         }
 
         const children = result.children || [];
+        window.parentPaymentStudentMap = {};
+        window.parentPaymentChildren = children;
 
         select.innerHTML = `<option value="">Select student</option>`;
 
         children.forEach(child => {
-            select.innerHTML += `<option value="${child.id}">${child.name} - ${child.school} (${child.status || "Pending Review"})</option>`;
+            window.parentPaymentStudentMap[child.id] = child;
+            const amount = Number(child.monthlyAmount || 0);
+            const schoolText = child.kafa ? `${child.school} + ${child.kafa}` : child.school;
+            const amountText = amount > 0 ? `RM${amount.toFixed(2)}` : "Amount not set";
+            select.innerHTML += `<option value="${child.id}">${child.name} - ${schoolText || "-"} (${amountText})</option>`;
         });
+
+        select.onchange = updatePaymentAmountFromSelectedStudent;
+        updatePaymentAmountFromSelectedStudent();
+
+        if (allSummary) {
+            updateAllChildrenSummary();
+        }
 
         if (children.length === 0 && notice) {
             notice.innerHTML = `
@@ -634,7 +651,7 @@ async function loadPaymentUploadPage() {
         } else if (notice) {
             notice.innerHTML = `
                 <strong>${children.length} child found.</strong>
-                Select the student and upload payment proof.
+                Choose to pay for one child or all children. Payment amount is controlled by admin.
             `;
         }
     } catch (error) {
@@ -645,11 +662,90 @@ async function loadPaymentUploadPage() {
     }
 }
 
+function getParentPaymentMode() {
+    const checked = document.querySelector("input[name='paymentMode']:checked");
+    return checked ? checked.value : "one";
+}
 
+function updateAllChildrenSummary() {
+    const allSummary = document.getElementById("allChildrenSummary");
+    const children = window.parentPaymentChildren || [];
 
+    if (!allSummary) return;
 
+    if (children.length === 0) {
+        allSummary.innerText = "No child found.";
+        return;
+    }
 
+    const total = children.reduce((sum, child) => sum + Number(child.monthlyAmount || 0), 0);
+    const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
 
+    const childList = children
+        .map(child => `${child.name} = RM${Number(child.monthlyAmount || 0).toFixed(2)}`)
+        .join(" • ");
+
+    allSummary.innerHTML = `
+        ${childList}<br>
+        <strong>Total: RM${total.toFixed(2)}</strong>
+        ${notSet.length ? `<br><span style="color:#c0392b;font-weight:800;">${notSet.length} child amount not set by admin.</span>` : ""}
+    `;
+}
+
+function updatePaymentAmountFromSelectedStudent() {
+    const select = document.getElementById("paymentStudent");
+    const amountInput = document.getElementById("paymentAmount");
+    const amountInfo = document.getElementById("paymentAmountInfo");
+
+    if (!amountInput) return;
+
+    amountInput.readOnly = true;
+
+    const mode = getParentPaymentMode();
+    const children = window.parentPaymentChildren || [];
+
+    if (mode === "all") {
+        const total = children.reduce((sum, child) => sum + Number(child.monthlyAmount || 0), 0);
+        const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
+
+        amountInput.value = total > 0 ? total.toFixed(2) : "";
+
+        if (amountInfo) {
+            if (children.length === 0) {
+                amountInfo.innerText = "No child found.";
+                amountInfo.style.color = "#c0392b";
+            } else if (notSet.length > 0) {
+                amountInfo.innerText = "Some child payment amount has not been set by admin.";
+                amountInfo.style.color = "#c0392b";
+            } else {
+                amountInfo.innerText = "Total amount for all children set by admin.";
+                amountInfo.style.color = "#1e9b67";
+            }
+        }
+
+        updateAllChildrenSummary();
+        return;
+    }
+
+    if (!select) return;
+
+    const child = (window.parentPaymentStudentMap || {})[select.value];
+    const amount = child ? Number(child.monthlyAmount || 0) : 0;
+
+    if (amount > 0) {
+        amountInput.value = amount.toFixed(2);
+        if (amountInfo) {
+            amountInfo.innerText = "Amount set by admin for this student.";
+            amountInfo.style.color = "#1e9b67";
+        }
+    } else {
+        amountInput.value = "";
+        if (amountInfo) {
+            amountInfo.innerText = child ? "Admin has not set the amount yet. Please contact admin." : "Select student first.";
+            amountInfo.style.color = child ? "#c0392b" : "#60748d";
+        }
+    }
+}
 
 function connectPaymentButtons() {
     const actionButtons = document.querySelectorAll(".payment-action-btn");
@@ -1002,69 +1098,177 @@ function fileToDataURL(file) {
     });
 }
 
+function mutahusEscapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, function(match) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        }[match];
+    });
+}
+
+function closeReceiptModal() {
+    const modal = document.getElementById("receiptPreviewModal");
+    if (modal) modal.remove();
+}
+
 function showReceiptInfo(receiptName, note, receiptDataUrl) {
     const name = receiptName || "No receipt file";
     const paymentNote = note || "No note";
 
-    if (receiptDataUrl && receiptDataUrl.startsWith("data:")) {
-        const win = window.open("", "_blank");
-
-        if (win) {
-            win.document.write(`
-                <html>
-                    <head>
-                        <title>${name}</title>
-                        <style>
-                            body {
-                                margin: 0;
-                                padding: 24px;
-                                font-family: Arial, sans-serif;
-                                background: #f5f5f5;
-                                color: #222;
-                            }
-                            .receipt-box {
-                                max-width: 900px;
-                                margin: auto;
-                                background: white;
-                                padding: 20px;
-                                border-radius: 16px;
-                                box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-                            }
-                            img {
-                                max-width: 100%;
-                                height: auto;
-                                display: block;
-                                margin-top: 16px;
-                                border-radius: 12px;
-                            }
-                            iframe {
-                                width: 100%;
-                                height: 80vh;
-                                border: none;
-                                margin-top: 16px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="receipt-box">
-                            <h2>Payment Receipt</h2>
-                            <p><strong>File:</strong> ${name}</p>
-                            <p><strong>Note:</strong> ${paymentNote}</p>
-                            ${
-                                receiptDataUrl.startsWith("data:application/pdf")
-                                    ? `<iframe src="${receiptDataUrl}"></iframe>`
-                                    : `<img src="${receiptDataUrl}" alt="Payment receipt">`
-                            }
-                        </div>
-                    </body>
-                </html>
-            `);
-            win.document.close();
-            return;
-        }
+    if (!receiptDataUrl || !receiptDataUrl.startsWith("data:")) {
+        alert("Receipt file: " + name + "\nPayment note: " + paymentNote + "\n\nActual receipt image is not available for this older payment record.");
+        return;
     }
 
-    alert("Receipt file: " + name + "\nPayment note: " + paymentNote + "\n\nActual receipt image is not available for this older payment record.");
+    closeReceiptModal();
+
+    const isPdf = receiptDataUrl.startsWith("data:application/pdf");
+    const modal = document.createElement("div");
+    modal.id = "receiptPreviewModal";
+    modal.innerHTML = `
+        <style>
+            #receiptPreviewModal {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: rgba(7, 22, 42, 0.72);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 18px;
+            }
+
+            .receipt-modal-card {
+                width: min(960px, 100%);
+                max-height: 92vh;
+                background: #ffffff;
+                border-radius: 22px;
+                overflow: hidden;
+                box-shadow: 0 24px 60px rgba(0,0,0,.35);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .receipt-modal-header {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                align-items: flex-start;
+                padding: 18px 20px;
+                background: linear-gradient(180deg,#143f73 0%,#0e335d 100%);
+                color: #ffffff;
+            }
+
+            .receipt-modal-header h2 {
+                margin: 0 0 6px;
+                font-size: 20px;
+            }
+
+            .receipt-modal-header p {
+                margin: 2px 0;
+                opacity: .92;
+                font-size: 13px;
+                word-break: break-word;
+            }
+
+            .receipt-modal-close {
+                border: 0;
+                border-radius: 12px;
+                min-width: 42px;
+                height: 42px;
+                cursor: pointer;
+                background: rgba(255,255,255,.16);
+                color: #ffffff;
+                font-size: 22px;
+                font-weight: 900;
+            }
+
+            .receipt-modal-body {
+                padding: 18px;
+                overflow: auto;
+                background: #f4f8ff;
+            }
+
+            .receipt-modal-body img {
+                display: block;
+                max-width: 100%;
+                height: auto;
+                margin: auto;
+                border-radius: 16px;
+                background: #ffffff;
+                box-shadow: 0 10px 28px rgba(25,60,100,.12);
+            }
+
+            .receipt-modal-body iframe {
+                width: 100%;
+                height: 74vh;
+                border: 0;
+                border-radius: 16px;
+                background: #ffffff;
+            }
+
+            .receipt-pdf-fallback {
+                display: block;
+                text-align: center;
+                padding: 12px 14px;
+                margin-bottom: 12px;
+                border-radius: 14px;
+                background: #ffffff;
+                color: #143f73;
+                font-weight: 800;
+                text-decoration: none;
+                border: 1px solid #d8e7fb;
+            }
+
+            @media (max-width: 760px) {
+                #receiptPreviewModal {
+                    align-items: stretch;
+                    padding: 10px;
+                }
+
+                .receipt-modal-card {
+                    max-height: 96vh;
+                    border-radius: 18px;
+                }
+
+                .receipt-modal-body {
+                    padding: 12px;
+                }
+
+                .receipt-modal-body iframe {
+                    height: 68vh;
+                }
+            }
+        </style>
+
+        <div class="receipt-modal-card">
+            <div class="receipt-modal-header">
+                <div>
+                    <h2>Payment Receipt</h2>
+                    <p><strong>File:</strong> ${mutahusEscapeHtml(name)}</p>
+                    <p><strong>Note:</strong> ${mutahusEscapeHtml(paymentNote)}</p>
+                </div>
+                <button class="receipt-modal-close" type="button" onclick="closeReceiptModal()">×</button>
+            </div>
+            <div class="receipt-modal-body">
+                ${
+                    isPdf
+                        ? `<a class="receipt-pdf-fallback" href="${receiptDataUrl}" target="_blank">Open PDF Receipt</a><iframe src="${receiptDataUrl}"></iframe>`
+                        : `<img src="${receiptDataUrl}" alt="Payment receipt">`
+                }
+            </div>
+        </div>
+    `;
+
+    modal.addEventListener("click", function(event) {
+        if (event.target === modal) closeReceiptModal();
+    });
+
+    document.body.appendChild(modal);
 }
 
 async function submitPayment(event) {
@@ -1073,10 +1277,42 @@ async function submitPayment(event) {
     const parent = requireParentLogin();
     if (!parent) return;
 
+    const paymentMode = getParentPaymentMode();
     const studentId = document.getElementById("paymentStudent").value;
+    const children = window.parentPaymentChildren || [];
 
-    if (!studentId) {
-        alert("Please choose a student.");
+    let selectedStudentIds = [];
+
+    if (paymentMode === "all") {
+        selectedStudentIds = children.map(child => child.id);
+
+        if (selectedStudentIds.length === 0) {
+            alert("No child found to pay.");
+            return;
+        }
+
+        const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
+        if (notSet.length > 0) {
+            alert("Some child payment amount has not been set by admin yet. Please contact admin.");
+            return;
+        }
+    } else {
+        if (!studentId) {
+            alert("Please choose a student.");
+            return;
+        }
+
+        selectedStudentIds = [studentId];
+    }
+
+    if (typeof updatePaymentAmountFromSelectedStudent === "function") {
+        updatePaymentAmountFromSelectedStudent();
+    }
+
+    const adminAmount = Number(document.getElementById("paymentAmount").value || 0);
+
+    if (!adminAmount || adminAmount <= 0) {
+        alert("Payment amount has not been set by admin yet. Please contact admin.");
         return;
     }
 
@@ -1116,7 +1352,9 @@ async function submitPayment(event) {
         const paymentData = {
             parentId: parent.id,
             parentEmail: parent.email || "",
+            paymentMode,
             studentId,
+            studentIds: selectedStudentIds,
             month: document.getElementById("paymentMonth").value,
             amount: Number(document.getElementById("paymentAmount").value),
             datePaid: document.getElementById("paymentDate").value,
@@ -1561,7 +1799,7 @@ async function loadAdminStudents() {
     const table = document.getElementById("adminStudentsTable");
 
     if (table) {
-        table.innerHTML = `<tr><td colspan="8" class="empty-row">Loading students from MongoDB...</td></tr>`;
+        table.innerHTML = `<tr><td colspan="9" class="empty-row">Loading students from MongoDB...</td></tr>`;
     }
 
     try {
@@ -1573,7 +1811,7 @@ async function loadAdminStudents() {
         if (!result.success) {
             alert(result.message || "Failed to load students.");
             if (table) {
-                table.innerHTML = `<tr><td colspan="8" class="empty-row">Failed to load students.</td></tr>`;
+                table.innerHTML = `<tr><td colspan="9" class="empty-row">Failed to load students.</td></tr>`;
             }
             return;
         }
@@ -1601,7 +1839,7 @@ async function loadAdminStudents() {
         table.innerHTML = "";
 
         if (children.length === 0) {
-            table.innerHTML = `<tr><td colspan="8" class="empty-row">No students added yet.</td></tr>`;
+            table.innerHTML = `<tr><td colspan="9" class="empty-row">No students added yet.</td></tr>`;
             return;
         }
 
@@ -1610,6 +1848,7 @@ async function loadAdminStudents() {
             const status = child.status || "Pending Review";
             const statusClass = getStudentStatusBadgeClass(status);
             const paymentClass = getPaymentBadgeClass(child.paymentStatus || "Unpaid");
+            const amount = Number(child.monthlyAmount || 0);
 
             table.innerHTML += `
                 <tr>
@@ -1622,13 +1861,24 @@ async function loadAdminStudents() {
                         <br><small>${child.parentPhone || ""}</small>
                         <br><small>${child.parentEmail || ""}</small>
                     </td>
-                    <td>${child.school || "-"}</td>
+                    <td>
+                        <strong>${child.school || "-"}</strong>
+                        ${child.kafa ? `<br><small>KAFA: ${child.kafa}</small>` : `<br><small>KAFA: -</small>`}
+                    </td>
                     <td>${child.classYear || "-"}</td>
                     <td><span class="badge ${sessionClass}">${child.session || "-"}</span></td>
                     <td>${child.pickupLocation || "-"}</td>
                     <td>
                         <span class="badge ${statusClass}">${status}</span>
                         <br><small>Payment: <span class="badge ${paymentClass}">${child.paymentStatus || "Unpaid"}</span></small>
+                    </td>
+                    <td>
+                        <div class="student-amount-box">
+                            <span>RM</span>
+                            <input type="number" id="amount_${child.id}" value="${amount > 0 ? amount.toFixed(2) : ""}" min="0" step="0.01" placeholder="0.00">
+                            <button type="button" onclick="updateStudentAmount('${child.id}')">Save</button>
+                        </div>
+                        <small>${amount > 0 ? "Parent will pay this amount" : "Set amount before payment"}</small>
                     </td>
                     <td>
                         <div class="action-row">
@@ -1645,8 +1895,44 @@ async function loadAdminStudents() {
         alert("Admin students error: " + error.message);
 
         if (table) {
-            table.innerHTML = `<tr><td colspan="8" class="empty-row">Failed to load students.</td></tr>`;
+            table.innerHTML = `<tr><td colspan="9" class="empty-row">Failed to load students.</td></tr>`;
         }
+    }
+}
+
+async function updateStudentAmount(childId) {
+    const input = document.getElementById("amount_" + childId);
+    const amount = Number(input ? input.value : 0);
+
+    if (!amount || amount <= 0) {
+        alert("Please enter a valid payment amount in RM.");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/update-student-status", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "update-amount",
+                studentId: childId,
+                monthlyAmount: amount
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to update student amount.");
+            return;
+        }
+
+        alert("Student payment amount updated to RM" + amount.toFixed(2));
+        loadAdminStudents();
+    } catch (error) {
+        alert("Update amount error: " + error.message);
     }
 }
 
@@ -1835,7 +2121,7 @@ function viewParentDetails(parentId) {
             childrenRows += `
                 <tr>
                     <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                    <td>${child.school}</td>
+                    <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
                     <td>${child.classYear}</td>
                     <td>${child.session}</td>
                     <td>${child.pickupLocation}</td>
@@ -3596,3 +3882,159 @@ window.addEventListener("load", loadHomeStats);
 // MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE
 
 // MUTAHUS_FIX_DELETE_CHILD_CONTACT_ADMIN
+
+// MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
+
+
+function injectMutahusMobileSafeAreaFix() {
+    if (document.getElementById("mutahusMobileSafeAreaFix")) return;
+
+    const style = document.createElement("style");
+    style.id = "mutahusMobileSafeAreaFix";
+    style.innerHTML = `
+        /* MUTAHUS_STEP27_MOBILE_SAFE_AREA_FIX */
+        :root {
+            --mutahus-safe-bottom-space: calc(120px + env(safe-area-inset-bottom, 0px));
+            --mutahus-safe-top-space: env(safe-area-inset-top, 0px);
+        }
+
+        html, body {
+            min-height: 100%;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 860px) {
+            .app-main,
+            .portal-main,
+            .rules-main {
+                padding-bottom: var(--mutahus-safe-bottom-space) !important;
+            }
+
+            .mobile-app-header,
+            .mobile-topbar,
+            .mobile-admin-header {
+                padding-top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+                min-height: calc(64px + env(safe-area-inset-top, 0px));
+            }
+
+            .top-taskbar {
+                padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+            }
+
+            .mobile-bottom-nav,
+            .admin-mobile-bottom {
+                bottom: calc(26px + env(safe-area-inset-bottom, 0px)) !important;
+                left: 10px !important;
+                right: 10px !important;
+                max-width: calc(100vw - 20px);
+            }
+
+            .whatsapp-float {
+                bottom: calc(118px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .receipt-modal-card {
+                max-height: calc(92dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .receipt-modal-body {
+                max-height: calc(76dvh - env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .page-hero-bar,
+            .hero-card,
+            .dashboard-hero {
+                margin-top: 8px;
+            }
+
+            .content-grid,
+            .dashboard-grid,
+            .stats-grid,
+            .portal-panel,
+            .rules-panel {
+                margin-bottom: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-bottom-nav,
+            .admin-mobile-bottom {
+                bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .app-main,
+            .portal-main,
+            .rules-main {
+                padding-bottom: calc(145px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .whatsapp-float {
+                bottom: calc(130px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+document.addEventListener("DOMContentLoaded", injectMutahusMobileSafeAreaFix);
+window.addEventListener("load", injectMutahusMobileSafeAreaFix);
+
+// MUTAHUS_STEP27_MOBILE_SAFE_AREA_FIX
+
+
+function setupMutahusWhatsappDirectLinks() {
+    const phone = "60178078271";
+    const text = "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah Mutahus Global.";
+    const encodedText = encodeURIComponent(text);
+    const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+    const appUrl = `whatsapp://send?phone=${phone}&text=${encodedText}`;
+
+    const links = document.querySelectorAll(
+        'a[href*="wa.me"], a[href*="api.whatsapp.com"], a.whatsapp-float'
+    );
+
+    links.forEach(link => {
+        link.href = webUrl;
+        link.target = "_blank";
+        link.rel = "noopener";
+
+        if (link.dataset.whatsappDirectFixed === "true") return;
+        link.dataset.whatsappDirectFixed = "true";
+
+        link.addEventListener("click", function(event) {
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (!isMobile) {
+                return;
+            }
+
+            event.preventDefault();
+
+            let fallbackTimer = setTimeout(function() {
+                window.location.href = webUrl;
+            }, 900);
+
+            const clearFallback = function() {
+                clearTimeout(fallbackTimer);
+            };
+
+            window.addEventListener("pagehide", clearFallback, { once: true });
+            document.addEventListener("visibilitychange", function() {
+                if (document.hidden) clearFallback();
+            }, { once: true });
+
+            window.location.href = appUrl;
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", setupMutahusWhatsappDirectLinks);
+window.addEventListener("load", setupMutahusWhatsappDirectLinks);
+setTimeout(setupMutahusWhatsappDirectLinks, 700);
+
+// MUTAHUS_STEP28_WHATSAPP_MOBILE_DIRECT_FIX
+
+
+// MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD

@@ -22,6 +22,7 @@ module.exports = async function handler(req, res) {
 
     const name = (data.name || "").trim();
     const school = (data.school || "").trim();
+    const kafa = (data.kafa || "").trim();
     const classYear = (data.classYear || "").trim();
     const session = (data.session || "").trim();
     const homeAddress = (data.homeAddress || "").trim();
@@ -62,11 +63,15 @@ module.exports = async function handler(req, res) {
       parentEmail: parent.email,
       name,
       school,
+      kafa,
+      schoolDisplay: kafa ? `${school} + ${kafa}` : school,
       classYear,
       session,
       homeAddress,
       pickupLocation,
       notes: (data.notes || "").trim(),
+      monthlyAmount: 0,
+      amountMode: "Admin Set Amount (RM)",
       paymentStatus: "Unpaid",
       status: "Pending Review",
       createdAt: new Date(),
@@ -91,3 +96,5 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+// MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
