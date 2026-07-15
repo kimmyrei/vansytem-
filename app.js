@@ -4110,3 +4110,180 @@ window.addEventListener("load", function () {
 
 // MUTAHUS_STEP30_USER_COMPLAINT_FIXES
 
+
+function mutahusStep31MobileHeaderCleanFix() {
+    if (document.getElementById("mutahusStep31MobileHeaderStyle")) return;
+
+    const style = document.createElement("style");
+    style.id = "mutahusStep31MobileHeaderStyle";
+    style.innerHTML = `
+        /* MUTAHUS_STEP31_MOBILE_HEADER_WHITE_TOP_FIX */
+
+        @media (max-width: 860px) {
+            html {
+                background: #edf4ff !important;
+            }
+
+            body {
+                background: linear-gradient(180deg, #edf4ff 0%, #f7fbff 100%) !important;
+                padding-top: 0 !important;
+                margin-top: 0 !important;
+            }
+
+            /* remove Profile / Logout / Dashboard buttons from top mobile header */
+            .mobile-actions,
+            .mobile-logout,
+            .mobile-header-actions,
+            .mobile-profile-link,
+            .mobile-logout-link {
+                display: none !important;
+            }
+
+            /* cover the annoying white strip near phone battery/status bar */
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: calc(18px + env(safe-area-inset-top, 0px));
+                background: linear-gradient(180deg, #143f73 0%, #0e335d 100%);
+                z-index: 10000;
+                pointer-events: none;
+            }
+
+            .mobile-app-header,
+            .mobile-topbar,
+            .mobile-admin-header {
+                top: 0 !important;
+                margin-top: 0 !important;
+                padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+                background: linear-gradient(180deg, #143f73 0%, #0e335d 100%) !important;
+                border-top: 0 !important;
+                box-shadow: 0 10px 22px rgba(8, 34, 72, 0.12);
+                z-index: 9999 !important;
+            }
+
+            .top-taskbar {
+                margin-top: 0 !important;
+                padding-top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+                background: linear-gradient(180deg, #143f73 0%, #0e335d 100%) !important;
+                border-top: 0 !important;
+            }
+
+            #mutahusMobileFeatureBtn {
+                top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+                right: 14px !important;
+                left: auto !important;
+                bottom: auto !important;
+                z-index: 10003 !important;
+            }
+
+            #mutahusMobileFeaturePanel {
+                top: calc(74px + env(safe-area-inset-top, 0px)) !important;
+            }
+
+            .app-main,
+            .portal-main,
+            .rules-main {
+                padding-top: 18px !important;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    let themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (!themeMeta) {
+        themeMeta = document.createElement("meta");
+        themeMeta.name = "theme-color";
+        document.head.appendChild(themeMeta);
+    }
+    themeMeta.content = "#143f73";
+
+    let appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!appleMeta) {
+        appleMeta = document.createElement("meta");
+        appleMeta.name = "apple-mobile-web-app-status-bar-style";
+        document.head.appendChild(appleMeta);
+    }
+    appleMeta.content = "black-translucent";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    mutahusStep31MobileHeaderCleanFix();
+    setTimeout(mutahusStep31MobileHeaderCleanFix, 500);
+    setTimeout(mutahusStep31MobileHeaderCleanFix, 1200);
+});
+
+window.addEventListener("load", function () {
+    mutahusStep31MobileHeaderCleanFix();
+    setTimeout(mutahusStep31MobileHeaderCleanFix, 500);
+});
+
+// MUTAHUS_STEP31_MOBILE_HEADER_WHITE_TOP_FIX
+
+
+function mutahusStep32CleanTopAndBankFix() {
+    if (!document.getElementById("mutahusStep32CleanTopStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep32CleanTopStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP32_BANK_WHITE_CLEAN_TOP_COMBINED_STEP31 */
+
+            .bank-card-pro,
+            .bank-card-pro * {
+                color: #ffffff !important;
+            }
+
+            .bank-card-pro h3,
+            .bank-card-pro span,
+            .bank-card-pro strong {
+                color: #ffffff !important;
+            }
+
+            .bank-card-pro span {
+                opacity: .9 !important;
+            }
+
+            .bank-card-pro .bank-row {
+                border-top-color: rgba(255,255,255,.22) !important;
+            }
+
+            @media (max-width: 860px) {
+                .hero-card .hero-actions {
+                    display: none !important;
+                }
+
+                .hero-card > div > p,
+                .page-hero-bar > div > p {
+                    display: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const page = window.location.pathname.split("/").pop() || "index.html";
+    const cleanPages = [
+        "add-student.html",
+        "upload-payment.html",
+        "parent-rules.html",
+        "parent-profile.html"
+    ];
+
+    if (cleanPages.includes(page)) {
+        document.querySelectorAll(".hero-card .hero-actions").forEach(el => el.remove());
+        document.querySelectorAll(".hero-card > div > p").forEach(el => el.remove());
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    mutahusStep32CleanTopAndBankFix();
+    setTimeout(mutahusStep32CleanTopAndBankFix, 400);
+    setTimeout(mutahusStep32CleanTopAndBankFix, 1200);
+});
+window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
+
+// MUTAHUS_STEP32_BANK_WHITE_CLEAN_TOP_COMBINED_STEP31
+
