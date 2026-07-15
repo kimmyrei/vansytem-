@@ -6,837 +6,216 @@
     <title>Payment Proof | Mutahus Global</title>
     <link rel="stylesheet" href="./style.css">
 
-    <style>
-        :root{
-            --primary:#123f73;
-            --primary-dark:#0e335d;
-            --border:#d9e5f5;
-            --muted:#6b7a90;
-            --bg:#edf4ff;
-            --card:#ffffff;
-            --success:#1e9b67;
-            --warning:#c77b15;
-        }
-
-        *{box-sizing:border-box}
-
-        body{
-            margin:0;
-            font-family:Arial, Helvetica, sans-serif;
-            background:linear-gradient(180deg,#edf4ff 0%, #f7fbff 100%);
-            color:#163150;
-        }
-
-        .portal-shell{display:flex;min-height:100vh}
-
-        .portal-sidebar{
-            width:280px;
-            background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
-            color:#fff;
-            padding:24px 20px;
-            display:flex;
-            flex-direction:column;
-            gap:22px;
-            position:sticky;
-            top:0;
-            height:100vh;
-            box-shadow:12px 0 24px rgba(10,40,80,.08);
-        }
-
-        .brand-box{
-            display:flex;
-            gap:14px;
-            align-items:center;
-            padding-bottom:22px;
-            border-bottom:1px solid rgba(255,255,255,.15);
-        }
-
-        .brand-icon{
-            width:58px;
-            height:58px;
-            border-radius:18px;
-            display:grid;
-            place-items:center;
-            background:rgba(255,255,255,.12);
-            font-size:28px;
-            border:1px solid rgba(255,255,255,.16);
-        }
-
-        .brand-box strong{display:block;font-size:18px}
-        .brand-box small{display:block;opacity:.85;margin-top:3px}
-
-        .side-links{display:flex;flex-direction:column;gap:10px}
-
-        .side-links a{
-            color:#fff;
-            text-decoration:none;
-            padding:14px 16px;
-            border-radius:16px;
-            display:flex;
-            align-items:center;
-            gap:12px;
-            font-weight:700;
-        }
-
-        .side-links a:hover,.side-links a.active{background:rgba(255,255,255,.14)}
-
-        .sidebar-note{
-            margin-top:auto;
-            background:rgba(255,255,255,.1);
-            padding:16px;
-            border-radius:18px;
-            font-size:14px;
-            line-height:1.5;
-        }
-
-        .logout-link{
-            margin-top:14px;
-            background:#ef5d5d !important;
-            justify-content:center;
-        }
-
-        .portal-main{flex:1;padding:32px 34px 100px}
-
-        .mobile-topbar,.mobile-bottom-nav{display:none}
-
-        .hero-card{
-            background:linear-gradient(90deg,rgba(255,255,255,.96), rgba(239,245,255,.96));
-            border:1px solid var(--border);
-            border-radius:28px;
-            padding:30px 32px;
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-            gap:20px;
-            box-shadow:0 8px 24px rgba(30,70,120,.06);
-            margin-bottom:24px;
-        }
-
-        .hero-card h1{
-            margin:8px 0 10px;
-            font-size:52px;
-            line-height:1;
-            color:#113d71;
-        }
-
-        .hero-card p{
-            margin:0;
-            color:var(--muted);
-            font-size:18px;
-            max-width:760px;
-            line-height:1.6;
-        }
-
-        .kicker{
-            display:inline-block;
-            color:#2368c4;
-            font-weight:800;
-            letter-spacing:1.2px;
-            font-size:15px;
-        }
-
-        .hero-actions{
-            display:flex;
-            gap:12px;
-            flex-wrap:wrap;
-            justify-content:flex-end;
-        }
-
-        .btnx{
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            gap:8px;
-            min-height:48px;
-            padding:0 18px;
-            border-radius:14px;
-            text-decoration:none;
-            border:none;
-            cursor:pointer;
-            font-weight:800;
-            font-size:15px;
-        }
-
-        .btn-primary{
-            background:linear-gradient(180deg,#2873d1,#1657a9);
-            color:#fff;
-            box-shadow:0 10px 18px rgba(40,115,209,.24);
-        }
-
-        .btn-light{
-            background:#fff;
-            color:#1b4a84;
-            border:1px solid var(--border);
-        }
-
-        .content-grid{
-            display:grid;
-            grid-template-columns:minmax(0,1fr) 340px;
-            gap:22px;
-            align-items:start;
-        }
-
-        .portal-panel{
-            background:#fff;
-            border:1px solid var(--border);
-            border-radius:26px;
-            padding:26px;
-            box-shadow:0 8px 24px rgba(30,70,120,.05);
-        }
-
-        .portal-panel h2{
-            margin:0 0 8px;
-            color:#143f73;
-            font-size:30px;
-        }
-
-        .portal-panel > p{
-            margin:0 0 22px;
-            color:var(--muted);
-            line-height:1.6;
-        }
-
-        .form-section-title{
-            display:flex;
-            gap:12px;
-            align-items:center;
-            margin:24px 0 16px;
-        }
-
-        .form-section-title:first-child{margin-top:0}
-
-        .form-section-title span{
-            width:34px;
-            height:34px;
-            border-radius:12px;
-            display:grid;
-            place-items:center;
-            color:#fff;
-            background:linear-gradient(180deg,#2873d1,#1657a9);
-            font-weight:900;
-        }
-
-        .form-section-title h3{
-            margin:0;
-            color:#123f73;
-            font-size:18px;
-        }
-
-        label{
-            display:block;
-            margin:14px 0 7px;
-            color:#1c3f68;
-            font-weight:800;
-        }
-
-        input,select,textarea{
-            width:100%;
-            min-height:48px;
-            padding:12px 14px;
-            border:1px solid #d8e7fb;
-            border-radius:14px;
-            background:#f8fbff;
-            color:#123f73;
-            font-size:15px;
-            outline:none;
-            font-family:inherit;
-        }
-
-        textarea{
-            min-height:110px;
-            resize:vertical;
-            line-height:1.5;
-        }
-
-        input:focus,select:focus,textarea:focus{
-            border-color:#7eb0ef;
-            box-shadow:0 0 0 4px rgba(30,111,209,.12);
-            background:#fff;
-        }
-
-        .form-two-column{
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:16px;
-        }
-
-        .full-btn{
-            width:100%;
-            margin-top:20px;
-            min-height:54px;
-            font-size:16px;
-        }
-
-        .info-card{
-            background:linear-gradient(135deg,#ffffff,#f6faff);
-            border:1px solid var(--border);
-            border-radius:24px;
-            padding:22px;
-            box-shadow:0 8px 24px rgba(30,70,120,.05);
-        }
-
-        .info-card h3{
-            margin:0 0 12px;
-            color:#143f73;
-            font-size:20px;
-        }
-
-        .info-card p,.info-card li{
-            color:#60748d;
-            line-height:1.55;
-            font-size:14px;
-        }
-
-        .info-card ul{
-            margin:10px 0 0;
-            padding-left:20px;
-        }
-
-        .mini-stat{
-            display:flex;
-            gap:12px;
-            align-items:center;
-            padding:14px;
-            border-radius:18px;
-            background:#edf6ff;
-            border:1px solid #d8e7fb;
-            margin-top:12px;
-        }
-
-        .mini-stat span{
-            width:44px;
-            height:44px;
-            border-radius:15px;
-            display:grid;
-            place-items:center;
-            background:#fff;
-            font-size:22px;
-        }
-
-        .mini-stat strong{
-            display:block;
-            color:#123f73;
-        }
-
-        .mini-stat small{
-            display:block;
-            color:#60748d;
-            margin-top:2px;
-        }
-
-        .payment-note{
-            padding:14px 16px;
-            border-radius:18px;
-            background:#fff8e6;
-            border:1px solid #ffe2a4;
-            color:#77510c;
-            line-height:1.5;
-            margin-bottom:18px;
-        }
-
-        .bank-card-pro{
-            background:linear-gradient(135deg,#123f73,#1d6ac0);
-            color:#fff;
-            border-radius:24px;
-            padding:22px;
-            box-shadow:0 12px 28px rgba(18,63,115,.22);
-            margin-bottom:18px;
-        }
-
-        .bank-card-pro h3{
-            margin:0 0 16px;
-            font-size:22px;
-        }
-
-        .bank-row{
-            display:flex;
-            justify-content:space-between;
-            gap:14px;
-            padding:12px 0;
-            border-top:1px solid rgba(255,255,255,.18);
-        }
-
-        .bank-row span{
-            opacity:.85;
-            font-size:13px;
-        }
-
-        .bank-row strong{
-            text-align:right;
-            font-size:15px;
-        }
-
-        .pretty-month-picker{
-            display:grid;
-            grid-template-columns:1.25fr .75fr;
-            gap:12px;
-        }
-
-        .locked-payment-date{
-            display:flex;
-            gap:14px;
-            align-items:center;
-            padding:14px 16px;
-            border:1px solid #d8e7fb;
-            border-radius:18px;
-            background:linear-gradient(135deg,#ffffff,#edf6ff);
-            box-shadow:0 8px 18px rgba(22,73,130,.06);
-            margin-bottom:14px;
-        }
-
-        .locked-date-icon{
-            width:46px;
-            height:46px;
-            border-radius:15px;
-            display:grid;
-            place-items:center;
-            background:#e8f2ff;
-            border:1px solid #d8e7fb;
-            font-size:22px;
-            flex-shrink:0;
-        }
-
-        .locked-date-content{flex:1}
-
-        .locked-date-content small{
-            display:block;
-            color:#5f748e;
-            font-weight:800;
-            margin-bottom:4px;
-        }
-
-        #paymentDateDisplay{
-            width:100%;
-            border:none;
-            background:transparent;
-            color:#123f73;
-            font-size:18px;
-            font-weight:900;
-            padding:0;
-            min-height:auto;
-            outline:none;
-            cursor:default;
-        }
-
-        .locked-date-content p{
-            margin:4px 0 0;
-            color:#72839a;
-            font-size:13px;
-            line-height:1.4;
-        }
-
-        .upload-box-pro{
-            border:1px dashed #88b9f2;
-            border-radius:20px;
-            background:#f3f8ff;
-            padding:18px;
-        }
-
-        .upload-box-pro input{
-            background:#fff;
-        }
-
-        .upload-box-pro p{
-            margin:10px 0 0;
-            color:#60748d;
-            font-size:13px;
-        }
-
-        .whatsapp-float{
-            position:fixed;
-            right:20px;
-            bottom:20px;
-            display:flex;
-            align-items:center;
-            gap:10px;
-            background:#25d366;
-            color:#fff;
-            text-decoration:none;
-            border-radius:999px;
-            padding:12px 18px;
-            box-shadow:0 10px 24px rgba(37,211,102,.28);
-            z-index:80;
-            font-weight:800;
-        }
-
-        .whatsapp-float span{font-size:22px}
-        .whatsapp-float strong,.whatsapp-float small{display:block}
-        .whatsapp-float small{font-size:11px;opacity:.9}
-
-        @media(max-width:1040px){
-            .content-grid{grid-template-columns:1fr}
-        }
-
-        @media(max-width:860px){
-            .portal-sidebar{display:none}
-            .portal-main{padding:20px 16px 95px}
-
-            .mobile-topbar{
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                gap:10px;
-                padding:14px 16px;
-                background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
-                color:#fff;
-                position:sticky;
-                top:0;
-                z-index:50;
-            }
-
-            .mobile-topbar strong{display:block;font-size:16px}
-            .mobile-topbar small{display:block;opacity:.85}
-
-            .mobile-actions{display:flex;gap:8px;flex-wrap:wrap}
-            .mobile-actions a{
-                color:#fff;
-                text-decoration:none;
-                font-size:13px;
-                background:rgba(255,255,255,.14);
-                padding:8px 12px;
-                border-radius:10px;
-            }
-
-            .mobile-bottom-nav{
-                display:grid;
-                grid-template-columns:repeat(5,1fr);
-                gap:6px;
-                position:fixed;
-                left:10px;
-                right:10px;
-                bottom:10px;
-                background:#fff;
-                border:1px solid var(--border);
-                border-radius:22px;
-                padding:10px;
-                z-index:60;
-                box-shadow:0 10px 24px rgba(20,60,115,.14);
-            }
-
-            .mobile-bottom-nav a{
-                text-decoration:none;
-                color:#4c5d78;
-                display:flex;
-                flex-direction:column;
-                align-items:center;
-                gap:4px;
-                font-size:11px;
-                padding:6px;
-                border-radius:14px;
-            }
-
-            .mobile-bottom-nav a.active{
-                background:#edf4ff;
-                color:#1754a7;
-                font-weight:800;
-            }
-
-            .hero-card{
-                padding:22px 18px;
-                flex-direction:column;
-            }
-
-            .hero-card h1{font-size:38px}
-            .portal-panel{padding:20px}
-            .form-two-column,.pretty-month-picker{grid-template-columns:1fr}
-            .whatsapp-float div{display:none}
-            .whatsapp-float{right:16px;bottom:92px;padding:12px 14px}
-        }
-    </style>
-
-
 <style>
-    .payment-mode-picker {
+    /* MUTAHUS_STEP33_DASHBOARD_LAYOUT_REGISTER_PAYMENT_FIX */
+    .mutahus-form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 14px;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 24px;
+        align-items: start;
     }
 
-    .payment-mode-card {
+    .mutahus-side-card {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        box-shadow: var(--shadow);
+        padding: 26px;
+    }
+
+    .mutahus-side-card h3 {
+        color: var(--primary);
+        margin-bottom: 12px;
+    }
+
+    .mutahus-side-card p,
+    .mutahus-side-card li {
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 14px;
+    }
+
+    .mutahus-side-card ul {
+        padding-left: 18px;
+        margin: 12px 0 0;
+    }
+
+    .form-section-title {
         display: flex;
-        gap: 12px;
         align-items: center;
-        padding: 14px;
-        border: 1px solid #d8e7fb;
-        border-radius: 18px;
-        background: #f8fbff;
-        cursor: pointer;
-        transition: .2s ease;
+        gap: 12px;
+        margin: 22px 0 14px;
     }
 
-    .payment-mode-card.active {
-        border-color: #2873d1;
-        background: linear-gradient(135deg, #ffffff, #edf6ff);
-        box-shadow: 0 8px 20px rgba(40,115,209,.12);
+    .form-section-title:first-child {
+        margin-top: 0;
     }
 
-    .payment-mode-card input {
-        width: 18px;
-        min-height: 18px;
-        padding: 0;
-        accent-color: #2873d1;
-    }
-
-    .payment-mode-card span {
-        width: 42px;
-        height: 42px;
+    .form-section-title span {
+        width: 34px;
+        height: 34px;
         display: grid;
         place-items: center;
-        border-radius: 14px;
-        background: #e8f2ff;
-        flex-shrink: 0;
-        font-size: 20px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary-2), var(--primary));
+        color: #ffffff;
+        font-weight: 900;
     }
 
-    .payment-mode-card strong {
+    .form-section-title h3 {
+        margin: 0;
+        color: var(--primary);
+    }
+
+    .form-card-pro label {
         display: block;
-        color: #123f73;
-        font-size: 15px;
+        margin: 14px 0 7px;
+        color: var(--primary);
+        font-weight: 900;
     }
 
-    .payment-mode-card small {
-        display: block;
-        color: #60748d;
-        margin-top: 2px;
-        line-height: 1.35;
+    .form-card-pro textarea {
+        min-height: 110px;
     }
 
-    .all-children-box {
-        padding: 14px 16px;
-        border-radius: 18px;
-        border: 1px solid #d8e7fb;
-        background: linear-gradient(135deg, #ffffff, #edf6ff);
-        margin: 10px 0 14px;
-    }
-
-    .all-children-box strong {
-        color: #123f73;
-    }
-
-    .all-children-box p {
-        margin: 8px 0 0;
-        color: #60748d;
-        line-height: 1.5;
-    }
-
-    @media (max-width:760px) {
-        .payment-mode-picker {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-
-<style>
     .all-children-box {
         padding: 16px;
         border-radius: 18px;
-        border: 1px solid #d8e7fb;
-        background: linear-gradient(135deg, #ffffff, #edf6ff);
+        border: 1px solid var(--line);
+        background: var(--soft);
         margin: 10px 0 14px;
-        box-shadow: 0 8px 20px rgba(40,115,209,.08);
     }
 
     .all-children-box strong {
         display: block;
-        color: #123f73;
+        color: var(--primary);
         font-size: 16px;
     }
 
     .all-children-box p {
         margin: 8px 0 0;
-        color: #60748d;
+        color: var(--muted);
         line-height: 1.55;
     }
-</style>
-<!-- MUTAHUS_STEP30_PAYMENT_AUTO_ALL_STYLE -->
 
+    .bank-card-pro {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2)) !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
 
-<style>
-    /* MUTAHUS_STEP32_BANK_DETAILS_WHITE_TEXT */
     .bank-card-pro,
     .bank-card-pro * {
         color: #ffffff !important;
     }
 
-    .bank-card-pro h3,
-    .bank-card-pro span,
-    .bank-card-pro strong {
-        color: #ffffff !important;
+    .bank-card-pro div {
+        border-bottom-color: rgba(255,255,255,.25) !important;
     }
 
     .bank-card-pro span {
-        opacity: .9 !important;
+        opacity: .92;
     }
 
-    .bank-card-pro .bank-row {
-        border-top-color: rgba(255,255,255,.22) !important;
+    .locked-payment-date {
+        display:flex;
+        gap:14px;
+        align-items:center;
+        padding:14px 16px;
+        border:1px solid var(--line);
+        border-radius:18px;
+        background:var(--soft);
+        margin-bottom:14px;
+    }
+
+    .locked-date-icon {
+        width:46px;
+        height:46px;
+        border-radius:15px;
+        display:grid;
+        place-items:center;
+        background:#ffffff;
+        border:1px solid var(--line);
+        font-size:22px;
+        flex-shrink:0;
+    }
+
+    .locked-date-content { flex:1; }
+
+    .locked-date-content small {
+        display:block;
+        color:var(--muted);
+        font-weight:900;
+        margin-bottom:4px;
+    }
+
+    #paymentDateDisplay {
+        border:none !important;
+        background:transparent !important;
+        color:var(--primary);
+        font-size:18px;
+        font-weight:900;
+        padding:0;
+        min-height:auto;
+        box-shadow:none !important;
+    }
+
+    .locked-date-content p {
+        margin:4px 0 0;
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.4;
+    }
+
+    @media(max-width: 1000px) {
+        .mutahus-form-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
 </head>
 <body>
 
-    <div class="mobile-topbar">
+<div class="app-shell">
+    
+<aside class="pro-sidebar parent-side">
+    <div class="sidebar-brand">
+        <span>🚐</span>
         <div>
-            <strong>🚐 Mutahus Global</strong>
+            <strong>Mutahus Global</strong>
             <small>Parent Portal</small>
-        </div>
-        <div class="mobile-actions">
-            <a href="parent-dashboard.html">Dashboard</a>
-            <a href="#" onclick="parentLogout()">Logout</a>
         </div>
     </div>
 
-    <div class="portal-shell">
-        <aside class="portal-sidebar">
-            <div class="brand-box">
-                <div class="brand-icon">🚐</div>
-                <div>
-                    <strong>Mutahus Global</strong>
-                    <small>Parent Portal</small>
-                </div>
+    <nav class="sidebar-menu">
+        <a class="" href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
+        <a class="" href="parent-profile.html"><span>👤</span> My Profile</a>
+        <a class="" href="add-student.html"><span>🎒</span> Register Child</a>
+        <a class="active" href="upload-payment.html"><span>💳</span> Payment Proof</a>
+        <a href="parent-rules.html"><span>📘</span> Rules</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="mini-help">
+            <strong>Need update?</strong>
+            <p>Check announcement and payment status from your dashboard.</p>
+        </div>
+        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+    </div>
+</aside>
+
+
+    <main class="app-main">
+        
+    <div class="mobile-app-header mobile-parent-header">
+        <div class="mobile-brand">
+            <span>🚐</span>
+            <div>
+                <strong>Mutahus Global</strong>
+                <small>Parent Portal</small>
             </div>
-
-            <nav class="side-links">
-                <a href="parent-dashboard.html" class=""><span>🏠</span> Dashboard</a>
-                <a href="parent-profile.html" class=""><span>👤</span> My Profile</a>
-                <a href="add-student.html" class=""><span>🎒</span> Register Child</a>
-                <a href="upload-payment.html" class="active"><span>💳</span> Payment Proof</a>
-                <a href="parent-rules.html" class=""><span>📘</span> Rules</a>
-            </nav>
-
-            <div class="sidebar-note">
-                <strong>Need help?</strong>
-                <p style="margin:8px 0 0;opacity:.9">Use this portal to manage your child registration and payment proof.</p>
-                <a href="#" onclick="parentLogout()" class="side-links logout-link" style="display:flex;text-decoration:none;color:#fff;margin-top:14px;padding:12px 14px;border-radius:14px;font-weight:700;">🚪 Logout</a>
-            </div>
-        </aside>
-
-        <main class="portal-main">
-            <section class="hero-card">
-                <div>
-                    <span class="kicker">PARENT PORTAL</span>
-                    <h1>Payment Proof</h1>
-                </div>
-</section>
-
-            <div class="content-grid">
-                <section class="portal-panel">
-                    <h2>Submit Payment Receipt</h2>
-                    <p>Your receipt will be applied to all registered children and reviewed by admin.</p>
-
-                    <div class="payment-note" id="paymentNotice">
-                        <strong>Important:</strong> Upload only clear image or PDF receipt.
-                    </div>
-
-                    <form onsubmit="submitPayment(event)">
-                        <label>Payment Auto Detection</label>
-                        <div id="allChildrenBox" class="all-children-box">
-                            <strong>Pay for all registered children</strong>
-                            <p id="allChildrenSummary">Loading children and total amount...</p>
-                        </div>
-
-                        <input type="hidden" id="paymentStudent" value="">
-                        <input type="hidden" name="paymentMode" value="all">
-
-                        <div class="form-two-column">
-                            <div>
-                                <label>Payment Month</label>
-                                <div class="pretty-month-picker">
-                                    <select id="paymentMonthName" required>
-                                        <option value="">Month</option>
-                                        <option value="January">January</option>
-                                        <option value="February">February</option>
-                                        <option value="March">March</option>
-                                        <option value="April">April</option>
-                                        <option value="May">May</option>
-                                        <option value="June">June</option>
-                                        <option value="July">July</option>
-                                        <option value="August">August</option>
-                                        <option value="September">September</option>
-                                        <option value="October">October</option>
-                                        <option value="November">November</option>
-                                        <option value="December">December</option>
-                                    </select>
-
-                                    <select id="paymentYear" required>
-                                        <option value="">Year</option>
-                                    </select>
-                                </div>
-                                <input type="hidden" id="paymentMonth">
-                            </div>
-
-                            <div>
-                                <label>Payment Amount (RM)</label>
-                                <input type="number" id="paymentAmount" placeholder="Select student first" min="1" step="0.01" readonly required>
-                                <small id="paymentAmountInfo" style="display:block;margin-top:7px;color:#60748d;font-weight:700;">Amount is set by admin for each student.</small>
-                            </div>
-                        </div>
-
-                        <label>Payment Date</label>
-                        <div class="locked-payment-date">
-                            <div class="locked-date-icon">🔒</div>
-                            <div class="locked-date-content">
-                                <small>Auto Date</small>
-                                <input type="text" id="paymentDateDisplay" readonly value="Today">
-                                <input type="hidden" id="paymentDate">
-                                <p>Payment date is automatically set to today and cannot be changed.</p>
-                            </div>
-                        </div>
-
-                        <label>Upload Receipt</label>
-                        <div class="upload-box-pro">
-                            <input type="file" id="receiptFile" accept="image/*,.pdf" required>
-                            <p>Accepted: image or PDF receipt file. Make sure the amount and date are clear.</p>
-                        </div>
-
-                        <label>Payment Note</label>
-                        <textarea id="paymentNote" placeholder="Optional: Example, paid using mother's account"></textarea>
-
-                        <button class="btnx btn-primary full-btn" type="submit">Submit Payment Proof</button>
-                    </form>
-                </section>
-
-                <aside>
-                    <div class="bank-card-pro">
-                        <h3>Bank Details</h3>
-                        <div class="bank-row">
-                            <span>Account Name</span>
-                            <strong>A'ZIZAH BINTI SAAD</strong>
-                        </div>
-                        <div class="bank-row">
-                            <span>Bank Account</span>
-                            <strong>157410088208</strong>
-                        </div>
-                        <div class="bank-row">
-                            <span>Bank</span>
-                            <strong>MAYBANK</strong>
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <h3>Payment Reminder</h3>
-                        <ul>
-                            <li>Choose the correct month and year.</li>
-                            <li>Payment amount is set by admin in RM.</li>
-                            <li>Payment date is auto-set to today.</li>
-                            <li>Upload clear receipt only.</li>
-                            <li>Admin will verify the receipt before marking it paid.</li>
-                        </ul>
-
-                        <div class="mini-stat">
-                            <span>💰</span>
-                            <div>
-                                <strong>Admin Set Amount</strong>
-                                <small>Parent cannot change the RM amount.</small>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
-            </div>
-        </main>
+        </div>
     </div>
 
     <nav class="mobile-bottom-nav">
@@ -863,157 +242,206 @@
     </nav>
 
 
-    <a class="whatsapp-float" href="https://wa.me/60178078271?text=Assalamualaikum,%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global." target="_blank" aria-label="Contact Mutahus Global on WhatsApp">
-        <span>💬</span>
-        <div>
-            <strong>WhatsApp</strong>
-            <small>Contact Us</small>
+        <div class="page-hero-bar">
+            <div>
+                <span class="page-kicker">PARENT PORTAL</span>
+                <h1>Payment Proof</h1>
+            </div>
         </div>
-    </a>
 
-    <script src="app.js"></script>
+        <div class="mutahus-form-grid">
+            <section class="form-card-pro">
+                <form onsubmit="submitPayment(event)">
+                    <label>Payment Auto Detection</label>
+                    <div id="allChildrenBox" class="all-children-box">
+                        <strong>Pay for all registered children</strong>
+                        <p id="allChildrenSummary">Loading children and total amount...</p>
+                    </div>
 
-    <script>
-    function getTodayDateForPayment() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+                    <input type="hidden" id="paymentStudent" value="">
+                    <input type="hidden" name="paymentMode" value="all">
+
+                    <div class="form-two-column">
+                        <div>
+                            <label>Payment Month</label>
+                            <div class="form-two-column" style="gap:12px;">
+                                <select id="paymentMonthName" required>
+                                    <option value="">Month</option>
+                                    <option value="January">January</option>
+                                    <option value="February">February</option>
+                                    <option value="March">March</option>
+                                    <option value="April">April</option>
+                                    <option value="May">May</option>
+                                    <option value="June">June</option>
+                                    <option value="July">July</option>
+                                    <option value="August">August</option>
+                                    <option value="September">September</option>
+                                    <option value="October">October</option>
+                                    <option value="November">November</option>
+                                    <option value="December">December</option>
+                                </select>
+
+                                <select id="paymentYear" required>
+                                    <option value="">Year</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="paymentMonth">
+                        </div>
+
+                        <div>
+                            <label>Payment Amount (RM)</label>
+                            <input type="number" id="paymentAmount" placeholder="Auto total" min="1" step="0.01" readonly required>
+                            <small id="paymentAmountInfo" style="display:block;margin-top:7px;color:#60748d;font-weight:700;">Amount is auto-detected for all children.</small>
+                        </div>
+                    </div>
+
+                    <label>Payment Date</label>
+                    <div class="locked-payment-date">
+                        <div class="locked-date-icon">🔒</div>
+                        <div class="locked-date-content">
+                            <small>Auto Date</small>
+                            <input type="text" id="paymentDateDisplay" readonly value="Today">
+                            <input type="hidden" id="paymentDate">
+                            <p>Payment date is automatically set to today and cannot be changed.</p>
+                        </div>
+                    </div>
+
+                    <label>Upload Receipt</label>
+                    <div class="upload-box-pro">
+                        <input type="file" id="receiptFile" accept="image/*,.pdf" required>
+                        <p>Accepted: image or PDF receipt file. One receipt will be used for all children.</p>
+                    </div>
+
+                    <label>Payment Note</label>
+                    <textarea id="paymentNote" placeholder="Optional: Example, paid using mother's account"></textarea>
+
+                    <button class="btn btn-primary-pro full-btn" type="submit">Submit Payment Proof</button>
+                </form>
+            </section>
+
+            <aside>
+                <div class="bank-card-pro">
+                    <h3>Bank Details</h3>
+                    <div>
+                        <span>Account Name</span>
+                        <strong>A'ZIZAH BINTI SAAD</strong>
+                    </div>
+                    <div>
+                        <span>Bank Account</span>
+                        <strong>157410088208</strong>
+                    </div>
+                    <div>
+                        <span>Bank</span>
+                        <strong>MAYBANK</strong>
+                    </div>
+                </div>
+
+                <div class="mutahus-side-card" style="margin-top:18px;">
+                    <h3>Payment Note</h3>
+                    <ul>
+                        <li>System auto-detects all children under your account.</li>
+                        <li>Total amount follows admin-set amount.</li>
+                        <li>One receipt will create payment records for all children.</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+
+<script src="app.js"></script>
+
+<script>
+function getTodayDateForPayment() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function formatTodayDateForDisplay(dateValue) {
+    const [year, month, day] = dateValue.split("-").map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString("en-MY", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+
+function lockPaymentDateToToday() {
+    const hiddenDate = document.getElementById("paymentDate");
+    const displayDate = document.getElementById("paymentDateDisplay");
+    if (!hiddenDate || !displayDate) return;
+
+    const today = getTodayDateForPayment();
+    hiddenDate.value = today;
+    displayDate.value = formatTodayDateForDisplay(today);
+}
+
+function populatePrettyPaymentYears() {
+    const yearSelect = document.getElementById("paymentYear");
+    if (!yearSelect || yearSelect.options.length > 1) return;
+
+    const currentYear = new Date().getFullYear();
+    const startYear = 2026;
+    const endYear = currentYear + 5;
+
+    for (let year = startYear; year <= endYear; year++) {
+        const option = document.createElement("option");
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
     }
 
-    function formatTodayDateForDisplay(dateValue) {
-        const [year, month, day] = dateValue.split("-").map(Number);
-        const localDate = new Date(year, month - 1, day);
+    yearSelect.value = currentYear >= startYear && currentYear <= endYear ? currentYear : startYear;
+}
 
-        return localDate.toLocaleDateString("en-MY", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric"
-        });
+function updatePrettyPaymentMonthValue() {
+    const monthSelect = document.getElementById("paymentMonthName");
+    const yearSelect = document.getElementById("paymentYear");
+    const hiddenMonth = document.getElementById("paymentMonth");
+    if (!monthSelect || !yearSelect || !hiddenMonth) return;
+
+    hiddenMonth.value = monthSelect.value && yearSelect.value
+        ? monthSelect.value + " " + yearSelect.value
+        : "";
+}
+
+function setupPaymentUiHelpers() {
+    lockPaymentDateToToday();
+    populatePrettyPaymentYears();
+    updatePrettyPaymentMonthValue();
+
+    const monthSelect = document.getElementById("paymentMonthName");
+    const yearSelect = document.getElementById("paymentYear");
+
+    if (monthSelect) monthSelect.addEventListener("change", updatePrettyPaymentMonthValue);
+    if (yearSelect) yearSelect.addEventListener("change", updatePrettyPaymentMonthValue);
+
+    const form = document.querySelector("form[onsubmit='submitPayment(event)']");
+    if (form) {
+        form.addEventListener("submit", function(event) {
+            lockPaymentDateToToday();
+            updatePrettyPaymentMonthValue();
+
+            if (!document.getElementById("paymentMonth").value) {
+                event.preventDefault();
+                alert("Please choose payment month and year.");
+            }
+        }, true);
     }
+}
 
-    function lockPaymentDateToToday() {
-        const hiddenDate = document.getElementById("paymentDate");
-        const displayDate = document.getElementById("paymentDateDisplay");
+document.addEventListener("DOMContentLoaded", setupPaymentUiHelpers);
+window.addEventListener("load", setupPaymentUiHelpers);
+setInterval(lockPaymentDateToToday, 60000);
+</script>
 
-        if (!hiddenDate || !displayDate) return;
+<script>loadPaymentUploadPage();</script>
 
-        const today = getTodayDateForPayment();
-
-        hiddenDate.value = today;
-        displayDate.value = formatTodayDateForDisplay(today);
-    }
-
-    function populatePrettyPaymentYears() {
-        const yearSelect = document.getElementById("paymentYear");
-        if (!yearSelect) return;
-
-        if (yearSelect.options.length > 1) return;
-
-        const currentYear = new Date().getFullYear();
-        const startYear = 2026;
-        const endYear = currentYear + 5;
-
-        for (let year = startYear; year <= endYear; year++) {
-            const option = document.createElement("option");
-            option.value = year;
-            option.textContent = year;
-            yearSelect.appendChild(option);
-        }
-
-        if (currentYear >= startYear && currentYear <= endYear) {
-            yearSelect.value = currentYear;
-        } else {
-            yearSelect.value = startYear;
-        }
-    }
-
-    function updatePrettyPaymentMonthValue() {
-        const monthSelect = document.getElementById("paymentMonthName");
-        const yearSelect = document.getElementById("paymentYear");
-        const hiddenMonth = document.getElementById("paymentMonth");
-
-        if (!monthSelect || !yearSelect || !hiddenMonth) return;
-
-        if (monthSelect.value && yearSelect.value) {
-            hiddenMonth.value = monthSelect.value + " " + yearSelect.value;
-        } else {
-            hiddenMonth.value = "";
-        }
-    }
-
-
-    function getSelectedPaymentMode() {
-        const checked = document.querySelector("input[name='paymentMode']:checked");
-        return checked ? checked.value : "one";
-    }
-
-    function updatePaymentModeUI() {
-        const mode = getSelectedPaymentMode();
-        const oneCard = document.getElementById("payModeOneCard");
-        const allCard = document.getElementById("payModeAllCard");
-        const singleBox = document.getElementById("singleStudentBox");
-        const allBox = document.getElementById("allChildrenBox");
-        const studentSelect = document.getElementById("paymentStudent");
-
-        if (oneCard) oneCard.classList.toggle("active", mode === "one");
-        if (allCard) allCard.classList.toggle("active", mode === "all");
-
-        if (singleBox) singleBox.style.display = mode === "one" ? "block" : "none";
-        if (allBox) allBox.style.display = mode === "all" ? "block" : "none";
-
-        if (studentSelect) {
-            studentSelect.required = mode === "one";
-        }
-
-        if (typeof updatePaymentAmountFromSelectedStudent === "function") {
-            updatePaymentAmountFromSelectedStudent();
-        }
-    }
-
-    function setupPaymentUiHelpers() {
-        lockPaymentDateToToday();
-        populatePrettyPaymentYears();
-
-        const monthSelect = document.getElementById("paymentMonthName");
-        const yearSelect = document.getElementById("paymentYear");
-
-        if (monthSelect) monthSelect.addEventListener("change", updatePrettyPaymentMonthValue);
-        if (yearSelect) yearSelect.addEventListener("change", updatePrettyPaymentMonthValue);
-
-        updatePrettyPaymentMonthValue();
-        if (typeof updatePaymentModeUI === "function") updatePaymentModeUI();
-
-        const form = document.querySelector("form[onsubmit='submitPayment(event)']");
-        if (form) {
-            form.addEventListener("submit", function(event) {
-                lockPaymentDateToToday();
-                updatePrettyPaymentMonthValue();
-
-                if (!document.getElementById("paymentMonth").value) {
-                    event.preventDefault();
-                    alert("Please choose payment month and year.");
-                }
-            }, true);
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", setupPaymentUiHelpers);
-    window.addEventListener("load", setupPaymentUiHelpers);
-    setInterval(lockPaymentDateToToday, 60000);
-    </script>
-
-    <script>loadPaymentUploadPage();</script>
 </body>
 </html>
-<!-- MUTAHUS_FIX_PARENT_PAGES_MATCH_DASHBOARD_RULES -->
-
-<!-- MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX -->
-
-<!-- MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD -->
-
-<!-- MUTAHUS_STEP30_USER_COMPLAINT_FIXES -->
-
-<!-- MUTAHUS_STEP32_BANK_WHITE_CLEAN_TOP_COMBINED_STEP31 -->
+<!-- MUTAHUS_STEP33_DASHBOARD_LAYOUT_REGISTER_PAYMENT_FIX -->
