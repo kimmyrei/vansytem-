@@ -4288,3 +4288,538 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 // MUTAHUS_STEP32_BANK_WHITE_CLEAN_TOP_COMBINED_STEP31
 
 // MUTAHUS_STEP33_DASHBOARD_LAYOUT_REGISTER_PAYMENT_FIX
+
+
+function mutahusStep34ReceiptModalNavFix() {
+    if (!document.getElementById("mutahusStep34ReceiptModalStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep34ReceiptModalStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP34_MOBILE_RECEIPT_MODAL_NAV_FIX */
+
+            #receiptPreviewModal {
+                z-index: 2147483000 !important;
+                pointer-events: auto !important;
+            }
+
+            #receiptPreviewModal .receipt-modal-card {
+                position: relative !important;
+                z-index: 2147483001 !important;
+                pointer-events: auto !important;
+            }
+
+            #receiptPreviewModal .receipt-modal-close {
+                position: relative !important;
+                z-index: 2147483002 !important;
+                pointer-events: auto !important;
+                touch-action: manipulation;
+            }
+
+            body.mutahus-receipt-modal-open {
+                overflow: hidden !important;
+            }
+
+            @media (max-width: 860px) {
+                body.mutahus-receipt-modal-open .mutahus-mobile-feature-btn,
+                body.mutahus-receipt-modal-open #mutahusMobileFeatureBtn,
+                body.mutahus-receipt-modal-open .mutahus-mobile-feature-panel,
+                body.mutahus-receipt-modal-open #mutahusMobileFeaturePanel,
+                body.mutahus-receipt-modal-open .mutahus-mobile-feature-backdrop,
+                body.mutahus-receipt-modal-open #mutahusMobileFeatureBackdrop,
+                body.mutahus-receipt-modal-open .mobile-bottom-nav,
+                body.mutahus-receipt-modal-open .admin-mobile-bottom,
+                body.mutahus-receipt-modal-open .mobile-app-header,
+                body.mutahus-receipt-modal-open .mobile-topbar,
+                body.mutahus-receipt-modal-open .whatsapp-float {
+                    display: none !important;
+                    pointer-events: none !important;
+                }
+
+                body.mutahus-receipt-modal-open .pro-sidebar {
+                    display: none !important;
+                    pointer-events: none !important;
+                }
+
+                body.mutahus-receipt-modal-open::before {
+                    display: none !important;
+                }
+
+                #receiptPreviewModal {
+                    inset: 0 !important;
+                    padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(10px + env(safe-area-inset-bottom, 0px)) 10px !important;
+                    align-items: stretch !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-card {
+                    width: 100% !important;
+                    max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header {
+                    position: sticky !important;
+                    top: 0 !important;
+                    z-index: 2147483002 !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-close {
+                    min-width: 46px !important;
+                    height: 46px !important;
+                    font-size: 26px !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body {
+                    max-height: calc(82dvh - env(safe-area-inset-bottom, 0px)) !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function syncReceiptModalState() {
+        const modal = document.getElementById("receiptPreviewModal");
+        document.body.classList.toggle("mutahus-receipt-modal-open", !!modal);
+    }
+
+    if (!window.mutahusStep34ReceiptObserverStarted) {
+        window.mutahusStep34ReceiptObserverStarted = true;
+
+        const observer = new MutationObserver(syncReceiptModalState);
+        observer.observe(document.body, { childList: true, subtree: false });
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape" && document.getElementById("receiptPreviewModal")) {
+                if (typeof closeReceiptModal === "function") {
+                    closeReceiptModal();
+                }
+            }
+        });
+    }
+
+    syncReceiptModalState();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    mutahusStep34ReceiptModalNavFix();
+    setTimeout(mutahusStep34ReceiptModalNavFix, 500);
+    setTimeout(mutahusStep34ReceiptModalNavFix, 1200);
+});
+
+window.addEventListener("load", function () {
+    mutahusStep34ReceiptModalNavFix();
+    setTimeout(mutahusStep34ReceiptModalNavFix, 500);
+});
+
+// MUTAHUS_STEP34_MOBILE_RECEIPT_MODAL_NAV_FIX
+
+
+function mutahusStep35WhatsappSidebarOnly() {
+    const whatsappUrl = "https://api.whatsapp.com/send?phone=60178078271&text=Assalamualaikum%2C%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global.";
+
+    // Remove all floating WhatsApp buttons from every page.
+    document.querySelectorAll(".whatsapp-float").forEach(item => item.remove());
+
+    // Add WhatsApp only into sidebar navigation.
+    const sidebarMenus = document.querySelectorAll(".sidebar-menu, .side-links");
+
+    sidebarMenus.forEach(menu => {
+        if (menu.querySelector(".mutahus-whatsapp-sidebar-link")) return;
+
+        const link = document.createElement("a");
+        link.className = "mutahus-whatsapp-sidebar-link";
+        link.href = whatsappUrl;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.innerHTML = "<span>💬</span> WhatsApp";
+
+        menu.appendChild(link);
+    });
+
+    if (!document.getElementById("mutahusStep35WhatsappSidebarStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep35WhatsappSidebarStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP35_WHATSAPP_SIDEBAR_ONLY */
+
+            .whatsapp-float {
+                display: none !important;
+            }
+
+            .mutahus-whatsapp-sidebar-link {
+                background: rgba(37, 211, 102, 0.18) !important;
+                border: 1px solid rgba(37, 211, 102, 0.35) !important;
+                color: #ffffff !important;
+            }
+
+            .mutahus-whatsapp-sidebar-link:hover {
+                background: rgba(37, 211, 102, 0.28) !important;
+            }
+
+            @media (max-width: 860px) {
+                .whatsapp-float {
+                    display: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    mutahusStep35WhatsappSidebarOnly();
+    setTimeout(mutahusStep35WhatsappSidebarOnly, 400);
+    setTimeout(mutahusStep35WhatsappSidebarOnly, 1200);
+});
+
+window.addEventListener("load", function () {
+    mutahusStep35WhatsappSidebarOnly();
+    setTimeout(mutahusStep35WhatsappSidebarOnly, 500);
+});
+
+// MUTAHUS_STEP35_WHATSAPP_SIDEBAR_ONLY
+
+
+function mutahusStep36SmoothTransitionsAll() {
+    if (document.getElementById("mutahusStep36SmoothTransitionsStyle")) return;
+
+    const style = document.createElement("style");
+    style.id = "mutahusStep36SmoothTransitionsStyle";
+    style.innerHTML = `
+        /* MUTAHUS_STEP36_SMOOTH_TRANSITIONS_ALL */
+
+        :root {
+            --mutahus-transition-fast: 0.18s ease;
+            --mutahus-transition-normal: 0.28s ease;
+            --mutahus-transition-slow: 0.42s ease;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            animation: mutahusPageFadeIn 0.34s ease both;
+        }
+
+        @keyframes mutahusPageFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mutahus-page-leaving {
+            animation: mutahusPageFadeOut 0.18s ease both !important;
+        }
+
+        @keyframes mutahusPageFadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0.82;
+                transform: translateY(4px);
+            }
+        }
+
+        a,
+        button,
+        input,
+        select,
+        textarea,
+        .btn,
+        .small-btn,
+        .sidebar-menu a,
+        .side-links a,
+        .mobile-bottom-nav a,
+        .stat-card,
+        .pro-stat,
+        .table-box,
+        .table-box-pro,
+        .form-card-pro,
+        .auth-card-pro,
+        .bank-card-pro,
+        .mutahus-side-card,
+        .announcement,
+        .announcement-card-pro,
+        .rule-card-pro,
+        .approval-status-card,
+        .payment-mode-card,
+        .all-children-box,
+        .upload-box-pro,
+        .receipt-button {
+            transition:
+                transform var(--mutahus-transition-normal),
+                box-shadow var(--mutahus-transition-normal),
+                background var(--mutahus-transition-normal),
+                border-color var(--mutahus-transition-normal),
+                color var(--mutahus-transition-normal),
+                opacity var(--mutahus-transition-normal),
+                filter var(--mutahus-transition-normal) !important;
+        }
+
+        button:hover,
+        .btn:hover,
+        .small-btn:hover,
+        .receipt-button:hover,
+        .sidebar-menu a:hover,
+        .side-links a:hover,
+        .mobile-bottom-nav a:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card:hover,
+        .pro-stat:hover,
+        .form-card-pro:hover,
+        .table-box-pro:hover,
+        .bank-card-pro:hover,
+        .mutahus-side-card:hover,
+        .announcement-card-pro:hover,
+        .rule-card-pro:hover,
+        .approval-status-card:hover,
+        .all-children-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 38px rgba(17, 61, 113, 0.12) !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            transform: translateY(-1px);
+        }
+
+        tr {
+            transition:
+                background var(--mutahus-transition-fast),
+                transform var(--mutahus-transition-fast),
+                opacity var(--mutahus-transition-fast) !important;
+        }
+
+        tbody tr:hover {
+            background: rgba(237, 244, 255, 0.85) !important;
+        }
+
+        .badge,
+        .badge-pro {
+            transition:
+                transform var(--mutahus-transition-fast),
+                opacity var(--mutahus-transition-fast),
+                background var(--mutahus-transition-fast),
+                color var(--mutahus-transition-fast) !important;
+        }
+
+        .badge:hover,
+        .badge-pro:hover {
+            transform: scale(1.04);
+        }
+
+        .mutahus-mobile-feature-panel,
+        #mutahusMobileFeaturePanel,
+        #receiptPreviewModal,
+        .receipt-modal-card {
+            transition:
+                transform var(--mutahus-transition-normal),
+                opacity var(--mutahus-transition-normal),
+                filter var(--mutahus-transition-normal) !important;
+        }
+
+        #receiptPreviewModal {
+            animation: mutahusModalBackdropIn 0.22s ease both;
+        }
+
+        #receiptPreviewModal .receipt-modal-card {
+            animation: mutahusModalCardIn 0.26s ease both;
+        }
+
+        @keyframes mutahusModalBackdropIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes mutahusModalCardIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .page-hero-bar,
+        .hero-card,
+        .stats,
+        .stats-pro,
+        .form-card-pro,
+        .table-box-pro,
+        .mutahus-form-grid,
+        .approval-status-guide,
+        .payment-history-box {
+            animation: mutahusSoftRise 0.38s ease both;
+        }
+
+        @keyframes mutahusSoftRise {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-pro > *:nth-child(1),
+        .mutahus-form-grid > *:nth-child(1) {
+            animation-delay: 0.03s;
+        }
+
+        .stats-pro > *:nth-child(2),
+        .mutahus-form-grid > *:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+
+        .stats-pro > *:nth-child(3) {
+            animation-delay: 0.13s;
+        }
+
+        .sidebar-menu a.active,
+        .side-links a.active,
+        .mobile-bottom-nav a.active {
+            position: relative;
+        }
+
+        .sidebar-menu a.active::after,
+        .side-links a.active::after {
+            content: "";
+            position: absolute;
+            right: 12px;
+            width: 7px;
+            height: 7px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.95);
+            animation: mutahusPulseDot 1.7s ease-in-out infinite;
+        }
+
+        @keyframes mutahusPulseDot {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.35);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 860px) {
+            button:hover,
+            .btn:hover,
+            .small-btn:hover,
+            .sidebar-menu a:hover,
+            .side-links a:hover,
+            .mobile-bottom-nav a:hover,
+            .stat-card:hover,
+            .pro-stat:hover,
+            .form-card-pro:hover,
+            .table-box-pro:hover,
+            .bank-card-pro:hover,
+            .mutahus-side-card:hover {
+                transform: none;
+            }
+
+            .mobile-bottom-nav a:active,
+            .btn:active,
+            button:active,
+            .small-btn:active {
+                transform: scale(0.96);
+                opacity: 0.86;
+            }
+
+            .page-hero-bar,
+            .hero-card,
+            .stats,
+            .stats-pro,
+            .form-card-pro,
+            .table-box-pro,
+            .mutahus-form-grid {
+                animation-duration: 0.28s;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+function mutahusStep36PageLeaveTransition() {
+    if (window.mutahusStep36LeaveTransitionStarted) return;
+    window.mutahusStep36LeaveTransitionStarted = true;
+
+    document.addEventListener("click", function(event) {
+        const link = event.target.closest("a");
+        if (!link) return;
+
+        const href = link.getAttribute("href") || "";
+
+        if (
+            !href ||
+            href.startsWith("#") ||
+            href.startsWith("javascript:") ||
+            href.startsWith("mailto:") ||
+            href.startsWith("tel:") ||
+            href.includes("whatsapp") ||
+            link.target === "_blank" ||
+            link.hasAttribute("download")
+        ) {
+            return;
+        }
+
+        try {
+            const targetUrl = new URL(link.href, window.location.href);
+            if (targetUrl.origin !== window.location.origin) return;
+        } catch (error) {
+            return;
+        }
+
+        event.preventDefault();
+        document.body.classList.add("mutahus-page-leaving");
+
+        setTimeout(function() {
+            window.location.href = link.href;
+        }, 150);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    mutahusStep36SmoothTransitionsAll();
+    mutahusStep36PageLeaveTransition();
+    setTimeout(mutahusStep36SmoothTransitionsAll, 500);
+});
+
+window.addEventListener("load", function() {
+    mutahusStep36SmoothTransitionsAll();
+    mutahusStep36PageLeaveTransition();
+});
+
+// MUTAHUS_STEP36_SMOOTH_TRANSITIONS_ALL
+
