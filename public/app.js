@@ -4997,3 +4997,177 @@ window.addEventListener("load", function() {
 
 // MUTAHUS_STEP37_RESTORE_BOTTOM_NAV_RECEIPT_FIT
 
+
+function mutahusStep38HardFixBottomNavReceipt() {
+    if (!document.getElementById("mutahusStep38HardFixStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep38HardFixStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP38_HARD_FIX_BOTTOM_NAV_RECEIPT */
+
+            @media (max-width: 860px) {
+                /* Force bottom floating navigation to stay visible on all mobile pages */
+                .mobile-bottom-nav,
+                .admin-mobile-bottom,
+                html body .mobile-bottom-nav,
+                html body .admin-mobile-bottom,
+                html body.mutahus-receipt-modal-open .mobile-bottom-nav,
+                html body.mutahus-receipt-modal-open .admin-mobile-bottom {
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    z-index: 8000 !important;
+                }
+
+                /* Keep WhatsApp floating removed only */
+                .whatsapp-float,
+                html body .whatsapp-float {
+                    display: none !important;
+                    visibility: hidden !important;
+                    pointer-events: none !important;
+                }
+
+                /* Receipt modal must be higher than bottom nav, so nav cannot block close */
+                #receiptPreviewModal,
+                html body #receiptPreviewModal {
+                    position: fixed !important;
+                    inset: 0 !important;
+                    z-index: 2147483600 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    overflow: hidden !important;
+                    padding: 10px !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-card,
+                html body #receiptPreviewModal .receipt-modal-card {
+                    width: min(960px, 100%) !important;
+                    max-width: calc(100vw - 20px) !important;
+                    height: auto !important;
+                    max-height: calc(92dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    overflow: hidden !important;
+                    border-radius: 20px !important;
+                    z-index: 2147483601 !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header,
+                html body #receiptPreviewModal .receipt-modal-header {
+                    position: relative !important;
+                    top: auto !important;
+                    flex-shrink: 0 !important;
+                    padding: 12px 14px !important;
+                    z-index: 2147483602 !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header h2 {
+                    font-size: 16px !important;
+                    margin: 0 0 3px !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header p {
+                    font-size: 11px !important;
+                    line-height: 1.3 !important;
+                    margin: 1px 0 !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-close,
+                html body #receiptPreviewModal .receipt-modal-close {
+                    width: 46px !important;
+                    min-width: 46px !important;
+                    height: 46px !important;
+                    flex-shrink: 0 !important;
+                    z-index: 2147483603 !important;
+                    pointer-events: auto !important;
+                    touch-action: manipulation !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body,
+                html body #receiptPreviewModal .receipt-modal-body {
+                    flex: 1 !important;
+                    min-height: 0 !important;
+                    overflow: hidden !important;
+                    padding: 8px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body img,
+                #receiptPreviewModal img,
+                html body #receiptPreviewModal .receipt-modal-body img,
+                html body #receiptPreviewModal img {
+                    width: auto !important;
+                    height: auto !important;
+                    max-width: 100% !important;
+                    max-height: calc(68dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    object-fit: contain !important;
+                    display: block !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body iframe,
+                #receiptPreviewModal iframe,
+                html body #receiptPreviewModal .receipt-modal-body iframe,
+                html body #receiptPreviewModal iframe {
+                    width: 100% !important;
+                    height: calc(68dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    max-height: calc(68dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    border: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // If previous step left this class stuck, remove it when no receipt modal exists.
+    if (!document.getElementById("receiptPreviewModal")) {
+        document.body.classList.remove("mutahus-receipt-modal-open");
+    }
+
+    // Force old inline styles back to visible if any previous code hid them.
+    if (!document.getElementById("receiptPreviewModal")) {
+        document.querySelectorAll(".mobile-bottom-nav, .admin-mobile-bottom").forEach(nav => {
+            nav.style.display = "";
+            nav.style.visibility = "";
+            nav.style.opacity = "";
+            nav.style.pointerEvents = "";
+        });
+    }
+
+    // Wrap receipt close so after close the bottom nav immediately comes back.
+    if (!window.mutahusStep38CloseReceiptWrapped && typeof closeReceiptModal === "function") {
+        window.mutahusStep38CloseReceiptWrapped = true;
+        const oldCloseReceiptModal = closeReceiptModal;
+
+        window.closeReceiptModal = function() {
+            oldCloseReceiptModal();
+            document.body.classList.remove("mutahus-receipt-modal-open");
+            document.querySelectorAll(".mobile-bottom-nav, .admin-mobile-bottom").forEach(nav => {
+                nav.style.display = "";
+                nav.style.visibility = "";
+                nav.style.opacity = "";
+                nav.style.pointerEvents = "";
+            });
+        };
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    mutahusStep38HardFixBottomNavReceipt();
+    setTimeout(mutahusStep38HardFixBottomNavReceipt, 300);
+    setTimeout(mutahusStep38HardFixBottomNavReceipt, 900);
+    setTimeout(mutahusStep38HardFixBottomNavReceipt, 1600);
+});
+
+window.addEventListener("load", function() {
+    mutahusStep38HardFixBottomNavReceipt();
+    setTimeout(mutahusStep38HardFixBottomNavReceipt, 500);
+});
+
+setInterval(mutahusStep38HardFixBottomNavReceipt, 1000);
+
+// MUTAHUS_STEP38_HARD_FIX_BOTTOM_NAV_RECEIPT
+
