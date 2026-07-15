@@ -4823,3 +4823,177 @@ window.addEventListener("load", function() {
 
 // MUTAHUS_STEP36_SMOOTH_TRANSITIONS_ALL
 
+
+function mutahusStep37RestoreBottomNavAndReceiptFit() {
+    if (!document.getElementById("mutahusStep37RestoreBottomNavReceiptStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep37RestoreBottomNavReceiptStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP37_RESTORE_BOTTOM_NAV_RECEIPT_FIT */
+
+            @media (max-width: 860px) {
+                /* Keep mobile floating bottom nav normally */
+                body:not(.mutahus-receipt-modal-open) .mobile-bottom-nav,
+                body:not(.mutahus-receipt-modal-open) .admin-mobile-bottom {
+                    display: flex !important;
+                    pointer-events: auto !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                }
+
+                /* Keep mobile header normally */
+                body:not(.mutahus-receipt-modal-open) .mobile-app-header,
+                body:not(.mutahus-receipt-modal-open) .mobile-topbar,
+                body:not(.mutahus-receipt-modal-open) .mobile-admin-header {
+                    display: flex !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                }
+
+                /* Receipt modal stays on top, but does not force user to scroll to close */
+                #receiptPreviewModal {
+                    position: fixed !important;
+                    inset: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(10px + env(safe-area-inset-bottom, 0px)) 10px !important;
+                    z-index: 2147483600 !important;
+                    overflow: hidden !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-card {
+                    width: min(960px, 100%) !important;
+                    max-height: calc(92dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    border-radius: 20px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    overflow: hidden !important;
+                    z-index: 2147483601 !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header {
+                    flex-shrink: 0 !important;
+                    position: relative !important;
+                    top: auto !important;
+                    z-index: 2147483602 !important;
+                    padding: 14px 16px !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header h2 {
+                    font-size: 17px !important;
+                    margin-bottom: 4px !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-header p {
+                    font-size: 12px !important;
+                    line-height: 1.35 !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-close {
+                    min-width: 46px !important;
+                    width: 46px !important;
+                    height: 46px !important;
+                    flex-shrink: 0 !important;
+                    z-index: 2147483603 !important;
+                    pointer-events: auto !important;
+                    touch-action: manipulation !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body {
+                    flex: 1 !important;
+                    overflow: hidden !important;
+                    max-height: none !important;
+                    padding: 10px !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    background: #f4f8ff !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body img,
+                #receiptPreviewModal img.receipt-preview-img {
+                    display: block !important;
+                    width: auto !important;
+                    height: auto !important;
+                    max-width: 100% !important;
+                    max-height: calc(68dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    object-fit: contain !important;
+                    border-radius: 14px !important;
+                }
+
+                #receiptPreviewModal .receipt-modal-body iframe,
+                #receiptPreviewModal iframe {
+                    width: 100% !important;
+                    height: calc(68dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    max-height: calc(68dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                    border: none !important;
+                    border-radius: 14px !important;
+                    background: white !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function syncReceiptStateCleanly() {
+        const modal = document.getElementById("receiptPreviewModal");
+        const modalIsOpen = !!modal && document.body.contains(modal);
+
+        document.body.classList.toggle("mutahus-receipt-modal-open", modalIsOpen);
+
+        if (!modalIsOpen) {
+            document.querySelectorAll(".mobile-bottom-nav, .admin-mobile-bottom").forEach(nav => {
+                nav.style.pointerEvents = "";
+                nav.style.visibility = "";
+                nav.style.opacity = "";
+            });
+        }
+    }
+
+    syncReceiptStateCleanly();
+
+    if (!window.mutahusStep37ReceiptObserverStarted) {
+        window.mutahusStep37ReceiptObserverStarted = true;
+
+        const observer = new MutationObserver(syncReceiptStateCleanly);
+        observer.observe(document.body, { childList: true, subtree: false });
+
+        setInterval(syncReceiptStateCleanly, 700);
+
+        document.addEventListener("click", function(event) {
+            const modal = document.getElementById("receiptPreviewModal");
+            if (!modal) return;
+
+            if (event.target === modal && typeof closeReceiptModal === "function") {
+                closeReceiptModal();
+                document.body.classList.remove("mutahus-receipt-modal-open");
+            }
+        }, true);
+    }
+
+    if (!window.mutahusStep37CloseReceiptWrapped && typeof closeReceiptModal === "function") {
+        window.mutahusStep37CloseReceiptWrapped = true;
+        const originalCloseReceiptModal = closeReceiptModal;
+
+        window.closeReceiptModal = function() {
+            originalCloseReceiptModal();
+            document.body.classList.remove("mutahus-receipt-modal-open");
+            setTimeout(syncReceiptStateCleanly, 50);
+        };
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    mutahusStep37RestoreBottomNavAndReceiptFit();
+    setTimeout(mutahusStep37RestoreBottomNavAndReceiptFit, 500);
+    setTimeout(mutahusStep37RestoreBottomNavAndReceiptFit, 1200);
+});
+
+window.addEventListener("load", function() {
+    mutahusStep37RestoreBottomNavAndReceiptFit();
+    setTimeout(mutahusStep37RestoreBottomNavAndReceiptFit, 500);
+});
+
+// MUTAHUS_STEP37_RESTORE_BOTTOM_NAV_RECEIPT_FIT
+
