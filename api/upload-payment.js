@@ -159,6 +159,7 @@ module.exports = async function handler(req, res) {
         studentName: student.name,
         school: student.school || "",
         kafa: student.kafa || "",
+        kafaSession: student.kafaSession || "",
         paymentMode: paymentMode === "all" ? "All Children" : "Single Child",
         batchId,
         month,
@@ -217,3 +218,5 @@ module.exports = async function handler(req, res) {
 // MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
 
 // MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD
+
+// MUTAHUS_STEP30_USER_COMPLAINT_FIXES

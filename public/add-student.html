@@ -616,6 +616,7 @@
                                 <label>School Name</label>
                                 <select id="schoolName" required>
                                     <option value="">Select school</option>
+                                    <option>Not applicable</option>
                                     <option>SK Bertam Perdana</option>
                                     <option>SMK Bertam Perdana</option>
                                     <option>SMK Dato Kailan</option>
@@ -647,7 +648,7 @@
 
                         <div class="form-section-title">
                             <span>2</span>
-                            <h3>Session & Pickup</h3>
+                            <h3>Session Details</h3>
                         </div>
 
                         <div class="form-two-column">
@@ -655,22 +656,24 @@
                                 <label>School Session</label>
                                 <select id="session" required>
                                     <option value="">Choose session</option>
+                                    <option>Not applicable</option>
                                     <option>Morning</option>
                                     <option>Afternoon</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label>Pickup Reference</label>
-                                <input type="text" id="pickupShort" placeholder="Example: Main gate / Lobby" oninput="document.getElementById('pickupLocation').value=this.value">
+                                <label>KAFA Session</label>
+                                <select id="kafaSession">
+                                    <option value="">Not applicable</option>
+                                    <option>Morning</option>
+                                    <option>Afternoon</option>
+                                </select>
                             </div>
                         </div>
 
                         <label>Home Address</label>
                         <textarea id="homeAddress" placeholder="Enter full home address" required></textarea>
-
-                        <label>Pickup Location</label>
-                        <textarea id="pickupLocation" placeholder="Example: In front of guard house / Lobby / Main gate" required></textarea>
 
                         <button class="btnx btn-primary full-btn" type="submit">Save Child Details</button>
                     </form>
@@ -681,7 +684,7 @@
                     <ul>
                         <li>Use the same parent account for child registration and payment.</li>
                         <li>Admin will check the child details and set the payment amount in RM.</li>
-                        <li>School and KAFA are separated because some children attend both while some attend school only.</li>
+                        <li>School and KAFA are separated. Choose Not applicable if the child does not attend one of them.</li>
                         <li>Use a clear pickup location so the driver can identify the place easily.</li>
                     </ul>
 
@@ -694,10 +697,10 @@
                     </div>
 
                     <div class="mini-stat">
-                        <span>📍</span>
+                        <span>🕒</span>
                         <div>
-                            <strong>Pickup Details</strong>
-                            <small>Write specific place, not only house address.</small>
+                            <strong>Session Details</strong>
+                            <small>School session and KAFA session can be different.</small>
                         </div>
                     </div>
                 </aside>
@@ -744,3 +747,5 @@
 <!-- MUTAHUS_FIX_PARENT_PAGES_MATCH_DASHBOARD_RULES -->
 
 <!-- MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX -->
+
+<!-- MUTAHUS_STEP30_USER_COMPLAINT_FIXES -->

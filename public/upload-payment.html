@@ -627,6 +627,31 @@
     }
 </style>
 
+
+<style>
+    .all-children-box {
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid #d8e7fb;
+        background: linear-gradient(135deg, #ffffff, #edf6ff);
+        margin: 10px 0 14px;
+        box-shadow: 0 8px 20px rgba(40,115,209,.08);
+    }
+
+    .all-children-box strong {
+        display: block;
+        color: #123f73;
+        font-size: 16px;
+    }
+
+    .all-children-box p {
+        margin: 8px 0 0;
+        color: #60748d;
+        line-height: 1.55;
+    }
+</style>
+<!-- MUTAHUS_STEP30_PAYMENT_AUTO_ALL_STYLE -->
+
 </head>
 <body>
 
@@ -671,7 +696,7 @@
                 <div>
                     <span class="kicker">PARENT PORTAL</span>
                     <h1>Payment Proof</h1>
-                    <p>Upload your monthly payment receipt. Payment date is locked to today's date to keep records honest and accurate.</p>
+                    <p>Upload one monthly payment receipt for all registered children. The system auto-detects all children and totals the amount set by admin.</p>
                 </div>
 
                 <div class="hero-actions">
@@ -683,45 +708,21 @@
             <div class="content-grid">
                 <section class="portal-panel">
                     <h2>Submit Payment Receipt</h2>
-                    <p>Your receipt will be reviewed by admin before the payment status is updated.</p>
+                    <p>Your receipt will be applied to all registered children and reviewed by admin.</p>
 
                     <div class="payment-note" id="paymentNotice">
                         <strong>Important:</strong> Upload only clear image or PDF receipt.
                     </div>
 
                     <form onsubmit="submitPayment(event)">
-                        <label>Payment For</label>
-                        <div class="payment-mode-picker">
-                            <label class="payment-mode-card active" id="payModeOneCard">
-                                <input type="radio" name="paymentMode" value="one" checked onchange="updatePaymentModeUI()">
-                                <span>👧</span>
-                                <div>
-                                    <strong>Pay 1 Child</strong>
-                                    <small>Choose one child only</small>
-                                </div>
-                            </label>
-
-                            <label class="payment-mode-card" id="payModeAllCard">
-                                <input type="radio" name="paymentMode" value="all" onchange="updatePaymentModeUI()">
-                                <span>👨‍👩‍👧‍👦</span>
-                                <div>
-                                    <strong>Pay All Children</strong>
-                                    <small>One receipt for all children</small>
-                                </div>
-                            </label>
+                        <label>Payment Auto Detection</label>
+                        <div id="allChildrenBox" class="all-children-box">
+                            <strong>Pay for all registered children</strong>
+                            <p id="allChildrenSummary">Loading children and total amount...</p>
                         </div>
 
-                        <div id="singleStudentBox">
-                            <label>Choose Student</label>
-                            <select id="paymentStudent">
-                                <option value="">Loading students...</option>
-                            </select>
-                        </div>
-
-                        <div id="allChildrenBox" class="all-children-box" style="display:none;">
-                            <strong>All registered children will be included.</strong>
-                            <p id="allChildrenSummary">Loading children...</p>
-                        </div>
+                        <input type="hidden" id="paymentStudent" value="">
+                        <input type="hidden" name="paymentMode" value="all">
 
                         <div class="form-two-column">
                             <div>
@@ -995,3 +996,5 @@
 <!-- MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX -->
 
 <!-- MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD -->
+
+<!-- MUTAHUS_STEP30_USER_COMPLAINT_FIXES -->

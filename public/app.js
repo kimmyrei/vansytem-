@@ -224,10 +224,11 @@ async function saveChild(event) {
         name: document.getElementById("studentName").value.trim(),
         school: document.getElementById("schoolName").value,
         kafa: document.getElementById("kafaName") ? document.getElementById("kafaName").value : "",
+        kafaSession: document.getElementById("kafaSession") ? document.getElementById("kafaSession").value : "",
         classYear: document.getElementById("classYear").value.trim(),
         session: document.getElementById("session").value,
         homeAddress: document.getElementById("homeAddress").value.trim(),
-        pickupLocation: document.getElementById("pickupLocation").value.trim(),
+        pickupLocation: "Not applicable",
         notes: document.getElementById("notes") ? document.getElementById("notes").value.trim() : ""
     };
 
@@ -380,7 +381,7 @@ async function loadParentDashboard() {
                 table.innerHTML += `
                     <tr>
                         <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                        <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
+                        <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
                         <td>${child.classYear}</td>
                         <td>${child.session}</td>
                         <td>${child.pickupLocation}</td>
@@ -597,15 +598,10 @@ async function loadPaymentUploadPage() {
     const parent = requireParentLogin();
     if (!parent) return;
 
-    const select = document.getElementById("paymentStudent");
     const notice = document.getElementById("paymentNotice");
     const amountInput = document.getElementById("paymentAmount");
     const amountInfo = document.getElementById("paymentAmountInfo");
     const allSummary = document.getElementById("allChildrenSummary");
-
-    if (!select) return;
-
-    select.innerHTML = `<option value="">Loading students from MongoDB...</option>`;
 
     try {
         const response = await fetch(`/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}&email=${encodeURIComponent(parent.email || "")}`);
@@ -614,57 +610,44 @@ async function loadPaymentUploadPage() {
         console.log("PAYMENT PAGE DASHBOARD RESULT:", result);
 
         if (!result.success) {
-            select.innerHTML = `<option value="">No student found</option>`;
             if (notice) {
                 notice.innerHTML = `<strong>Error:</strong> ${result.message || "Failed to load students."}`;
             }
+            if (allSummary) allSummary.innerText = "No child found.";
             return;
         }
 
         const children = result.children || [];
-        window.parentPaymentStudentMap = {};
         window.parentPaymentChildren = children;
-
-        select.innerHTML = `<option value="">Select student</option>`;
+        window.parentPaymentStudentMap = {};
 
         children.forEach(child => {
             window.parentPaymentStudentMap[child.id] = child;
-            const amount = Number(child.monthlyAmount || 0);
-            const schoolText = child.kafa ? `${child.school} + ${child.kafa}` : child.school;
-            const amountText = amount > 0 ? `RM${amount.toFixed(2)}` : "Amount not set";
-            select.innerHTML += `<option value="${child.id}">${child.name} - ${schoolText || "-"} (${amountText})</option>`;
         });
 
-        select.onchange = updatePaymentAmountFromSelectedStudent;
         updatePaymentAmountFromSelectedStudent();
-
-        if (allSummary) {
-            updateAllChildrenSummary();
-        }
 
         if (children.length === 0 && notice) {
             notice.innerHTML = `
                 <strong>No child found.</strong>
-                This page checked MongoDB but no child is linked to this parent account.
-                Please make sure you are logged in with the same parent email used when registering the child.
+                Please register a child first before uploading payment proof.
             `;
         } else if (notice) {
             notice.innerHTML = `
-                <strong>${children.length} child found.</strong>
-                Choose to pay for one child or all children. Payment amount is controlled by admin.
+                <strong>${children.length} child detected.</strong>
+                Payment is automatically calculated for all registered children.
             `;
         }
     } catch (error) {
-        select.innerHTML = `<option value="">Failed to load students</option>`;
         if (notice) {
             notice.innerHTML = `<strong>Error:</strong> ${error.message}`;
         }
+        if (allSummary) allSummary.innerText = "Failed to load children.";
     }
 }
 
 function getParentPaymentMode() {
-    const checked = document.querySelector("input[name='paymentMode']:checked");
-    return checked ? checked.value : "one";
+    return "all";
 }
 
 function updateAllChildrenSummary() {
@@ -682,70 +665,54 @@ function updateAllChildrenSummary() {
     const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
 
     const childList = children
-        .map(child => `${child.name} = RM${Number(child.monthlyAmount || 0).toFixed(2)}`)
-        .join(" • ");
+        .map(child => {
+            const schoolText = child.kafa ? `${child.school || "-"} + ${child.kafa}` : (child.school || "-");
+            return `${child.name} (${schoolText}) = RM${Number(child.monthlyAmount || 0).toFixed(2)}`;
+        })
+        .join("<br>");
 
     allSummary.innerHTML = `
         ${childList}<br>
-        <strong>Total: RM${total.toFixed(2)}</strong>
-        ${notSet.length ? `<br><span style="color:#c0392b;font-weight:800;">${notSet.length} child amount not set by admin.</span>` : ""}
+        <strong style="display:block;margin-top:8px;color:#123f73;">Total Payment: RM${total.toFixed(2)}</strong>
+        ${notSet.length ? `<span style="display:block;margin-top:6px;color:#c0392b;font-weight:800;">${notSet.length} child amount not set by admin.</span>` : ""}
     `;
 }
 
 function updatePaymentAmountFromSelectedStudent() {
-    const select = document.getElementById("paymentStudent");
     const amountInput = document.getElementById("paymentAmount");
     const amountInfo = document.getElementById("paymentAmountInfo");
+    const children = window.parentPaymentChildren || [];
 
     if (!amountInput) return;
 
     amountInput.readOnly = true;
 
-    const mode = getParentPaymentMode();
-    const children = window.parentPaymentChildren || [];
+    const total = children.reduce((sum, child) => sum + Number(child.monthlyAmount || 0), 0);
+    const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
 
-    if (mode === "all") {
-        const total = children.reduce((sum, child) => sum + Number(child.monthlyAmount || 0), 0);
-        const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
+    amountInput.value = total > 0 ? total.toFixed(2) : "";
 
-        amountInput.value = total > 0 ? total.toFixed(2) : "";
-
-        if (amountInfo) {
-            if (children.length === 0) {
-                amountInfo.innerText = "No child found.";
-                amountInfo.style.color = "#c0392b";
-            } else if (notSet.length > 0) {
-                amountInfo.innerText = "Some child payment amount has not been set by admin.";
-                amountInfo.style.color = "#c0392b";
-            } else {
-                amountInfo.innerText = "Total amount for all children set by admin.";
-                amountInfo.style.color = "#1e9b67";
-            }
-        }
-
-        updateAllChildrenSummary();
-        return;
-    }
-
-    if (!select) return;
-
-    const child = (window.parentPaymentStudentMap || {})[select.value];
-    const amount = child ? Number(child.monthlyAmount || 0) : 0;
-
-    if (amount > 0) {
-        amountInput.value = amount.toFixed(2);
-        if (amountInfo) {
-            amountInfo.innerText = "Amount set by admin for this student.";
+    if (amountInfo) {
+        if (children.length === 0) {
+            amountInfo.innerText = "No child detected.";
+            amountInfo.style.color = "#c0392b";
+        } else if (notSet.length > 0) {
+            amountInfo.innerText = "Some child payment amount has not been set by admin.";
+            amountInfo.style.color = "#c0392b";
+        } else {
+            amountInfo.innerText = "Total amount auto-detected for all children.";
             amountInfo.style.color = "#1e9b67";
         }
-    } else {
-        amountInput.value = "";
-        if (amountInfo) {
-            amountInfo.innerText = child ? "Admin has not set the amount yet. Please contact admin." : "Select student first.";
-            amountInfo.style.color = child ? "#c0392b" : "#60748d";
-        }
     }
+
+    updateAllChildrenSummary();
 }
+
+function updatePaymentModeUI() {
+    updatePaymentAmountFromSelectedStudent();
+}
+
+
 
 function connectPaymentButtons() {
     const actionButtons = document.querySelectorAll(".payment-action-btn");
@@ -1277,36 +1244,24 @@ async function submitPayment(event) {
     const parent = requireParentLogin();
     if (!parent) return;
 
-    const paymentMode = getParentPaymentMode();
-    const studentId = document.getElementById("paymentStudent").value;
+    const paymentMode = "all";
     const children = window.parentPaymentChildren || [];
+    const selectedStudentIds = children.map(child => child.id);
 
-    let selectedStudentIds = [];
-
-    if (paymentMode === "all") {
-        selectedStudentIds = children.map(child => child.id);
-
-        if (selectedStudentIds.length === 0) {
-            alert("No child found to pay.");
-            return;
-        }
-
-        const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
-        if (notSet.length > 0) {
-            alert("Some child payment amount has not been set by admin yet. Please contact admin.");
-            return;
-        }
-    } else {
-        if (!studentId) {
-            alert("Please choose a student.");
-            return;
-        }
-
-        selectedStudentIds = [studentId];
+    if (selectedStudentIds.length === 0) {
+        alert("No child detected. Please register a child first.");
+        return;
     }
 
     if (typeof updatePaymentAmountFromSelectedStudent === "function") {
         updatePaymentAmountFromSelectedStudent();
+    }
+
+    const notSet = children.filter(child => !Number(child.monthlyAmount || 0));
+
+    if (notSet.length > 0) {
+        alert("Some child payment amount has not been set by admin yet. Please contact admin.");
+        return;
     }
 
     const adminAmount = Number(document.getElementById("paymentAmount").value || 0);
@@ -1353,7 +1308,7 @@ async function submitPayment(event) {
             parentId: parent.id,
             parentEmail: parent.email || "",
             paymentMode,
-            studentId,
+            studentId: "",
             studentIds: selectedStudentIds,
             month: document.getElementById("paymentMonth").value,
             amount: Number(document.getElementById("paymentAmount").value),
@@ -1863,7 +1818,7 @@ async function loadAdminStudents() {
                     </td>
                     <td>
                         <strong>${child.school || "-"}</strong>
-                        ${child.kafa ? `<br><small>KAFA: ${child.kafa}</small>` : `<br><small>KAFA: -</small>`}
+                        ${child.kafa ? `<br><small>KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}</small>` : `<br><small>KAFA: -</small>`}
                     </td>
                     <td>${child.classYear || "-"}</td>
                     <td><span class="badge ${sessionClass}">${child.session || "-"}</span></td>
@@ -2121,7 +2076,7 @@ function viewParentDetails(parentId) {
             childrenRows += `
                 <tr>
                     <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                    <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
+                    <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
                     <td>${child.classYear}</td>
                     <td>${child.session}</td>
                     <td>${child.pickupLocation}</td>
@@ -4038,3 +3993,120 @@ setTimeout(setupMutahusWhatsappDirectLinks, 700);
 
 
 // MUTAHUS_STEP29_PAYMENT_PAY_ALL_OR_ONE_CHILD
+
+
+
+function mutahusStep30MobileHeaderMoreFix() {
+    const button = document.getElementById("mutahusMobileFeatureBtn");
+    const grid = document.querySelector("#mutahusMobileFeaturePanel .mutahus-mobile-feature-grid");
+
+    if (button) {
+        button.innerHTML = "⋯";
+        button.setAttribute("aria-label", "More");
+        button.title = "More";
+    }
+
+    if (grid && !document.getElementById("mutahusMobileWhatsappItem")) {
+        const wa = document.createElement("a");
+        wa.id = "mutahusMobileWhatsappItem";
+        wa.href = "https://api.whatsapp.com/send?phone=60178078271&text=Assalamualaikum%2C%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global.";
+        wa.innerHTML = "<span>💬</span> WhatsApp";
+        wa.rel = "noopener";
+        grid.appendChild(wa);
+    }
+
+    if (grid && !document.getElementById("mutahusMobileCsvHint")) {
+        const page = window.location.pathname.split("/").pop() || "index.html";
+
+        if (page === "admin-students.html" && typeof exportStudentsCSV === "function" && !grid.querySelector('[data-mobile-action="exportStudentsCSV"]')) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "primary";
+            btn.dataset.mobileAction = "exportStudentsCSV";
+            btn.innerHTML = "<span>⬇️</span> Export Students CSV";
+            btn.addEventListener("click", function () {
+                closeMutahusMobileFeatureMenu();
+                exportStudentsCSV();
+            });
+            grid.appendChild(btn);
+        }
+
+        if (page === "admin-parents.html" && typeof exportParentsCSV === "function" && !grid.querySelector('[data-mobile-action="exportParentsCSV"]')) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "primary";
+            btn.dataset.mobileAction = "exportParentsCSV";
+            btn.innerHTML = "<span>⬇️</span> Export Parents CSV";
+            btn.addEventListener("click", function () {
+                closeMutahusMobileFeatureMenu();
+                exportParentsCSV();
+            });
+            grid.appendChild(btn);
+        }
+
+        if (page === "admin-payments.html" && typeof exportPaymentsCSV === "function" && !grid.querySelector('[data-mobile-action="exportPaymentsCSV"]')) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "primary";
+            btn.dataset.mobileAction = "exportPaymentsCSV";
+            btn.innerHTML = "<span>⬇️</span> Export Payments CSV";
+            btn.addEventListener("click", function () {
+                closeMutahusMobileFeatureMenu();
+                exportPaymentsCSV();
+            });
+            grid.appendChild(btn);
+        }
+    }
+
+    if (!document.getElementById("mutahusStep30MobileMoreStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep30MobileMoreStyle";
+        style.innerHTML = `
+            @media (max-width: 860px) {
+                .mutahus-mobile-feature-btn {
+                    top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+                    right: 14px !important;
+                    left: auto !important;
+                    bottom: auto !important;
+                    width: 46px !important;
+                    height: 46px !important;
+                    min-height: 46px !important;
+                    padding: 0 !important;
+                    border-radius: 16px !important;
+                    font-size: 26px !important;
+                    line-height: 1 !important;
+                    z-index: 10002 !important;
+                }
+
+                .mutahus-mobile-feature-panel {
+                    top: calc(70px + env(safe-area-inset-top, 0px)) !important;
+                    bottom: auto !important;
+                    max-height: calc(78dvh - env(safe-area-inset-top, 0px)) !important;
+                    transform: translateY(-120%) !important;
+                }
+
+                .mutahus-mobile-feature-panel.show {
+                    transform: translateY(0) !important;
+                }
+
+                .whatsapp-float {
+                    display: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(mutahusStep30MobileHeaderMoreFix, 200);
+    setTimeout(mutahusStep30MobileHeaderMoreFix, 900);
+    setTimeout(mutahusStep30MobileHeaderMoreFix, 1600);
+});
+window.addEventListener("load", function () {
+    setTimeout(mutahusStep30MobileHeaderMoreFix, 200);
+    setTimeout(mutahusStep30MobileHeaderMoreFix, 900);
+});
+
+// MUTAHUS_STEP30_USER_COMPLAINT_FIXES
+

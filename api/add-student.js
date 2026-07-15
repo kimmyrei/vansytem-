@@ -23,12 +23,13 @@ module.exports = async function handler(req, res) {
     const name = (data.name || "").trim();
     const school = (data.school || "").trim();
     const kafa = (data.kafa || "").trim();
+    const kafaSession = (data.kafaSession || "").trim();
     const classYear = (data.classYear || "").trim();
     const session = (data.session || "").trim();
     const homeAddress = (data.homeAddress || "").trim();
-    const pickupLocation = (data.pickupLocation || "").trim();
+    const pickupLocation = (data.pickupLocation || "Not applicable").trim();
 
-    if (!name || !school || !classYear || !session || !homeAddress || !pickupLocation) {
+    if (!name || !school || !classYear || !session || !homeAddress) {
       return res.status(400).json({
         success: false,
         message: "Please fill in all child details."
@@ -64,6 +65,7 @@ module.exports = async function handler(req, res) {
       name,
       school,
       kafa,
+      kafaSession,
       schoolDisplay: kafa ? `${school} + ${kafa}` : school,
       classYear,
       session,
@@ -98,3 +100,5 @@ module.exports = async function handler(req, res) {
 };
 
 // MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
+
+// MUTAHUS_STEP30_USER_COMPLAINT_FIXES
