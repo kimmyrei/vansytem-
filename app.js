@@ -4290,16 +4290,29 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 // MUTAHUS_STEP33_DASHBOARD_LAYOUT_REGISTER_PAYMENT_FIX
 
 
-function mutahusStep42CleanSafeReset() {
-    const whatsappPhone = "60178078271";
-    const whatsappText = "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah Mutahus Global.";
-    const whatsappUrl = "https://api.whatsapp.com/send?phone=" + whatsappPhone + "&text=" + encodeURIComponent(whatsappText);
+/* =========================================================
+   MUTAHUS STEP 50 — CLEAN ESSENTIAL MOBILE FIXES ONLY
+   ========================================================= */
 
-    if (!document.getElementById("mutahusStep42CleanSafeStyle")) {
+(function () {
+    "use strict";
+
+    const WHATSAPP_PHONE = "60178078271";
+    const WHATSAPP_TEXT =
+        "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah Mutahus Global.";
+    const WHATSAPP_URL =
+        "https://api.whatsapp.com/send?phone=" +
+        WHATSAPP_PHONE +
+        "&text=" +
+        encodeURIComponent(WHATSAPP_TEXT);
+
+    function installCleanStyles() {
+        if (document.getElementById("mutahusStep50CleanStyles")) return;
+
         const style = document.createElement("style");
-        style.id = "mutahusStep42CleanSafeStyle";
-        style.innerHTML = `
-            /* MUTAHUS_STEP42_CLEAN_SAFE_RESET */
+        style.id = "mutahusStep50CleanStyles";
+        style.textContent = `
+            /* MUTAHUS_STEP50_CLEAN_APPJS_ONLY */
 
             .whatsapp-float {
                 display: none !important;
@@ -4314,6 +4327,182 @@ function mutahusStep42CleanSafeReset() {
             }
 
             @media (max-width: 860px) {
+                html,
+                body {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    margin: 0 !important;
+                    overflow-x: hidden !important;
+                }
+
+                *,
+                *::before,
+                *::after {
+                    box-sizing: border-box !important;
+                }
+
+                body .top-taskbar,
+                body .top-taskbar.home-taskbar {
+                    position: sticky !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-height: 68px !important;
+                    margin: 0 !important;
+                    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    gap: 10px !important;
+                    background: rgba(15, 60, 104, 0.98) !important;
+                    border: 0 !important;
+                    border-radius: 0 !important;
+                    box-shadow: 0 8px 24px rgba(15, 60, 104, 0.16) !important;
+                    backdrop-filter: blur(14px) !important;
+                    -webkit-backdrop-filter: blur(14px) !important;
+                    z-index: 5000 !important;
+                    overflow: visible !important;
+                    transform: none !important;
+                }
+
+                body .top-taskbar .brand-block {
+                    flex: 1 1 auto !important;
+                    min-width: 0 !important;
+                    max-width: calc(100% - 56px) !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                    color: #ffffff !important;
+                    text-decoration: none !important;
+                }
+
+                body .top-taskbar .brand-icon {
+                    width: 42px !important;
+                    min-width: 42px !important;
+                    height: 42px !important;
+                    margin: 0 !important;
+                    display: grid !important;
+                    place-items: center !important;
+                    border-radius: 14px !important;
+                    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+                    background: rgba(255, 255, 255, 0.13) !important;
+                    color: #ffffff !important;
+                    font-size: 22px !important;
+                    line-height: 1 !important;
+                }
+
+                body .top-taskbar .brand-block > div {
+                    min-width: 0 !important;
+                }
+
+                body .top-taskbar .brand-block strong {
+                    display: block !important;
+                    margin: 0 !important;
+                    color: #ffffff !important;
+                    font-size: 16px !important;
+                    font-weight: 900 !important;
+                    line-height: 1.2 !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                }
+
+                body .top-taskbar .brand-block small {
+                    display: block !important;
+                    margin: 2px 0 0 !important;
+                    color: rgba(255, 255, 255, 0.78) !important;
+                    font-size: 10.5px !important;
+                    line-height: 1.2 !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                }
+
+                body .top-taskbar .mobile-menu-btn {
+                    display: inline-flex !important;
+                    flex: 0 0 44px !important;
+                    width: 44px !important;
+                    min-width: 44px !important;
+                    height: 44px !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+                    border-radius: 14px !important;
+                    background: rgba(255, 255, 255, 0.13) !important;
+                    color: #ffffff !important;
+                    font-size: 22px !important;
+                    font-weight: 900 !important;
+                    line-height: 1 !important;
+                    box-shadow: none !important;
+                }
+
+                body .top-taskbar .taskbar-links {
+                    display: none !important;
+                    position: fixed !important;
+                    top: calc(72px + env(safe-area-inset-top, 0px)) !important;
+                    left: 12px !important;
+                    right: 12px !important;
+                    width: auto !important;
+                    max-width: calc(100vw - 24px) !important;
+                    max-height: calc(100dvh - 94px - env(safe-area-inset-top, 0px)) !important;
+                    margin: 0 !important;
+                    padding: 10px !important;
+                    overflow-y: auto !important;
+                    overflow-x: hidden !important;
+                    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                    gap: 8px !important;
+                    border: 1px solid #d9e5f5 !important;
+                    border-radius: 20px !important;
+                    background: #ffffff !important;
+                    box-shadow: 0 20px 50px rgba(15, 60, 104, 0.22) !important;
+                    z-index: 5001 !important;
+                    transform: none !important;
+                }
+
+                body .top-taskbar .taskbar-links.show-mobile-menu {
+                    display: grid !important;
+                }
+
+                body .top-taskbar .taskbar-links a {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    min-height: 44px !important;
+                    margin: 0 !important;
+                    padding: 10px 8px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border: 0 !important;
+                    border-radius: 13px !important;
+                    background: #f4f8ff !important;
+                    color: #123f73 !important;
+                    text-align: center !important;
+                    text-decoration: none !important;
+                    white-space: normal !important;
+                    overflow-wrap: anywhere !important;
+                    font-size: 12px !important;
+                    line-height: 1.25 !important;
+                    font-weight: 900 !important;
+                    box-shadow: none !important;
+                }
+
+                body .top-taskbar .taskbar-links a.active {
+                    background: #dbeafe !important;
+                    color: #0f3c68 !important;
+                }
+
+                body .top-taskbar .taskbar-links a.admin-pill {
+                    background: linear-gradient(135deg, #1d6fd1, #0f3c68) !important;
+                    color: #ffffff !important;
+                }
+
                 .mobile-bottom-nav,
                 .admin-mobile-bottom {
                     position: fixed !important;
@@ -4326,73 +4515,73 @@ function mutahusStep42CleanSafeReset() {
                     display: flex !important;
                     visibility: visible !important;
                     opacity: 1 !important;
-                    pointer-events: auto !important;
                     z-index: 9000 !important;
                     transform: none !important;
-                    box-shadow: 0 18px 42px rgba(15, 60, 104, 0.18) !important;
-                    backdrop-filter: blur(14px);
-                    -webkit-backdrop-filter: blur(14px);
                 }
 
                 .app-main,
                 .portal-main,
                 .rules-main,
                 main {
-                    padding-bottom: calc(145px + env(safe-area-inset-bottom, 0px)) !important;
+                    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
                 }
             }
 
-            #receiptPreviewModal.step42-receipt-modal {
+            @media (max-width: 360px) {
+                body .top-taskbar .taskbar-links {
+                    grid-template-columns: 1fr !important;
+                }
+            }
+
+            #receiptPreviewModal.mutahus-clean-receipt {
                 position: fixed !important;
                 inset: 0 !important;
                 z-index: 999999 !important;
-                background: rgba(7, 22, 42, 0.72) !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 padding: 10px !important;
                 overflow: hidden !important;
+                background: rgba(7, 22, 42, 0.76) !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-card {
+            #receiptPreviewModal .mutahus-clean-receipt-card {
                 width: min(920px, calc(100vw - 20px)) !important;
                 max-height: 90dvh !important;
-                background: #ffffff !important;
-                border-radius: 20px !important;
-                overflow: hidden !important;
                 display: flex !important;
                 flex-direction: column !important;
+                overflow: hidden !important;
+                border-radius: 20px !important;
+                background: #ffffff !important;
                 box-shadow: 0 24px 60px rgba(0,0,0,.35) !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-header {
+            #receiptPreviewModal .mutahus-clean-receipt-header {
                 flex-shrink: 0 !important;
                 display: flex !important;
-                justify-content: space-between !important;
                 align-items: center !important;
+                justify-content: space-between !important;
                 gap: 10px !important;
                 padding: 12px 14px !important;
                 background: linear-gradient(180deg,#143f73 0%,#0e335d 100%) !important;
                 color: #ffffff !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-header h2 {
+            #receiptPreviewModal .mutahus-clean-receipt-header h2 {
                 margin: 0 0 3px !important;
-                font-size: 16px !important;
-                line-height: 1.15 !important;
                 color: #ffffff !important;
+                font-size: 16px !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-header p {
+            #receiptPreviewModal .mutahus-clean-receipt-header p {
                 margin: 0 !important;
+                color: rgba(255,255,255,.9) !important;
                 font-size: 11px !important;
                 line-height: 1.3 !important;
-                color: #ffffff !important;
-                opacity: .9 !important;
-                word-break: break-word !important;
+                overflow-wrap: anywhere !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-close {
+            #receiptPreviewModal .mutahus-clean-receipt-close {
                 width: 46px !important;
                 min-width: 46px !important;
                 height: 46px !important;
@@ -4402,23 +4591,21 @@ function mutahusStep42CleanSafeReset() {
                 color: #ffffff !important;
                 font-size: 28px !important;
                 font-weight: 900 !important;
-                line-height: 1 !important;
                 cursor: pointer !important;
-                touch-action: manipulation !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-body {
+            #receiptPreviewModal .mutahus-clean-receipt-body {
                 flex: 1 !important;
                 min-height: 0 !important;
                 padding: 8px !important;
-                background: #f4f8ff !important;
                 overflow: hidden !important;
                 display: flex !important;
-                justify-content: center !important;
                 align-items: center !important;
+                justify-content: center !important;
+                background: #f4f8ff !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-img {
+            #receiptPreviewModal img {
                 display: block !important;
                 width: auto !important;
                 height: auto !important;
@@ -4428,7 +4615,7 @@ function mutahusStep42CleanSafeReset() {
                 border-radius: 14px !important;
             }
 
-            #receiptPreviewModal.step42-receipt-modal .step42-receipt-pdf {
+            #receiptPreviewModal iframe {
                 width: 100% !important;
                 height: 70dvh !important;
                 border: 0 !important;
@@ -4436,96 +4623,147 @@ function mutahusStep42CleanSafeReset() {
                 background: #ffffff !important;
             }
 
-            body.step42-receipt-open {
+            body.mutahus-receipt-open {
                 overflow: hidden !important;
             }
         `;
+
         document.head.appendChild(style);
     }
 
-    document.querySelectorAll(".whatsapp-float").forEach(item => item.remove());
+    function fixWhatsApp() {
+        document.querySelectorAll(".whatsapp-float").forEach((item) => item.remove());
 
-    document.querySelectorAll(".sidebar-menu, .side-links").forEach(menu => {
-        if (menu.querySelector(".mutahus-whatsapp-sidebar-link")) return;
-        const link = document.createElement("a");
-        link.className = "mutahus-whatsapp-sidebar-link";
-        link.href = whatsappUrl;
-        link.target = "_self";
-        link.rel = "noopener";
-        link.innerHTML = "<span>💬</span> WhatsApp";
-        menu.appendChild(link);
-    });
+        document.querySelectorAll(".sidebar-menu, .side-links").forEach((menu) => {
+            let link = menu.querySelector(".mutahus-whatsapp-sidebar-link");
 
-    document.querySelectorAll('a[href*="whatsapp://"], a[href*="wa.me"], a[href*="api.whatsapp.com"], .mutahus-whatsapp-sidebar-link').forEach(link => {
-        link.href = whatsappUrl;
-        link.target = "_self";
-    });
-}
+            if (!link) {
+                link = document.createElement("a");
+                link.className = "mutahus-whatsapp-sidebar-link";
+                link.innerHTML = "<span>💬</span> WhatsApp";
+                menu.appendChild(link);
+            }
 
-window.closeReceiptModal = function() {
-    const modal = document.getElementById("receiptPreviewModal");
-    if (modal) modal.remove();
-    document.body.classList.remove("step42-receipt-open");
-    document.body.classList.remove("mutahus-receipt-modal-open");
-    document.body.style.overflow = "";
-};
+            link.href = WHATSAPP_URL;
+            link.target = "_self";
+            link.rel = "noopener";
+        });
 
-window.showReceiptInfo = function(receiptName, note, receiptDataUrl) {
-    mutahusStep42CleanSafeReset();
-
-    const name = receiptName || "Receipt";
-    const paymentNote = note || "No note";
-
-    if (!receiptDataUrl || !receiptDataUrl.startsWith("data:")) {
-        alert("Receipt file: " + name + "\nPayment note: " + paymentNote + "\n\nActual receipt image is not available for this older payment record.");
-        return;
+        document
+            .querySelectorAll(
+                'a[href^="whatsapp://"], a[href*="wa.me"], a[href*="api.whatsapp.com"]'
+            )
+            .forEach((link) => {
+                link.href = WHATSAPP_URL;
+                link.target = "_self";
+                link.rel = "noopener";
+            });
     }
 
-    closeReceiptModal();
+    function fixMenus() {
+        document.querySelectorAll(".top-taskbar .mobile-menu-btn").forEach((button) => {
+            button.type = "button";
+            button.setAttribute("aria-label", "Open menu");
+        });
 
-    const isPdf = receiptDataUrl.startsWith("data:application/pdf");
-    const modal = document.createElement("div");
-    modal.id = "receiptPreviewModal";
-    modal.className = "step42-receipt-modal";
+        document.querySelectorAll(".top-taskbar .taskbar-links").forEach((menu) => {
+            menu.querySelectorAll("a").forEach((link) => {
+                if (link.dataset.mutahusStep50Bound === "true") return;
+                link.dataset.mutahusStep50Bound = "true";
 
-    const bodyContent = isPdf
-        ? `<iframe class="step42-receipt-pdf" src="${receiptDataUrl}" title="Payment receipt PDF"></iframe>`
-        : `<img class="step42-receipt-img" src="${receiptDataUrl}" alt="Payment receipt">`;
+                link.addEventListener("click", () => {
+                    menu.classList.remove("show-mobile-menu");
+                });
+            });
+        });
+    }
 
-    modal.innerHTML = `
-        <div class="step42-receipt-card">
-            <div class="step42-receipt-header">
-                <div>
-                    <h2>Payment Receipt</h2>
-                    <p>${name}</p>
-                    <p>${paymentNote}</p>
+    window.closeReceiptModal = function () {
+        document.getElementById("receiptPreviewModal")?.remove();
+        document.body.classList.remove("mutahus-receipt-open");
+        document.body.style.overflow = "";
+    };
+
+    window.showReceiptInfo = function (receiptName, note, receiptDataUrl) {
+        installCleanStyles();
+        closeReceiptModal();
+
+        const name = receiptName || "Receipt";
+        const paymentNote = note || "No note";
+
+        if (!receiptDataUrl || !receiptDataUrl.startsWith("data:")) {
+            alert(
+                "Receipt file: " +
+                    name +
+                    "\nPayment note: " +
+                    paymentNote +
+                    "\n\nActual receipt image is not available for this older payment record."
+            );
+            return;
+        }
+
+        const isPdf = receiptDataUrl.startsWith("data:application/pdf");
+        const modal = document.createElement("div");
+        modal.id = "receiptPreviewModal";
+        modal.className = "mutahus-clean-receipt";
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-modal", "true");
+
+        modal.innerHTML = `
+            <div class="mutahus-clean-receipt-card">
+                <div class="mutahus-clean-receipt-header">
+                    <div>
+                        <h2>Payment Receipt</h2>
+                        <p>${name}</p>
+                        <p>${paymentNote}</p>
+                    </div>
+                    <button type="button" class="mutahus-clean-receipt-close" aria-label="Close receipt">×</button>
                 </div>
-                <button type="button" class="step42-receipt-close" aria-label="Close receipt">×</button>
+                <div class="mutahus-clean-receipt-body">
+                    ${
+                        isPdf
+                            ? `<iframe src="${receiptDataUrl}" title="Payment receipt PDF"></iframe>`
+                            : `<img src="${receiptDataUrl}" alt="Payment receipt">`
+                    }
+                </div>
             </div>
-            <div class="step42-receipt-body">
-                ${bodyContent}
-            </div>
-        </div>
-    `;
+        `;
 
-    modal.querySelector(".step42-receipt-close").addEventListener("click", closeReceiptModal);
-    modal.addEventListener("click", function(event) {
-        if (event.target === modal) closeReceiptModal();
+        modal
+            .querySelector(".mutahus-clean-receipt-close")
+            .addEventListener("click", closeReceiptModal);
+
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) closeReceiptModal();
+        });
+
+        document.body.appendChild(modal);
+        document.body.classList.add("mutahus-receipt-open");
+    };
+
+    function initializeCleanFixes() {
+        installCleanStyles();
+        fixWhatsApp();
+        fixMenus();
+    }
+
+    document.addEventListener("DOMContentLoaded", initializeCleanFixes);
+    window.addEventListener("load", initializeCleanFixes);
+
+    const observer = new MutationObserver(() => {
+        fixWhatsApp();
+        fixMenus();
     });
 
-    document.body.appendChild(modal);
-    document.body.classList.add("step42-receipt-open");
-};
+    document.addEventListener("DOMContentLoaded", () => {
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+    });
+})();
 
-document.addEventListener("DOMContentLoaded", function() {
-    mutahusStep42CleanSafeReset();
-    setTimeout(mutahusStep42CleanSafeReset, 500);
-    setTimeout(mutahusStep42CleanSafeReset, 1200);
-});
-window.addEventListener("load", function() {
-    mutahusStep42CleanSafeReset();
-    setTimeout(mutahusStep42CleanSafeReset, 500);
-});
-
-// MUTAHUS_STEP42_CLEAN_SAFE_RESET
+// MUTAHUS_STEP50_CLEAN_APPJS_ONLY
 
