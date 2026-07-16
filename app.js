@@ -4767,3 +4767,270 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
 // MUTAHUS_STEP50_CLEAN_APPJS_ONLY
 
+
+/* =========================================================
+   MUTAHUS STEP 51 — MOBILE ONLY, ONE TOP TASKBAR
+   Desktop/web view is not changed.
+   ========================================================= */
+
+(function () {
+    "use strict";
+
+    const MOBILE_QUERY = window.matchMedia("(max-width: 860px)");
+
+    function installMobileOnlyCleanupStyle() {
+        if (document.getElementById("mutahusStep51MobileOnlyStyle")) return;
+
+        const style = document.createElement("style");
+        style.id = "mutahusStep51MobileOnlyStyle";
+        style.textContent = `
+            /* MUTAHUS_STEP51_MOBILE_ONLY_SINGLE_TOP_TASKBAR */
+
+            @media (max-width: 860px) {
+                .mutahus-mobile-duplicate-topbar {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    min-height: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    overflow: hidden !important;
+                    pointer-events: none !important;
+                }
+
+                body .top-taskbar,
+                body .top-taskbar.home-taskbar {
+                    position: sticky !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-height: 68px !important;
+                    margin: 0 !important;
+                    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px !important;
+                    display: flex !important;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    gap: 10px !important;
+                    background: rgba(15, 60, 104, 0.98) !important;
+                    border: 0 !important;
+                    border-radius: 0 !important;
+                    box-shadow: 0 8px 24px rgba(15, 60, 104, 0.16) !important;
+                    z-index: 5000 !important;
+                    overflow: visible !important;
+                    transform: none !important;
+                }
+
+                body .top-taskbar .brand-block {
+                    flex: 1 1 auto !important;
+                    min-width: 0 !important;
+                    max-width: calc(100% - 56px) !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                }
+
+                body .top-taskbar .brand-icon {
+                    width: 42px !important;
+                    min-width: 42px !important;
+                    height: 42px !important;
+                    margin: 0 !important;
+                    display: grid !important;
+                    place-items: center !important;
+                    border-radius: 14px !important;
+                    background: rgba(255, 255, 255, 0.13) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+                    color: #ffffff !important;
+                    font-size: 22px !important;
+                    line-height: 1 !important;
+                }
+
+                body .top-taskbar .brand-block > div {
+                    min-width: 0 !important;
+                }
+
+                body .top-taskbar .brand-block strong {
+                    display: block !important;
+                    color: #ffffff !important;
+                    font-size: 16px !important;
+                    line-height: 1.2 !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                }
+
+                body .top-taskbar .brand-block small {
+                    display: block !important;
+                    margin-top: 2px !important;
+                    color: rgba(255, 255, 255, 0.78) !important;
+                    font-size: 10.5px !important;
+                    line-height: 1.2 !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                }
+
+                body .top-taskbar .mobile-menu-btn {
+                    display: inline-flex !important;
+                    flex: 0 0 44px !important;
+                    width: 44px !important;
+                    min-width: 44px !important;
+                    height: 44px !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border-radius: 14px !important;
+                    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+                    background: rgba(255, 255, 255, 0.13) !important;
+                    color: #ffffff !important;
+                    font-size: 22px !important;
+                    line-height: 1 !important;
+                    box-shadow: none !important;
+                }
+
+                body .top-taskbar .taskbar-links {
+                    display: none !important;
+                    position: fixed !important;
+                    top: calc(72px + env(safe-area-inset-top, 0px)) !important;
+                    left: 12px !important;
+                    right: 12px !important;
+                    width: auto !important;
+                    max-width: calc(100vw - 24px) !important;
+                    max-height: calc(100dvh - 94px - env(safe-area-inset-top, 0px)) !important;
+                    margin: 0 !important;
+                    padding: 10px !important;
+                    overflow-y: auto !important;
+                    overflow-x: hidden !important;
+                    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                    gap: 8px !important;
+                    border: 1px solid #d9e5f5 !important;
+                    border-radius: 20px !important;
+                    background: #ffffff !important;
+                    box-shadow: 0 20px 50px rgba(15, 60, 104, 0.22) !important;
+                    z-index: 5001 !important;
+                    transform: none !important;
+                }
+
+                body .top-taskbar .taskbar-links.show-mobile-menu {
+                    display: grid !important;
+                }
+
+                body .top-taskbar .taskbar-links a {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                    min-height: 44px !important;
+                    margin: 0 !important;
+                    padding: 10px 8px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    border: 0 !important;
+                    border-radius: 13px !important;
+                    background: #f4f8ff !important;
+                    color: #123f73 !important;
+                    text-align: center !important;
+                    text-decoration: none !important;
+                    white-space: normal !important;
+                    overflow-wrap: anywhere !important;
+                    font-size: 12px !important;
+                    line-height: 1.25 !important;
+                    font-weight: 900 !important;
+                }
+
+                body .top-taskbar .taskbar-links a.active {
+                    background: #dbeafe !important;
+                    color: #0f3c68 !important;
+                }
+
+                body .top-taskbar .taskbar-links a.admin-pill {
+                    background: linear-gradient(135deg, #1d6fd1, #0f3c68) !important;
+                    color: #ffffff !important;
+                }
+            }
+
+            @media (max-width: 360px) {
+                body .top-taskbar .taskbar-links {
+                    grid-template-columns: 1fr !important;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    function keepOnlyOneMobileTopbar() {
+        const topbars = Array.from(document.querySelectorAll("header.top-taskbar"));
+
+        topbars.forEach((topbar) => {
+            topbar.classList.remove("mutahus-mobile-duplicate-topbar");
+            topbar.removeAttribute("aria-hidden");
+        });
+
+        if (!MOBILE_QUERY.matches || topbars.length <= 1) return;
+
+        topbars.slice(1).forEach((topbar) => {
+            topbar.classList.add("mutahus-mobile-duplicate-topbar");
+            topbar.setAttribute("aria-hidden", "true");
+
+            const openMenu = topbar.querySelector(".taskbar-links.show-mobile-menu");
+            if (openMenu) openMenu.classList.remove("show-mobile-menu");
+        });
+    }
+
+    function bindMobileMenuLinks() {
+        if (!MOBILE_QUERY.matches) return;
+
+        document.querySelectorAll("header.top-taskbar:not(.mutahus-mobile-duplicate-topbar)").forEach((topbar) => {
+            const menu = topbar.querySelector(".taskbar-links");
+            if (!menu) return;
+
+            menu.querySelectorAll("a").forEach((link) => {
+                if (link.dataset.mutahusStep51Bound === "true") return;
+                link.dataset.mutahusStep51Bound = "true";
+
+                link.addEventListener("click", () => {
+                    menu.classList.remove("show-mobile-menu");
+                });
+            });
+        });
+    }
+
+    function runMobileOnlyCleanup() {
+        installMobileOnlyCleanupStyle();
+        keepOnlyOneMobileTopbar();
+        bindMobileMenuLinks();
+    }
+
+    document.addEventListener("DOMContentLoaded", runMobileOnlyCleanup);
+    window.addEventListener("load", runMobileOnlyCleanup);
+    window.addEventListener("resize", runMobileOnlyCleanup);
+    window.addEventListener("orientationchange", runMobileOnlyCleanup);
+
+    if (typeof MOBILE_QUERY.addEventListener === "function") {
+        MOBILE_QUERY.addEventListener("change", runMobileOnlyCleanup);
+    }
+
+    const observer = new MutationObserver(() => {
+        if (MOBILE_QUERY.matches) {
+            keepOnlyOneMobileTopbar();
+            bindMobileMenuLinks();
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+    });
+})();
+
+// MUTAHUS_STEP51_MOBILE_ONLY_SINGLE_TOP_TASKBAR
+
