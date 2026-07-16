@@ -5171,3 +5171,381 @@ setInterval(mutahusStep38HardFixBottomNavReceipt, 1000);
 
 // MUTAHUS_STEP38_HARD_FIX_BOTTOM_NAV_RECEIPT
 
+
+function mutahusStep39FixedFloatingBottomNav() {
+    if (!document.getElementById("mutahusStep39FixedBottomNavStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep39FixedBottomNavStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP39_FIXED_FLOATING_BOTTOM_NAV */
+
+            @media (max-width: 860px) {
+                .mobile-bottom-nav,
+                .admin-mobile-bottom,
+                html body .mobile-bottom-nav,
+                html body .admin-mobile-bottom {
+                    position: fixed !important;
+                    left: 18px !important;
+                    right: 18px !important;
+                    bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+                    width: auto !important;
+                    max-width: calc(100vw - 36px) !important;
+                    margin: 0 auto !important;
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    z-index: 9000 !important;
+                    transform: none !important;
+                    will-change: transform;
+                    box-shadow: 0 18px 42px rgba(15, 60, 104, 0.18) !important;
+                    backdrop-filter: blur(14px);
+                    -webkit-backdrop-filter: blur(14px);
+                }
+
+                .mobile-bottom-nav a,
+                .admin-mobile-bottom a {
+                    touch-action: manipulation;
+                }
+
+                .app-main,
+                .portal-main,
+                .rules-main,
+                main {
+                    padding-bottom: calc(145px + env(safe-area-inset-bottom, 0px)) !important;
+                }
+
+                #receiptPreviewModal {
+                    z-index: 2147483600 !important;
+                }
+
+                .whatsapp-float {
+                    display: none !important;
+                    visibility: hidden !important;
+                    pointer-events: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.querySelectorAll(".mobile-bottom-nav, .admin-mobile-bottom").forEach(nav => {
+        nav.style.position = "";
+        nav.style.display = "";
+        nav.style.visibility = "";
+        nav.style.opacity = "";
+        nav.style.pointerEvents = "";
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    mutahusStep39FixedFloatingBottomNav();
+    setTimeout(mutahusStep39FixedFloatingBottomNav, 300);
+    setTimeout(mutahusStep39FixedFloatingBottomNav, 900);
+    setTimeout(mutahusStep39FixedFloatingBottomNav, 1600);
+});
+
+window.addEventListener("load", function() {
+    mutahusStep39FixedFloatingBottomNav();
+    setTimeout(mutahusStep39FixedFloatingBottomNav, 500);
+});
+
+window.addEventListener("scroll", function() {
+    mutahusStep39FixedFloatingBottomNav();
+}, { passive: true });
+
+// MUTAHUS_STEP39_FIXED_FLOATING_BOTTOM_NAV
+
+
+function mutahusStep40InstallReceiptNoScrollModal() {
+    if (window.mutahusStep40ReceiptInstalled) return;
+    window.mutahusStep40ReceiptInstalled = true;
+
+    const injectStyle = function() {
+        if (document.getElementById("mutahusStep40ReceiptNoScrollStyle")) return;
+
+        const style = document.createElement("style");
+        style.id = "mutahusStep40ReceiptNoScrollStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP40_RECEIPT_NO_SCROLL_MODAL */
+
+            #receiptPreviewModal.step40-receipt-modal {
+                position: fixed !important;
+                inset: 0 !important;
+                z-index: 2147483640 !important;
+                background: rgba(7, 22, 42, 0.76) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: calc(8px + env(safe-area-inset-top, 0px)) 8px calc(8px + env(safe-area-inset-bottom, 0px)) 8px !important;
+                overflow: hidden !important;
+                overscroll-behavior: contain !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-card {
+                width: min(920px, calc(100vw - 16px)) !important;
+                height: auto !important;
+                max-height: calc(92dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                background: #ffffff !important;
+                border-radius: 20px !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                box-shadow: 0 26px 70px rgba(0,0,0,.38) !important;
+                z-index: 2147483641 !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-header {
+                flex-shrink: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 10px !important;
+                padding: 12px 14px !important;
+                background: linear-gradient(180deg,#143f73 0%,#0e335d 100%) !important;
+                color: #ffffff !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-header h2 {
+                margin: 0 0 3px !important;
+                font-size: 16px !important;
+                line-height: 1.15 !important;
+                color: #ffffff !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-header p {
+                margin: 0 !important;
+                font-size: 11px !important;
+                line-height: 1.3 !important;
+                opacity: .9 !important;
+                color: #ffffff !important;
+                word-break: break-word !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-close {
+                width: 46px !important;
+                min-width: 46px !important;
+                height: 46px !important;
+                border: 0 !important;
+                border-radius: 14px !important;
+                background: rgba(255,255,255,.18) !important;
+                color: #ffffff !important;
+                font-size: 28px !important;
+                font-weight: 900 !important;
+                line-height: 1 !important;
+                cursor: pointer !important;
+                touch-action: manipulation !important;
+                z-index: 2147483642 !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-body {
+                flex: 1 !important;
+                min-height: 0 !important;
+                background: #f4f8ff !important;
+                padding: 8px !important;
+                overflow: hidden !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-img {
+                display: block !important;
+                width: auto !important;
+                height: auto !important;
+                max-width: 100% !important;
+                max-height: calc(76dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                object-fit: contain !important;
+                border-radius: 14px !important;
+                box-shadow: 0 12px 30px rgba(15,60,104,.12) !important;
+            }
+
+            #receiptPreviewModal.step40-receipt-modal .step40-receipt-pdf {
+                width: 100% !important;
+                height: calc(76dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                border: 0 !important;
+                border-radius: 14px !important;
+                background: #ffffff !important;
+            }
+
+            body.step40-receipt-open {
+                overflow: hidden !important;
+                touch-action: none !important;
+            }
+
+            body.step40-receipt-open #receiptPreviewModal {
+                touch-action: auto !important;
+            }
+
+            @media (max-width: 860px) {
+                body.step40-receipt-open .mobile-bottom-nav,
+                body.step40-receipt-open .admin-mobile-bottom {
+                    z-index: 100 !important;
+                    pointer-events: none !important;
+                    opacity: .22 !important;
+                }
+
+                #receiptPreviewModal.step40-receipt-modal .step40-receipt-card {
+                    width: calc(100vw - 16px) !important;
+                    max-height: calc(90dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                }
+
+                #receiptPreviewModal.step40-receipt-modal .step40-receipt-img {
+                    max-height: calc(70dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                }
+
+                #receiptPreviewModal.step40-receipt-modal .step40-receipt-pdf {
+                    height: calc(70dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    };
+
+    window.closeReceiptModal = function() {
+        const modal = document.getElementById("receiptPreviewModal");
+        if (modal) modal.remove();
+
+        document.body.classList.remove("mutahus-receipt-modal-open");
+        document.body.classList.remove("step40-receipt-open");
+        document.documentElement.classList.remove("step40-receipt-open");
+
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+    };
+
+    window.showReceiptInfo = function(receiptName, note, receiptDataUrl) {
+        injectStyle();
+
+        const name = receiptName || "Receipt";
+        const paymentNote = note || "No note";
+
+        if (!receiptDataUrl || !receiptDataUrl.startsWith("data:")) {
+            alert("Receipt file: " + name + "\nPayment note: " + paymentNote + "\n\nActual receipt image is not available for this older payment record.");
+            return;
+        }
+
+        closeReceiptModal();
+
+        const isPdf = receiptDataUrl.startsWith("data:application/pdf");
+        const modal = document.createElement("div");
+        modal.id = "receiptPreviewModal";
+        modal.className = "step40-receipt-modal";
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-modal", "true");
+
+        const bodyContent = isPdf
+            ? `<iframe class="step40-receipt-pdf" src="${receiptDataUrl}" title="Payment receipt PDF"></iframe>`
+            : `<img class="step40-receipt-img" src="${receiptDataUrl}" alt="Payment receipt">`;
+
+        modal.innerHTML = `
+            <div class="step40-receipt-card">
+                <div class="step40-receipt-header">
+                    <div>
+                        <h2>Payment Receipt</h2>
+                        <p>${name}</p>
+                        <p>${paymentNote}</p>
+                    </div>
+                    <button type="button" class="step40-receipt-close" aria-label="Close receipt">×</button>
+                </div>
+                <div class="step40-receipt-body">
+                    ${bodyContent}
+                </div>
+            </div>
+        `;
+
+        modal.querySelector(".step40-receipt-close").addEventListener("click", closeReceiptModal);
+
+        modal.addEventListener("click", function(event) {
+            if (event.target === modal) {
+                closeReceiptModal();
+            }
+        });
+
+        document.body.appendChild(modal);
+        document.body.classList.add("step40-receipt-open");
+        document.documentElement.classList.add("step40-receipt-open");
+
+        document.addEventListener("keydown", function escapeClose(event) {
+            if (event.key === "Escape") {
+                closeReceiptModal();
+                document.removeEventListener("keydown", escapeClose);
+            }
+        });
+    };
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    mutahusStep40InstallReceiptNoScrollModal();
+    setTimeout(mutahusStep40InstallReceiptNoScrollModal, 400);
+    setTimeout(mutahusStep40InstallReceiptNoScrollModal, 1200);
+});
+
+window.addEventListener("load", function() {
+    mutahusStep40InstallReceiptNoScrollModal();
+    setTimeout(mutahusStep40InstallReceiptNoScrollModal, 500);
+});
+
+// MUTAHUS_STEP40_RECEIPT_NO_SCROLL_MODAL
+
+
+function mutahusStep41WhatsappWebviewSchemeFix() {
+    const phone = "60178078271";
+    const text = "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah Mutahus Global.";
+    const webUrl = "https://api.whatsapp.com/send?phone=" + phone + "&text=" + encodeURIComponent(text);
+
+    // Force every WhatsApp link to use HTTPS, not whatsapp://
+    document.querySelectorAll('a[href*="whatsapp"], a[href*="wa.me"], .mutahus-whatsapp-sidebar-link').forEach(link => {
+        link.href = webUrl;
+        link.target = "_self";
+        link.rel = "noopener";
+        link.dataset.whatsappWebviewFixed = "true";
+    });
+
+    if (!window.mutahusStep41WhatsappCaptureInstalled) {
+        window.mutahusStep41WhatsappCaptureInstalled = true;
+
+        document.addEventListener("click", function(event) {
+            const link = event.target.closest('a[href*="whatsapp"], a[href*="wa.me"], .mutahus-whatsapp-sidebar-link');
+            if (!link) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            // Use HTTPS only because Android WebView cannot load whatsapp:// scheme.
+            window.location.href = webUrl;
+        }, true);
+    }
+
+    if (!document.getElementById("mutahusStep41WhatsappWebviewStyle")) {
+        const style = document.createElement("style");
+        style.id = "mutahusStep41WhatsappWebviewStyle";
+        style.innerHTML = `
+            /* MUTAHUS_STEP41_WHATSAPP_WEBVIEW_SCHEME_FIX */
+            .mutahus-whatsapp-sidebar-link {
+                background: rgba(37, 211, 102, 0.18) !important;
+                border: 1px solid rgba(37, 211, 102, 0.35) !important;
+                color: #ffffff !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    mutahusStep41WhatsappWebviewSchemeFix();
+    setTimeout(mutahusStep41WhatsappWebviewSchemeFix, 300);
+    setTimeout(mutahusStep41WhatsappWebviewSchemeFix, 900);
+    setTimeout(mutahusStep41WhatsappWebviewSchemeFix, 1600);
+});
+
+window.addEventListener("load", function() {
+    mutahusStep41WhatsappWebviewSchemeFix();
+    setTimeout(mutahusStep41WhatsappWebviewSchemeFix, 500);
+});
+
+setInterval(mutahusStep41WhatsappWebviewSchemeFix, 1500);
+
+// MUTAHUS_STEP41_WHATSAPP_WEBVIEW_SCHEME_FIX
+
