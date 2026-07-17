@@ -1918,7 +1918,7 @@ small {
 
 
 
-/* ===== MUTAHUS GLOBAL FAMILY VAN BUSINESS HOMEPAGE ===== */
+/* ===== MUTHAQUS GLOBAL ENTERPRISE FAMILY VAN BUSINESS HOMEPAGE ===== */
 
 .business-nav {
     background: rgba(15, 60, 104, 0.96);
@@ -2471,7 +2471,7 @@ small {
 
 
 
-/* ===== MUTAHUS GLOBAL COVERED SCHOOLS SECTION ===== */
+/* ===== MUTHAQUS GLOBAL ENTERPRISE COVERED SCHOOLS SECTION ===== */
 .covered-schools-section {
     padding: 90px 8%;
     background:
@@ -3029,7 +3029,7 @@ small {
 
 
 /* =========================================================
-   MUTAHUS GLOBAL BEAUTIFUL INTERFACE UPDATE
+   MUTHAQUS GLOBAL ENTERPRISE BEAUTIFUL INTERFACE UPDATE
    ========================================================= */
 
 :root {
@@ -6812,8 +6812,8 @@ body {
 
 
 /* =========================================================
-   MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE
-   Existing styles above are preserved.
+   MUTHAQUS_STEP61_PROFILE_RULES_INVOICE_POLISH
+   Existing design above is preserved.
    ========================================================= */
 
 .table-header-actions {
@@ -6829,146 +6829,6 @@ body {
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;
-}
-
-.absence-history-box {
-    border-top: 4px solid #2b78d0 !important;
-}
-
-.absence-page-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.75fr);
-    gap: 24px;
-    align-items: start;
-    margin-bottom: 24px;
-}
-
-.absence-form-card {
-    max-width: none !important;
-    margin: 0 !important;
-}
-
-.form-grid-two {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-}
-
-.field-group {
-    display: grid;
-    gap: 8px;
-    min-width: 0;
-}
-
-.field-group label span {
-    color: #71849a;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.field-group > small {
-    color: #71849a;
-    line-height: 1.45;
-}
-
-.absence-important-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin: 18px 0;
-    padding: 15px 16px;
-    border: 1px solid #f2d18a;
-    border-radius: 16px;
-    background: #fff9e9;
-    color: #74510c;
-}
-
-.absence-important-note > span {
-    font-size: 21px;
-    line-height: 1;
-}
-
-.absence-important-note p {
-    margin: 0;
-    line-height: 1.55;
-}
-
-.absence-help-card {
-    position: sticky;
-    top: 102px;
-    padding: 26px;
-    border: 1px solid #dbe7f4;
-    border-radius: 24px;
-    background:
-        radial-gradient(circle at 92% 4%, rgba(43, 120, 208, 0.13), transparent 32%),
-        #ffffff;
-    box-shadow: 0 18px 44px rgba(15, 60, 104, 0.10);
-}
-
-.absence-help-icon {
-    width: 58px;
-    height: 58px;
-    display: grid;
-    place-items: center;
-    margin-bottom: 18px;
-    border-radius: 18px;
-    background: #eaf3ff;
-    font-size: 28px;
-}
-
-.absence-help-card h3 {
-    margin: 0 0 14px;
-    color: #12395f;
-    font-size: 22px;
-}
-
-.absence-help-card ol {
-    display: grid;
-    gap: 12px;
-    margin: 0;
-    padding-left: 22px;
-    color: #51677e;
-    line-height: 1.55;
-}
-
-.absence-help-footer {
-    margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid #dbe7f4;
-}
-
-.absence-help-footer strong,
-.absence-help-footer a {
-    display: block;
-}
-
-.absence-help-footer a {
-    margin-top: 8px;
-    color: #16834c;
-    font-weight: 900;
-    text-decoration: none;
-}
-
-.absence-filter-bar {
-    display: grid;
-    grid-template-columns: minmax(220px, 1.4fr) minmax(170px, 0.65fr) minmax(180px, 0.65fr) auto;
-    gap: 14px;
-    align-items: end;
-    margin: 18px 0 22px;
-    padding: 16px;
-    border: 1px solid #dbe7f4;
-    border-radius: 18px;
-    background: #f7faff;
-}
-
-.absence-filter-bar .btn {
-    min-height: 48px;
-}
-
-.absence-action-muted {
-    color: #8393a4;
-    font-size: 12px;
-    font-weight: 700;
 }
 
 .invoice-download-btn {
@@ -7034,107 +6894,7 @@ body {
     line-height: 1.45;
 }
 
-@media (min-width: 901px) {
-    .absence-stats {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .absence-history-box table {
-        min-width: 920px;
-    }
-}
-
-@media (max-width: 1100px) {
-    .absence-page-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .absence-help-card {
-        position: static;
-    }
-
-    .absence-filter-bar {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 860px) {
-    .absence-page-grid {
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    .form-grid-two,
-    .absence-filter-bar {
-        grid-template-columns: 1fr;
-    }
-
-    .absence-filter-bar .btn {
-        width: 100%;
-    }
-
-    .absence-help-card {
-        padding: 21px;
-        border-radius: 21px;
-    }
-
-    .table-header-actions {
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .table-header-actions .btn {
-        flex: 1 1 180px;
-        text-align: center;
-    }
-
-    .absence-history-box table,
-    .page-report-absence table,
-    .page-admin-absences table {
-        min-width: 860px;
-    }
-
-    .invoice-download-btn {
-        min-width: 118px;
-    }
-}
-
-/* MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE */
-
-
-
-/* =========================================================
-   MUTAHUS_STEP60_PARENT_PROFILE_RULES_ABSENCE_STYLE_FIX
-
-   Targeted repair:
-   - Parent Profile and Parent Rules now use the same portal design
-   - Report Absence remains visible in every parent sidebar / More menu
-   - Removes the harsh line/accent styling from absence cards
-   - Existing Step 59 features and CSS are preserved
-   ========================================================= */
-
-/* ---------- Consistent parent portal navigation ---------- */
-
-.parent-side .sidebar-menu a,
-.profile-sidebar .side-links a,
-.rules-sidebar .side-links a {
-    border: 1px solid transparent;
-    box-shadow: none !important;
-}
-
-.parent-side .sidebar-menu a.active,
-.parent-side .sidebar-menu a.mutahus-current-link,
-.profile-sidebar .side-links a.active,
-.profile-sidebar .side-links a.mutahus-current-link,
-.rules-sidebar .side-links a.active,
-.rules-sidebar .side-links a.mutahus-current-link {
-    border-color: rgba(255, 255, 255, 0.16) !important;
-    background: rgba(255, 255, 255, 0.14) !important;
-    box-shadow: 0 10px 24px rgba(5, 28, 52, 0.14) !important;
-}
-
-/* ---------- Shared Profile layout ---------- */
-
+/* Parent Profile */
 .parent-profile-grid-pro {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.85fr);
@@ -7281,8 +7041,7 @@ body {
     min-width: 150px;
 }
 
-/* ---------- Shared Parent Rules layout ---------- */
-
+/* Parent Rules */
 .parent-rules-layout-pro {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 300px;
@@ -7414,53 +7173,6 @@ body {
     text-align: center;
 }
 
-/* ---------- Softer Report Absence styling ---------- */
-
-/* Remove the obvious blue horizontal line from absence-history cards. */
-.absence-history-box {
-    border-top: 1px solid #dbe7f4 !important;
-}
-
-/* No vertical active-line effect on the Report Absence navigation item. */
-.page-report-absence .parent-side .sidebar-menu a.active,
-.page-report-absence .parent-side .sidebar-menu a.mutahus-current-link {
-    box-shadow: 0 10px 24px rgba(5, 28, 52, 0.14) !important;
-}
-
-/* Make the report page feel like one clean surface, not separated by lines. */
-.page-report-absence .absence-form-card,
-.page-report-absence .absence-help-card,
-.page-report-absence .absence-history-box {
-    border-color: rgba(219, 231, 244, 0.82) !important;
-    box-shadow: 0 14px 36px rgba(15, 60, 104, 0.08) !important;
-}
-
-.page-report-absence .absence-form-card {
-    background:
-        radial-gradient(circle at 96% 2%, rgba(29, 111, 209, 0.07), transparent 28%),
-        #ffffff;
-}
-
-.page-report-absence .absence-important-note {
-    border: 0 !important;
-    background: linear-gradient(135deg, #fff9e9, #fffdf6);
-    box-shadow: inset 0 0 0 1px rgba(242, 209, 138, 0.42);
-}
-
-.page-report-absence .absence-help-footer {
-    margin-top: 18px;
-    padding: 15px;
-    border-top: 0 !important;
-    border-radius: 15px;
-    background: #f2fbf5;
-}
-
-.page-report-absence .absence-history-box {
-    overflow: hidden;
-}
-
-/* ---------- Responsive ---------- */
-
 @media (max-width: 1100px) {
     .parent-profile-grid-pro,
     .parent-rules-layout-pro {
@@ -7529,10 +7241,10 @@ body {
         font-size: 21px;
     }
 
-    .page-report-absence .absence-history-box {
-        border-top-width: 1px !important;
+    .invoice-download-btn {
+        min-width: 118px;
     }
 }
 
-/* MUTAHUS_STEP60_PARENT_PROFILE_RULES_ABSENCE_STYLE_FIX */
+/* MUTHAQUS_STEP61_PROFILE_RULES_INVOICE_POLISH */
 

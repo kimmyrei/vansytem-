@@ -4,179 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#143f73">
-    <title>Absence Management | Mutahus Global</title>
+    <meta http-equiv="refresh" content="0; url=admin-dashboard.html">
+    <title>Redirecting | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
+    <script>
+        window.location.replace("admin-dashboard.html");
+    </script>
 </head>
 <body>
-
-<div class="app-shell">
-
-<aside class="pro-sidebar admin-side">
-    <div class="sidebar-brand">
-        <span>🚐</span>
-        <div>
-            <strong>Mutahus Global</strong>
-            <small>Admin Control</small>
+    <main style="min-height:100vh;display:grid;place-items:center;padding:24px;">
+        <div style="text-align:center;">
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+            <p>Returning to the admin dashboard...</p>
+            <a href="admin-dashboard.html">Continue</a>
         </div>
-    </div>
-
-    <nav class="sidebar-menu">
-        <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
-        <a href="admin-students.html"><span>🎒</span> Students</a>
-        <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
-        <a href="admin-payments.html"><span>💳</span> Payments</a>
-        <a class="active" href="admin-absences.html"><span>📅</span> Absences</a>
-        <a href="admin-announcements.html"><span>📢</span> Announcements</a>
-        <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
-        <a href="admin-settings.html"><span>⚙️</span> Settings</a>
-    </nav>
-
-    <div class="sidebar-bottom">
-        <div class="mini-help">
-            <strong>Route planning</strong>
-            <p>Check today's absences before the driver begins the route.</p>
-        </div>
-        <a href="#" onclick="adminLogout()" class="logout-btn"><span>🚪</span> Logout</a>
-    </div>
-</aside>
-
-<main class="app-main">
-
-    <div class="mobile-app-header mobile-admin-header">
-        <div class="mobile-brand">
-            <span>🚐</span>
-            <div>
-                <strong>Mutahus Global</strong>
-                <small>Admin Control</small>
-            </div>
-        </div>
-    </div>
-
-    <nav class="mobile-bottom-nav admin-mobile-bottom">
-        <a href="admin-dashboard.html"><span>📊</span><small>Home</small></a>
-        <a href="admin-students.html"><span>🎒</span><small>Students</small></a>
-        <a href="admin-parents.html"><span>👨‍👩‍👧</span><small>Parents</small></a>
-        <a href="admin-payments.html"><span>💳</span><small>Pay</small></a>
-        <a href="admin-announcements.html"><span>📢</span><small>Notice</small></a>
-        <a href="admin-rules.html"><span>📘</span><small>Rules</small></a>
-    </nav>
-
-    <div class="page-hero-bar absence-admin-hero">
-        <div>
-            <span class="page-kicker">ROUTE OPERATIONS</span>
-            <h1>Absence Management</h1>
-            <p>Review parent notices before planning the daily van route.</p>
-        </div>
-
-        <button class="btn btn-light-pro" type="button" onclick="exportAbsencesCSV()">
-            Export Absences CSV
-        </button>
-    </div>
-
-    <section class="stats stats-pro absence-stats">
-        <div class="stat-card pro-stat">
-            <span>📍</span>
-            <h3>Today</h3>
-            <h2 id="absenceTodayCount">0</h2>
-        </div>
-        <div class="stat-card pro-stat">
-            <span>📆</span>
-            <h3>Upcoming</h3>
-            <h2 id="absenceUpcomingCount">0</h2>
-        </div>
-        <div class="stat-card pro-stat">
-            <span>⏳</span>
-            <h3>Submitted</h3>
-            <h2 id="absenceSubmittedCount">0</h2>
-        </div>
-        <div class="stat-card pro-stat">
-            <span>✅</span>
-            <h3>Acknowledged</h3>
-            <h2 id="absenceAcknowledgedCount">0</h2>
-        </div>
-    </section>
-
-    <section class="table-box table-box-pro">
-        <div class="table-header">
-            <div>
-                <span class="page-kicker">ABSENCE RECORDS</span>
-                <h2>Parent Absence Notices</h2>
-                <p>Acknowledge notices after updating the driver or route plan.</p>
-            </div>
-
-            <div class="history-count-pill">
-                <span id="absenceVisibleCount">0</span> Shown
-            </div>
-        </div>
-
-        <div class="absence-filter-bar">
-            <div class="field-group">
-                <label for="absenceSearch">Search</label>
-                <input
-                    id="absenceSearch"
-                    type="search"
-                    placeholder="Parent, child, school or reason..."
-                    oninput="renderAdminAbsences()"
-                >
-            </div>
-
-            <div class="field-group">
-                <label for="absenceDateFilter">Date</label>
-                <input
-                    id="absenceDateFilter"
-                    type="date"
-                    onchange="renderAdminAbsences()"
-                >
-            </div>
-
-            <div class="field-group">
-                <label for="absenceStatusFilter">Status</label>
-                <select id="absenceStatusFilter" onchange="renderAdminAbsences()">
-                    <option value="">All statuses</option>
-                    <option value="Submitted">Submitted</option>
-                    <option value="Acknowledged">Acknowledged</option>
-                    <option value="Cancelled">Cancelled</option>
-                </select>
-            </div>
-
-            <button
-                class="btn btn-outline-pro"
-                type="button"
-                onclick="
-                    document.getElementById('absenceSearch').value='';
-                    document.getElementById('absenceDateFilter').value='';
-                    document.getElementById('absenceStatusFilter').value='';
-                    renderAdminAbsences();
-                "
-            >
-                Reset
-            </button>
-        </div>
-
-        <div class="table-scroll-shell">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Parent</th>
-                        <th>Child</th>
-                        <th>Date</th>
-                        <th>Affected Trip</th>
-                        <th>Reason</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="adminAbsenceTable"></tbody>
-            </table>
-        </div>
-    </section>
-
-</main>
-</div>
-
-<script src="app.js"></script>
-<script>loadAdminAbsences();</script>
+    </main>
 </body>
 </html>
-<!-- MUTAHUS_STEP59_ADMIN_ABSENCES -->

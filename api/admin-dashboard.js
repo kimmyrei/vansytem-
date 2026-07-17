@@ -55,34 +55,28 @@ function defaultRules() {
       order: 3
     },
     {
-      icon: "📢",
-      title: "Absence Notice",
-      description: "If a student will not attend school or does not need van service for that day, parents should inform Mutahus Global as early as possible.",
-      order: 4
-    },
-    {
       icon: "🛡️",
       title: "Student Safety",
       description: "Students must follow safety instructions while inside the van. Parents should remind children to behave properly and avoid disturbing the driver.",
-      order: 5
+      order: 4
     },
     {
       icon: "📱",
       title: "Emergency Contact",
-      description: "Parents should make sure their phone number is active and reachable. For urgent matters, parents may contact Mutahus Global through WhatsApp.",
-      order: 6
+      description: "Parents should make sure their phone number is active and reachable. For urgent matters, parents may contact MUTHAQUS GLOBAL ENTERPRISE through WhatsApp.",
+      order: 5
     },
     {
       icon: "🌧️",
       title: "Delay Notice",
       description: "Delays may happen due to traffic, weather, school events or route changes. Parents can check announcements in the parent dashboard.",
-      order: 7
+      order: 6
     },
     {
       icon: "✅",
       title: "Student Approval",
       description: "New child registrations will be reviewed by admin first. The student status may show Pending Review, Accepted, Active or Rejected.",
-      order: 8
+      order: 7
     }
   ];
 }
@@ -94,10 +88,6 @@ async function getDashboard(db, res) {
 
   const paidPayments = await db.collection("payments").find({ status: "Paid" }).toArray();
   const pendingPayments = await db.collection("payments").find({ status: "Pending" }).toArray();
-  const todayAbsences = await db.collection("absences").countDocuments({
-    date: malaysiaTodayValue(),
-    status: { $ne: "Cancelled" }
-  });
 
   const summary = {
     totalParents: parents.length,
@@ -105,8 +95,7 @@ async function getDashboard(db, res) {
     morningCount: students.filter(student => student.session === "Morning").length,
     afternoonCount: students.filter(student => student.session === "Afternoon").length,
     pendingPayments: pendingPayments.length,
-    totalPaidMonth: paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0),
-    todayAbsences
+    totalPaidMonth: paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
   };
 
   const recentPayments = payments.map(payment => ({
@@ -171,6 +160,13 @@ async function getAnnouncements(db, res) {
 }
 
 async function getRules(db, res) {
+  await db.collection("rules").deleteMany({
+    $or: [
+      { title: { $regex: "^Absence Notice$", $options: "i" } },
+      { description: { $regex: "does not need van service for that day", $options: "i" } }
+    ]
+  });
+
   let rules = await db.collection("rules").find({}).sort({ order: 1, createdAt: 1 }).toArray();
 
   if (rules.length === 0) {
@@ -505,7 +501,6 @@ async function getSystemBackup(db, res) {
   const paymentsRaw = await db.collection("payments").find({}).sort({ createdAt: -1 }).toArray();
   const announcementsRaw = await db.collection("announcements").find({}).sort({ createdAt: -1 }).toArray();
   const rulesRaw = await db.collection("rules").find({}).sort({ order: 1, createdAt: 1 }).toArray();
-  const absencesRaw = await db.collection("absences").find({}).sort({ date: -1, createdAt: -1 }).toArray();
   const adminsRaw = await db.collection("admins").find({}).sort({ createdAt: -1 }).toArray();
 
   const sanitizeId = item => {
@@ -532,7 +527,6 @@ async function getSystemBackup(db, res) {
 
   const announcements = announcementsRaw.map(sanitizeId);
   const rules = rulesRaw.map(sanitizeId);
-  const absences = absencesRaw.map(sanitizeId);
 
   const admins = adminsRaw.map(admin => {
     const clean = sanitizeId(admin);
@@ -541,7 +535,7 @@ async function getSystemBackup(db, res) {
   });
 
   const backup = {
-    system: "Mutahus Global Van System",
+    system: "MUTHAQUS GLOBAL ENTERPRISE Van System",
     database: "mutahus_global",
     exportedAt: new Date().toISOString(),
     note: "Password hashes and large receiptDataUrl fields are excluded from this backup.",
@@ -551,7 +545,6 @@ async function getSystemBackup(db, res) {
       payments: payments.length,
       announcements: announcements.length,
       rules: rules.length,
-      absences: absences.length,
       admins: admins.length
     },
     parents,
@@ -559,7 +552,6 @@ async function getSystemBackup(db, res) {
     payments,
     announcements,
     rules,
-    absences,
     admins
   };
 
@@ -567,134 +559,6 @@ async function getSystemBackup(db, res) {
     success: true,
     message: "System backup generated successfully.",
     backup
-  });
-}
-
-
-
-function malaysiaTodayValue() {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kuala_Lumpur",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  });
-
-  const parts = formatter.formatToParts(new Date());
-  const values = {};
-
-  parts.forEach(part => {
-    if (part.type !== "literal") values[part.type] = part.value;
-  });
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
-function formatAbsence(item) {
-  return {
-    id: item._id.toString(),
-    parentId: item.parentId || "",
-    parentName: item.parentName || "",
-    parentPhone: item.parentPhone || "",
-    parentEmail: item.parentEmail || "",
-    studentId: item.studentId || "",
-    studentName: item.studentName || "",
-    school: item.school || "",
-    session: item.session || "",
-    date: item.date || "",
-    trip: item.trip || "Both trips",
-    reason: item.reason || "",
-    note: item.note || "",
-    status: item.status || "Submitted",
-    createdAt: cleanDate(item.createdAt),
-    updatedAt: cleanDate(item.updatedAt),
-    acknowledgedAt: cleanDate(item.acknowledgedAt),
-    cancelledAt: cleanDate(item.cancelledAt)
-  };
-}
-
-async function getAbsences(db, res) {
-  const raw = await db
-    .collection("absences")
-    .find({})
-    .sort({ date: 1, createdAt: -1 })
-    .limit(500)
-    .toArray();
-
-  const today = malaysiaTodayValue();
-  const active = raw.filter(item => item.status !== "Cancelled");
-
-  return res.status(200).json({
-    success: true,
-    absences: raw.map(formatAbsence),
-    summary: {
-      total: raw.length,
-      today: active.filter(item => item.date === today).length,
-      upcoming: active.filter(item => item.date > today).length,
-      submitted: raw.filter(item => (item.status || "Submitted") === "Submitted").length,
-      acknowledged: raw.filter(item => item.status === "Acknowledged").length,
-      cancelled: raw.filter(item => item.status === "Cancelled").length
-    }
-  });
-}
-
-async function updateAbsenceStatus(db, data, res) {
-  const absenceId = String(data.absenceId || "").trim();
-  const status = String(data.status || "").trim();
-  const allowedStatuses = ["Submitted", "Acknowledged", "Cancelled"];
-
-  if (!absenceId || !allowedStatuses.includes(status)) {
-    return res.status(400).json({
-      success: false,
-      message: "Valid absence ID and status are required."
-    });
-  }
-
-  let absenceObjectId;
-
-  try {
-    absenceObjectId = new ObjectId(absenceId);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid absence notice ID."
-    });
-  }
-
-  const existing = await db.collection("absences").findOne({
-    _id: absenceObjectId
-  });
-
-  if (!existing) {
-    return res.status(404).json({
-      success: false,
-      message: "Absence notice not found."
-    });
-  }
-
-  const now = new Date();
-  const update = {
-    status,
-    updatedAt: now
-  };
-
-  if (status === "Acknowledged") {
-    update.acknowledgedAt = now;
-  }
-
-  if (status === "Cancelled") {
-    update.cancelledAt = now;
-  }
-
-  await db.collection("absences").updateOne(
-    { _id: absenceObjectId },
-    { $set: update }
-  );
-
-  return res.status(200).json({
-    success: true,
-    message: "Absence status updated successfully.",
-    status
   });
 }
 
@@ -711,10 +575,6 @@ module.exports = async function handler(req, res) {
 
       if (action === "rules") {
         return getRules(db, res);
-      }
-
-      if (action === "absences") {
-        return getAbsences(db, res);
       }
 
       if (action === "backup") {
@@ -760,10 +620,6 @@ module.exports = async function handler(req, res) {
         return resetRules(db, res);
       }
 
-      if (action === "update-absence-status") {
-        return updateAbsenceStatus(db, data, res);
-      }
-
       return res.status(400).json({
         success: false,
         message: "Invalid admin dashboard action."
@@ -790,4 +646,4 @@ module.exports = async function handler(req, res) {
 
 // MUTAHUS_STEP21_ADMIN_BACKUP_DOWNLOAD
 
-// MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE
+// MUTHAQUS_STEP61_REBRAND_RULE_CLEANUP

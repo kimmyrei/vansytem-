@@ -128,23 +128,6 @@ async function updateParentProfile(db, data, res) {
     }
   );
 
-  await db.collection("absences").updateMany(
-    {
-      $or: [
-        { parentId },
-        { parentEmail: oldEmail }
-      ]
-    },
-    {
-      $set: {
-        parentName: name,
-        parentPhone: phone,
-        parentEmail: email,
-        updatedAt: new Date()
-      }
-    }
-  );
-
   return res.status(200).json({
     success: true,
     message: "Parent profile updated successfully.",
@@ -285,293 +268,6 @@ async function resetParentPassword(db, data, res) {
   });
 }
 
-
-
-function malaysiaTodayValue() {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kuala_Lumpur",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  });
-
-  const parts = formatter.formatToParts(new Date());
-  const values = {};
-
-  parts.forEach(part => {
-    if (part.type !== "literal") values[part.type] = part.value;
-  });
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
-function isValidDateValue(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return false;
-
-  const parsed = new Date(`${value}T00:00:00.000Z`);
-
-  return (
-    !Number.isNaN(parsed.getTime()) &&
-    parsed.toISOString().slice(0, 10) === value
-  );
-}
-
-function formatAbsence(item) {
-  return {
-    id: item._id.toString(),
-    parentId: item.parentId || "",
-    parentName: item.parentName || "",
-    parentPhone: item.parentPhone || "",
-    parentEmail: item.parentEmail || "",
-    studentId: item.studentId || "",
-    studentName: item.studentName || "",
-    school: item.school || "",
-    session: item.session || "",
-    date: item.date || "",
-    trip: item.trip || "Both trips",
-    reason: item.reason || "",
-    note: item.note || "",
-    status: item.status || "Submitted",
-    createdAt: cleanDate(item.createdAt),
-    updatedAt: cleanDate(item.updatedAt),
-    acknowledgedAt: cleanDate(item.acknowledgedAt),
-    cancelledAt: cleanDate(item.cancelledAt)
-  };
-}
-
-async function findParentForRequest(db, parentId, email) {
-  let parent = null;
-
-  if (parentId) {
-    try {
-      parent = await db.collection("parents").findOne({
-        _id: new ObjectId(parentId)
-      });
-    } catch (error) {
-      parent = null;
-    }
-  }
-
-  if (!parent && email) {
-    parent = await db.collection("parents").findOne({
-      email: String(email).trim().toLowerCase()
-    });
-  }
-
-  return parent;
-}
-
-async function reportAbsence(db, data, res) {
-  const parentId = String(data.parentId || "").trim();
-  const parentEmail = String(data.parentEmail || "").trim().toLowerCase();
-  const studentId = String(data.studentId || "").trim();
-  const date = String(data.date || "").trim();
-  const trip = String(data.trip || "").trim();
-  const reason = String(data.reason || "").trim();
-  const note = String(data.note || "").trim().slice(0, 300);
-
-  const allowedTrips = [
-    "Both trips",
-    "Morning pickup only",
-    "Afternoon return only",
-    "KAFA trip only"
-  ];
-
-  const allowedReasons = [
-    "Sick",
-    "School holiday or event",
-    "Family matter",
-    "Different transport arrangement",
-    "Other"
-  ];
-
-  if (!parentId && !parentEmail) {
-    return res.status(400).json({
-      success: false,
-      message: "Parent account is missing. Please login again."
-    });
-  }
-
-  if (!studentId || !date || !trip || !reason) {
-    return res.status(400).json({
-      success: false,
-      message: "Child, date, affected trip and reason are required."
-    });
-  }
-
-  if (!isValidDateValue(date)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid absence date."
-    });
-  }
-
-  if (date < malaysiaTodayValue()) {
-    return res.status(400).json({
-      success: false,
-      message: "Past dates cannot be submitted as a new absence notice."
-    });
-  }
-
-  if (!allowedTrips.includes(trip) || !allowedReasons.includes(reason)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid absence trip or reason."
-    });
-  }
-
-  const parent = await findParentForRequest(db, parentId, parentEmail);
-
-  if (!parent) {
-    return res.status(404).json({
-      success: false,
-      message: "Parent account not found. Please login again."
-    });
-  }
-
-  let studentObjectId;
-
-  try {
-    studentObjectId = new ObjectId(studentId);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid child record."
-    });
-  }
-
-  const parentIdString = parent._id.toString();
-  const email = String(parent.email || parentEmail).toLowerCase();
-
-  const student = await db.collection("students").findOne({
-    _id: studentObjectId,
-    $or: [
-      { parentId: parentIdString },
-      { parentEmail: email }
-    ]
-  });
-
-  if (!student) {
-    return res.status(404).json({
-      success: false,
-      message: "This child was not found under your parent account."
-    });
-  }
-
-  const duplicate = await db.collection("absences").findOne({
-    studentId,
-    date,
-    status: { $ne: "Cancelled" }
-  });
-
-  if (duplicate) {
-    return res.status(409).json({
-      success: false,
-      message: "An active absence notice already exists for this child on the selected date."
-    });
-  }
-
-  const now = new Date();
-
-  const result = await db.collection("absences").insertOne({
-    parentId: parentIdString,
-    parentName: parent.name || "",
-    parentPhone: parent.phone || "",
-    parentEmail: email,
-    studentId,
-    studentName: student.name || "",
-    school: student.schoolDisplay || student.school || "",
-    session: student.session || "",
-    date,
-    trip,
-    reason,
-    note,
-    status: "Submitted",
-    createdAt: now,
-    updatedAt: now
-  });
-
-  return res.status(200).json({
-    success: true,
-    message: "Absence notice submitted successfully.",
-    absenceId: result.insertedId.toString()
-  });
-}
-
-async function cancelAbsence(db, data, res) {
-  const absenceId = String(data.absenceId || "").trim();
-  const parentId = String(data.parentId || "").trim();
-  const parentEmail = String(data.parentEmail || "").trim().toLowerCase();
-
-  if (!absenceId || (!parentId && !parentEmail)) {
-    return res.status(400).json({
-      success: false,
-      message: "Absence notice and parent account are required."
-    });
-  }
-
-  let absenceObjectId;
-
-  try {
-    absenceObjectId = new ObjectId(absenceId);
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid absence notice ID."
-    });
-  }
-
-  const parent = await findParentForRequest(db, parentId, parentEmail);
-
-  if (!parent) {
-    return res.status(404).json({
-      success: false,
-      message: "Parent account not found."
-    });
-  }
-
-  const parentIdString = parent._id.toString();
-  const email = String(parent.email || parentEmail).toLowerCase();
-
-  const absence = await db.collection("absences").findOne({
-    _id: absenceObjectId,
-    $or: [
-      { parentId: parentIdString },
-      { parentEmail: email }
-    ]
-  });
-
-  if (!absence) {
-    return res.status(404).json({
-      success: false,
-      message: "Absence notice not found under this parent account."
-    });
-  }
-
-  if (absence.status === "Cancelled") {
-    return res.status(200).json({
-      success: true,
-      message: "Absence notice is already cancelled."
-    });
-  }
-
-  await db.collection("absences").updateOne(
-    { _id: absenceObjectId },
-    {
-      $set: {
-        status: "Cancelled",
-        cancelledAt: new Date(),
-        updatedAt: new Date()
-      }
-    }
-  );
-
-  return res.status(200).json({
-    success: true,
-    message: "Absence notice cancelled successfully."
-  });
-}
-
 module.exports = async function handler(req, res) {
   if (req.method === "POST") {
     try {
@@ -589,14 +285,6 @@ module.exports = async function handler(req, res) {
 
       if (action === "change-parent-password") {
         return changeParentPassword(db, data, res);
-      }
-
-      if (action === "report-absence") {
-        return reportAbsence(db, data, res);
-      }
-
-      if (action === "cancel-absence") {
-        return cancelAbsence(db, data, res);
       }
 
       return res.status(400).json({
@@ -679,18 +367,6 @@ module.exports = async function handler(req, res) {
         ]
       })
       .sort({ createdAt: -1 })
-      .toArray();
-
-    const absencesRaw = await db
-      .collection("absences")
-      .find({
-        $or: [
-          { parentId: parentIdString },
-          { parentEmail: parentEmail }
-        ]
-      })
-      .sort({ date: -1, createdAt: -1 })
-      .limit(100)
       .toArray();
 
     let announcementsRaw = [];
@@ -781,7 +457,6 @@ module.exports = async function handler(req, res) {
       },
       children,
       payments,
-      absences: absencesRaw.map(formatAbsence),
       announcements
     });
   } catch (error) {
@@ -804,4 +479,4 @@ module.exports = async function handler(req, res) {
 
 // MUTAHUS_STEP30_USER_COMPLAINT_FIXES
 
-// MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE
+// MUTHAQUS_STEP61_PARENT_DASHBOARD_INVOICE_FIELDS

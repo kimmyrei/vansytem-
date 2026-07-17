@@ -314,7 +314,6 @@ async function loadParentDashboard() {
         const children = result.children || [];
         const payments = result.payments || [];
         const announcements = result.announcements || [];
-        const absences = result.absences || [];
 
         localStorage.setItem(VS.currentParentKey, JSON.stringify(currentParent));
 
@@ -328,15 +327,6 @@ async function loadParentDashboard() {
 
         document.getElementById("pendingPayment").innerText = pendingCount;
         document.getElementById("totalPaid").innerText = "RM" + paidAmount;
-
-        const upcomingAbsenceEl = document.getElementById("upcomingAbsence");
-        if (upcomingAbsenceEl) {
-            const today = mutahusTodayDateValue();
-            const upcomingAbsenceCount = absences.filter(item =>
-                item.status !== "Cancelled" && String(item.date || "") >= today
-            ).length;
-            upcomingAbsenceEl.innerText = upcomingAbsenceCount;
-        }
 
         if (announcementBox) {
             announcementBox.innerHTML = "";
@@ -406,7 +396,6 @@ async function loadParentDashboard() {
         }
 
         loadParentPaymentHistory(payments);
-        renderParentAbsenceHistory(absences);
     } catch (error) {
         alert("Dashboard error: " + error.message);
 
@@ -1226,7 +1215,8 @@ function showReceiptInfo(receiptName, note, receiptDataUrl) {
         <div class="receipt-modal-card">
             <div class="receipt-modal-header">
                 <div>
-                    <h2>Payment Receipt</h2>
+                    <h2>MUTHAQUS GLOBAL ENTERPRISE</h2>
+                    <p><strong>Payment Receipt</strong></p>
                     <p><strong>File:</strong> ${mutahusEscapeHtml(name)}</p>
                     <p><strong>Note:</strong> ${mutahusEscapeHtml(paymentNote)}</p>
                 </div>
@@ -2418,9 +2408,7 @@ function protectAdminPages() {
         "admin-students.html",
         "admin-parents.html",
         "admin-payments.html",
-        "admin-absences.html",
         "admin-announcements.html",
-        "admin-absences.html",
         "admin-rules.html"
     ];
 
@@ -2494,7 +2482,6 @@ function protectParentPages() {
         "parent-dashboard.html",
         "add-student.html",
         "upload-payment.html",
-        "report-absence.html",
         "parent-rules.html"
     ];
 
@@ -3271,7 +3258,6 @@ function isMutahusMobileParentProtectedPage(page) {
         "parent-profile.html",
         "add-student.html",
         "upload-payment.html",
-        "report-absence.html",
         "parent-rules.html"
     ].includes(page);
 }
@@ -3302,7 +3288,6 @@ function buildMutahusMobileFeatureItems(page) {
         items += mutahusMobileLink("admin-students.html", "🎒", "Students", page);
         items += mutahusMobileLink("admin-parents.html", "👨‍👩‍👧", "Parents", page);
         items += mutahusMobileLink("admin-payments.html", "💳", "Payments", page);
-        items += mutahusMobileLink("admin-absences.html", "📅", "Absences", page);
         items += mutahusMobileLink("admin-announcements.html", "📢", "Announcements", page);
         items += mutahusMobileLink("admin-rules.html", "📘", "Rules", page);
         items += mutahusMobileLink("admin-settings.html", "⚙️", "Settings", page);
@@ -3330,7 +3315,6 @@ function buildMutahusMobileFeatureItems(page) {
         items += mutahusMobileLink("parent-dashboard.html", "🏠", "Dashboard", page);
         items += mutahusMobileLink("parent-profile.html", "👤", "My Profile", page);
         items += mutahusMobileLink("add-student.html", "🎒", "Register Child", page);
-        items += mutahusMobileLink("report-absence.html", "📅", "Report Absence", page);
         items += mutahusMobileLink("upload-payment.html", "💳", "Upload Payment", page);
         items += mutahusMobileLink("parent-rules.html", "📘", "Rules", page);
         items += mutahusMobileButton("parentLogout", "🚪", "Logout", "danger");
@@ -4041,7 +4025,7 @@ window.addEventListener("load", injectMutahusMobileSafeAreaFix);
 
 function setupMutahusWhatsappDirectLinks() {
     const phone = "60178078271";
-    const text = "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah Mutahus Global.";
+    const text = "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah MUTHAQUS GLOBAL ENTERPRISE.";
     const encodedText = encodeURIComponent(text);
     const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
     const appUrl = `whatsapp://send?phone=${phone}&text=${encodedText}`;
@@ -4368,7 +4352,6 @@ function mutahusStep32CleanTopAndBankFix() {
     const cleanPages = [
         "add-student.html",
         "upload-payment.html",
-        "report-absence.html",
         "parent-rules.html",
         "parent-profile.html"
     ];
@@ -4400,7 +4383,7 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
     const WHATSAPP_PHONE = "60178078271";
     const WHATSAPP_TEXT =
-        "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah Mutahus Global.";
+        "Assalamualaikum, saya berminat untuk bertanya tentang servis van sekolah MUTHAQUS GLOBAL ENTERPRISE.";
     const WHATSAPP_URL =
         "https://api.whatsapp.com/send?phone=" +
         WHATSAPP_PHONE +
@@ -4814,8 +4797,9 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
             <div class="mutahus-clean-receipt-card">
                 <div class="mutahus-clean-receipt-header">
                     <div>
-                        <h2>Payment Receipt</h2>
-                        <p>${name}</p>
+                        <h2>MUTHAQUS GLOBAL ENTERPRISE</h2>
+                        <p><strong>Payment Receipt</strong></p>
+                        <p>${{name}}</p>
                         <p>${paymentNote}</p>
                     </div>
                     <button type="button" class="mutahus-clean-receipt-close" aria-label="Close receipt">×</button>
@@ -5279,7 +5263,7 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
         const keeper =
             headers.find((header) =>
-                /mutahus global/i.test(header.textContent || "")
+                /MUTHAQUS GLOBAL ENTERPRISE/i.test(header.textContent || "")
             ) || headers[0];
 
         headers.forEach((header) => {
@@ -5437,8 +5421,7 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
         if (
             page.startsWith("parent-") ||
             page === "add-student.html" ||
-            page === "upload-payment.html" ||
-            page === "report-absence.html"
+            page === "upload-payment.html"
         ) {
             return "parent";
         }
@@ -5906,7 +5889,7 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
 
 /* =========================================================
-   MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE
+   MUTHAQUS_STEP61_DOWNLOADABLE_INVOICE
    ========================================================= */
 
 function mutahusSafeHtml(value) {
@@ -5917,546 +5900,6 @@ function mutahusSafeHtml(value) {
         '"': "&quot;",
         "'": "&#039;"
     })[character]);
-}
-
-function mutahusTodayDateValue() {
-    const formatter = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Asia/Kuala_Lumpur",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    });
-
-    const parts = formatter.formatToParts(new Date());
-    const values = {};
-
-    parts.forEach(part => {
-        if (part.type !== "literal") values[part.type] = part.value;
-    });
-
-    return `${values.year}-${values.month}-${values.day}`;
-}
-
-function mutahusFormatDate(value) {
-    if (!value) return "-";
-
-    const parsed = new Date(`${value}T00:00:00`);
-
-    if (Number.isNaN(parsed.getTime())) {
-        return String(value);
-    }
-
-    return parsed.toLocaleDateString("en-MY", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-}
-
-function getAbsenceBadgeClass(status) {
-    if (status === "Acknowledged") return "paid";
-    if (status === "Cancelled") return "rejected";
-    return "pending";
-}
-
-function renderParentAbsenceHistory(absences) {
-    const table = document.getElementById("parentAbsenceTable");
-    const count = document.getElementById("parentAbsenceCount");
-
-    if (!table) return;
-
-    const items = Array.isArray(absences) ? absences : [];
-    window.parentAbsenceMap = {};
-
-    if (count) count.innerText = items.length;
-
-    if (items.length === 0) {
-        table.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty-row">
-                    <div class="mutahus-empty-state">
-                        <span>📅</span>
-                        <strong>No absence notice submitted.</strong>
-                        <small>Report early when your child does not need van service.</small>
-                    </div>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    table.innerHTML = "";
-
-    items.forEach(item => {
-        window.parentAbsenceMap[item.id] = item;
-
-        const canCancel =
-            item.status !== "Cancelled" &&
-            String(item.date || "") >= mutahusTodayDateValue();
-
-        table.innerHTML += `
-            <tr>
-                <td>
-                    <strong>${mutahusSafeHtml(item.studentName || "-")}</strong>
-                    <br><small>${mutahusSafeHtml(item.school || "")}</small>
-                </td>
-                <td><strong>${mutahusFormatDate(item.date)}</strong></td>
-                <td>${mutahusSafeHtml(item.trip || "Both trips")}</td>
-                <td>
-                    ${mutahusSafeHtml(item.reason || "-")}
-                    ${item.note ? `<br><small>${mutahusSafeHtml(item.note)}</small>` : ""}
-                </td>
-                <td>
-                    <span class="badge ${getAbsenceBadgeClass(item.status)}">
-                        ${mutahusSafeHtml(item.status || "Submitted")}
-                    </span>
-                </td>
-                <td>
-                    ${
-                        canCancel
-                            ? `
-                                <button
-                                    class="small-btn danger"
-                                    type="button"
-                                    onclick="cancelParentAbsence('${item.id}')"
-                                >
-                                    Cancel
-                                </button>
-                            `
-                            : `<span class="absence-action-muted">No action</span>`
-                    }
-                </td>
-            </tr>
-        `;
-    });
-}
-
-async function loadAbsencePage() {
-    const parent = requireParentLogin();
-    if (!parent) return;
-
-    const childSelect = document.getElementById("absenceStudent");
-    const table = document.getElementById("parentAbsenceTable");
-    const dateInput = document.getElementById("absenceDate");
-
-    if (dateInput) {
-        dateInput.min = mutahusTodayDateValue();
-        if (!dateInput.value) dateInput.value = mutahusTodayDateValue();
-    }
-
-    if (childSelect) {
-        childSelect.innerHTML = `<option value="">Loading children...</option>`;
-    }
-
-    if (table) {
-        table.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty-row">Loading absence notices...</td>
-            </tr>
-        `;
-    }
-
-    try {
-        const response = await fetch(
-            `/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}&email=${encodeURIComponent(parent.email || "")}`
-        );
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.message || "Failed to load absence page.");
-        }
-
-        const children = (result.children || []).filter(
-            child => child.status !== "Rejected"
-        );
-
-        if (childSelect) {
-            childSelect.innerHTML = `<option value="">Select child</option>`;
-
-            children.forEach(child => {
-                childSelect.innerHTML += `
-                    <option value="${mutahusSafeHtml(child.id)}">
-                        ${mutahusSafeHtml(child.name)} — ${mutahusSafeHtml(child.school || "School not set")}
-                    </option>
-                `;
-            });
-
-            if (children.length === 0) {
-                childSelect.innerHTML = `<option value="">No eligible child found</option>`;
-                childSelect.disabled = true;
-            }
-        }
-
-        window.parentAbsenceChildren = children;
-        renderParentAbsenceHistory(result.absences || []);
-    } catch (error) {
-        alert("Absence page error: " + error.message);
-
-        if (childSelect) {
-            childSelect.innerHTML = `<option value="">Failed to load children</option>`;
-        }
-
-        if (table) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="6" class="empty-row">Failed to load absence notices.</td>
-                </tr>
-            `;
-        }
-    }
-}
-
-async function submitAbsence(event) {
-    event.preventDefault();
-
-    const parent = requireParentLogin();
-    if (!parent) return;
-
-    const submitButton = event.target.querySelector('button[type="submit"]');
-    const originalText = submitButton ? submitButton.innerText : "";
-
-    const data = {
-        action: "report-absence",
-        parentId: parent.id,
-        parentEmail: parent.email || "",
-        studentId: document.getElementById("absenceStudent").value,
-        date: document.getElementById("absenceDate").value,
-        trip: document.getElementById("absenceTrip").value,
-        reason: document.getElementById("absenceReason").value,
-        note: document.getElementById("absenceNote").value.trim()
-    };
-
-    if (!data.studentId || !data.date || !data.trip || !data.reason) {
-        alert("Please select child, date, affected trip and reason.");
-        return;
-    }
-
-    const confirmed = confirm(
-        `Submit absence notice for ${mutahusFormatDate(data.date)}?\n\nThe driver/admin will see this notice.`
-    );
-
-    if (!confirmed) return;
-
-    if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.innerText = "Submitting...";
-    }
-
-    try {
-        const response = await fetch("/api/parent-dashboard", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-            alert(result.message || "Failed to submit absence notice.");
-            return;
-        }
-
-        alert("Absence notice submitted successfully.");
-        event.target.reset();
-
-        const dateInput = document.getElementById("absenceDate");
-        if (dateInput) dateInput.value = mutahusTodayDateValue();
-
-        loadAbsencePage();
-    } catch (error) {
-        alert("Submit absence error: " + error.message);
-    } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.innerText = originalText;
-        }
-    }
-}
-
-async function cancelParentAbsence(absenceId) {
-    const parent = requireParentLogin();
-    if (!parent) return;
-
-    const confirmed = confirm(
-        "Cancel this absence notice?\n\nAdmin will see that the notice was cancelled."
-    );
-
-    if (!confirmed) return;
-
-    try {
-        const response = await fetch("/api/parent-dashboard", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                action: "cancel-absence",
-                absenceId,
-                parentId: parent.id,
-                parentEmail: parent.email || ""
-            })
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-            alert(result.message || "Failed to cancel absence notice.");
-            return;
-        }
-
-        alert("Absence notice cancelled.");
-
-        const page = window.location.pathname.split("/").pop();
-        if (page === "report-absence.html") {
-            loadAbsencePage();
-        } else {
-            loadParentDashboard();
-        }
-    } catch (error) {
-        alert("Cancel absence error: " + error.message);
-    }
-}
-
-function renderAdminAbsences() {
-    const table = document.getElementById("adminAbsenceTable");
-    if (!table) return;
-
-    const search = String(
-        document.getElementById("absenceSearch")?.value || ""
-    ).trim().toLowerCase();
-
-    const status = document.getElementById("absenceStatusFilter")?.value || "";
-    const date = document.getElementById("absenceDateFilter")?.value || "";
-
-    const allItems = window.adminAbsenceItems || [];
-
-    const items = allItems.filter(item => {
-        const haystack = [
-            item.parentName,
-            item.parentPhone,
-            item.studentName,
-            item.school,
-            item.reason,
-            item.trip
-        ].join(" ").toLowerCase();
-
-        return (
-            (!search || haystack.includes(search)) &&
-            (!status || item.status === status) &&
-            (!date || item.date === date)
-        );
-    });
-
-    const visibleCount = document.getElementById("absenceVisibleCount");
-    if (visibleCount) visibleCount.innerText = items.length;
-
-    if (items.length === 0) {
-        table.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty-row">
-                    <div class="mutahus-empty-state">
-                        <span>📅</span>
-                        <strong>No absence notice matches this filter.</strong>
-                        <small>Try another date, status or search term.</small>
-                    </div>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    table.innerHTML = "";
-
-    items.forEach(item => {
-        const isAcknowledged = item.status === "Acknowledged";
-        const isCancelled = item.status === "Cancelled";
-
-        table.innerHTML += `
-            <tr>
-                <td>
-                    <strong>${mutahusSafeHtml(item.parentName || "-")}</strong>
-                    <br><small>${mutahusSafeHtml(item.parentPhone || "")}</small>
-                </td>
-                <td>
-                    <strong>${mutahusSafeHtml(item.studentName || "-")}</strong>
-                    <br><small>${mutahusSafeHtml(item.school || "")}</small>
-                </td>
-                <td><strong>${mutahusFormatDate(item.date)}</strong></td>
-                <td>${mutahusSafeHtml(item.trip || "Both trips")}</td>
-                <td>
-                    ${mutahusSafeHtml(item.reason || "-")}
-                    ${item.note ? `<br><small>${mutahusSafeHtml(item.note)}</small>` : ""}
-                </td>
-                <td>${mutahusSafeHtml(item.createdAt || "-")}</td>
-                <td>
-                    <span class="badge ${getAbsenceBadgeClass(item.status)}">
-                        ${mutahusSafeHtml(item.status || "Submitted")}
-                    </span>
-                </td>
-                <td>
-                    <div class="action-row">
-                        <button
-                            class="small-btn edit"
-                            type="button"
-                            onclick="updateAbsenceStatus('${item.id}', 'Acknowledged')"
-                            ${isAcknowledged || isCancelled ? "disabled" : ""}
-                        >
-                            Acknowledge
-                        </button>
-                        <button
-                            class="small-btn danger"
-                            type="button"
-                            onclick="updateAbsenceStatus('${item.id}', 'Cancelled')"
-                            ${isCancelled ? "disabled" : ""}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-async function loadAdminAbsences() {
-    if (!requireAdminLogin()) return;
-
-    const table = document.getElementById("adminAbsenceTable");
-
-    if (table) {
-        table.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty-row">Loading absence notices from MongoDB...</td>
-            </tr>
-        `;
-    }
-
-    try {
-        const response = await fetch("/api/admin-dashboard?action=absences");
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.message || "Failed to load absence notices.");
-        }
-
-        window.adminAbsenceItems = result.absences || [];
-
-        const summary = result.summary || {};
-        const ids = {
-            absenceTodayCount: summary.today || 0,
-            absenceUpcomingCount: summary.upcoming || 0,
-            absenceSubmittedCount: summary.submitted || 0,
-            absenceAcknowledgedCount: summary.acknowledged || 0
-        };
-
-        Object.entries(ids).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) element.innerText = value;
-        });
-
-        renderAdminAbsences();
-    } catch (error) {
-        alert("Admin absence error: " + error.message);
-
-        if (table) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-row">Failed to load absence notices.</td>
-                </tr>
-            `;
-        }
-    }
-}
-
-async function updateAbsenceStatus(absenceId, status) {
-    if (!requireAdminLogin()) return;
-
-    try {
-        const response = await fetch("/api/admin-dashboard", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                action: "update-absence-status",
-                absenceId,
-                status
-            })
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-            alert(result.message || "Failed to update absence status.");
-            return;
-        }
-
-        alert("Absence status updated to " + status + ".");
-        loadAdminAbsences();
-    } catch (error) {
-        alert("Update absence error: " + error.message);
-    }
-}
-
-function exportAbsencesCSV() {
-    const items = window.adminAbsenceItems || [];
-
-    if (items.length === 0) {
-        alert("No absence records to export.");
-        return;
-    }
-
-    const rows = [
-        [
-            "Absence ID",
-            "Date",
-            "Parent",
-            "Phone",
-            "Student",
-            "School",
-            "Trip",
-            "Reason",
-            "Note",
-            "Status",
-            "Submitted At"
-        ],
-        ...items.map(item => [
-            item.id,
-            item.date,
-            item.parentName,
-            item.parentPhone,
-            item.studentName,
-            item.school,
-            item.trip,
-            item.reason,
-            item.note,
-            item.status,
-            item.createdAt
-        ])
-    ];
-
-    const csv = rows
-        .map(row =>
-            row
-                .map(value => `"${String(value ?? "").replace(/"/g, '""')}"`)
-                .join(",")
-        )
-        .join("\n");
-
-    const blob = new Blob(["\uFEFF" + csv], {
-        type: "text/csv;charset=utf-8"
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Mutahus-Absences-${mutahusTodayDateValue()}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
 }
 
 function mutahusPdfAscii(value) {
@@ -6494,7 +5937,7 @@ function mutahusPdfText(x, y, size, value, bold = false) {
 }
 
 function mutahusBuildInvoicePdf(payment) {
-    const invoiceNumber = `MG-INV-${String(payment.id || Date.now())
+    const invoiceNumber = `MGE-INV-${String(payment.id || Date.now())
         .replace(/[^a-z0-9]/gi, "")
         .slice(-10)
         .toUpperCase()}`;
@@ -6518,7 +5961,7 @@ function mutahusBuildInvoicePdf(payment) {
     // Header background and accent.
     stream += "0.06 0.24 0.41 rg 0 760 595 82 re f\n";
     stream += "0.09 0.64 0.29 rg 0 750 595 10 re f\n";
-    stream += "1 1 1 rg BT /F2 24 Tf 42 798 Td (MUTAHUS GLOBAL) Tj ET\n";
+    stream += "1 1 1 rg BT /F2 16 Tf 42 798 Td (MUTHAQUS GLOBAL ENTERPRISE) Tj ET\n";
     stream += "0.88 0.94 1 rg BT /F1 10 Tf 42 780 Td (Reliable School Van Service) Tj ET\n";
     stream += "1 1 1 rg BT /F2 19 Tf 430 790 Td (INVOICE) Tj ET\n";
 
@@ -6574,7 +6017,7 @@ function mutahusBuildInvoicePdf(payment) {
     });
 
     stream += "0.82 0.87 0.92 RG 42 112 511 0 re S\n";
-    stream += mutahusPdfText(42, 91, 9, "Mutahus Global | School Van Service");
+    stream += mutahusPdfText(42, 91, 9, "MUTHAQUS GLOBAL ENTERPRISE | School Van Service");
     stream += mutahusPdfText(42, 75, 9, "Contact: 017-8078271");
     stream += mutahusPdfText(42, 50, 8, "This invoice was generated electronically and does not require a signature.");
     stream += mutahusPdfText(455, 50, 8, "Page 1 of 1");
@@ -6655,55 +6098,148 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
     }
 }
 
-function injectAbsenceNavigation() {
-    const page = window.location.pathname.split("/").pop() || "index.html";
+// MUTHAQUS_STEP61_DOWNLOADABLE_INVOICE
 
-    document.querySelectorAll(".sidebar-menu, .side-links").forEach(menu => {
-        const isAdmin = Boolean(
-            menu.closest(".admin-side, .admin-sidebar, .admin-shell")
+
+
+/* =========================================================
+   MUTHAQUS_STEP61_GLOBAL_REBRAND
+   Changes the visible company name across every page and
+   dynamically created modal without renaming internal code.
+   ========================================================= */
+(function () {
+    "use strict";
+
+    if (window.__muthaqusGlobalRebrandLoaded) return;
+    window.__muthaqusGlobalRebrandLoaded = true;
+
+    const COMPANY_NAME = "MUTHAQUS GLOBAL ENTERPRISE";
+    const OLD_COMPANY_PATTERN = new RegExp(["mutahus", "global"].join("\\s+"), "gi");
+    const ATTRIBUTE_NAMES = [
+        "title",
+        "aria-label",
+        "alt",
+        "placeholder",
+        "content"
+    ];
+
+    function replaceCompanyName(value) {
+        return typeof value === "string"
+            ? value.replace(OLD_COMPANY_PATTERN, COMPANY_NAME)
+            : value;
+    }
+
+    function updateElementAttributes(element) {
+        if (!(element instanceof Element)) return;
+
+        ATTRIBUTE_NAMES.forEach(attributeName => {
+            if (!element.hasAttribute(attributeName)) return;
+
+            const currentValue = element.getAttribute(attributeName);
+            const updatedValue = replaceCompanyName(currentValue);
+
+            if (updatedValue !== currentValue) {
+                element.setAttribute(attributeName, updatedValue);
+            }
+        });
+    }
+
+    function updateBrandingWithin(root) {
+        if (!root) return;
+
+        if (root.nodeType === Node.TEXT_NODE) {
+            const parentTag = root.parentElement?.tagName || "";
+
+            if (!["SCRIPT", "STYLE", "NOSCRIPT"].includes(parentTag)) {
+                const updatedValue = replaceCompanyName(root.nodeValue);
+
+                if (updatedValue !== root.nodeValue) {
+                    root.nodeValue = updatedValue;
+                }
+            }
+
+            return;
+        }
+
+        if (root.nodeType !== Node.ELEMENT_NODE && root !== document) {
+            return;
+        }
+
+        if (root instanceof Element) {
+            updateElementAttributes(root);
+        }
+
+        const walker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT
         );
-        const isParent = Boolean(
-            menu.closest(".parent-side, .profile-sidebar, .rules-sidebar, .parent-shell")
-        );
 
-        if (isAdmin && !menu.querySelector('a[href="admin-absences.html"]')) {
-            const link = document.createElement("a");
-            link.href = "admin-absences.html";
-            link.innerHTML = "<span>📅</span> Absences";
-            if (page === "admin-absences.html") link.classList.add("active");
+        let node;
 
-            const paymentsLink = menu.querySelector('a[href="admin-payments.html"]');
-            if (paymentsLink) {
-                paymentsLink.insertAdjacentElement("afterend", link);
+        while ((node = walker.nextNode())) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const parentTag = node.parentElement?.tagName || "";
+
+                if (["SCRIPT", "STYLE", "NOSCRIPT"].includes(parentTag)) {
+                    continue;
+                }
+
+                const updatedValue = replaceCompanyName(node.nodeValue);
+
+                if (updatedValue !== node.nodeValue) {
+                    node.nodeValue = updatedValue;
+                }
             } else {
-                menu.appendChild(link);
+                updateElementAttributes(node);
             }
         }
 
-        if (isParent && !menu.querySelector('a[href="report-absence.html"]')) {
-            const link = document.createElement("a");
-            link.href = "report-absence.html";
-            link.innerHTML = "<span>📅</span> Report Absence";
-            if (page === "report-absence.html") link.classList.add("active");
+        document.title = replaceCompanyName(document.title);
+    }
 
-            const childLink = menu.querySelector('a[href="add-student.html"]');
-            if (childLink) {
-                childLink.insertAdjacentElement("afterend", link);
-            } else {
-                menu.appendChild(link);
+    function applyGlobalCompanyBrand() {
+        updateBrandingWithin(document);
+    }
+
+    document.addEventListener("DOMContentLoaded", applyGlobalCompanyBrand);
+    window.addEventListener("load", applyGlobalCompanyBrand);
+    window.addEventListener("pageshow", applyGlobalCompanyBrand);
+
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === "characterData") {
+                updateBrandingWithin(mutation.target);
+                return;
             }
-        }
+
+            mutation.addedNodes.forEach(updateBrandingWithin);
+
+            if (
+                mutation.type === "attributes" &&
+                mutation.target instanceof Element
+            ) {
+                updateElementAttributes(mutation.target);
+            }
+        });
+
+        document.title = replaceCompanyName(document.title);
     });
-}
 
-document.addEventListener("DOMContentLoaded", function () {
-    injectAbsenceNavigation();
-    window.setTimeout(injectAbsenceNavigation, 500);
-});
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!document.body) return;
 
-window.addEventListener("load", function () {
-    injectAbsenceNavigation();
-});
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true,
+            attributeFilter: ATTRIBUTE_NAMES
+        });
+    });
 
-// MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE
+    window.setTimeout(applyGlobalCompanyBrand, 300);
+    window.setTimeout(applyGlobalCompanyBrand, 1000);
+})();
+
+// MUTHAQUS_STEP61_GLOBAL_REBRAND
 
