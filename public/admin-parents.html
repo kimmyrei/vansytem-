@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent Management | Mutahus Global</title>
+    <meta name="theme-color" content="#143f73">
+    <title>Parent Management | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -14,7 +15,7 @@
     <div class="sidebar-brand">
         <span>🚐</span>
         <div>
-            <strong>Mutahus Global</strong>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
             <small>Admin Control</small>
         </div>
     </div>
@@ -45,11 +46,10 @@
         <div class="mobile-brand">
             <span>🚐</span>
             <div>
-                <strong>Mutahus Global</strong>
+                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
                 <small>Admin Control</small>
             </div>
         </div>
-        <a href="#" onclick="adminLogout()" class="mobile-logout">Logout</a>
     </div>
 
     <nav class="mobile-bottom-nav admin-mobile-bottom">
@@ -96,7 +96,7 @@
             <div class="stat-card pro-stat"><span>🎒</span><h3>Total Children</h3><h2 id="parentTotalChildren">0</h2></div>
         </section>
 
-        <section class="table-box table-box-pro">
+        <section class="table-box table-box-pro admin-record-section">
             <div class="table-header">
                 <div>
                     <h2>Registered Parents</h2>
@@ -104,20 +104,22 @@
                 </div>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Parent</th>
-                        <th>Phone Number</th>
-                        <th>Email</th>
-                        <th>Total Children</th>
-                        <th>Payment Status</th>
-                        <th>Account Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="adminParentsTable"></tbody>
-            </table>
+            <div class="table-scroll-shell admin-record-table-shell">
+                <table class="admin-record-table parent-record-table">
+                    <thead>
+                        <tr>
+                            <th>Parent</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Children</th>
+                            <th>Payment</th>
+                            <th>Account</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminParentsTable"></tbody>
+                </table>
+            </div>
         </section>
     </main>
 </div>
@@ -134,4 +136,4 @@
 
 </body>
 </html>
-<!-- MUTAHUS_FIX_ADMIN_SETTINGS_LINK_ADMIN-PARENTS -->
+<!-- MUTHAQUS_STEP62_ADMIN_PARENTS_MOBILE_CARDS -->

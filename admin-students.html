@@ -3,50 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management | Mutahus Global</title>
+    <meta name="theme-color" content="#143f73">
+    <title>Student Management | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
-
-<style>
-    .student-amount-box{
-        display:flex;
-        gap:6px;
-        align-items:center;
-        flex-wrap:wrap;
-        min-width:150px;
-    }
-
-    .student-amount-box span{
-        font-weight:900;
-        color:#123f73;
-    }
-
-    .student-amount-box input{
-        width:82px;
-        min-height:36px;
-        padding:6px 8px;
-        border:1px solid #d8e7fb;
-        border-radius:10px;
-        font-weight:800;
-    }
-
-    .student-amount-box button{
-        min-height:36px;
-        padding:0 10px;
-        border:0;
-        border-radius:10px;
-        cursor:pointer;
-        background:#1e73d1;
-        color:white;
-        font-weight:800;
-    }
-
-    @media(max-width:760px){
-        .student-amount-box{
-            min-width:180px;
-        }
-    }
-</style>
-
 </head>
 <body>
 
@@ -56,7 +15,7 @@
     <div class="sidebar-brand">
         <span>🚐</span>
         <div>
-            <strong>Mutahus Global</strong>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
             <small>Admin Control</small>
         </div>
     </div>
@@ -87,11 +46,10 @@
         <div class="mobile-brand">
             <span>🚐</span>
             <div>
-                <strong>Mutahus Global</strong>
+                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
                 <small>Admin Control</small>
             </div>
         </div>
-        <a href="#" onclick="adminLogout()" class="mobile-logout">Logout</a>
     </div>
 
     <nav class="mobile-bottom-nav admin-mobile-bottom">
@@ -125,6 +83,7 @@
             <div>
                 <span class="page-kicker">STUDENT RECORDS</span>
                 <h1>Student Management</h1>
+                <p>Review student information, monthly fees and account status in one place.</p>
             </div>
 
             <button class="btn btn-light-pro" type="button" onclick="exportStudentsCSV()">Export Students CSV</button>
@@ -137,7 +96,7 @@
             <div class="stat-card pro-stat"><span>🏫</span><h3>Total Schools</h3><h2 id="adminTotalSchools">0</h2></div>
         </section>
 
-        <section class="table-box table-box-pro">
+        <section class="table-box table-box-pro admin-record-section">
             <div class="table-header">
                 <div>
                     <h2>Registered Students</h2>
@@ -145,22 +104,23 @@
                 </div>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Parent Name</th>
-                        <th>School / KAFA</th>
-                        <th>Class</th>
-                        <th>Session</th>
-                        <th>Pickup Location</th>
-                        <th>Status</th>
-                        <th>Amount (RM)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="adminStudentsTable"></tbody>
-            </table>
+            <div class="table-scroll-shell admin-record-table-shell">
+                <table class="admin-record-table student-record-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Parent</th>
+                            <th>School / KAFA</th>
+                            <th>Class</th>
+                            <th>Session</th>
+                            <th>Status</th>
+                            <th>Amount (RM)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminStudentsTable"></tbody>
+                </table>
+            </div>
         </section>
     </main>
 </div>
@@ -169,8 +129,4 @@
 <script>loadAdminStudents();</script>
 </body>
 </html>
-<!-- MUTAHUS_FIX_ADMIN_SETTINGS_LINK_ADMIN-STUDENTS -->
-
-<!-- MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX -->
-
-<!-- MUTAHUS_STEP32_BANK_WHITE_CLEAN_TOP_COMBINED_STEP31 -->
+<!-- MUTHAQUS_STEP62_ADMIN_STUDENTS_MOBILE_CARDS -->

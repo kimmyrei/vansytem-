@@ -1825,7 +1825,11 @@ async function loadAdminStudents() {
     const table = document.getElementById("adminStudentsTable");
 
     if (table) {
-        table.innerHTML = `<tr><td colspan="9" class="empty-row">Loading students from MongoDB...</td></tr>`;
+        table.innerHTML = `
+            <tr class="admin-mobile-empty-row">
+                <td colspan="8" class="empty-row">Loading students from MongoDB...</td>
+            </tr>
+        `;
     }
 
     try {
@@ -1836,9 +1840,15 @@ async function loadAdminStudents() {
 
         if (!result.success) {
             alert(result.message || "Failed to load students.");
+
             if (table) {
-                table.innerHTML = `<tr><td colspan="9" class="empty-row">Failed to load students.</td></tr>`;
+                table.innerHTML = `
+                    <tr class="admin-mobile-empty-row">
+                        <td colspan="8" class="empty-row">Failed to load students.</td>
+                    </tr>
+                `;
             }
+
             return;
         }
 
@@ -1865,63 +1875,158 @@ async function loadAdminStudents() {
         table.innerHTML = "";
 
         if (children.length === 0) {
-            table.innerHTML = `<tr><td colspan="9" class="empty-row">No students added yet.</td></tr>`;
+            table.innerHTML = `
+                <tr class="admin-mobile-empty-row">
+                    <td colspan="8" class="empty-row">
+                        <div class="mutahus-empty-state">
+                            <span>🎒</span>
+                            <strong>No students registered yet.</strong>
+                            <small>Students added by parents will appear here.</small>
+                        </div>
+                    </td>
+                </tr>
+            `;
             return;
         }
 
         children.forEach(child => {
-            const sessionClass = child.session === "Morning" ? "morning" : "afternoon";
+            const sessionClass =
+                child.session === "Morning"
+                    ? "morning"
+                    : child.session === "Afternoon"
+                    ? "afternoon"
+                    : "unpaid";
+
             const status = child.status || "Pending Review";
             const statusClass = getStudentStatusBadgeClass(status);
-            const paymentClass = getPaymentBadgeClass(child.paymentStatus || "Unpaid");
+            const paymentStatus = child.paymentStatus || "Unpaid";
+            const paymentClass = getPaymentBadgeClass(paymentStatus);
             const amount = Number(child.monthlyAmount || 0);
 
             table.innerHTML += `
-                <tr>
-                    <td>
-                        <strong>${child.name || "-"}</strong>
-                        <br><small>Student ID: ${child.id}</small>
-                    </td>
-                    <td>
-                        ${child.parentName || "-"}
-                        <br><small>${child.parentPhone || ""}</small>
-                        <br><small>${child.parentEmail || ""}</small>
-                    </td>
-                    <td>
-                        <strong>${child.school || "-"}</strong>
-                        ${child.kafa ? `<br><small>KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}</small>` : `<br><small>KAFA: -</small>`}
-                    </td>
-                    <td>${child.classYear || "-"}</td>
-                    <td><span class="badge ${sessionClass}">${child.session || "-"}</span></td>
-                    <td>${child.pickupLocation || "-"}</td>
-                    <td>
-                        <span class="badge ${statusClass}">${status}</span>
-                        <br><small>Payment: <span class="badge ${paymentClass}">${child.paymentStatus || "Unpaid"}</span></small>
-                    </td>
-                    <td>
-                        <div class="student-amount-box">
-                            <span>RM</span>
-                            <input type="number" id="amount_${child.id}" value="${amount > 0 ? amount.toFixed(2) : ""}" min="0" step="0.01" placeholder="0.00">
-                            <button type="button" onclick="updateStudentAmount('${child.id}')">Save</button>
+                <tr class="admin-record-row student-record-row">
+                    <td data-label="Student">
+                        <div class="record-main-identity">
+                            <span class="record-avatar">🎒</span>
+                            <div>
+                                <strong>${child.name || "-"}</strong>
+                                <small>ID: ${child.id || "-"}</small>
+                            </div>
                         </div>
-                        <small>${amount > 0 ? "Parent will pay this amount" : "Set amount before payment"}</small>
                     </td>
-                    <td>
-                        <div class="action-row">
-                            <button class="small-btn edit" onclick="updateStudentStatus('${child.id}', 'Accepted')" ${status === "Accepted" ? "disabled" : ""}>Accept</button>
-                            <button class="small-btn danger" onclick="updateStudentStatus('${child.id}', 'Rejected')" ${status === "Rejected" ? "disabled" : ""}>Reject</button>
-                            <button class="small-btn warning" onclick="updateStudentStatus('${child.id}', 'Active')" ${status === "Active" ? "disabled" : ""}>Mark Active</button>
-                            <button class="small-btn danger" onclick="removeStudent('${child.id}')">Remove</button>
+
+                    <td data-label="Parent">
+                        <strong>${child.parentName || "-"}</strong>
+                        <small>${child.parentPhone || "-"}</small>
+                        <small>${child.parentEmail || "-"}</small>
+                    </td>
+
+                    <td data-label="School / KAFA">
+                        <strong>${child.school || "-"}</strong>
+                        <small>
+                            ${
+                                child.kafa
+                                    ? `KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}`
+                                    : "KAFA: Not applicable"
+                            }
+                        </small>
+                    </td>
+
+                    <td data-label="Class">
+                        <strong>${child.classYear || "-"}</strong>
+                    </td>
+
+                    <td data-label="Session">
+                        <span class="badge ${sessionClass}">${child.session || "Not applicable"}</span>
+                    </td>
+
+                    <td data-label="Status">
+                        <div class="record-status-stack">
+                            <span class="badge ${statusClass}">${status}</span>
+                            <span class="badge ${paymentClass}">${paymentStatus}</span>
+                        </div>
+                    </td>
+
+                    <td data-label="Monthly Amount">
+                        <div class="student-amount-box mobile-student-amount">
+                            <span>RM</span>
+                            <input
+                                type="number"
+                                id="amount_${child.id}"
+                                value="${amount > 0 ? amount.toFixed(2) : ""}"
+                                min="0"
+                                step="0.01"
+                                inputmode="decimal"
+                                placeholder="0.00"
+                                aria-label="Monthly amount for ${child.name || "student"}"
+                            >
+                            <button type="button" onclick="updateStudentAmount('${child.id}')">
+                                Save
+                            </button>
+                        </div>
+                        <small class="record-support-text">
+                            ${
+                                amount > 0
+                                    ? "This is the parent's monthly payment amount."
+                                    : "Set an amount before the parent uploads payment."
+                            }
+                        </small>
+                    </td>
+
+                    <td data-label="Actions" class="record-action-cell">
+                        <div class="action-row mobile-admin-action-grid student-mobile-actions">
+                            <button
+                                class="small-btn edit"
+                                type="button"
+                                onclick="updateStudentStatus('${child.id}', 'Accepted')"
+                                ${status === "Accepted" ? "disabled" : ""}
+                            >
+                                Accept
+                            </button>
+
+                            <button
+                                class="small-btn danger"
+                                type="button"
+                                onclick="updateStudentStatus('${child.id}', 'Rejected')"
+                                ${status === "Rejected" ? "disabled" : ""}
+                            >
+                                Reject
+                            </button>
+
+                            <button
+                                class="small-btn warning"
+                                type="button"
+                                onclick="updateStudentStatus('${child.id}', 'Active')"
+                                ${status === "Active" ? "disabled" : ""}
+                            >
+                                Mark Active
+                            </button>
+
+                            <button
+                                class="small-btn danger remove-record-btn"
+                                type="button"
+                                onclick="removeStudent('${child.id}')"
+                            >
+                                Remove Student
+                            </button>
                         </div>
                     </td>
                 </tr>
             `;
         });
+
+        if (typeof applyStudentFilters === "function") {
+            applyStudentFilters();
+        }
     } catch (error) {
         alert("Admin students error: " + error.message);
 
         if (table) {
-            table.innerHTML = `<tr><td colspan="9" class="empty-row">Failed to load students.</td></tr>`;
+            table.innerHTML = `
+                <tr class="admin-mobile-empty-row">
+                    <td colspan="8" class="empty-row">Failed to load students.</td>
+                </tr>
+            `;
         }
     }
 }
@@ -2028,7 +2133,11 @@ async function loadAdminParents() {
     const table = document.getElementById("adminParentsTable");
 
     if (table) {
-        table.innerHTML = `<tr><td colspan="7" class="empty-row">Loading parents from MongoDB...</td></tr>`;
+        table.innerHTML = `
+            <tr class="admin-mobile-empty-row">
+                <td colspan="7" class="empty-row">Loading parents from MongoDB...</td>
+            </tr>
+        `;
     }
 
     try {
@@ -2039,9 +2148,15 @@ async function loadAdminParents() {
 
         if (!result.success) {
             alert(result.message || "Failed to load parents.");
+
             if (table) {
-                table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load parents.</td></tr>`;
+                table.innerHTML = `
+                    <tr class="admin-mobile-empty-row">
+                        <td colspan="7" class="empty-row">Failed to load parents.</td>
+                    </tr>
+                `;
             }
+
             return;
         }
 
@@ -2065,7 +2180,17 @@ async function loadAdminParents() {
         table.innerHTML = "";
 
         if (parents.length === 0) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">No parents registered yet.</td></tr>`;
+            table.innerHTML = `
+                <tr class="admin-mobile-empty-row">
+                    <td colspan="7" class="empty-row">
+                        <div class="mutahus-empty-state">
+                            <span>👨‍👩‍👧</span>
+                            <strong>No parent accounts yet.</strong>
+                            <small>New parent registrations will appear here.</small>
+                        </div>
+                    </td>
+                </tr>
+            `;
             return;
         }
 
@@ -2073,35 +2198,111 @@ async function loadAdminParents() {
             const payStatus = parent.paymentStatus || "Unpaid";
             const payClass = getPaymentBadgeClass(payStatus);
             const parentStatus = parent.status || "Active";
-            const parentStatusClass = parentStatus === "Pending" ? "pending" : parentStatus === "Rejected" ? "rejected" : "paid";
+            const parentStatusClass =
+                parentStatus === "Pending"
+                    ? "pending"
+                    : parentStatus === "Rejected"
+                    ? "rejected"
+                    : "paid";
 
             table.innerHTML += `
-                <tr>
-                    <td>
-                        <strong>${parent.name || "-"}</strong>
-                        <br><small>Parent ID: ${parent.id}</small>
+                <tr class="admin-record-row parent-record-row">
+                    <td data-label="Parent">
+                        <div class="record-main-identity">
+                            <span class="record-avatar">👤</span>
+                            <div>
+                                <strong>${parent.name || "-"}</strong>
+                                <small>ID: ${parent.id || "-"}</small>
+                            </div>
+                        </div>
                     </td>
-                    <td>${parent.phone || "-"}</td>
-                    <td>${parent.email || "-"}</td>
-                    <td>${parent.childrenCount || 0}</td>
-                    <td><span class="badge ${payClass}">${payStatus}</span></td>
-                    <td><span class="badge ${parentStatusClass}">${parentStatus}</span></td>
-                    <td>
-                        <div class="action-row">
-                            <button class="small-btn view" onclick="viewParentDetails('${parent.id}')">View</button>
-                            <button class="small-btn edit" onclick="updateParentStatus('${parent.id}', 'Active')" ${parentStatus === "Active" ? "disabled" : ""}>Active</button>
-                            <button class="small-btn warning" onclick="updateParentStatus('${parent.id}', 'Pending')" ${parentStatus === "Pending" ? "disabled" : ""}>Pending</button>
-                            <button class="small-btn danger" onclick="updateParentStatus('${parent.id}', 'Rejected')" ${parentStatus === "Rejected" ? "disabled" : ""}>Reject</button>
-                            <button class="small-btn danger" onclick="removeParentAndRecords('${parent.id}')">Delete</button>
+
+                    <td data-label="Phone">
+                        <a class="record-contact-link" href="tel:${parent.phone || ""}">
+                            ${parent.phone || "-"}
+                        </a>
+                    </td>
+
+                    <td data-label="Email">
+                        <a class="record-contact-link record-email-link" href="mailto:${parent.email || ""}">
+                            ${parent.email || "-"}
+                        </a>
+                    </td>
+
+                    <td data-label="Children">
+                        <span class="record-number-pill">${parent.childrenCount || 0}</span>
+                    </td>
+
+                    <td data-label="Payment">
+                        <span class="badge ${payClass}">${payStatus}</span>
+                    </td>
+
+                    <td data-label="Account">
+                        <span class="badge ${parentStatusClass}">${parentStatus}</span>
+                    </td>
+
+                    <td data-label="Actions" class="record-action-cell">
+                        <div class="action-row mobile-admin-action-grid parent-mobile-actions">
+                            <button
+                                class="small-btn view"
+                                type="button"
+                                onclick="viewParentDetails('${parent.id}')"
+                            >
+                                View Details
+                            </button>
+
+                            <button
+                                class="small-btn edit"
+                                type="button"
+                                onclick="updateParentStatus('${parent.id}', 'Active')"
+                                ${parentStatus === "Active" ? "disabled" : ""}
+                            >
+                                Active
+                            </button>
+
+                            <button
+                                class="small-btn warning"
+                                type="button"
+                                onclick="updateParentStatus('${parent.id}', 'Pending')"
+                                ${parentStatus === "Pending" ? "disabled" : ""}
+                            >
+                                Pending
+                            </button>
+
+                            <button
+                                class="small-btn danger"
+                                type="button"
+                                onclick="updateParentStatus('${parent.id}', 'Rejected')"
+                                ${parentStatus === "Rejected" ? "disabled" : ""}
+                            >
+                                Reject
+                            </button>
+
+                            <button
+                                class="small-btn danger remove-record-btn"
+                                type="button"
+                                onclick="removeParentAndRecords('${parent.id}')"
+                            >
+                                Delete Account
+                            </button>
                         </div>
                     </td>
                 </tr>
             `;
         });
+
+        if (typeof applyParentFilters === "function") {
+            applyParentFilters();
+        }
     } catch (error) {
         alert("Admin parents error: " + error.message);
+
         if (table) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load parents.</td></tr>`;
+            table.innerHTML = `
+                <tr class="admin-mobile-empty-row">
+                    <td colspan="7" class="empty-row">Failed to load parents.</td>
+                </tr>
+            `;
         }
     }
 }
@@ -6243,3 +6444,4 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
 
 // MUTHAQUS_STEP61_GLOBAL_REBRAND
 
+// MUTHAQUS_STEP62_ADMIN_MOBILE_RECORD_CARDS

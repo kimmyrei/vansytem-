@@ -7248,3 +7248,539 @@ body {
 
 /* MUTHAQUS_STEP61_PROFILE_RULES_INVOICE_POLISH */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP62_ADMIN_MOBILE_RECORD_CARDS
+
+   Targeted mobile redesign for Admin Students and Parents:
+   - Converts wide tables into clean record cards
+   - Prevents buttons from breaking into single letters
+   - Keeps filters compact and usable
+   - Fits all six bottom-navigation items
+   - Desktop tables remain unchanged
+   ========================================================= */
+
+.record-main-identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-width: 0;
+}
+
+.record-main-identity > div {
+    min-width: 0;
+}
+
+.record-main-identity strong,
+.record-main-identity small {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.record-main-identity small {
+    margin-top: 4px;
+    color: #788a9d;
+    font-size: 11px;
+}
+
+.record-avatar {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #d7e5f3;
+    border-radius: 14px;
+    background: #edf5ff;
+    font-size: 20px;
+}
+
+.record-status-stack {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.record-support-text {
+    display: block;
+    margin-top: 7px;
+    color: #71849a;
+    line-height: 1.45;
+}
+
+.record-contact-link {
+    color: #164f85;
+    font-weight: 800;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.record-contact-link:hover {
+    color: #0e6bc4;
+    text-decoration: underline;
+}
+
+.record-number-pill {
+    min-width: 38px;
+    min-height: 34px;
+    display: inline-grid;
+    place-items: center;
+    padding: 6px 10px;
+    border: 1px solid #cfe0f1;
+    border-radius: 999px;
+    background: #f1f7ff;
+    color: #164f85;
+    font-weight: 900;
+}
+
+.mobile-admin-action-grid .small-btn {
+    white-space: normal;
+    line-height: 1.25;
+}
+
+@media (max-width: 860px) {
+    body.page-admin-students .app-main,
+    body.page-admin-parents .app-main {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    body.page-admin-students .page-hero-bar,
+    body.page-admin-parents .page-hero-bar {
+        padding: 18px !important;
+        gap: 12px !important;
+    }
+
+    body.page-admin-students .page-hero-bar h1,
+    body.page-admin-parents .page-hero-bar h1 {
+        font-size: clamp(26px, 8vw, 34px) !important;
+        line-height: 1.06 !important;
+    }
+
+    body.page-admin-students .page-hero-bar .btn,
+    body.page-admin-parents .page-hero-bar .btn {
+        min-height: 44px;
+        margin-top: 10px !important;
+        border-radius: 14px !important;
+    }
+
+    body.page-admin-students .stats-pro,
+    body.page-admin-parents .stats-pro {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 11px !important;
+    }
+
+    body.page-admin-students .pro-stat,
+    body.page-admin-parents .pro-stat {
+        min-height: 128px;
+        padding: 15px !important;
+        border-radius: 19px !important;
+    }
+
+    body.page-admin-students .pro-stat span,
+    body.page-admin-parents .pro-stat span {
+        width: 38px !important;
+        height: 38px !important;
+        margin-bottom: 8px !important;
+        font-size: 19px !important;
+    }
+
+    body.page-admin-students .pro-stat h3,
+    body.page-admin-parents .pro-stat h3 {
+        min-height: 32px;
+        font-size: 11.5px !important;
+        line-height: 1.35;
+    }
+
+    body.page-admin-students .pro-stat h2,
+    body.page-admin-parents .pro-stat h2 {
+        font-size: 23px !important;
+    }
+
+    body.page-admin-students .mutahus-filter-panel,
+    body.page-admin-parents .mutahus-filter-panel {
+        margin: 0 0 16px !important;
+        padding: 15px !important;
+        border-radius: 20px !important;
+        box-shadow: 0 12px 30px rgba(15, 60, 104, 0.08) !important;
+    }
+
+    body.page-admin-students .mutahus-filter-header,
+    body.page-admin-parents .mutahus-filter-header {
+        margin-bottom: 13px !important;
+    }
+
+    body.page-admin-students .mutahus-filter-header strong,
+    body.page-admin-parents .mutahus-filter-header strong {
+        color: #143f73;
+        font-size: 17px;
+    }
+
+    body.page-admin-students .mutahus-filter-header small,
+    body.page-admin-parents .mutahus-filter-header small {
+        display: block;
+        margin-top: 4px;
+        line-height: 1.45;
+    }
+
+    body.page-admin-students .mutahus-filter-grid,
+    body.page-admin-parents .mutahus-filter-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    body.page-admin-students .mutahus-filter-grid > div:first-child,
+    body.page-admin-parents .mutahus-filter-grid > div:first-child,
+    body.page-admin-students .mutahus-filter-grid > button,
+    body.page-admin-parents .mutahus-filter-grid > button {
+        grid-column: 1 / -1;
+    }
+
+    body.page-admin-students .mutahus-filter-grid input,
+    body.page-admin-students .mutahus-filter-grid select,
+    body.page-admin-parents .mutahus-filter-grid input,
+    body.page-admin-parents .mutahus-filter-grid select,
+    body.page-admin-students .mutahus-filter-grid button,
+    body.page-admin-parents .mutahus-filter-grid button {
+        min-width: 0 !important;
+        min-height: 46px !important;
+        border-radius: 13px !important;
+        font-size: 14px !important;
+    }
+
+    body.page-admin-students .table-box-pro,
+    body.page-admin-parents .table-box-pro {
+        overflow: visible !important;
+        padding: 15px !important;
+        border-radius: 22px !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    body.page-admin-students .table-header,
+    body.page-admin-parents .table-header {
+        margin-bottom: 13px;
+        padding: 0 3px;
+    }
+
+    body.page-admin-students .table-header h2,
+    body.page-admin-parents .table-header h2 {
+        font-size: 22px !important;
+    }
+
+    body.page-admin-students .admin-record-table-shell,
+    body.page-admin-parents .admin-record-table-shell {
+        overflow: visible !important;
+    }
+
+    body.page-admin-students .admin-record-table,
+    body.page-admin-parents .admin-record-table {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+    }
+
+    body.page-admin-students .admin-record-table thead,
+    body.page-admin-parents .admin-record-table thead {
+        display: none !important;
+    }
+
+    body.page-admin-students .admin-record-table tbody,
+    body.page-admin-parents .admin-record-table tbody {
+        display: grid !important;
+        gap: 14px !important;
+        width: 100% !important;
+    }
+
+    body.page-admin-students .admin-record-row,
+    body.page-admin-parents .admin-record-row {
+        display: grid;
+        width: 100%;
+        min-width: 0;
+        padding: 15px;
+        border: 1px solid #d9e7f4;
+        border-radius: 21px;
+        background:
+            radial-gradient(circle at 96% 3%, rgba(29, 111, 209, 0.07), transparent 29%),
+            #ffffff;
+        box-shadow: 0 12px 30px rgba(15, 60, 104, 0.08);
+    }
+
+    body.page-admin-students .admin-record-row > td,
+    body.page-admin-parents .admin-record-row > td {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: grid;
+        grid-template-columns: minmax(96px, 0.68fr) minmax(0, 1.32fr);
+        gap: 12px;
+        align-items: start;
+        padding: 10px 0 !important;
+        border: 0 !important;
+        border-bottom: 1px solid #edf2f7 !important;
+        background: transparent !important;
+        color: #173b5d;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-align: left !important;
+    }
+
+    body.page-admin-students .admin-record-row > td::before,
+    body.page-admin-parents .admin-record-row > td::before {
+        content: attr(data-label);
+        color: #6e8296;
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 0.055em;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    body.page-admin-students .admin-record-row > td:first-child,
+    body.page-admin-parents .admin-record-row > td:first-child {
+        grid-template-columns: 1fr;
+        padding-top: 0 !important;
+    }
+
+    body.page-admin-students .admin-record-row > td:first-child::before,
+    body.page-admin-parents .admin-record-row > td:first-child::before {
+        display: none;
+    }
+
+    body.page-admin-students .admin-record-row > td:last-child,
+    body.page-admin-parents .admin-record-row > td:last-child {
+        grid-template-columns: 1fr;
+        padding-bottom: 0 !important;
+        border-bottom: 0 !important;
+    }
+
+    body.page-admin-students .record-action-cell::before,
+    body.page-admin-parents .record-action-cell::before {
+        margin-bottom: 2px;
+    }
+
+    body.page-admin-students .record-main-identity,
+    body.page-admin-parents .record-main-identity {
+        padding: 1px 0 5px;
+    }
+
+    body.page-admin-students .record-main-identity strong,
+    body.page-admin-parents .record-main-identity strong {
+        color: #143f73;
+        font-size: 17px;
+        line-height: 1.25;
+    }
+
+    body.page-admin-students .record-email-link,
+    body.page-admin-parents .record-email-link {
+        word-break: break-word;
+    }
+
+    body.page-admin-students .mobile-student-amount {
+        width: 100%;
+        min-width: 0 !important;
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto !important;
+        gap: 7px !important;
+        align-items: center !important;
+        padding: 9px !important;
+        border: 1px solid #d9e7f4;
+        border-radius: 15px;
+        background: #f8fbff;
+    }
+
+    body.page-admin-students .mobile-student-amount > span {
+        color: #143f73;
+        font-weight: 950;
+    }
+
+    body.page-admin-students .mobile-student-amount input {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 42px !important;
+        margin: 0 !important;
+        padding: 8px 10px !important;
+        border-radius: 11px !important;
+        text-align: right;
+        font-size: 16px !important;
+        font-weight: 850;
+    }
+
+    body.page-admin-students .mobile-student-amount button {
+        min-width: 66px !important;
+        height: 42px !important;
+        margin: 0 !important;
+        padding: 0 12px !important;
+        border: 0 !important;
+        border-radius: 11px !important;
+        background: linear-gradient(180deg, #2d7bd4, #1762b8) !important;
+        color: #ffffff !important;
+        font-size: 13px !important;
+        font-weight: 900 !important;
+    }
+
+    body.page-admin-students .mobile-admin-action-grid,
+    body.page-admin-parents .mobile-admin-action-grid {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    body.page-admin-students .mobile-admin-action-grid .small-btn,
+    body.page-admin-parents .mobile-admin-action-grid .small-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 43px !important;
+        margin: 0 !important;
+        padding: 9px 7px !important;
+        border-radius: 12px !important;
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        line-height: 1.2 !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    body.page-admin-students .student-mobile-actions .small-btn:nth-child(3),
+    body.page-admin-students .student-mobile-actions .remove-record-btn,
+    body.page-admin-parents .parent-mobile-actions .small-btn:first-child,
+    body.page-admin-parents .parent-mobile-actions .remove-record-btn {
+        grid-column: 1 / -1;
+    }
+
+    body.page-admin-students .remove-record-btn,
+    body.page-admin-parents .remove-record-btn {
+        background: #a91924 !important;
+    }
+
+    body.page-admin-students .admin-mobile-empty-row,
+    body.page-admin-parents .admin-mobile-empty-row,
+    body.page-admin-students .mutahus-filter-empty-row,
+    body.page-admin-parents .mutahus-filter-empty-row {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    body.page-admin-students .admin-mobile-empty-row td,
+    body.page-admin-parents .admin-mobile-empty-row td,
+    body.page-admin-students .mutahus-filter-empty-row td,
+    body.page-admin-parents .mutahus-filter-empty-row td {
+        width: 100%;
+        display: block;
+        padding: 22px !important;
+        border: 1px solid #d9e7f4 !important;
+        border-radius: 18px;
+        background: #ffffff;
+        text-align: center !important;
+    }
+
+    body.page-admin-students .admin-mobile-empty-row td::before,
+    body.page-admin-parents .admin-mobile-empty-row td::before,
+    body.page-admin-students .mutahus-filter-empty-row td::before,
+    body.page-admin-parents .mutahus-filter-empty-row td::before {
+        display: none;
+    }
+
+    body.page-admin-students .admin-mobile-bottom,
+    body.page-admin-parents .admin-mobile-bottom {
+        display: grid !important;
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+        gap: 2px !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+        width: auto !important;
+        max-width: none !important;
+        padding: 7px 5px calc(7px + env(safe-area-inset-bottom, 0px)) !important;
+        overflow: hidden !important;
+        border-radius: 21px !important;
+    }
+
+    body.page-admin-students .admin-mobile-bottom a,
+    body.page-admin-parents .admin-mobile-bottom a {
+        min-width: 0 !important;
+        min-height: 62px !important;
+        padding: 7px 1px !important;
+        border-radius: 15px !important;
+        gap: 3px !important;
+        overflow: hidden;
+    }
+
+    body.page-admin-students .admin-mobile-bottom a span,
+    body.page-admin-parents .admin-mobile-bottom a span {
+        font-size: 19px !important;
+        line-height: 1 !important;
+    }
+
+    body.page-admin-students .admin-mobile-bottom a small,
+    body.page-admin-parents .admin-mobile-bottom a small {
+        max-width: 100%;
+        font-size: 8.5px !important;
+        line-height: 1.1 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    body.page-admin-students .admin-mobile-bottom a.active,
+    body.page-admin-parents .admin-mobile-bottom a.active,
+    body.page-admin-students .admin-mobile-bottom a.mutahus-current-link,
+    body.page-admin-parents .admin-mobile-bottom a.mutahus-current-link {
+        background: linear-gradient(180deg, #1f6fca, #16599f) !important;
+        color: #ffffff !important;
+    }
+
+    body.page-admin-students .admin-mobile-bottom a.active small,
+    body.page-admin-parents .admin-mobile-bottom a.active small,
+    body.page-admin-students .admin-mobile-bottom a.mutahus-current-link small,
+    body.page-admin-parents .admin-mobile-bottom a.mutahus-current-link small {
+        color: #ffffff !important;
+    }
+
+    body.page-admin-students .parent-detail-content,
+    body.page-admin-parents .parent-detail-content {
+        width: calc(100vw - 18px) !important;
+        max-height: calc(92dvh - env(safe-area-inset-top, 0px)) !important;
+        padding: 17px !important;
+        border-radius: 21px !important;
+    }
+
+    body.page-admin-parents .parent-detail-content table {
+        min-width: 700px !important;
+    }
+}
+
+@media (max-width: 420px) {
+    body.page-admin-students .admin-record-row > td,
+    body.page-admin-parents .admin-record-row > td {
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 9px;
+    }
+
+    body.page-admin-students .mutahus-filter-grid,
+    body.page-admin-parents .mutahus-filter-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.page-admin-students .mutahus-filter-grid > div,
+    body.page-admin-parents .mutahus-filter-grid > div,
+    body.page-admin-students .mutahus-filter-grid > button,
+    body.page-admin-parents .mutahus-filter-grid > button {
+        grid-column: 1 / -1;
+    }
+}
+
+/* MUTHAQUS_STEP62_ADMIN_MOBILE_RECORD_CARDS */
+
