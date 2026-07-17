@@ -5268,3 +5268,382 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
 // MUTAHUS_STEP54_ADMIN_DESKTOP_RESTORE
 
+
+/* =========================================================
+   MUTAHUS_STEP56_LINK_INTEGRITY_AND_PAGE_POLISH
+
+   Applies to every page that loads app.js:
+   - Ensures style.css is linked
+   - Repairs common old/broken page links
+   - Applies correct active navigation state
+   - Improves accessibility and link security
+   - Adds page classes for consistent CSS targeting
+   ========================================================= */
+(function () {
+    "use strict";
+
+    if (window.__mutahusStep56Loaded) return;
+    window.__mutahusStep56Loaded = true;
+
+    const KNOWN_PAGES = new Set([
+        "index.html",
+        "parent-register.html",
+        "parent-login.html",
+        "parent-forgot-password.html",
+        "parent-dashboard.html",
+        "parent-profile.html",
+        "add-student.html",
+        "upload-payment.html",
+        "parent-rules.html",
+        "terms-rules.html",
+        "admin-login.html",
+        "admin-dashboard.html",
+        "admin-students.html",
+        "admin-parents.html",
+        "admin-payments.html",
+        "admin-announcements.html",
+        "admin-rules.html",
+        "admin-settings.html"
+    ]);
+
+    const SIMPLE_REPAIR_MAP = {
+        "home.html": "index.html",
+        "main.html": "index.html",
+        "login.html": "parent-login.html",
+        "register.html": "parent-register.html",
+        "forgot-password.html": "parent-forgot-password.html",
+        "profile.html": "parent-profile.html",
+        "add-child.html": "add-student.html",
+        "payment.html": "upload-payment.html",
+        "admin.html": "admin-login.html",
+        "students.html": "admin-students.html",
+        "parents.html": "admin-parents.html",
+        "payments.html": "admin-payments.html",
+        "announcements.html": "admin-announcements.html",
+        "settings.html": "admin-settings.html"
+    };
+
+    function currentPage() {
+        const page = window.location.pathname.split("/").pop();
+        return page || "index.html";
+    }
+
+    function pageContext() {
+        const page = currentPage();
+
+        if (page.startsWith("admin-")) return "admin";
+
+        if (
+            page.startsWith("parent-") ||
+            page === "add-student.html" ||
+            page === "upload-payment.html"
+        ) {
+            return "parent";
+        }
+
+        return "public";
+    }
+
+    function ensureGlobalStylesheet() {
+        const localStyles = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"]')
+        ).filter((link) => {
+            const href = link.getAttribute("href") || "";
+            return /(^|\/)style\.css(?:[?#].*)?$/i.test(href);
+        });
+
+        if (localStyles.length === 0) {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "/style.css?v=step56";
+            link.dataset.mutahusStep56Style = "true";
+            document.head.appendChild(link);
+            return;
+        }
+
+        localStyles[0].href = "/style.css?v=step56";
+        localStyles[0].dataset.mutahusStep56Style = "true";
+
+        localStyles.slice(1).forEach((link) => link.remove());
+    }
+
+    function normalizeLocalHref(rawHref) {
+        if (!rawHref) return rawHref;
+
+        const trimmed = rawHref.trim();
+
+        if (
+            trimmed.startsWith("#") ||
+            trimmed.startsWith("mailto:") ||
+            trimmed.startsWith("tel:") ||
+            trimmed.startsWith("javascript:") ||
+            trimmed.startsWith("data:")
+        ) {
+            return trimmed;
+        }
+
+        if (/^https?:\/\//i.test(trimmed)) {
+            return trimmed;
+        }
+
+        let href = trimmed
+            .replace(/\\/g, "/")
+            .replace(/^\.\/+/, "")
+            .replace(/^\/+/, "");
+
+        const hashIndex = href.indexOf("#");
+        const queryIndex = href.indexOf("?");
+
+        let cutIndex = href.length;
+        if (hashIndex >= 0) cutIndex = Math.min(cutIndex, hashIndex);
+        if (queryIndex >= 0) cutIndex = Math.min(cutIndex, queryIndex);
+
+        const pathPart = href.slice(0, cutIndex);
+        const suffix = href.slice(cutIndex);
+        const fileName = pathPart.split("/").pop().toLowerCase();
+
+        if (SIMPLE_REPAIR_MAP[fileName]) {
+            return SIMPLE_REPAIR_MAP[fileName] + suffix;
+        }
+
+        if (fileName === "dashboard.html") {
+            return (
+                pageContext() === "admin"
+                    ? "admin-dashboard.html"
+                    : "parent-dashboard.html"
+            ) + suffix;
+        }
+
+        if (fileName === "rules.html") {
+            if (pageContext() === "admin") return "admin-rules.html" + suffix;
+            if (pageContext() === "parent") return "parent-rules.html" + suffix;
+            return "terms-rules.html" + suffix;
+        }
+
+        return href;
+    }
+
+    function repairAnchor(anchor) {
+        const originalHref = anchor.getAttribute("href");
+        if (!originalHref) return;
+
+        let repairedHref = normalizeLocalHref(originalHref);
+
+        const publicSections = new Set([
+            "#service",
+            "#schools",
+            "#process",
+            "#payment",
+            "#faq"
+        ]);
+
+        if (
+            repairedHref &&
+            publicSections.has(repairedHref.toLowerCase()) &&
+            currentPage() !== "index.html"
+        ) {
+            repairedHref = "index.html" + repairedHref;
+        }
+
+        if (repairedHref && repairedHref !== originalHref) {
+            anchor.setAttribute("href", repairedHref);
+            anchor.dataset.mutahusRepairedLink = "true";
+        }
+
+        if (anchor.target === "_blank") {
+            const rel = new Set(
+                (anchor.getAttribute("rel") || "")
+                    .split(/\s+/)
+                    .filter(Boolean)
+            );
+            rel.add("noopener");
+            rel.add("noreferrer");
+            anchor.setAttribute("rel", Array.from(rel).join(" "));
+        }
+
+        const finalHref = anchor.getAttribute("href") || "";
+
+        if (/^https?:\/\//i.test(finalHref)) return;
+        if (
+            finalHref.startsWith("#") ||
+            finalHref.startsWith("mailto:") ||
+            finalHref.startsWith("tel:") ||
+            finalHref.startsWith("javascript:")
+        ) {
+            return;
+        }
+
+        const cleanFile = finalHref
+            .split("#")[0]
+            .split("?")[0]
+            .split("/")
+            .pop();
+
+        if (cleanFile && cleanFile.endsWith(".html") && !KNOWN_PAGES.has(cleanFile)) {
+            anchor.classList.add("mutahus-broken-link");
+            anchor.title = "Please check this page link: " + cleanFile;
+        } else {
+            anchor.classList.remove("mutahus-broken-link");
+        }
+    }
+
+    function setActiveNavigation() {
+        const page = currentPage();
+        const currentHash = window.location.hash;
+
+        const navigationLinks = document.querySelectorAll([
+            ".taskbar-links a",
+            ".sidebar-menu a",
+            ".side-links a",
+            ".mobile-bottom-nav a",
+            ".admin-mobile-bottom a"
+        ].join(","));
+
+        navigationLinks.forEach((link) => {
+            link.classList.remove("mutahus-current-link");
+            link.removeAttribute("aria-current");
+
+            const href = link.getAttribute("href") || "";
+            if (!href || /^https?:\/\//i.test(href)) return;
+
+            const url = new URL(href, window.location.href);
+            const linkPage = url.pathname.split("/").pop() || "index.html";
+
+            const samePage = linkPage === page;
+
+            let shouldActivate = false;
+
+            if (samePage) {
+                if (url.hash) {
+                    shouldActivate =
+                        Boolean(currentHash) &&
+                        url.hash.toLowerCase() === currentHash.toLowerCase();
+                } else {
+                    shouldActivate = !currentHash;
+                }
+            }
+
+            if (shouldActivate) {
+                link.classList.add("mutahus-current-link");
+                link.setAttribute("aria-current", "page");
+            }
+        });
+    }
+
+    function addPageIdentity() {
+        const page = currentPage()
+            .replace(/\.html$/i, "")
+            .replace(/[^a-z0-9_-]+/gi, "-")
+            .toLowerCase();
+
+        document.body.classList.add("mutahus-page", "page-" + page);
+        document.documentElement.dataset.mutahusPage = page;
+    }
+
+    function improveAccessibility() {
+        const main = document.querySelector("main");
+
+        if (main && !main.id) {
+            main.id = "mainContent";
+        }
+
+        if (main && !document.querySelector(".mutahus-skip-link")) {
+            const skip = document.createElement("a");
+            skip.className = "mutahus-skip-link";
+            skip.href = "#" + main.id;
+            skip.textContent = "Skip to main content";
+            document.body.insertBefore(skip, document.body.firstChild);
+        }
+
+        document.querySelectorAll("img").forEach((image, index) => {
+            if (!image.hasAttribute("loading") && index > 0) {
+                image.loading = "lazy";
+            }
+
+            if (!image.hasAttribute("decoding")) {
+                image.decoding = "async";
+            }
+        });
+
+        document.querySelectorAll(
+            "nav button, .mobile-menu-btn, #mutahusMobileFeatureBtn, .modal-close-btn"
+        ).forEach((button) => {
+            if (!button.hasAttribute("type")) {
+                button.type = "button";
+            }
+        });
+
+        document.querySelectorAll("input").forEach((input) => {
+            const key = (
+                input.id +
+                " " +
+                input.name +
+                " " +
+                input.type
+            ).toLowerCase();
+
+            if (!input.hasAttribute("autocomplete")) {
+                if (key.includes("email")) input.autocomplete = "email";
+                else if (key.includes("phone") || key.includes("tel")) {
+                    input.autocomplete = "tel";
+                } else if (
+                    key.includes("name") &&
+                    !key.includes("username") &&
+                    !key.includes("student")
+                ) {
+                    input.autocomplete = "name";
+                } else if (key.includes("password")) {
+                    input.autocomplete =
+                        key.includes("new") || key.includes("confirm")
+                            ? "new-password"
+                            : "current-password";
+                }
+            }
+        });
+    }
+
+    function repairAllLinks() {
+        document.querySelectorAll("a[href]").forEach(repairAnchor);
+        setActiveNavigation();
+    }
+
+    function runStep56() {
+        ensureGlobalStylesheet();
+
+        if (!document.body) return;
+
+        addPageIdentity();
+        repairAllLinks();
+        improveAccessibility();
+    }
+
+    document.addEventListener("DOMContentLoaded", runStep56);
+    window.addEventListener("load", runStep56);
+    window.addEventListener("pageshow", runStep56);
+    window.addEventListener("hashchange", setActiveNavigation);
+
+    let mutationTimer = null;
+    const observer = new MutationObserver(() => {
+        window.clearTimeout(mutationTimer);
+        mutationTimer = window.setTimeout(() => {
+            repairAllLinks();
+            improveAccessibility();
+        }, 100);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!document.body) return;
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+
+    window.setTimeout(runStep56, 250);
+    window.setTimeout(runStep56, 900);
+    window.setTimeout(runStep56, 1800);
+})();
+
+// MUTAHUS_STEP56_LINK_INTEGRITY_AND_PAGE_POLISH
+

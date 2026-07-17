@@ -5970,3 +5970,770 @@ textarea:focus {
 
 /* MUTAHUS_STEP55_ADMIN_LOGIN_DESKTOP_LAYOUT_REPAIR */
 
+
+/* =========================================================
+   MUTAHUS_STEP56_ALL_PAGES_LINK_STYLE_POLISH
+
+   Global visual repair applied across:
+   - Public pages
+   - Parent pages
+   - Admin pages
+   - Desktop, tablet and mobile
+
+   Existing CSS above is preserved. These are targeted
+   final overrides only.
+   ========================================================= */
+
+:root {
+    --mutahus-navy: #0f3c68;
+    --mutahus-navy-2: #154f86;
+    --mutahus-blue: #1d6fd1;
+    --mutahus-blue-soft: #eaf3ff;
+    --mutahus-green: #16a34a;
+    --mutahus-ink: #102a43;
+    --mutahus-muted: #64748b;
+    --mutahus-line: #dbe7f4;
+    --mutahus-surface: #ffffff;
+    --mutahus-bg: #f4f8fd;
+    --mutahus-shadow-sm: 0 8px 24px rgba(15, 60, 104, 0.08);
+    --mutahus-shadow-md: 0 18px 46px rgba(15, 60, 104, 0.12);
+    --mutahus-shadow-lg: 0 28px 72px rgba(15, 60, 104, 0.16);
+    --mutahus-radius-sm: 12px;
+    --mutahus-radius-md: 18px;
+    --mutahus-radius-lg: 26px;
+}
+
+html {
+    scroll-behavior: smooth;
+    background: var(--mutahus-bg);
+}
+
+body {
+    color: var(--mutahus-ink);
+    background-color: var(--mutahus-bg);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-wrap: anywhere;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+a {
+    text-underline-offset: 3px;
+}
+
+a,
+button,
+.btn,
+.small-btn,
+.quick-action,
+.receipt-button {
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        opacity 0.18s ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(29, 111, 209, 0.28) !important;
+    outline-offset: 3px !important;
+}
+
+button,
+.btn,
+.small-btn {
+    cursor: pointer;
+}
+
+button:disabled,
+.btn:disabled,
+.small-btn:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.62 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.mutahus-skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 2147483000;
+    padding: 11px 15px;
+    border-radius: 12px;
+    background: #ffffff;
+    color: var(--mutahus-navy);
+    box-shadow: var(--mutahus-shadow-md);
+    font-weight: 900;
+    transform: translateY(-160%);
+}
+
+.mutahus-skip-link:focus {
+    transform: translateY(0);
+}
+
+/* Remove development-only messages from customer-facing pages. */
+.mongodb-note {
+    display: none !important;
+}
+
+/* Keep the settled WhatsApp placement: sidebar/menu only. */
+.whatsapp-float {
+    display: none !important;
+}
+
+/* ---------- Public top navigation ---------- */
+
+.top-taskbar {
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 32px rgba(7, 35, 64, 0.15);
+}
+
+.top-taskbar .brand-block {
+    min-width: 0;
+}
+
+.top-taskbar .brand-block strong {
+    letter-spacing: -0.02em;
+}
+
+.taskbar-links a {
+    position: relative;
+    isolation: isolate;
+}
+
+.taskbar-links a::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 5px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0;
+    transform: scaleX(0.45);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.taskbar-links a:hover::after,
+.taskbar-links a.active::after,
+.taskbar-links a.mutahus-current-link::after {
+    opacity: 0.72;
+    transform: scaleX(1);
+}
+
+.taskbar-links a.mutahus-current-link {
+    color: #ffffff;
+}
+
+.taskbar-links a.admin-pill.mutahus-current-link {
+    box-shadow: 0 10px 24px rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Shared cards and sections ---------- */
+
+.feature-pro-card,
+.school-pro-card,
+.process-pro-card,
+.business-feature-card,
+.process-card,
+.school-card,
+.faq-card-pro,
+.rule-card,
+.approval-status-card,
+.auth-card-pro,
+.form-card-pro,
+.table-box-pro,
+.table-box,
+.overview-card,
+.pro-stat,
+.quick-panel,
+.admin-welcome-card,
+.parent-info-card,
+.parent-detail-section,
+.bank-card-pro,
+.route-summary-pro,
+.payment-info-panel,
+.announcement-form-card,
+.announcement-preview-card {
+    border-color: var(--mutahus-line) !important;
+    box-shadow: var(--mutahus-shadow-sm);
+}
+
+.feature-pro-card:hover,
+.school-pro-card:hover,
+.process-pro-card:hover,
+.business-feature-card:hover,
+.process-card:hover,
+.school-card:hover,
+.rule-card:hover,
+.approval-status-card:hover,
+.quick-action:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--mutahus-shadow-md);
+}
+
+.section-title-pro,
+.business-section-title,
+.section-title {
+    max-width: 760px;
+}
+
+.section-title-pro h2,
+.business-section-title h2,
+.section-title h2 {
+    letter-spacing: -0.035em;
+}
+
+.section-title-pro p,
+.business-section-title p,
+.section-title p,
+.auth-info-panel p,
+.form-header p,
+.page-hero-bar p {
+    line-height: 1.72;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn,
+button.btn,
+.small-btn,
+.receipt-button {
+    font-weight: 850;
+    letter-spacing: -0.01em;
+}
+
+.btn:hover:not(:disabled),
+button.btn:hover:not(:disabled),
+.small-btn:hover:not(:disabled),
+.receipt-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(15, 60, 104, 0.17);
+}
+
+.btn:active:not(:disabled),
+button.btn:active:not(:disabled),
+.small-btn:active:not(:disabled),
+.receipt-button:active:not(:disabled) {
+    transform: translateY(0) scale(0.985);
+}
+
+/* ---------- Forms ---------- */
+
+label {
+    color: #173b5d;
+    font-weight: 800;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    border: 1px solid #cddceb;
+    background: #fbfdff;
+    color: var(--mutahus-ink);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: #9fbedc;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--mutahus-blue) !important;
+    background: #ffffff !important;
+    box-shadow:
+        0 0 0 4px rgba(29, 111, 209, 0.11),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #8a9bad;
+    opacity: 1;
+}
+
+.form-header {
+    margin-bottom: 24px;
+}
+
+.form-header h1 {
+    letter-spacing: -0.035em;
+}
+
+.form-section-title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--mutahus-line);
+}
+
+/* ---------- Auth pages ---------- */
+
+.auth-page-pro {
+    isolation: isolate;
+}
+
+.auth-info-panel h1 {
+    letter-spacing: -0.045em;
+    max-width: 680px;
+}
+
+.auth-card-pro {
+    overflow: hidden;
+    border: 1px solid rgba(190, 211, 232, 0.78) !important;
+}
+
+.auth-card-pro::before {
+    content: "";
+    display: block;
+    height: 5px;
+    margin: -1px -1px 24px;
+    background: linear-gradient(
+        90deg,
+        var(--mutahus-blue),
+        var(--mutahus-navy),
+        var(--mutahus-green)
+    );
+}
+
+.info-grid-pro > div,
+.info-list-pro > div {
+    border-color: var(--mutahus-line) !important;
+    box-shadow: 0 8px 20px rgba(15, 60, 104, 0.06);
+}
+
+/* ---------- Parent and admin shells ---------- */
+
+.app-shell {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 92% 8%, rgba(29, 111, 209, 0.08), transparent 27%),
+        var(--mutahus-bg);
+}
+
+.pro-sidebar {
+    box-shadow: 14px 0 40px rgba(7, 35, 64, 0.12);
+}
+
+.sidebar-menu a,
+.side-links a {
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.sidebar-menu a:hover,
+.side-links a:hover {
+    transform: translateX(3px);
+    border-color: rgba(255, 255, 255, 0.13);
+}
+
+.sidebar-menu a.active,
+.sidebar-menu a.mutahus-current-link,
+.side-links a.active,
+.side-links a.mutahus-current-link {
+    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.85);
+}
+
+.app-main {
+    min-width: 0;
+}
+
+.page-hero-bar {
+    overflow: hidden;
+    border: 1px solid rgba(219, 231, 244, 0.95);
+    box-shadow: var(--mutahus-shadow-sm);
+}
+
+.page-hero-bar h1 {
+    letter-spacing: -0.04em;
+}
+
+.stats-pro {
+    align-items: stretch;
+}
+
+.pro-stat {
+    position: relative;
+    overflow: hidden;
+}
+
+.pro-stat::after {
+    content: "";
+    position: absolute;
+    width: 92px;
+    height: 92px;
+    right: -30px;
+    bottom: -40px;
+    border-radius: 50%;
+    background: rgba(29, 111, 209, 0.065);
+}
+
+.dashboard-grid-pro,
+.dashboard-grid {
+    align-items: stretch;
+}
+
+.quick-action {
+    min-height: 86px;
+    border: 1px solid var(--mutahus-line);
+    background: #ffffff;
+}
+
+/* ---------- Tables ---------- */
+
+.table-box-pro,
+.table-box {
+    overflow: hidden;
+}
+
+.table-header {
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.table-header h2,
+.table-header h3 {
+    letter-spacing: -0.025em;
+}
+
+.table-box-pro table,
+.table-box table,
+.modal-table-scroll table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-box-pro th,
+.table-box th,
+.modal-table-scroll th {
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+}
+
+.table-box-pro tbody tr,
+.table-box tbody tr,
+.modal-table-scroll tbody tr {
+    transition: background-color 0.16s ease, transform 0.16s ease;
+}
+
+.table-box-pro tbody tr:hover,
+.table-box tbody tr:hover,
+.modal-table-scroll tbody tr:hover {
+    background: #f5f9ff;
+}
+
+.table-box-pro td,
+.table-box td,
+.modal-table-scroll td {
+    vertical-align: middle;
+}
+
+/* ---------- Filters and action bars ---------- */
+
+.filter-row {
+    gap: 12px;
+    align-items: end;
+}
+
+.filter-row input,
+.filter-row select {
+    min-width: 160px;
+}
+
+.student-action-row {
+    align-items: stretch;
+}
+
+/* ---------- Status badges ---------- */
+
+.badge,
+.paid,
+.pending,
+.unpaid,
+.rejected,
+.morning,
+.afternoon,
+.history-count-pill {
+    border: 1px solid rgba(15, 60, 104, 0.08);
+    box-shadow: 0 4px 12px rgba(15, 60, 104, 0.05);
+}
+
+/* ---------- FAQ and rules ---------- */
+
+.faq-question {
+    cursor: pointer;
+}
+
+.faq-card-pro.open {
+    border-color: rgba(29, 111, 209, 0.34) !important;
+    box-shadow: var(--mutahus-shadow-md);
+}
+
+.rules-hero,
+.rules-note {
+    border: 1px solid var(--mutahus-line);
+}
+
+/* ---------- Mobile bottom navigation ---------- */
+
+.mobile-bottom-nav,
+.admin-mobile-bottom {
+    border: 1px solid rgba(190, 211, 232, 0.88);
+    box-shadow:
+        0 18px 50px rgba(7, 35, 64, 0.2),
+        0 2px 0 rgba(255, 255, 255, 0.8) inset;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.mobile-bottom-nav a,
+.admin-mobile-bottom a {
+    position: relative;
+}
+
+.mobile-bottom-nav a.active,
+.mobile-bottom-nav a.mutahus-current-link,
+.admin-mobile-bottom a.active,
+.admin-mobile-bottom a.mutahus-current-link {
+    box-shadow: 0 9px 22px rgba(29, 111, 209, 0.22);
+}
+
+/* ---------- Link state applied by Step 56 JavaScript ---------- */
+
+a.mutahus-current-link {
+    font-weight: 900;
+}
+
+a.mutahus-broken-link {
+    opacity: 0.7;
+    text-decoration: line-through;
+}
+
+/* ---------- Desktop refinements ---------- */
+
+@media (min-width: 901px) {
+    .top-taskbar {
+        padding-left: clamp(28px, 5vw, 78px);
+        padding-right: clamp(28px, 5vw, 78px);
+    }
+
+    .taskbar-links {
+        gap: clamp(4px, 0.7vw, 12px);
+    }
+
+    .taskbar-links a {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .app-main {
+        padding-left: clamp(26px, 3vw, 52px);
+        padding-right: clamp(26px, 3vw, 52px);
+    }
+
+    .auth-page-pro:not(.admin-auth-bg) {
+        max-width: 1480px;
+        margin-inline: auto;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg {
+        max-width: 1600px !important;
+        margin-inline: auto !important;
+    }
+
+    .form-card-pro {
+        max-width: 1100px;
+    }
+
+    .table-box-pro,
+    .table-box {
+        width: 100%;
+    }
+}
+
+/* ---------- Tablet refinements ---------- */
+
+@media (min-width: 861px) and (max-width: 1180px) {
+    .taskbar-links a {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        font-size: 13px !important;
+    }
+
+    .auth-page-pro {
+        gap: 34px !important;
+    }
+
+    .app-main {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+/* ---------- Mobile refinements ---------- */
+
+@media (max-width: 860px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .top-taskbar {
+        border-radius: 0 0 22px 22px;
+    }
+
+    .taskbar-links a::after {
+        display: none;
+    }
+
+    .taskbar-links a.mutahus-current-link {
+        background: #dbeafe !important;
+        color: var(--mutahus-navy) !important;
+    }
+
+    .app-main,
+    .portal-main,
+    .rules-main,
+    main {
+        min-width: 0;
+    }
+
+    .page-hero-bar {
+        margin-bottom: 16px;
+    }
+
+    .auth-card-pro,
+    .form-card-pro,
+    .table-box-pro,
+    .table-box,
+    .page-hero-bar,
+    .rules-hero,
+    .rules-note {
+        border-radius: 22px !important;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    .filter-row {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    .filter-row input,
+    .filter-row select,
+    .filter-row .btn,
+    .filter-row button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .table-box-pro,
+    .table-box,
+    .modal-table-scroll {
+        overflow-x: auto !important;
+        overscroll-behavior-inline: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-bottom-nav,
+    .admin-mobile-bottom {
+        padding-bottom: calc(7px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .sidebar-menu a:hover,
+    .side-links a:hover,
+    .feature-pro-card:hover,
+    .school-pro-card:hover,
+    .process-pro-card:hover,
+    .business-feature-card:hover,
+    .process-card:hover,
+    .school-card:hover,
+    .rule-card:hover,
+    .approval-status-card:hover,
+    .quick-action:hover {
+        transform: none;
+    }
+}
+
+@media (max-width: 420px) {
+    .auth-card-pro,
+    .form-card-pro,
+    .table-box-pro,
+    .table-box,
+    .page-hero-bar {
+        border-radius: 19px !important;
+    }
+
+    .page-hero-bar h1,
+    .form-header h1 {
+        letter-spacing: -0.035em !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* MUTAHUS_STEP56_ALL_PAGES_LINK_STYLE_POLISH */
+
