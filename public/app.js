@@ -5036,32 +5036,49 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
 
 /* =========================================================
-   MUTAHUS_STEP53_SCREENSHOT_TOPBAR_ONLY_FIX
-   - Keep only one top-right More button on mobile
-   - Fully hide the off-screen white More panel when closed
-   - Remove the white rounded object above the blue taskbar
-   - Keep a smooth entrance animation on mobile and desktop
+   MUTAHUS_STEP54_ADMIN_DESKTOP_RESTORE
+   Fixes the screenshot issue without changing desktop layout.
    ========================================================= */
 (function () {
     "use strict";
 
-    if (window.__mutahusStep53ScreenshotFixLoaded) return;
-    window.__mutahusStep53ScreenshotFixLoaded = true;
+    if (window.__mutahusStep54Loaded) return;
+    window.__mutahusStep54Loaded = true;
 
-    const MOBILE_QUERY = window.matchMedia("(max-width: 860px)");
+    const mobileQuery = window.matchMedia("(max-width: 860px)");
 
-    function installStep53Style() {
-        if (document.getElementById("mutahusStep53ScreenshotStyle")) return;
+    function injectStep54Styles() {
+        if (document.getElementById("mutahusStep54Styles")) return;
 
         const style = document.createElement("style");
-        style.id = "mutahusStep53ScreenshotStyle";
+        style.id = "mutahusStep54Styles";
         style.textContent = `
-            /* MUTAHUS_STEP53_SCREENSHOT_TOPBAR_ONLY_FIX */
+            /* MUTAHUS_STEP54_ADMIN_DESKTOP_RESTORE */
 
             /*
-             * The old More panel used translateY(-120%) while closed.
-             * A rounded white part could remain visible above the blue taskbar.
-             * Keep it completely removed from layout until it is opened.
+             * Desktop must keep the original Step 52 layout.
+             * Mobile-only controls must never affect desktop admin login.
+             */
+            @media (min-width: 861px) {
+                #mutahusMobileFeatureBtn,
+                #mutahusMobileFeaturePanel,
+                #mutahusMobileFeatureBackdrop {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+
+                header.top-taskbar.mutahus-step54-duplicate {
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                }
+            }
+
+            /*
+             * Screenshot fixes are restricted to mobile only.
              */
             @media (max-width: 860px) {
                 html,
@@ -5076,7 +5093,15 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
                     margin-top: 0 !important;
                 }
 
-                #mutahusMobileFeaturePanel:not(.show) {
+                header.top-taskbar.mutahus-step54-duplicate {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+
+                #mutahusMobileFeaturePanel:not(.show),
+                #mutahusMobileFeatureBackdrop:not(.show) {
                     display: none !important;
                     visibility: hidden !important;
                     opacity: 0 !important;
@@ -5092,12 +5117,14 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
                     transform: none !important;
                 }
 
-                /*
-                 * The page already contains a mobile menu button while app.js
-                 * also creates the blue More button. Keep the blue More button
-                 * and hide only the duplicated taskbar button.
-                 */
-                body.mutahus-step53-has-more
+                #mutahusMobileFeatureBackdrop.show {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                }
+
+                body.mutahus-step54-has-more
                     header.top-taskbar
                     .mobile-menu-btn {
                     display: none !important;
@@ -5111,61 +5138,25 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
                     visibility: visible !important;
                     opacity: 1 !important;
                 }
-
-                /*
-                 * Previous topbar cleanup can mark extra headers.
-                 * Keep all duplicate variants fully removed.
-                 */
-                header.top-taskbar.mutahus-mobile-duplicate-topbar,
-                header.top-taskbar.login-mobile-duplicate,
-                header.top-taskbar.mutahus-step53-duplicate {
-                    display: none !important;
-                    visibility: hidden !important;
-                    opacity: 0 !important;
-                    pointer-events: none !important;
-                }
             }
 
-            /* Smooth entrance on BOTH desktop and mobile. */
-            body.mutahus-step53-entering header.top-taskbar {
-                animation: mutahusStep53HeaderIn 0.30s ease both !important;
+            /*
+             * Animation works in both views, but uses opacity only.
+             * No transform is applied to the desktop admin two-column layout.
+             */
+            body.mutahus-step54-page-enter header.top-taskbar,
+            body.mutahus-step54-page-enter main {
+                animation: mutahusStep54FadeIn 0.34s ease both !important;
             }
 
-            body.mutahus-step53-entering main,
-            body.mutahus-step53-entering .auth-card-pro,
-            body.mutahus-step53-entering .form-card-pro,
-            body.mutahus-step53-entering .page-hero-bar,
-            body.mutahus-step53-entering .hero-card,
-            body.mutahus-step53-entering .stats-pro,
-            body.mutahus-step53-entering .table-box-pro {
-                animation: mutahusStep53ContentIn 0.42s ease both !important;
-            }
-
-            @keyframes mutahusStep53HeaderIn {
+            @keyframes mutahusStep54FadeIn {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
 
-            @keyframes mutahusStep53ContentIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(12px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
             @media (prefers-reduced-motion: reduce) {
-                body.mutahus-step53-entering header.top-taskbar,
-                body.mutahus-step53-entering main,
-                body.mutahus-step53-entering .auth-card-pro,
-                body.mutahus-step53-entering .form-card-pro,
-                body.mutahus-step53-entering .page-hero-bar,
-                body.mutahus-step53-entering .hero-card,
-                body.mutahus-step53-entering .stats-pro,
-                body.mutahus-step53-entering .table-box-pro {
+                body.mutahus-step54-page-enter header.top-taskbar,
+                body.mutahus-step54-page-enter main {
                     animation-duration: 0.01ms !important;
                 }
             }
@@ -5174,19 +5165,17 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
         document.head.appendChild(style);
     }
 
-    function keepOneTopbar() {
-        const headers = Array.from(document.querySelectorAll("header.top-taskbar"));
+    function cleanMobileHeader() {
+        const headers = Array.from(
+            document.querySelectorAll("header.top-taskbar")
+        );
 
         headers.forEach((header) => {
-            header.classList.remove("mutahus-step53-duplicate");
+            header.classList.remove("mutahus-step54-duplicate");
         });
 
-        if (!MOBILE_QUERY.matches || headers.length <= 1) return;
+        if (!mobileQuery.matches || headers.length <= 1) return;
 
-        /*
-         * Prefer the header that contains the Mutahus brand.
-         * When they are identical, keep the first one.
-         */
         const keeper =
             headers.find((header) =>
                 /mutahus global/i.test(header.textContent || "")
@@ -5194,90 +5183,88 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
         headers.forEach((header) => {
             if (header !== keeper) {
-                header.classList.add("mutahus-step53-duplicate");
+                header.classList.add("mutahus-step54-duplicate");
 
-                const menu = header.querySelector(".taskbar-links.show-mobile-menu");
-                if (menu) menu.classList.remove("show-mobile-menu");
+                const openMenu = header.querySelector(
+                    ".taskbar-links.show-mobile-menu"
+                );
+                if (openMenu) {
+                    openMenu.classList.remove("show-mobile-menu");
+                }
             }
         });
     }
 
-    function fixMoreButtonAndPanel() {
-        const featureButton = document.getElementById("mutahusMobileFeatureBtn");
-        const featurePanel = document.getElementById("mutahusMobileFeaturePanel");
+    function cleanFeatureMenu() {
+        const button = document.getElementById("mutahusMobileFeatureBtn");
+        const panel = document.getElementById("mutahusMobileFeaturePanel");
+        const backdrop = document.getElementById(
+            "mutahusMobileFeatureBackdrop"
+        );
 
-        if (featureButton && MOBILE_QUERY.matches) {
-            document.body.classList.add("mutahus-step53-has-more");
-            featureButton.innerHTML = "•••";
-            featureButton.setAttribute("aria-label", "More");
-            featureButton.title = "More";
+        if (mobileQuery.matches && button) {
+            document.body.classList.add("mutahus-step54-has-more");
+            button.innerHTML = "•••";
+            button.setAttribute("aria-label", "More");
+            button.title = "More";
         } else {
-            document.body.classList.remove("mutahus-step53-has-more");
-        }
+            document.body.classList.remove("mutahus-step54-has-more");
 
-        if (featurePanel && !featurePanel.classList.contains("show")) {
-            featurePanel.setAttribute("aria-hidden", "true");
-        } else if (featurePanel) {
-            featurePanel.setAttribute("aria-hidden", "false");
+            if (panel) panel.classList.remove("show");
+            if (backdrop) backdrop.classList.remove("show");
         }
     }
 
-    function startPageAnimation() {
-        if (document.body.dataset.mutahusStep53Animated === "true") return;
+    function startSafeAnimation() {
+        if (document.body.dataset.mutahusStep54Animated === "true") return;
 
-        document.body.dataset.mutahusStep53Animated = "true";
-        document.body.classList.add("mutahus-step53-entering");
+        document.body.dataset.mutahusStep54Animated = "true";
+        document.body.classList.add("mutahus-step54-page-enter");
 
-        /*
-         * Remove the animation class after it finishes so no permanent
-         * transform can interfere with sticky/fixed mobile navigation.
-         */
         window.setTimeout(() => {
-            document.body.classList.remove("mutahus-step53-entering");
-        }, 650);
+            document.body.classList.remove("mutahus-step54-page-enter");
+        }, 500);
     }
 
-    function runStep53ScreenshotFix() {
-        installStep53Style();
-        keepOneTopbar();
-        fixMoreButtonAndPanel();
-        startPageAnimation();
+    function runStep54() {
+        injectStep54Styles();
+        cleanMobileHeader();
+        cleanFeatureMenu();
+        startSafeAnimation();
     }
 
-    document.addEventListener("DOMContentLoaded", runStep53ScreenshotFix);
-    window.addEventListener("load", runStep53ScreenshotFix);
-    window.addEventListener("pageshow", runStep53ScreenshotFix);
-    window.addEventListener("resize", runStep53ScreenshotFix);
-    window.addEventListener("orientationchange", runStep53ScreenshotFix);
+    document.addEventListener("DOMContentLoaded", runStep54);
+    window.addEventListener("load", runStep54);
+    window.addEventListener("pageshow", runStep54);
+    window.addEventListener("resize", runStep54);
+    window.addEventListener("orientationchange", runStep54);
 
-    if (typeof MOBILE_QUERY.addEventListener === "function") {
-        MOBILE_QUERY.addEventListener("change", runStep53ScreenshotFix);
+    if (typeof mobileQuery.addEventListener === "function") {
+        mobileQuery.addEventListener("change", runStep54);
     }
 
-    let observerTimer = null;
+    let mutationTimer = null;
     const observer = new MutationObserver(() => {
-        window.clearTimeout(observerTimer);
-        observerTimer = window.setTimeout(() => {
-            keepOneTopbar();
-            fixMoreButtonAndPanel();
-        }, 80);
+        window.clearTimeout(mutationTimer);
+        mutationTimer = window.setTimeout(() => {
+            cleanMobileHeader();
+            cleanFeatureMenu();
+        }, 100);
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-        if (document.body) {
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-                attributeFilter: ["class"]
-            });
-        }
+        if (!document.body) return;
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     });
 
-    window.setTimeout(runStep53ScreenshotFix, 250);
-    window.setTimeout(runStep53ScreenshotFix, 900);
-    window.setTimeout(runStep53ScreenshotFix, 1600);
+    window.setTimeout(runStep54, 250);
+    window.setTimeout(runStep54, 900);
+    window.setTimeout(runStep54, 1600);
 })();
 
-// MUTAHUS_STEP53_SCREENSHOT_TOPBAR_ONLY_FIX
+// MUTAHUS_STEP54_ADMIN_DESKTOP_RESTORE
 
