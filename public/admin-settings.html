@@ -3,404 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Settings | Mutahus Global</title>
+    <meta name="theme-color" content="#143f73">
+    <title>Admin Settings | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
-    <style>
-        :root{
-            --primary:#123f73;
-            --primary2:#1f63b8;
-            --border:#d9e5f5;
-            --muted:#6b7a90;
-            --bg:#edf4ff;
-            --card:#ffffff;
-            --danger:#ef5d5d;
-            --success:#1e9b57;
-        }
-        *{box-sizing:border-box}
-        body{
-            margin:0;
-            font-family:Arial, Helvetica, sans-serif;
-            background:linear-gradient(180deg,#edf4ff 0%, #f7fbff 100%);
-            color:#163150;
-        }
-        .settings-shell{display:flex;min-height:100vh}
-        .settings-sidebar{
-            width:280px;
-            background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
-            color:#fff;
-            padding:24px 20px;
-            display:flex;
-            flex-direction:column;
-            gap:22px;
-            position:sticky;
-            top:0;
-            height:100vh;
-            box-shadow:12px 0 24px rgba(10,40,80,.08);
-        }
-        .brand-box{
-            display:flex;
-            gap:14px;
-            align-items:center;
-            padding-bottom:22px;
-            border-bottom:1px solid rgba(255,255,255,.15);
-        }
-        .brand-icon{
-            width:58px;
-            height:58px;
-            border-radius:18px;
-            display:grid;
-            place-items:center;
-            background:rgba(255,255,255,.12);
-            font-size:28px;
-            border:1px solid rgba(255,255,255,.16);
-        }
-        .brand-box strong{display:block;font-size:18px}
-        .brand-box small{display:block;opacity:.85;margin-top:3px}
-        .side-links{display:flex;flex-direction:column;gap:10px}
-        .side-links a{
-            color:#fff;
-            text-decoration:none;
-            padding:14px 16px;
-            border-radius:16px;
-            display:flex;
-            align-items:center;
-            gap:12px;
-            font-weight:700;
-        }
-        .side-links a:hover,.side-links a.active{background:rgba(255,255,255,.14)}
-        .logout-link{
-            margin-top:auto;
-            background:#ef5d5d !important;
-            justify-content:center;
-        }
-        .settings-main{flex:1;padding:32px 34px 90px}
-        .mobile-topbar,.mobile-bottom-nav{display:none}
-        .hero-card{
-            background:linear-gradient(90deg,rgba(255,255,255,.95), rgba(239,245,255,.95));
-            border:1px solid var(--border);
-            border-radius:28px;
-            padding:30px 32px;
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-            gap:20px;
-            box-shadow:0 8px 24px rgba(30,70,120,.06);
-        }
-        .hero-card h1{margin:8px 0 10px;font-size:52px;line-height:1;color:#113d71}
-        .hero-card p{margin:0;color:var(--muted);font-size:18px;max-width:720px;line-height:1.6}
-        .kicker{display:inline-block;color:#2368c4;font-weight:800;letter-spacing:1.2px;font-size:15px}
-        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
-        .btnx{
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            gap:8px;
-            min-height:48px;
-            padding:0 18px;
-            border-radius:14px;
-            text-decoration:none;
-            border:none;
-            cursor:pointer;
-            font-weight:700;
-            font-size:15px;
-        }
-        .btn-primary{background:linear-gradient(180deg,#2873d1,#1657a9);color:#fff;box-shadow:0 10px 18px rgba(40,115,209,.24)}
-        .btn-light{background:#fff;color:#1b4a84;border:1px solid var(--border)}
-        .btn-danger{background:#ef5d5d;color:#fff}
-        .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:24px;margin-top:24px}
-        .panel{
-            background:#fff;
-            border:1px solid var(--border);
-            border-radius:26px;
-            padding:26px;
-            box-shadow:0 8px 24px rgba(30,70,120,.05);
-        }
-        .panel h2{margin:0 0 8px;font-size:32px;color:#143f73}
-        .panel p{margin:0 0 20px;color:var(--muted);line-height:1.6}
-        .admin-card{
-            padding:22px;
-            border-radius:24px;
-            background:linear-gradient(135deg,#f6faff,#edf4ff);
-            border:1px solid var(--border);
-            display:flex;
-            gap:18px;
-            align-items:center;
-            margin-bottom:20px;
-        }
-        .avatar{
-            width:82px;
-            height:82px;
-            border-radius:24px;
-            background:linear-gradient(180deg,#2d79d6,#154f99);
-            color:#fff;
-            display:grid;
-            place-items:center;
-            font-size:34px;
-            font-weight:800;
-            flex-shrink:0;
-        }
-        .admin-meta strong{display:block;font-size:25px;color:#143f73}
-        .admin-meta span{display:block;color:var(--muted);margin-top:4px}
-        .status-pill{
-            display:inline-flex;
-            margin-top:12px;
-            padding:8px 14px;
-            border-radius:999px;
-            background:#e9f9ef;
-            color:#1e9b57;
-            font-weight:800;
-            font-size:14px;
-        }
-        .info-list{display:grid;gap:12px}
-        .info-item{
-            display:flex;
-            justify-content:space-between;
-            gap:16px;
-            padding:16px;
-            border:1px solid var(--border);
-            background:#fbfdff;
-            border-radius:18px;
-        }
-        .info-item span{color:var(--muted)}
-        .info-item strong{color:#143f73;text-align:right}
-        .form-grid{display:grid;gap:15px}
-        .form-row{display:grid;gap:8px}
-        .form-row label{font-weight:800;color:#143f73;font-size:15px}
-        .form-row input{
-            width:100%;
-            height:52px;
-            border:1px solid var(--border);
-            border-radius:14px;
-            padding:0 16px;
-            background:#fbfdff;
-            font-size:15px;
-            color:#1d3555;
-            outline:none;
-        }
-        .form-row input:focus{border-color:#7ea9e4;box-shadow:0 0 0 4px rgba(77,133,219,.12)}
-        .warning-box{
-            margin-top:18px;
-            background:#fff8e6;
-            border:1px solid #ffe2a4;
-            color:#77510c;
-            border-radius:18px;
-            padding:16px;
-            line-height:1.6;
-        }
-        .quick-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
-        @media(max-width:1080px){
-            .settings-grid{grid-template-columns:1fr}
-            .hero-card h1{font-size:42px}
-        }
-        @media(max-width:860px){
-            .settings-sidebar{display:none}
-            .settings-main{padding:20px 16px 95px}
-            .mobile-topbar{
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                gap:10px;
-                padding:14px 16px;
-                background:linear-gradient(180deg,#143f73 0%,#0e335d 100%);
-                color:#fff;
-                position:sticky;
-                top:0;
-                z-index:50;
-            }
-            .mobile-topbar strong{display:block;font-size:16px}
-            .mobile-topbar small{display:block;opacity:.85}
-            .mobile-actions{display:flex;gap:8px}
-            .mobile-actions a{color:#fff;text-decoration:none;font-size:13px;background:rgba(255,255,255,.14);padding:8px 12px;border-radius:10px}
-            .mobile-bottom-nav{
-                display:grid;
-                grid-template-columns:repeat(5,1fr);
-                gap:6px;
-                position:fixed;
-                left:10px;
-                right:10px;
-                bottom:10px;
-                background:#fff;
-                border:1px solid var(--border);
-                border-radius:22px;
-                padding:10px;
-                z-index:60;
-                box-shadow:0 10px 24px rgba(20,60,115,.14);
-            }
-            .mobile-bottom-nav a{text-decoration:none;color:#4c5d78;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;padding:6px;border-radius:14px}
-            .mobile-bottom-nav a.active{background:#edf4ff;color:#1754a7;font-weight:700}
-            .hero-card{padding:22px 18px;flex-direction:column}
-            .panel{padding:20px}
-        }
-    </style>
 </head>
-<body onload="loadAdminSettingsPage()">
-    <div class="mobile-topbar">
+<body class="page-admin-settings step67-admin-settings">
+
+<div class="app-shell">
+
+<aside class="pro-sidebar admin-side">
+    <div class="sidebar-brand">
+        <span>🚐</span>
         <div>
-            <strong>🚐 Mutahus Global</strong>
-            <small>Admin Settings</small>
-        </div>
-        <div class="mobile-actions">
-            <a href="admin-dashboard.html">Dashboard</a>
-            <a href="#" onclick="adminLogout()">Logout</a>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+            <small>Admin Control</small>
         </div>
     </div>
 
-    <div class="settings-shell">
-        <aside class="settings-sidebar">
-            <div class="brand-box">
-                <div class="brand-icon">🚐</div>
+    <nav class="sidebar-menu">
+        <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
+        <a href="admin-students.html"><span>🎒</span> Students</a>
+        <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
+        <a href="admin-payments.html"><span>💳</span> Payments</a>
+        <a href="admin-announcements.html"><span>📢</span> Announcements</a>
+        <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
+        <a class="active" href="admin-settings.html"><span>⚙️</span> Settings</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="mini-help">
+            <strong>Secure settings</strong>
+            <p>Keep backups private and protect the admin password.</p>
+        </div>
+
+        <a href="#" onclick="adminLogout()" class="logout-btn">
+            <span>🚪</span> Logout
+        </a>
+    </div>
+</aside>
+
+<main class="app-main">
+
+    <div class="mobile-app-header mobile-admin-header">
+        <div class="mobile-brand">
+            <span>🚐</span>
+            <div>
+                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+                <small>Admin Settings</small>
+            </div>
+        </div>
+    </div>
+
+    <nav class="mobile-bottom-nav admin-mobile-bottom">
+        <a href="admin-dashboard.html"><span>📊</span><small>Home</small></a>
+        <a href="admin-students.html"><span>🎒</span><small>Students</small></a>
+        <a href="admin-parents.html"><span>👨‍👩‍👧</span><small>Parents</small></a>
+        <a href="admin-payments.html"><span>💳</span><small>Pay</small></a>
+        <a href="admin-announcements.html"><span>📢</span><small>Notice</small></a>
+        <a href="admin-rules.html"><span>📘</span><small>Rules</small></a>
+    </nav>
+
+    <section class="page-hero-bar step67-settings-hero">
+        <div>
+            <span class="page-kicker">ADMIN ACCOUNT</span>
+            <h1>Admin Settings</h1>
+            <p>Manage account information, create secure backups and update the admin password.</p>
+        </div>
+
+        <div class="hero-actions">
+            <a href="admin-dashboard.html" class="btn btn-light-pro">← Dashboard</a>
+            <a href="index.html" class="btn btn-primary-pro">Main Website</a>
+        </div>
+    </section>
+
+    <section class="step67-settings-grid">
+
+        <article class="step67-settings-card step67-account-card">
+            <div class="step67-card-heading">
+                <span class="step67-heading-icon">👤</span>
                 <div>
-                    <strong>Mutahus Global</strong>
-                    <small>Admin Control</small>
+                    <span class="page-kicker">ACCOUNT</span>
+                    <h2>Account Information</h2>
+                    <p>Details from the current authenticated admin session.</p>
                 </div>
             </div>
 
-            <nav class="side-links">
-                <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
-                <a href="admin-students.html"><span>🎒</span> Students</a>
-                <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
-                <a href="admin-payments.html"><span>💳</span> Payments</a>
-                <a href="admin-announcements.html"><span>📢</span> Announcements</a>
-                <a href="admin-rules.html"><span>📘</span> Rules</a>
-                <a href="admin-settings.html" class="active"><span>⚙️</span> Settings</a>
-            </nav>
+            <div class="step67-admin-profile">
+                <div class="step67-admin-avatar">A</div>
 
-            <a href="#" onclick="adminLogout()" class="side-links logout-link" style="display:flex;text-decoration:none;color:#fff;padding:12px 14px;border-radius:14px;font-weight:700;">🚪 Logout</a>
-        </aside>
+                <div class="step67-admin-meta">
+                    <strong id="adminNameDisplay">Main Admin</strong>
+                    <span>@<span id="adminUsernameDisplay">admin</span></span>
+                    <span class="badge paid" id="adminStatusDisplay">Active</span>
+                </div>
+            </div>
 
-        <main class="settings-main">
-            <section class="hero-card">
+            <div class="step67-info-list">
                 <div>
-                    <span class="kicker">ADMIN ACCOUNT</span>
-                    <h1>Admin Settings</h1>
-                    <p>Manage your admin account access and change the admin password securely.</p>
+                    <span>Role</span>
+                    <strong id="adminRoleDisplay">superadmin</strong>
                 </div>
 
-                <div class="hero-actions">
-                    <a href="admin-dashboard.html" class="btnx btn-light">← Back to Dashboard</a>
-                    <a href="index.html" class="btnx btn-primary">Main Website</a>
-                </div>
-            </section>
-
-            <section class="settings-grid">
-                <div class="panel">
-                    <h2>Account Info</h2>
-                    <p>This information comes from the current admin login session.</p>
-
-                    <div class="admin-card">
-                        <div class="avatar">A</div>
-                        <div class="admin-meta">
-                            <strong id="adminNameDisplay">Admin</strong>
-                            <span>@<span id="adminUsernameDisplay">admin</span></span>
-                            <span class="status-pill" id="adminStatusDisplay">Active</span>
-                        </div>
-                    </div>
-
-                    <div class="info-list">
-                        <div class="info-item">
-                            <span>Role</span>
-                            <strong id="adminRoleDisplay">admin</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Security</span>
-                            <strong>Password protected</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Database</span>
-                            <strong>MongoDB admins</strong>
-                        </div>
-                    </div>
-
-                    <div class="quick-actions">
-                        <a href="admin-students.html" class="btnx btn-light">Students</a>
-                        <a href="admin-parents.html" class="btnx btn-light">Parents</a>
-                        <a href="admin-payments.html" class="btnx btn-light">Payments</a>
-                    </div>
+                <div>
+                    <span>Security</span>
+                    <strong>Password protected</strong>
                 </div>
 
+                <div>
+                    <span>Database</span>
+                    <strong>MongoDB admins</strong>
+                </div>
+            </div>
 
-                <div class="panel">
+            <div class="step67-quick-links">
+                <a href="admin-students.html">🎒 Students</a>
+                <a href="admin-parents.html">👨‍👩‍👧 Parents</a>
+                <a href="admin-payments.html">💳 Payments</a>
+            </div>
+        </article>
+
+        <article class="step67-settings-card step67-backup-card">
+            <div class="step67-card-heading">
+                <span class="step67-heading-icon backup">💾</span>
+                <div>
+                    <span class="page-kicker">DATA SAFETY</span>
                     <h2>System Backup</h2>
-                    <p>Download a JSON backup of important MongoDB data for safe keeping.</p>
+                    <p>Download a JSON backup of important MongoDB records.</p>
+                </div>
+            </div>
 
-                    <div class="info-list">
-                        <div class="info-item">
-                            <span>Included Data</span>
-                            <strong>Parents, students, payments, announcements, rules</strong>
-                        </div>
-                        <div class="info-item">
-                            <span>Excluded Data</span>
-                            <strong>Password hashes + large receipt images</strong>
-                        </div>
-                    </div>
-
-                    <div class="warning-box">
-                        <strong>Note:</strong> Keep the backup file private. It may contain parent contact details and payment information.
-                    </div>
-
-                    <div class="quick-actions">
-                        <button type="button" class="btnx btn-primary" onclick="downloadSystemBackup()">Download Backup JSON</button>
-                    </div>
+            <div class="step67-backup-summary">
+                <div>
+                    <span>Included data</span>
+                    <strong>Parents, students, payments, announcements and rules</strong>
                 </div>
 
+                <div>
+                    <span>Excluded data</span>
+                    <strong>Password hashes and large receipt images</strong>
+                </div>
+            </div>
 
-                <div class="panel">
+            <div class="step67-security-note">
+                <span>🔐</span>
+                <p>
+                    Keep the backup file private because it may contain parent
+                    contact details and payment information.
+                </p>
+            </div>
+
+            <button
+                class="btn btn-primary-pro step67-backup-button"
+                type="button"
+                onclick="downloadSystemBackup()"
+            >
+                ⬇ Download Backup JSON
+            </button>
+        </article>
+
+        <article class="step67-settings-card step67-password-card">
+            <div class="step67-card-heading">
+                <span class="step67-heading-icon password">🔑</span>
+                <div>
+                    <span class="page-kicker">SECURITY</span>
                     <h2>Change Admin Password</h2>
-                    <p>After changing password, you will be logged out and need to login again using the new password.</p>
-
-                    <form class="form-grid" onsubmit="changeAdminPasswordFromPage(event)">
-                        <div class="form-row">
-                            <label for="adminCurrentPassword">Current Password</label>
-                            <input type="password" id="adminCurrentPassword" placeholder="Enter current admin password" required>
-                        </div>
-
-                        <div class="form-row">
-                            <label for="adminNewPassword">New Password</label>
-                            <input type="password" id="adminNewPassword" placeholder="Minimum 6 characters" required>
-                        </div>
-
-                        <div class="form-row">
-                            <label for="adminConfirmPassword">Confirm New Password</label>
-                            <input type="password" id="adminConfirmPassword" placeholder="Re-enter new password" required>
-                        </div>
-
-                        <button type="submit" class="btnx btn-primary">Change Password</button>
-                    </form>
-
-                    <div class="warning-box">
-                        <strong>Important:</strong> If you change the password, the default <b>admin123</b> will no longer work.
-                        Keep your new password safely.
-                    </div>
+                    <p>You will be logged out after the password is changed.</p>
                 </div>
-            </section>
-        </main>
-    </div>
+            </div>
 
-    <nav class="mobile-bottom-nav">
-        <a href="admin-dashboard.html">
-            <span>📊</span>
-            <small>Home</small>
-        </a>
-        <a href="admin-students.html">
-            <span>🎒</span>
-            <small>Student</small>
-        </a>
-        <a href="admin-parents.html">
-            <span>👪</span>
-            <small>Parent</small>
-        </a>
-        <a href="admin-payments.html">
-            <span>💳</span>
-            <small>Pay</small>
-        </a>
-        <a href="admin-settings.html" class="active">
-            <span>⚙️</span>
-            <small>Settings</small>
-        </a>
-    </nav>
+            <form class="step67-password-form" onsubmit="changeAdminPasswordFromPage(event)">
+                <div class="field-group">
+                    <label for="adminCurrentPassword">Current Password</label>
+                    <input
+                        type="password"
+                        id="adminCurrentPassword"
+                        placeholder="Enter current admin password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
 
-    <script src="app.js"></script>
+                <div class="field-group">
+                    <label for="adminNewPassword">New Password</label>
+                    <input
+                        type="password"
+                        id="adminNewPassword"
+                        placeholder="Minimum 6 characters"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <div class="field-group">
+                    <label for="adminConfirmPassword">Confirm New Password</label>
+                    <input
+                        type="password"
+                        id="adminConfirmPassword"
+                        placeholder="Re-enter new password"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <button class="btn btn-primary-pro full-btn" type="submit">
+                    Change Password
+                </button>
+            </form>
+
+            <div class="step67-password-warning">
+                <strong>Important</strong>
+                <p>
+                    After changing the password, the previous password will stop working.
+                    Store the new password securely.
+                </p>
+            </div>
+        </article>
+
+    </section>
+
+</main>
+</div>
+
+<script src="app.js"></script>
+<script>loadAdminSettingsPage();</script>
 </body>
 </html>
-
-<!-- MUTAHUS_STEP21_ADMIN_BACKUP_DOWNLOAD -->
+<!-- MUTHAQUS_STEP67_ADMIN_SETTINGS_POLISH -->
