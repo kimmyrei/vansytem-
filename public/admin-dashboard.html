@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Mutahus Global</title>
+    <meta name="theme-color" content="#143f73">
+    <title>Admin Dashboard | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -14,7 +15,7 @@
     <div class="sidebar-brand">
         <span>🚐</span>
         <div>
-            <strong>Mutahus Global</strong>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
             <small>Admin Control</small>
         </div>
     </div>
@@ -45,11 +46,10 @@
         <div class="mobile-brand">
             <span>🚐</span>
             <div>
-                <strong>Mutahus Global</strong>
+                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
                 <small>Admin Control</small>
             </div>
         </div>
-        <a href="#" onclick="adminLogout()" class="mobile-logout">Logout</a>
     </div>
 
     <nav class="mobile-bottom-nav admin-mobile-bottom">
@@ -99,34 +99,39 @@
         </section>
 
         <div class="dashboard-grid dashboard-grid-pro">
-            <section class="table-box table-box-pro">
+            <section class="table-box table-box-pro admin-recent-payments-card">
                 <div class="table-header">
-                    <div>
-                        <h2>Recent Payments</h2>
-                        <p>Latest payment submissions from parents.</p>
+                    <div class="admin-dashboard-payment-heading">
+                        <span>💳</span>
+                        <div>
+                            <h2>Recent Payments</h2>
+                            <p>Latest payment submissions from parents.</p>
+                        </div>
                     </div>
 
                     <a href="admin-payments.html" class="small-link">View All</a>
                 </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Parent</th>
-                            <th>Student</th>
-                            <th>Month</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentPaymentsTable"></tbody>
-                </table>
+                <div class="admin-recent-payment-shell">
+                    <table class="admin-recent-payment-table">
+                        <thead>
+                            <tr>
+                                <th>Parent</th>
+                                <th>Student</th>
+                                <th>Month</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentPaymentsTable"></tbody>
+                    </table>
+                </div>
             </section>
 
             <section class="quick-panel quick-panel-pro">
                 <h2>Quick Actions</h2>
 
-                <a href="admin-students.html" class="quick-action"><span>🎒</span><div><strong>Manage Students</strong><p>View school, class, session and pickup details.</p></div></a>
+                <a href="admin-students.html" class="quick-action"><span>🎒</span><div><strong>Manage Students</strong><p>Review school, class, session and monthly fee details.</p></div></a>
                 <a href="admin-parents.html" class="quick-action"><span>👨‍👩‍👧</span><div><strong>Manage Parents</strong><p>Check parent contact information.</p></div></a>
                 <a href="admin-payments.html" class="quick-action"><span>💳</span><div><strong>Review Payments</strong><p>Approve or reject uploaded receipts.</p></div></a>
                 <a href="admin-announcements.html" class="quick-action"><span>📢</span><div><strong>Post Announcement</strong><p>Send updates to parents.</p></div></a>
@@ -140,4 +145,4 @@
 <script>loadAdminDashboard();</script>
 </body>
 </html>
-<!-- MUTAHUS_FIX_ADMIN_SETTINGS_LINK_ADMIN-DASHBOARD -->
+<!-- MUTHAQUS_STEP63_ADMIN_DASHBOARD_RECENT_PAYMENT_POLISH -->

@@ -6445,3 +6445,428 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
 // MUTHAQUS_STEP61_GLOBAL_REBRAND
 
 // MUTHAQUS_STEP62_ADMIN_MOBILE_RECORD_CARDS
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP63_ADMIN_LOGIN_PDF_RECENT_PAYMENT_POLISH
+   ========================================================= */
+
+(function () {
+    "use strict";
+
+    if (window.__muthaqusStep63Loaded) return;
+    window.__muthaqusStep63Loaded = true;
+
+    let currentReceiptBlobUrl = "";
+    let currentReceiptPdf = null;
+
+    function safeReceiptName(value) {
+        const name = String(value || "payment-receipt.pdf").trim();
+
+        if (/\.pdf$/i.test(name)) return name;
+
+        return name.replace(/\.[^.]+$/, "") + ".pdf";
+    }
+
+    function dataUrlToBlob(dataUrl) {
+        const parts = String(dataUrl || "").split(",");
+
+        if (parts.length < 2) {
+            throw new Error("Invalid receipt file data.");
+        }
+
+        const header = parts[0];
+        const data = parts.slice(1).join(",");
+        const mimeMatch = header.match(/^data:([^;,]+)/i);
+        const mimeType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+        const isBase64 = /;base64/i.test(header);
+
+        let bytes;
+
+        if (isBase64) {
+            const binary = atob(data);
+            bytes = new Uint8Array(binary.length);
+
+            for (let index = 0; index < binary.length; index += 1) {
+                bytes[index] = binary.charCodeAt(index);
+            }
+        } else {
+            const decoded = decodeURIComponent(data);
+            bytes = new TextEncoder().encode(decoded);
+        }
+
+        return new Blob([bytes], {
+            type: mimeType
+        });
+    }
+
+    function releaseReceiptBlobUrl() {
+        if (currentReceiptBlobUrl) {
+            URL.revokeObjectURL(currentReceiptBlobUrl);
+            currentReceiptBlobUrl = "";
+        }
+    }
+
+    function openCurrentReceiptPdf() {
+        if (!currentReceiptPdf) {
+            alert("PDF receipt is not ready. Please open the receipt again.");
+            return;
+        }
+
+        try {
+            const url =
+                currentReceiptBlobUrl ||
+                URL.createObjectURL(currentReceiptPdf.blob);
+
+            currentReceiptBlobUrl = url;
+
+            const opened = window.open(url, "_blank", "noopener");
+
+            if (!opened) {
+                /*
+                 * Android WebView often blocks a new tab.
+                 * Opening in the current view gives the device PDF viewer
+                 * a chance to handle the Blob URL.
+                 */
+                window.location.assign(url);
+            }
+        } catch (error) {
+            alert("Unable to open this PDF. Please use Download PDF instead.");
+        }
+    }
+
+    function downloadCurrentReceiptPdf() {
+        if (!currentReceiptPdf) {
+            alert("PDF receipt is not ready. Please open the receipt again.");
+            return;
+        }
+
+        try {
+            const url =
+                currentReceiptBlobUrl ||
+                URL.createObjectURL(currentReceiptPdf.blob);
+
+            currentReceiptBlobUrl = url;
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = safeReceiptName(currentReceiptPdf.name);
+            link.rel = "noopener";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            alert("Unable to download PDF receipt: " + error.message);
+        }
+    }
+
+    window.closeReceiptModal = function () {
+        document.getElementById("receiptPreviewModal")?.remove();
+        document.body.classList.remove("muthaqus-receipt-open");
+        document.body.classList.remove("mutahus-receipt-open");
+        document.body.style.overflow = "";
+
+        currentReceiptPdf = null;
+
+        window.setTimeout(releaseReceiptBlobUrl, 400);
+    };
+
+    window.showReceiptInfo = function (receiptName, note, receiptDataUrl) {
+        closeReceiptModal();
+
+        const name = receiptName || "Payment receipt";
+        const paymentNote = note || "No additional note";
+
+        if (!receiptDataUrl || !receiptDataUrl.startsWith("data:")) {
+            alert(
+                "Receipt file: " +
+                    name +
+                    "\nPayment note: " +
+                    paymentNote +
+                    "\n\nThe actual receipt file is not available for this older record."
+            );
+            return;
+        }
+
+        const isPdf =
+            receiptDataUrl.startsWith("data:application/pdf") ||
+            /\.pdf$/i.test(name);
+
+        let pdfBlobUrl = "";
+
+        if (isPdf) {
+            try {
+                const blob = dataUrlToBlob(receiptDataUrl);
+                pdfBlobUrl = URL.createObjectURL(blob);
+                currentReceiptBlobUrl = pdfBlobUrl;
+                currentReceiptPdf = {
+                    name,
+                    blob
+                };
+            } catch (error) {
+                alert("Unable to prepare this PDF receipt: " + error.message);
+                return;
+            }
+        }
+
+        const isMobile = window.matchMedia("(max-width: 860px)").matches;
+        const modal = document.createElement("div");
+
+        modal.id = "receiptPreviewModal";
+        modal.className = "muthaqus-receipt-modal";
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-modal", "true");
+        modal.setAttribute("aria-label", "Payment receipt preview");
+
+        const pdfContent = isMobile
+            ? `
+                <div class="muthaqus-mobile-pdf-card">
+                    <div class="muthaqus-pdf-icon">PDF</div>
+                    <h3>PDF Receipt Ready</h3>
+                    <p>
+                        Some Android browsers and WebViews cannot display a PDF
+                        inside the page. Open it using your phone PDF viewer or
+                        download it directly.
+                    </p>
+
+                    <div class="muthaqus-pdf-actions">
+                        <button type="button" class="btn btn-primary-pro" data-pdf-open>
+                            Open PDF
+                        </button>
+
+                        <button type="button" class="btn btn-outline-pro" data-pdf-download>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+            `
+            : `
+                <object
+                    class="muthaqus-receipt-pdf-object"
+                    data="${pdfBlobUrl}"
+                    type="application/pdf"
+                >
+                    <div class="muthaqus-mobile-pdf-card">
+                        <div class="muthaqus-pdf-icon">PDF</div>
+                        <h3>PDF preview is unavailable</h3>
+                        <p>Open or download the PDF receipt.</p>
+
+                        <div class="muthaqus-pdf-actions">
+                            <button type="button" class="btn btn-primary-pro" data-pdf-open>
+                                Open PDF
+                            </button>
+
+                            <button type="button" class="btn btn-outline-pro" data-pdf-download>
+                                Download PDF
+                            </button>
+                        </div>
+                    </div>
+                </object>
+            `;
+
+        modal.innerHTML = `
+            <div class="muthaqus-receipt-card">
+                <div class="muthaqus-receipt-header">
+                    <div class="muthaqus-receipt-heading">
+                        <span class="muthaqus-receipt-brand-icon">🚐</span>
+
+                        <div>
+                            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+                            <h2>Payment Receipt</h2>
+                            <p>${mutahusEscapeHtml(name)}</p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="muthaqus-receipt-close"
+                        aria-label="Close receipt"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div class="muthaqus-receipt-note">
+                    <span>Note</span>
+                    <p>${mutahusEscapeHtml(paymentNote)}</p>
+                </div>
+
+                <div class="muthaqus-receipt-body">
+                    ${
+                        isPdf
+                            ? pdfContent
+                            : `
+                                <img
+                                    class="muthaqus-receipt-image"
+                                    src="${receiptDataUrl}"
+                                    alt="Payment receipt"
+                                >
+                            `
+                    }
+                </div>
+            </div>
+        `;
+
+        modal
+            .querySelector(".muthaqus-receipt-close")
+            ?.addEventListener("click", closeReceiptModal);
+
+        modal
+            .querySelectorAll("[data-pdf-open]")
+            .forEach(button => {
+                button.addEventListener("click", openCurrentReceiptPdf);
+            });
+
+        modal
+            .querySelectorAll("[data-pdf-download]")
+            .forEach(button => {
+                button.addEventListener("click", downloadCurrentReceiptPdf);
+            });
+
+        modal.addEventListener("click", event => {
+            if (event.target === modal) {
+                closeReceiptModal();
+            }
+        });
+
+        document.body.appendChild(modal);
+        document.body.classList.add("muthaqus-receipt-open");
+
+        const closeButton = modal.querySelector(".muthaqus-receipt-close");
+        closeButton?.focus();
+    };
+
+    window.loadAdminDashboard = async function () {
+        const recentTable = document.getElementById("recentPaymentsTable");
+
+        if (recentTable) {
+            recentTable.innerHTML = `
+                <tr class="admin-recent-empty-row">
+                    <td colspan="5" class="empty-row">
+                        Loading dashboard from MongoDB...
+                    </td>
+                </tr>
+            `;
+        }
+
+        try {
+            const response = await fetch("/api/admin-dashboard");
+            const result = await response.json();
+
+            console.log("ADMIN DASHBOARD RESULT:", result);
+
+            if (!result.success) {
+                alert(result.message || "Failed to load admin dashboard.");
+                return;
+            }
+
+            const summary = result.summary || {};
+            const recentPayments = result.recentPayments || [];
+
+            const values = {
+                totalParents: summary.totalParents || 0,
+                totalStudents: summary.totalStudents || 0,
+                morningCount: summary.morningCount || 0,
+                afternoonCount: summary.afternoonCount || 0,
+                pendingPayments: summary.pendingPayments || 0,
+                totalPaidMonth: "RM" + Number(summary.totalPaidMonth || 0).toFixed(2)
+            };
+
+            Object.entries(values).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.innerText = value;
+            });
+
+            if (!recentTable) return;
+
+            recentTable.innerHTML = "";
+
+            if (recentPayments.length === 0) {
+                recentTable.innerHTML = `
+                    <tr class="admin-recent-empty-row">
+                        <td colspan="5" class="empty-row">
+                            <div class="mutahus-empty-state">
+                                <span>💳</span>
+                                <strong>No payment submitted yet.</strong>
+                                <small>New parent payment submissions will appear here.</small>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            recentPayments.forEach(payment => {
+                const badgeClass = getPaymentBadgeClass(
+                    payment.status || "Pending"
+                );
+
+                const parentInitial = String(
+                    payment.parentName || "P"
+                )
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+
+                recentTable.innerHTML += `
+                    <tr class="admin-recent-payment-row">
+                        <td data-label="Parent">
+                            <div class="recent-payment-person">
+                                <span class="recent-payment-avatar">
+                                    ${parentInitial}
+                                </span>
+
+                                <div>
+                                    <strong>
+                                        ${mutahusEscapeHtml(payment.parentName || "-")}
+                                    </strong>
+                                    <small>
+                                        ${mutahusEscapeHtml(payment.parentPhone || "")}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td data-label="Student">
+                            <strong>
+                                ${mutahusEscapeHtml(payment.studentName || "All registered children")}
+                            </strong>
+                        </td>
+
+                        <td data-label="Month">
+                            ${mutahusEscapeHtml(payment.month || "-")}
+                        </td>
+
+                        <td data-label="Amount">
+                            <span class="recent-payment-amount">
+                                RM${Number(payment.amount || 0).toFixed(2)}
+                            </span>
+                        </td>
+
+                        <td data-label="Status">
+                            <span class="badge ${badgeClass}">
+                                ${mutahusEscapeHtml(payment.status || "Pending")}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            alert("Admin dashboard error: " + error.message);
+
+            if (recentTable) {
+                recentTable.innerHTML = `
+                    <tr class="admin-recent-empty-row">
+                        <td colspan="5" class="empty-row">
+                            Failed to load dashboard.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    };
+})();
+
+// MUTHAQUS_STEP63_ADMIN_LOGIN_PDF_RECENT_PAYMENT_POLISH
+
