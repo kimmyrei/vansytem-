@@ -5034,3 +5034,250 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 
 // MUTAHUS_STEP51_MOBILE_ONLY_SINGLE_TOP_TASKBAR
 
+
+/* =========================================================
+   MUTAHUS_STEP53_SCREENSHOT_TOPBAR_ONLY_FIX
+   - Keep only one top-right More button on mobile
+   - Fully hide the off-screen white More panel when closed
+   - Remove the white rounded object above the blue taskbar
+   - Keep a smooth entrance animation on mobile and desktop
+   ========================================================= */
+(function () {
+    "use strict";
+
+    if (window.__mutahusStep53ScreenshotFixLoaded) return;
+    window.__mutahusStep53ScreenshotFixLoaded = true;
+
+    const MOBILE_QUERY = window.matchMedia("(max-width: 860px)");
+
+    function installStep53Style() {
+        if (document.getElementById("mutahusStep53ScreenshotStyle")) return;
+
+        const style = document.createElement("style");
+        style.id = "mutahusStep53ScreenshotStyle";
+        style.textContent = `
+            /* MUTAHUS_STEP53_SCREENSHOT_TOPBAR_ONLY_FIX */
+
+            /*
+             * The old More panel used translateY(-120%) while closed.
+             * A rounded white part could remain visible above the blue taskbar.
+             * Keep it completely removed from layout until it is opened.
+             */
+            @media (max-width: 860px) {
+                html,
+                body {
+                    margin-top: 0 !important;
+                    padding-top: 0 !important;
+                    overflow-x: hidden !important;
+                }
+
+                header.top-taskbar {
+                    top: 0 !important;
+                    margin-top: 0 !important;
+                }
+
+                #mutahusMobileFeaturePanel:not(.show) {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    transform: none !important;
+                }
+
+                #mutahusMobileFeaturePanel.show {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    transform: none !important;
+                }
+
+                /*
+                 * The page already contains a mobile menu button while app.js
+                 * also creates the blue More button. Keep the blue More button
+                 * and hide only the duplicated taskbar button.
+                 */
+                body.mutahus-step53-has-more
+                    header.top-taskbar
+                    .mobile-menu-btn {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+
+                #mutahusMobileFeatureBtn {
+                    display: inline-flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                }
+
+                /*
+                 * Previous topbar cleanup can mark extra headers.
+                 * Keep all duplicate variants fully removed.
+                 */
+                header.top-taskbar.mutahus-mobile-duplicate-topbar,
+                header.top-taskbar.login-mobile-duplicate,
+                header.top-taskbar.mutahus-step53-duplicate {
+                    display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+            }
+
+            /* Smooth entrance on BOTH desktop and mobile. */
+            body.mutahus-step53-entering header.top-taskbar {
+                animation: mutahusStep53HeaderIn 0.30s ease both !important;
+            }
+
+            body.mutahus-step53-entering main,
+            body.mutahus-step53-entering .auth-card-pro,
+            body.mutahus-step53-entering .form-card-pro,
+            body.mutahus-step53-entering .page-hero-bar,
+            body.mutahus-step53-entering .hero-card,
+            body.mutahus-step53-entering .stats-pro,
+            body.mutahus-step53-entering .table-box-pro {
+                animation: mutahusStep53ContentIn 0.42s ease both !important;
+            }
+
+            @keyframes mutahusStep53HeaderIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes mutahusStep53ContentIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                body.mutahus-step53-entering header.top-taskbar,
+                body.mutahus-step53-entering main,
+                body.mutahus-step53-entering .auth-card-pro,
+                body.mutahus-step53-entering .form-card-pro,
+                body.mutahus-step53-entering .page-hero-bar,
+                body.mutahus-step53-entering .hero-card,
+                body.mutahus-step53-entering .stats-pro,
+                body.mutahus-step53-entering .table-box-pro {
+                    animation-duration: 0.01ms !important;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    function keepOneTopbar() {
+        const headers = Array.from(document.querySelectorAll("header.top-taskbar"));
+
+        headers.forEach((header) => {
+            header.classList.remove("mutahus-step53-duplicate");
+        });
+
+        if (!MOBILE_QUERY.matches || headers.length <= 1) return;
+
+        /*
+         * Prefer the header that contains the Mutahus brand.
+         * When they are identical, keep the first one.
+         */
+        const keeper =
+            headers.find((header) =>
+                /mutahus global/i.test(header.textContent || "")
+            ) || headers[0];
+
+        headers.forEach((header) => {
+            if (header !== keeper) {
+                header.classList.add("mutahus-step53-duplicate");
+
+                const menu = header.querySelector(".taskbar-links.show-mobile-menu");
+                if (menu) menu.classList.remove("show-mobile-menu");
+            }
+        });
+    }
+
+    function fixMoreButtonAndPanel() {
+        const featureButton = document.getElementById("mutahusMobileFeatureBtn");
+        const featurePanel = document.getElementById("mutahusMobileFeaturePanel");
+
+        if (featureButton && MOBILE_QUERY.matches) {
+            document.body.classList.add("mutahus-step53-has-more");
+            featureButton.innerHTML = "•••";
+            featureButton.setAttribute("aria-label", "More");
+            featureButton.title = "More";
+        } else {
+            document.body.classList.remove("mutahus-step53-has-more");
+        }
+
+        if (featurePanel && !featurePanel.classList.contains("show")) {
+            featurePanel.setAttribute("aria-hidden", "true");
+        } else if (featurePanel) {
+            featurePanel.setAttribute("aria-hidden", "false");
+        }
+    }
+
+    function startPageAnimation() {
+        if (document.body.dataset.mutahusStep53Animated === "true") return;
+
+        document.body.dataset.mutahusStep53Animated = "true";
+        document.body.classList.add("mutahus-step53-entering");
+
+        /*
+         * Remove the animation class after it finishes so no permanent
+         * transform can interfere with sticky/fixed mobile navigation.
+         */
+        window.setTimeout(() => {
+            document.body.classList.remove("mutahus-step53-entering");
+        }, 650);
+    }
+
+    function runStep53ScreenshotFix() {
+        installStep53Style();
+        keepOneTopbar();
+        fixMoreButtonAndPanel();
+        startPageAnimation();
+    }
+
+    document.addEventListener("DOMContentLoaded", runStep53ScreenshotFix);
+    window.addEventListener("load", runStep53ScreenshotFix);
+    window.addEventListener("pageshow", runStep53ScreenshotFix);
+    window.addEventListener("resize", runStep53ScreenshotFix);
+    window.addEventListener("orientationchange", runStep53ScreenshotFix);
+
+    if (typeof MOBILE_QUERY.addEventListener === "function") {
+        MOBILE_QUERY.addEventListener("change", runStep53ScreenshotFix);
+    }
+
+    let observerTimer = null;
+    const observer = new MutationObserver(() => {
+        window.clearTimeout(observerTimer);
+        observerTimer = window.setTimeout(() => {
+            keepOneTopbar();
+            fixMoreButtonAndPanel();
+        }, 80);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["class"]
+            });
+        }
+    });
+
+    window.setTimeout(runStep53ScreenshotFix, 250);
+    window.setTimeout(runStep53ScreenshotFix, 900);
+    window.setTimeout(runStep53ScreenshotFix, 1600);
+})();
+
+// MUTAHUS_STEP53_SCREENSHOT_TOPBAR_ONLY_FIX
+
