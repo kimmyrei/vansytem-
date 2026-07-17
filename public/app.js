@@ -101,11 +101,13 @@ function requireParentLogin() {
 
 function parentLogout() {
     localStorage.removeItem(VS.currentParentKey);
+    localStorage.removeItem("muthaqus_parent_last_activity");
     window.location.href = "index.html";
 }
 
 function adminLogout() {
     localStorage.removeItem(VS.adminKey);
+    localStorage.removeItem("muthaqus_admin_last_activity");
     window.location.href = "index.html";
 }
 
@@ -6934,4 +6936,488 @@ document.addEventListener("keydown", function (event) {
 });
 
 // MUTHAQUS_STEP68_PARENT_DETAILS_MODAL_POLISH
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP69_AUTO_SIGN_OUT_SECURITY
+
+   Security policy:
+   - Auto sign out after 15 minutes without user activity.
+   - Warning appears during the final 60 seconds.
+   - Works for both Admin and Parent protected pages.
+   - Activity is shared between tabs using localStorage.
+   ========================================================= */
+(function () {
+    "use strict";
+
+    if (window.__muthaqusStep69Loaded) return;
+    window.__muthaqusStep69Loaded = true;
+
+    const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
+    const WARNING_DURATION_MS = 60 * 1000;
+    const CHECK_INTERVAL_MS = 1000;
+    const ACTIVITY_WRITE_THROTTLE_MS = 15000;
+
+    const ADMIN_SESSION_KEY = "vansystem_admin_logged_in";
+    const PARENT_SESSION_KEY = "vansystem_current_parent";
+
+    const ADMIN_ACTIVITY_KEY = "muthaqus_admin_last_activity";
+    const PARENT_ACTIVITY_KEY = "muthaqus_parent_last_activity";
+
+    const ADMIN_PROTECTED_PAGES = new Set([
+        "admin-dashboard.html",
+        "admin-students.html",
+        "admin-parents.html",
+        "admin-payments.html",
+        "admin-announcements.html",
+        "admin-rules.html",
+        "admin-settings.html"
+    ]);
+
+    const PARENT_PROTECTED_PAGES = new Set([
+        "parent-dashboard.html",
+        "parent-profile.html",
+        "add-student.html",
+        "upload-payment.html",
+        "parent-rules.html"
+    ]);
+
+    let activeSession = null;
+    let lastActivityWrite = 0;
+    let countdownTimer = null;
+    let securityCheckTimer = null;
+    let isSigningOut = false;
+
+    function currentPage() {
+        return (
+            window.location.pathname.split("/").pop() ||
+            "index.html"
+        );
+    }
+
+    function getSessionConfiguration() {
+        const page = currentPage();
+
+        if (
+            ADMIN_PROTECTED_PAGES.has(page) &&
+            localStorage.getItem(ADMIN_SESSION_KEY)
+        ) {
+            return {
+                role: "admin",
+                sessionKey: ADMIN_SESSION_KEY,
+                activityKey: ADMIN_ACTIVITY_KEY,
+                loginPage: "admin-login.html"
+            };
+        }
+
+        if (
+            PARENT_PROTECTED_PAGES.has(page) &&
+            localStorage.getItem(PARENT_SESSION_KEY)
+        ) {
+            return {
+                role: "parent",
+                sessionKey: PARENT_SESSION_KEY,
+                activityKey: PARENT_ACTIVITY_KEY,
+                loginPage: "parent-login.html"
+            };
+        }
+
+        return null;
+    }
+
+    function getLastActivity() {
+        if (!activeSession) return 0;
+
+        const stored = Number(
+            localStorage.getItem(activeSession.activityKey)
+        );
+
+        return Number.isFinite(stored) ? stored : 0;
+    }
+
+    function setLastActivity(force = false) {
+        if (!activeSession || isSigningOut) return;
+
+        const now = Date.now();
+
+        if (
+            !force &&
+            now - lastActivityWrite < ACTIVITY_WRITE_THROTTLE_MS
+        ) {
+            return;
+        }
+
+        lastActivityWrite = now;
+        localStorage.setItem(
+            activeSession.activityKey,
+            String(now)
+        );
+
+        hideSecurityWarning();
+    }
+
+    function formatRemainingTime(milliseconds) {
+        const totalSeconds = Math.max(
+            0,
+            Math.ceil(milliseconds / 1000)
+        );
+
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        return (
+            String(minutes).padStart(2, "0") +
+            ":" +
+            String(seconds).padStart(2, "0")
+        );
+    }
+
+    function warningMessage() {
+        return activeSession?.role === "admin"
+            ? "Your admin session will end soon to protect system and parent data."
+            : "Your parent session will end soon to protect your account information.";
+    }
+
+    function createSecurityWarning() {
+        let modal = document.getElementById(
+            "muthaqusSecurityWarning"
+        );
+
+        if (modal) return modal;
+
+        modal = document.createElement("div");
+        modal.id = "muthaqusSecurityWarning";
+        modal.className = "muthaqus-security-warning";
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-modal", "true");
+        modal.setAttribute(
+            "aria-label",
+            "Session expiry warning"
+        );
+
+        modal.innerHTML = `
+            <div class="muthaqus-security-card">
+                <div class="muthaqus-security-icon">🔒</div>
+
+                <span class="muthaqus-security-kicker">
+                    SECURITY TIMEOUT
+                </span>
+
+                <h2>Are you still there?</h2>
+
+                <p id="muthaqusSecurityMessage"></p>
+
+                <div class="muthaqus-security-countdown">
+                    <small>Automatic sign out in</small>
+                    <strong id="muthaqusSecurityCountdown">
+                        01:00
+                    </strong>
+                </div>
+
+                <div class="muthaqus-security-actions">
+                    <button
+                        type="button"
+                        class="btn btn-primary-pro"
+                        id="muthaqusStaySignedIn"
+                    >
+                        Stay Signed In
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-pro"
+                        id="muthaqusSignOutNow"
+                    >
+                        Sign Out Now
+                    </button>
+                </div>
+
+                <small class="muthaqus-security-note">
+                    Activity such as clicking, typing or scrolling
+                    keeps the session active.
+                </small>
+            </div>
+        `;
+
+        modal
+            .querySelector("#muthaqusStaySignedIn")
+            ?.addEventListener("click", function () {
+                setLastActivity(true);
+                hideSecurityWarning();
+            });
+
+        modal
+            .querySelector("#muthaqusSignOutNow")
+            ?.addEventListener("click", function () {
+                expireSession("manual-timeout");
+            });
+
+        document.body.appendChild(modal);
+
+        return modal;
+    }
+
+    function showSecurityWarning(remainingTime) {
+        const modal = createSecurityWarning();
+        const message = modal.querySelector(
+            "#muthaqusSecurityMessage"
+        );
+        const countdown = modal.querySelector(
+            "#muthaqusSecurityCountdown"
+        );
+
+        if (message) {
+            message.textContent = warningMessage();
+        }
+
+        if (countdown) {
+            countdown.textContent =
+                formatRemainingTime(remainingTime);
+        }
+
+        modal.classList.add("show");
+        document.body.classList.add(
+            "muthaqus-security-warning-open"
+        );
+
+        modal
+            .querySelector("#muthaqusStaySignedIn")
+            ?.focus();
+    }
+
+    function hideSecurityWarning() {
+        const modal = document.getElementById(
+            "muthaqusSecurityWarning"
+        );
+
+        modal?.classList.remove("show");
+        document.body.classList.remove(
+            "muthaqus-security-warning-open"
+        );
+    }
+
+    function showExpiredNotice() {
+        const parameters = new URLSearchParams(
+            window.location.search
+        );
+
+        if (parameters.get("reason") !== "timeout") return;
+
+        const notice = document.createElement("div");
+        notice.className = "muthaqus-session-expired-notice";
+        notice.innerHTML = `
+            <span>🔒</span>
+            <div>
+                <strong>Session expired</strong>
+                <p>
+                    You were automatically signed out after
+                    15 minutes of inactivity.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                aria-label="Close notice"
+            >
+                ×
+            </button>
+        `;
+
+        notice
+            .querySelector("button")
+            ?.addEventListener("click", () => {
+                notice.remove();
+            });
+
+        document.body.appendChild(notice);
+
+        const cleanUrl =
+            window.location.pathname +
+            window.location.hash;
+
+        window.history.replaceState(
+            {},
+            document.title,
+            cleanUrl
+        );
+
+        window.setTimeout(() => {
+            notice.classList.add("show");
+        }, 60);
+
+        window.setTimeout(() => {
+            notice.classList.remove("show");
+
+            window.setTimeout(() => {
+                notice.remove();
+            }, 350);
+        }, 7000);
+    }
+
+    function expireSession(reason = "timeout") {
+        if (!activeSession || isSigningOut) return;
+
+        isSigningOut = true;
+
+        localStorage.removeItem(activeSession.sessionKey);
+        localStorage.removeItem(activeSession.activityKey);
+
+        hideSecurityWarning();
+
+        window.location.replace(
+            activeSession.loginPage +
+            "?reason=" +
+            encodeURIComponent(reason)
+        );
+    }
+
+    function checkSessionSecurity() {
+        if (!activeSession || isSigningOut) return;
+
+        if (!localStorage.getItem(activeSession.sessionKey)) {
+            expireSession("timeout");
+            return;
+        }
+
+        const lastActivity = getLastActivity();
+
+        if (!lastActivity) {
+            setLastActivity(true);
+            return;
+        }
+
+        const elapsedTime = Date.now() - lastActivity;
+        const remainingTime =
+            INACTIVITY_TIMEOUT_MS - elapsedTime;
+
+        if (remainingTime <= 0) {
+            expireSession("timeout");
+            return;
+        }
+
+        if (remainingTime <= WARNING_DURATION_MS) {
+            showSecurityWarning(remainingTime);
+        } else {
+            hideSecurityWarning();
+        }
+    }
+
+    function registerActivityListeners() {
+        const activityEvents = [
+            "pointerdown",
+            "keydown",
+            "touchstart",
+            "scroll"
+        ];
+
+        activityEvents.forEach(eventName => {
+            window.addEventListener(
+                eventName,
+                function (event) {
+                    if (
+                        event.isTrusted === false ||
+                        !activeSession
+                    ) {
+                        return;
+                    }
+
+                    setLastActivity(false);
+                },
+                {
+                    capture: true,
+                    passive: eventName !== "keydown"
+                }
+            );
+        });
+
+        document.addEventListener(
+            "visibilitychange",
+            function () {
+                if (
+                    document.visibilityState !== "visible" ||
+                    !activeSession
+                ) {
+                    return;
+                }
+
+                checkSessionSecurity();
+
+                if (!isSigningOut) {
+                    setLastActivity(true);
+                }
+            }
+        );
+
+        window.addEventListener("focus", function () {
+            if (!activeSession) return;
+
+            checkSessionSecurity();
+
+            if (!isSigningOut) {
+                setLastActivity(true);
+            }
+        });
+
+        window.addEventListener("storage", function (event) {
+            if (!activeSession) return;
+
+            if (event.key === activeSession.sessionKey) {
+                if (!event.newValue) {
+                    expireSession("timeout");
+                }
+                return;
+            }
+
+            if (event.key === activeSession.activityKey) {
+                hideSecurityWarning();
+                checkSessionSecurity();
+            }
+        });
+    }
+
+    function startSecurityMonitor() {
+        activeSession = getSessionConfiguration();
+
+        if (!activeSession) return;
+
+        const lastActivity = getLastActivity();
+
+        if (
+            !lastActivity ||
+            Date.now() - lastActivity >=
+                INACTIVITY_TIMEOUT_MS
+        ) {
+            setLastActivity(true);
+        }
+
+        registerActivityListeners();
+        checkSessionSecurity();
+
+        securityCheckTimer = window.setInterval(
+            checkSessionSecurity,
+            CHECK_INTERVAL_MS
+        );
+    }
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+            showExpiredNotice();
+            startSecurityMonitor();
+        }
+    );
+
+    window.addEventListener("beforeunload", function () {
+        if (securityCheckTimer) {
+            window.clearInterval(securityCheckTimer);
+        }
+
+        if (countdownTimer) {
+            window.clearInterval(countdownTimer);
+        }
+    });
+})();
+
+// MUTHAQUS_STEP69_AUTO_SIGN_OUT_SECURITY
 
