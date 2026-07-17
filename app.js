@@ -836,111 +836,30 @@ async function loadAdminDashboard() {
 
 
 
-async function loadAdminAnnouncements() {
-    const table = document.getElementById("announcementTable");
-    const preview = document.getElementById("announcementPreviewList");
-
-    if (table) {
-        table.innerHTML = `<tr><td colspan="6" class="empty-row">Loading announcements from MongoDB...</td></tr>`;
-    }
-
-    try {
-        const response = await fetch("/api/admin-dashboard?action=announcements");
-        const result = await response.json();
-
-        console.log("ADMIN ANNOUNCEMENTS RESULT:", result);
-
-        if (!result.success) {
-            alert(result.message || "Failed to load announcements.");
-            if (table) {
-                table.innerHTML = `<tr><td colspan="6" class="empty-row">Failed to load announcements.</td></tr>`;
-            }
+async function loadAdminAnnouncements(){
+    const history=document.getElementById("announcementHistoryList");
+    const preview=document.getElementById("announcementPreviewList");
+    if(history)history.innerHTML='<div class="s64-empty-card"><span>📢</span><strong>Loading previous announcements...</strong></div>';
+    try{
+        const response=await fetch("/api/admin-dashboard?action=announcements"); const result=await response.json();
+        if(!result.success)throw new Error(result.message||"Failed to load announcements.");
+        const items=result.announcements||[]; const summary=result.summary||{}; window.adminAnnouncementsData=items;
+        const vals={announcementTotal:summary.totalAnnouncements||0,announcementMonth:summary.thisMonth||0,announcementImportant:summary.importantNotices||0,announcementGeneral:summary.generalUpdates||0,announcementHistoryCount:items.length};
+        Object.entries(vals).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.innerText=v;});
+        if(history)history.innerHTML=""; if(preview)preview.innerHTML="";
+        if(!items.length){
+            if(history)history.innerHTML='<div class="s64-empty-card"><span>📭</span><strong>No previous announcement yet</strong><p>Create your first notice using the form above.</p></div>';
+            if(preview)preview.innerHTML='<div class="s64-empty-card"><span>👀</span><strong>No active announcement</strong><p>Active notices will appear here.</p></div>';
             return;
         }
-
-        const announcements = result.announcements || [];
-        const summary = result.summary || {};
-
-        const totalEl = document.getElementById("announcementTotal");
-        const monthEl = document.getElementById("announcementMonth");
-        const importantEl = document.getElementById("announcementImportant");
-        const generalEl = document.getElementById("announcementGeneral");
-
-        if (totalEl) totalEl.innerText = summary.totalAnnouncements || 0;
-        if (monthEl) monthEl.innerText = summary.thisMonth || 0;
-        if (importantEl) importantEl.innerText = summary.importantNotices || 0;
-        if (generalEl) generalEl.innerText = summary.generalUpdates || 0;
-
-        if (table) table.innerHTML = "";
-        if (preview) preview.innerHTML = "";
-
-        if (announcements.length === 0) {
-            if (table) {
-                table.innerHTML = `<tr><td colspan="6" class="empty-row">No announcements posted yet.</td></tr>`;
-            }
-
-            if (preview) {
-                preview.innerHTML = `
-                    <div class="announcement announcement-card-pro normal-box">
-                        <strong>No announcement yet.</strong>
-                        <p>Announcements posted here will appear on the parent dashboard.</p>
-                    </div>
-                `;
-            }
-
-            return;
-        }
-
-        announcements.forEach(item => {
-            const priorityClass = item.priority === "Urgent" ? "rejected" : item.priority === "Important" ? "pending" : "morning";
-            const categoryClass = getAnnouncementCategoryBadgeClass(item.type);
-            const statusClass = item.status === "Active" ? "paid" : "unpaid";
-            const nextStatus = item.status === "Active" ? "Inactive" : "Active";
-
-            if (table) {
-                table.innerHTML += `
-                    <tr>
-                        <td><strong>${item.title}</strong><br><small>${item.message}</small></td>
-                        <td><span class="badge ${categoryClass}">${item.type}</span></td>
-                        <td><span class="badge ${priorityClass}">${item.priority}</span></td>
-                        <td>${item.date || ""}</td>
-                        <td><span class="badge ${statusClass}">${item.status}</span></td>
-                        <td>
-                            <button class="small-btn edit" onclick="updateAnnouncementStatus('${item.id}', '${nextStatus}')">${nextStatus}</button>
-                            <button class="small-btn danger" onclick="deleteAnnouncement('${item.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            }
-
-            if (preview && item.status === "Active") {
-                preview.innerHTML += `
-                    <div class="announcement announcement-card-pro ${item.priority === "Urgent" ? "urgent-box" : item.priority === "Important" ? "important-box" : "normal-box"}">
-                        <div class="announcement-top-row">
-                            <span class="badge ${categoryClass}">${item.type}</span>
-                            <small>${item.date || ""}</small>
-                        </div>
-                        <strong>📢 ${item.title}</strong>
-                        <p>${item.message}</p>
-                    </div>
-                `;
-            }
+        items.forEach(item=>{
+            const pc=item.priority==="Urgent"?"rejected":item.priority==="Important"?"pending":"morning";
+            const cc=getAnnouncementCategoryBadgeClass(item.type); const sc=item.status==="Active"?"paid":"unpaid"; const next=item.status==="Active"?"Inactive":"Active";
+            if(history)history.innerHTML+=`<article class="s64-ann-card ${String(item.priority||"Normal").toLowerCase()}"><div class="s64-ann-head"><div class="s64-ann-title"><span>📢</span><div><h3>${mutahusSafeHtml(item.title||"Untitled announcement")}</h3><small>${mutahusSafeHtml(item.date||"")}</small></div></div><span class="badge ${sc}">${mutahusSafeHtml(item.status||"Inactive")}</span></div><p>${mutahusSafeHtml(item.message||"")}</p><div class="s64-ann-meta"><span class="badge ${cc}">${mutahusSafeHtml(item.type||"General Announcement")}</span><span class="badge ${pc}">${mutahusSafeHtml(item.priority||"Normal")}</span></div><div class="s64-ann-actions"><button class="small-btn edit" type="button" onclick="updateAnnouncementStatus('${item.id}','${next}')">Mark ${next}</button><button class="small-btn danger" type="button" onclick="deleteAnnouncement('${item.id}')">Delete</button></div></article>`;
+            if(preview&&item.status==="Active")preview.innerHTML+=`<div class="s64-parent-preview ${String(item.priority||"Normal").toLowerCase()}"><div class="s64-preview-top"><span class="badge ${cc}">${mutahusSafeHtml(item.type||"General Announcement")}</span><small>${mutahusSafeHtml(item.date||"")}</small></div><h3>${mutahusSafeHtml(item.title||"Announcement")}</h3><p>${mutahusSafeHtml(item.message||"")}</p></div>`;
         });
-
-        if (preview && preview.innerHTML.trim() === "") {
-            preview.innerHTML = `
-                <div class="announcement announcement-card-pro normal-box">
-                    <strong>No active announcement.</strong>
-                    <p>Inactive announcements will not appear on the parent dashboard.</p>
-                </div>
-            `;
-        }
-    } catch (error) {
-        alert("Announcements error: " + error.message);
-        if (table) {
-            table.innerHTML = `<tr><td colspan="6" class="empty-row">Failed to load announcements.</td></tr>`;
-        }
-    }
+        if(preview&&!preview.innerHTML.trim())preview.innerHTML='<div class="s64-empty-card"><span>🔕</span><strong>No active announcement</strong><p>Inactive notices remain in history only.</p></div>';
+    }catch(error){if(history)history.innerHTML=`<div class="s64-empty-card"><span>⚠️</span><strong>Unable to load announcements</strong><p>${mutahusSafeHtml(error.message)}</p></div>`;}
 }
 
 async function postAnnouncement(event) {
@@ -1442,129 +1361,19 @@ function viewParentReceipt(paymentId) {
 }
 
 async function loadAdminPayments() {
-    const table = document.getElementById("adminPaymentsTable");
-
-    if (table) {
-        table.innerHTML = `<tr><td colspan="7" class="empty-row">Loading payments from MongoDB...</td></tr>`;
-    }
-
-    try {
-        const response = await fetch("/api/admin-payments");
-        const result = await response.json();
-
-        console.log("ADMIN PAYMENTS RESULT:", result);
-
-        if (!result.success) {
-            alert(result.message || "Failed to load payments.");
-            if (table) {
-                table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load payments.</td></tr>`;
-            }
-            return;
-        }
-
-        const payments = result.payments || [];
-        const summary = result.summary || {
-            totalCollection: 0,
-            paidCount: 0,
-            pendingCount: 0,
-            unpaidCount: 0
-        };
-
-        window.adminPaymentReceiptMap = {};
-        window.adminPaymentInvoiceMap = {};
-
-        const totalCollectionEl = document.getElementById("paymentTotalCollection");
-        const paidCountEl = document.getElementById("paymentPaidCount");
-        const pendingCountEl = document.getElementById("paymentPendingCount");
-        const unpaidCountEl = document.getElementById("paymentUnpaidCount");
-
-        if (totalCollectionEl) {
-            totalCollectionEl.innerText = "RM" + Number(summary.totalCollection || 0).toFixed(2);
-        }
-        if (paidCountEl) paidCountEl.innerText = summary.paidCount || 0;
-        if (pendingCountEl) pendingCountEl.innerText = summary.pendingCount || 0;
-        if (unpaidCountEl) unpaidCountEl.innerText = summary.unpaidCount || 0;
-
-        if (!table) return;
-
-        table.innerHTML = "";
-
-        if (payments.length === 0) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty-row">
-                        <div class="mutahus-empty-state">
-                            <span>💳</span>
-                            <strong>No payment proof uploaded yet.</strong>
-                            <small>Parent payment submissions will appear here.</small>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        payments.forEach(payment => {
-            window.adminPaymentReceiptMap[payment.id] = payment;
-            window.adminPaymentInvoiceMap[payment.id] = payment;
-
-            const badgeClass = getPaymentBadgeClass(payment.status);
-            const isPaid = payment.status === "Paid";
-            const isRejected = payment.status === "Rejected";
-
-            const invoiceButton = isPaid
-                ? `
-                    <button
-                        class="small-btn invoice-admin-btn"
-                        type="button"
-                        onclick="downloadPaymentInvoice('${payment.id}', 'admin')"
-                    >
-                        PDF Invoice
-                    </button>
-                `
-                : "";
-
-            table.innerHTML += `
-                <tr>
-                    <td>
-                        <strong>${mutahusSafeHtml(payment.parentName || "-")}</strong>
-                        <br><small>${mutahusSafeHtml(payment.parentPhone || "")}</small>
-                    </td>
-                    <td>${mutahusSafeHtml(payment.studentName || "All registered children")}</td>
-                    <td>${mutahusSafeHtml(payment.month || "-")}</td>
-                    <td><strong>RM${Number(payment.amount || 0).toFixed(2)}</strong></td>
-                    <td>
-                        <button class="receipt-button" type="button" onclick="viewAdminReceipt('${payment.id}')">
-                            View Receipt
-                        </button>
-                        <br><small>${mutahusSafeHtml(payment.receiptName || "No receipt file")}</small>
-                    </td>
-                    <td><span class="badge ${badgeClass}">${mutahusSafeHtml(payment.status || "Pending")}</span></td>
-                    <td>
-                        <div class="action-row">
-                            <button class="small-btn edit payment-action-btn" data-id="${payment.id}" data-status="Paid" ${isPaid ? "disabled" : ""}>
-                                Approve
-                            </button>
-                            <button class="small-btn danger payment-action-btn" data-id="${payment.id}" data-status="Rejected" ${isRejected ? "disabled" : ""}>
-                                Reject
-                            </button>
-                            <button class="small-btn warning payment-action-btn" data-id="${payment.id}" data-status="Pending" ${payment.status === "Pending" ? "disabled" : ""}>
-                                Pending
-                            </button>
-                            ${invoiceButton}
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-
-        connectPaymentButtons();
-    } catch (error) {
-        alert("Admin payments error: " + error.message);
-        if (table) {
-            table.innerHTML = `<tr><td colspan="7" class="empty-row">Failed to load payments.</td></tr>`;
-        }
-    }
+    const table=document.getElementById("adminPaymentsTable");
+    if(table)table.innerHTML='<tr class="s64-empty-row"><td colspan="7" class="empty-row">Loading payment records...</td></tr>';
+    try{
+        const response=await fetch("/api/admin-payments");
+        const result=await response.json();
+        if(!result.success)throw new Error(result.message||"Failed to load payments.");
+        const payments=result.payments||[]; const summary=result.summary||{};
+        window.adminPaymentsData=payments; window.adminPaymentReceiptMap={}; window.adminPaymentInvoiceMap={};
+        payments.forEach(p=>{window.adminPaymentReceiptMap[p.id]=p;window.adminPaymentInvoiceMap[p.id]=p;});
+        const values={paymentTotalCollection:"RM"+Number(summary.totalCollection||0).toFixed(2),paymentPaidCount:summary.paidCount||0,paymentPendingCount:summary.pendingCount||0,paymentUnpaidCount:summary.unpaidCount||0};
+        Object.entries(values).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.innerText=v;});
+        renderAdminPaymentRecords();
+    }catch(error){if(table)table.innerHTML=`<tr class="s64-empty-row"><td colspan="7" class="empty-row">${mutahusSafeHtml(error.message)}</td></tr>`;}
 }
 
 function viewAdminReceipt(paymentId) {
@@ -1640,41 +1449,15 @@ async function loadPublicRules() {
     }
 }
 
-async function loadAdminRules() {
-    const table = document.getElementById("adminRulesTable");
-
-    if (!table) return;
-
-    table.innerHTML = `<tr><td colspan="4" class="empty-row">Loading rules from MongoDB...</td></tr>`;
-
-    try {
-        const rules = await fetchRulesFromMongoDB();
-
-        window.adminRulesData = rules;
-
-        table.innerHTML = "";
-
-        if (rules.length === 0) {
-            table.innerHTML = `<tr><td colspan="4" class="empty-row">No rules added yet.</td></tr>`;
-            return;
-        }
-
-        rules.forEach(rule => {
-            table.innerHTML += `
-                <tr>
-                    <td>${rule.icon || "✅"}</td>
-                    <td><strong>${rule.title}</strong></td>
-                    <td>${rule.description}</td>
-                    <td>
-                        <button class="small-btn edit" onclick="editRule('${rule.id}')">Edit</button>
-                        <button class="small-btn danger" onclick="deleteRule('${rule.id}')">Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-    } catch (error) {
-        table.innerHTML = `<tr><td colspan="4" class="empty-row">Failed to load rules: ${error.message}</td></tr>`;
-    }
+async function loadAdminRules(){
+    const list=document.getElementById("adminRulesList"); if(!list)return;
+    list.innerHTML='<div class="s64-empty-card"><span>📘</span><strong>Loading current rules...</strong></div>';
+    try{
+        const rules=await fetchRulesFromMongoDB(); window.adminRulesData=rules;
+        const count=document.getElementById("adminRulesCount"); if(count)count.innerText=rules.length; list.innerHTML="";
+        if(!rules.length){list.innerHTML='<div class="s64-empty-card"><span>📭</span><strong>No current rules</strong><p>Add a rule using the editor.</p></div>';return;}
+        rules.forEach((rule,index)=>{list.innerHTML+=`<article class="s64-rule-card"><div class="s64-rule-no">${index+1}</div><div class="s64-rule-icon">${mutahusSafeHtml(rule.icon||"✅")}</div><div class="s64-rule-text"><h3>${mutahusSafeHtml(rule.title||"Untitled rule")}</h3><p>${mutahusSafeHtml(rule.description||"")}</p></div><div class="s64-rule-actions"><button class="small-btn edit" type="button" onclick="editRule('${rule.id}')">Edit</button><button class="small-btn danger" type="button" onclick="deleteRule('${rule.id}')">Delete</button></div></article>`;});
+    }catch(error){list.innerHTML=`<div class="s64-empty-card"><span>⚠️</span><strong>Unable to load rules</strong><p>${mutahusSafeHtml(error.message)}</p></div>`;}
 }
 
 async function saveRuleFromAdmin(event) {
@@ -6869,4 +6652,18 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
 })();
 
 // MUTHAQUS_STEP63_ADMIN_LOGIN_PDF_RECENT_PAYMENT_POLISH
+
+
+/* MUTHAQUS_STEP64_PAYMENT_ANNOUNCEMENT_RULES_POLISH */
+function renderAdminPaymentRecords(){
+ const table=document.getElementById("adminPaymentsTable");if(!table)return;
+ const q=String(document.getElementById("paymentRecordSearch")?.value||"").trim().toLowerCase();const status=document.getElementById("paymentRecordStatus")?.value||"";
+ const rows=(window.adminPaymentsData||[]).filter(p=>{const text=[p.parentName,p.parentPhone,p.studentName,p.month,p.receiptName,p.status].join(" ").toLowerCase();return(!q||text.includes(q))&&(!status||p.status===status);});
+ const count=document.getElementById("paymentVisibleCount");if(count)count.innerText=rows.length;table.innerHTML="";
+ if(!rows.length){table.innerHTML='<tr class="s64-empty-row"><td colspan="7"><div class="s64-empty-card"><span>💳</span><strong>No payment record matches</strong><p>Try another search or status.</p></div></td></tr>';return;}
+ rows.forEach(p=>{const bc=getPaymentBadgeClass(p.status);const paid=p.status==="Paid";const rejected=p.status==="Rejected";const initial=String(p.parentName||"P").trim().charAt(0).toUpperCase();const invoice=paid?`<button class="small-btn invoice-admin-btn" type="button" onclick="downloadPaymentInvoice('${p.id}','admin')">PDF Invoice</button>`:"";table.innerHTML+=`<tr class="s64-payment-row"><td data-label="Parent"><div class="s64-person"><span>${initial}</span><div><strong>${mutahusSafeHtml(p.parentName||"-")}</strong><small>${mutahusSafeHtml(p.parentPhone||"")}</small></div></div></td><td data-label="Student"><strong>${mutahusSafeHtml(p.studentName||"All registered children")}</strong></td><td data-label="Month">${mutahusSafeHtml(p.month||"-")}</td><td data-label="Amount"><span class="s64-amount">RM${Number(p.amount||0).toFixed(2)}</span></td><td data-label="Receipt"><button class="receipt-button" type="button" onclick="viewAdminReceipt('${p.id}')">View Receipt</button><small class="s64-file">${mutahusSafeHtml(p.receiptName||"No receipt file")}</small></td><td data-label="Status"><span class="badge ${bc}">${mutahusSafeHtml(p.status||"Pending")}</span></td><td data-label="Actions"><div class="s64-pay-actions"><button class="small-btn edit payment-action-btn" data-id="${p.id}" data-status="Paid" ${paid?"disabled":""}>Approve</button><button class="small-btn danger payment-action-btn" data-id="${p.id}" data-status="Rejected" ${rejected?"disabled":""}>Reject</button><button class="small-btn warning payment-action-btn" data-id="${p.id}" data-status="Pending" ${p.status==="Pending"?"disabled":""}>Pending</button>${invoice}</div></td></tr>`;});connectPaymentButtons();
+}
+function resetPaymentRecordFilters(){const q=document.getElementById("paymentRecordSearch"),s=document.getElementById("paymentRecordStatus");if(q)q.value="";if(s)s.value="";renderAdminPaymentRecords();}
+function updateAnnouncementDraftPreview(){const box=document.getElementById("announcementDraftPreview");if(!box)return;const title=document.getElementById("announcementTitle")?.value.trim()||"Announcement title";const type=document.getElementById("announcementType")?.value||"General Announcement";const priority=document.getElementById("announcementPriority")?.value||"Normal";const msg=document.getElementById("announcementMessage")?.value.trim()||"Your announcement message will appear here.";const cc=getAnnouncementCategoryBadgeClass(type);const pc=priority==="Urgent"?"rejected":priority==="Important"?"pending":"morning";box.innerHTML=`<div class="s64-parent-preview ${priority.toLowerCase()}"><div class="s64-preview-top"><span class="badge ${cc}">${mutahusSafeHtml(type)}</span><span class="badge ${pc}">${mutahusSafeHtml(priority)}</span></div><h3>${mutahusSafeHtml(title)}</h3><p>${mutahusSafeHtml(msg)}</p></div>`;}
+document.addEventListener("DOMContentLoaded",()=>{["announcementTitle","announcementType","announcementPriority","announcementMessage"].forEach(id=>{document.getElementById(id)?.addEventListener("input",updateAnnouncementDraftPreview);document.getElementById(id)?.addEventListener("change",updateAnnouncementDraftPreview);});updateAnnouncementDraftPreview();});
 
