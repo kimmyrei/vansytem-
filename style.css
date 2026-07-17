@@ -8899,3 +8899,63 @@ body.muthaqus-receipt-open {
 
 /* MUTHAQUS_STEP65_ADMIN_PAYMENT_DESKTOP_REPAIR */
 
+/* =========================================================
+   MUTHAQUS_STEP66_REMOVE_DUPLICATE_PAYMENT_FILTER
+
+   The legacy Step 23 filter was a sibling of .app-main and made the
+   desktop app shell create an unwanted third column. Hide it as a
+   final CSS fallback and restore one sidebar + one main-content layout.
+   ========================================================= */
+
+body.page-admin-payments #paymentFilterPanel,
+body.step65-payment-desktop #paymentFilterPanel,
+body.step66-payment-clean-layout #paymentFilterPanel {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+
+@media (min-width: 861px) {
+    body.step65-payment-desktop .app-shell,
+    body.step66-payment-clean-layout .app-shell {
+        display: grid !important;
+        grid-template-columns: 272px minmax(0, 1fr) !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+    }
+
+    body.step65-payment-desktop .pro-sidebar,
+    body.step66-payment-clean-layout .pro-sidebar {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        width: 272px !important;
+        min-width: 272px !important;
+    }
+
+    body.step65-payment-desktop .app-main,
+    body.step66-payment-clean-layout .app-main {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    body.step65-payment-desktop .step65-payment-table,
+    body.step66-payment-clean-layout .step65-payment-table {
+        min-width: 1040px !important;
+    }
+}
+
+/* MUTHAQUS_STEP66_REMOVE_DUPLICATE_PAYMENT_FILTER */
+

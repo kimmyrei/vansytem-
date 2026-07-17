@@ -3738,52 +3738,20 @@ function applyParentFilters() {
 }
 
 function setupPaymentFilters() {
-    createAdminFilterPanel({
-        panelId: "paymentFilterPanel",
-        title: "Search & Filter Payments",
-        subtitle: "Find payment records by parent, student, month, amount, receipt or status.",
-        searchId: "paymentSearchInput",
-        searchPlaceholder: "Search payment / parent / student / month...",
-        filterOneId: "paymentStatusFilter",
-        filterOneLabel: "Payment Status",
-        filterOneOptions: `
-            <option value="">All Status</option>
-            <option value="Paid">Paid</option>
-            <option value="Pending">Pending</option>
-            <option value="Rejected">Rejected</option>
-            <option value="Unpaid">Unpaid</option>
-        `,
-        filterTwoId: "paymentMonthFilter",
-        filterTwoLabel: "Month",
-        filterTwoOptions: `
-            <option value="">All Month</option>
-            <option value="January">January</option>
-            <option value="February">February</option>
-            <option value="March">March</option>
-            <option value="April">April</option>
-            <option value="May">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
-        `,
-        resetId: "paymentFilterReset",
-        applyFunction: applyPaymentFilters
-    });
-
-    applyPaymentFilters();
+    /*
+     * Step 64 already provides the current Payment Records filter inside
+     * the main content. The older Step 23 filter was being inserted before
+     * .app-main, creating the huge blank panel on the left of desktop view.
+     */
+    document.getElementById("paymentFilterPanel")?.remove();
 }
 
 function applyPaymentFilters() {
-    filterRowsByText("adminPaymentsTable", {
-        searchId: "paymentSearchInput",
-        filterOneId: "paymentStatusFilter",
-        filterTwoId: "paymentMonthFilter",
-        colspan: 7
-    });
+    document.getElementById("paymentFilterPanel")?.remove();
+
+    if (typeof renderAdminPaymentRecords === "function") {
+        renderAdminPaymentRecords();
+    }
 }
 
 function startAdminSearchFilters() {
@@ -6666,4 +6634,50 @@ function renderAdminPaymentRecords(){
 function resetPaymentRecordFilters(){const q=document.getElementById("paymentRecordSearch"),s=document.getElementById("paymentRecordStatus");if(q)q.value="";if(s)s.value="";renderAdminPaymentRecords();}
 function updateAnnouncementDraftPreview(){const box=document.getElementById("announcementDraftPreview");if(!box)return;const title=document.getElementById("announcementTitle")?.value.trim()||"Announcement title";const type=document.getElementById("announcementType")?.value||"General Announcement";const priority=document.getElementById("announcementPriority")?.value||"Normal";const msg=document.getElementById("announcementMessage")?.value.trim()||"Your announcement message will appear here.";const cc=getAnnouncementCategoryBadgeClass(type);const pc=priority==="Urgent"?"rejected":priority==="Important"?"pending":"morning";box.innerHTML=`<div class="s64-parent-preview ${priority.toLowerCase()}"><div class="s64-preview-top"><span class="badge ${cc}">${mutahusSafeHtml(type)}</span><span class="badge ${pc}">${mutahusSafeHtml(priority)}</span></div><h3>${mutahusSafeHtml(title)}</h3><p>${mutahusSafeHtml(msg)}</p></div>`;}
 document.addEventListener("DOMContentLoaded",()=>{["announcementTitle","announcementType","announcementPriority","announcementMessage"].forEach(id=>{document.getElementById(id)?.addEventListener("input",updateAnnouncementDraftPreview);document.getElementById(id)?.addEventListener("change",updateAnnouncementDraftPreview);});updateAnnouncementDraftPreview();});
+
+/* =========================================================
+   MUTHAQUS_STEP66_REMOVE_DUPLICATE_PAYMENT_FILTER
+   Final protection against the obsolete left-side payment filter.
+   ========================================================= */
+(function () {
+    "use strict";
+
+    if (window.__muthaqusStep66Loaded) return;
+    window.__muthaqusStep66Loaded = true;
+
+    function isPaymentPage() {
+        return (window.location.pathname.split("/").pop() || "") === "admin-payments.html";
+    }
+
+    function removeDuplicatePaymentFilter() {
+        if (!isPaymentPage()) return;
+
+        document.querySelectorAll("#paymentFilterPanel").forEach(panel => {
+            panel.remove();
+        });
+
+        document.body.classList.add("step66-payment-clean-layout");
+    }
+
+    document.addEventListener("DOMContentLoaded", removeDuplicatePaymentFilter);
+    window.addEventListener("load", removeDuplicatePaymentFilter);
+    window.addEventListener("pageshow", removeDuplicatePaymentFilter);
+
+    const observer = new MutationObserver(removeDuplicatePaymentFilter);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!document.body || !isPaymentPage()) return;
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+
+    window.setTimeout(removeDuplicatePaymentFilter, 200);
+    window.setTimeout(removeDuplicatePaymentFilter, 700);
+    window.setTimeout(removeDuplicatePaymentFilter, 1500);
+})();
+
+// MUTHAQUS_STEP66_REMOVE_DUPLICATE_PAYMENT_FILTER
 
