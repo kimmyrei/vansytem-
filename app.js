@@ -562,6 +562,8 @@ function closeParentDetails() {
     if (modal) {
         modal.classList.remove("show");
     }
+
+    document.body.classList.remove("step68-parent-modal-open");
 }
 
 window.addEventListener("click", function(event) {
@@ -2031,7 +2033,7 @@ async function loadAdminParents() {
                                 type="button"
                                 onclick="viewParentDetails('${parent.id}')"
                             >
-                                View Details
+                                👁 View Details
                             </button>
 
                             <button
@@ -2099,8 +2101,13 @@ function viewParentDetails(parentId) {
         return;
     }
 
-    const parentChildren = parent.children || [];
-    const parentPayments = parent.payments || [];
+    const parentChildren = Array.isArray(parent.children)
+        ? parent.children
+        : [];
+
+    const parentPayments = Array.isArray(parent.payments)
+        ? parent.payments
+        : [];
 
     const modal = document.getElementById("parentDetailModal");
     const modalBody = document.getElementById("parentDetailBody");
@@ -2110,127 +2117,323 @@ function viewParentDetails(parentId) {
         return;
     }
 
-    const paidTotal = parentPayments
-        .filter(payment => payment.status === "Paid")
-        .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+    const status = parent.status || "Active";
+    const accountStatusClass =
+        status === "Pending"
+            ? "pending"
+            : status === "Rejected"
+            ? "rejected"
+            : "paid";
 
-    const pendingCount = parentPayments.filter(payment => payment.status === "Pending").length;
+    const paidPayments = parentPayments.filter(
+        payment => payment.status === "Paid"
+    );
 
-    let childrenRows = "";
+    const paidTotal = paidPayments.reduce(
+        (sum, payment) => sum + Number(payment.amount || 0),
+        0
+    );
+
+    const pendingCount = parentPayments.filter(
+        payment => payment.status === "Pending"
+    ).length;
+
+    const latestPayment = parentPayments[0] || null;
+    const initial = String(parent.name || "P")
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+    const cleanPhone = String(parent.phone || "")
+        .replace(/[^\d+]/g, "");
+
+    const whatsappPhone = cleanPhone.startsWith("0")
+        ? "60" + cleanPhone.slice(1)
+        : cleanPhone;
+
+    window.parentDetailPaymentMap = {};
+
+    let childrenContent = "";
 
     if (parentChildren.length === 0) {
-        childrenRows = `
-            <tr>
-                <td colspan="6" class="empty-row">No child registered under this parent.</td>
-            </tr>
+        childrenContent = `
+            <div class="step68-empty-panel">
+                <span>🎒</span>
+                <strong>No registered children</strong>
+                <p>Children added by this parent will appear here.</p>
+            </div>
         `;
     } else {
-        parentChildren.forEach(child => {
-            const statusClass = getStudentStatusBadgeClass(child.status || "Pending Review");
+        childrenContent = parentChildren
+            .map(child => {
+                const childStatus = child.status || "Pending Review";
+                const statusClass =
+                    getStudentStatusBadgeClass(childStatus);
 
-            childrenRows += `
-                <tr>
-                    <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                    <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
-                    <td>${child.classYear}</td>
-                    <td>${child.session}</td>
-                    <td>${child.pickupLocation}</td>
-                    <td><span class="badge ${statusClass}">${child.status || "Pending Review"}</span></td>
-                </tr>
-            `;
-        });
+                const school = child.school || "Not applicable";
+                const kafa = child.kafa
+                    ? `${child.kafa}${
+                          child.kafaSession
+                              ? ` (${child.kafaSession})`
+                              : ""
+                      }`
+                    : "Not applicable";
+
+                return `
+                    <article class="step68-child-card">
+                        <div class="step68-child-card-head">
+                            <div class="step68-child-identity">
+                                <span>🎒</span>
+                                <div>
+                                    <h4>${mutahusSafeHtml(child.name || "Unnamed child")}</h4>
+                                    <small>ID: ${mutahusSafeHtml(child.id || "-")}</small>
+                                </div>
+                            </div>
+
+                            <span class="badge ${statusClass}">
+                                ${mutahusSafeHtml(childStatus)}
+                            </span>
+                        </div>
+
+                        <div class="step68-detail-list">
+                            <div>
+                                <span>School</span>
+                                <strong>${mutahusSafeHtml(school)}</strong>
+                            </div>
+
+                            <div>
+                                <span>KAFA</span>
+                                <strong>${mutahusSafeHtml(kafa)}</strong>
+                            </div>
+
+                            <div>
+                                <span>Class</span>
+                                <strong>${mutahusSafeHtml(child.classYear || "-")}</strong>
+                            </div>
+
+                            <div>
+                                <span>Session</span>
+                                <strong>${mutahusSafeHtml(child.session || "Not applicable")}</strong>
+                            </div>
+
+                            <div class="step68-full-detail">
+                                <span>Monthly Fee</span>
+                                <strong>RM${Number(child.monthlyAmount || 0).toFixed(2)}</strong>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            })
+            .join("");
     }
 
-    let paymentRows = "";
+    let paymentsContent = "";
 
     if (parentPayments.length === 0) {
-        paymentRows = `
-            <tr>
-                <td colspan="5" class="empty-row">No payment submitted by this parent yet.</td>
-            </tr>
+        paymentsContent = `
+            <div class="step68-empty-panel">
+                <span>💳</span>
+                <strong>No payment records</strong>
+                <p>Payment submissions from this parent will appear here.</p>
+            </div>
         `;
     } else {
-        parentPayments.forEach(payment => {
-            const badgeClass = getPaymentBadgeClass(payment.status || "Pending");
+        paymentsContent = parentPayments
+            .map(payment => {
+                window.parentDetailPaymentMap[payment.id] = payment;
 
-            paymentRows += `
-                <tr>
-                    <td>${payment.month}</td>
-                    <td>${payment.studentName}</td>
-                    <td>RM${payment.amount}</td>
-                    <td><span class="badge ${badgeClass}">${payment.status}</span></td>
-                    <td>
-                        <button class="receipt-button" onclick="showReceiptInfo('${payment.receiptName || ""}', '${payment.note || ""}', '${payment.receiptDataUrl || ""}')">View</button>
-                    </td>
-                </tr>
-            `;
-        });
+                const paymentStatus = payment.status || "Pending";
+                const badgeClass =
+                    getPaymentBadgeClass(paymentStatus);
+
+                const invoiceButton =
+                    paymentStatus === "Paid"
+                        ? `
+                            <button
+                                class="step68-payment-button invoice"
+                                type="button"
+                                onclick="downloadParentDetailInvoice('${payment.id}')"
+                            >
+                                ⬇ PDF Invoice
+                            </button>
+                        `
+                        : "";
+
+                return `
+                    <article class="step68-payment-card">
+                        <div class="step68-payment-card-head">
+                            <div>
+                                <span class="step68-payment-month">
+                                    ${mutahusSafeHtml(payment.month || "Payment")}
+                                </span>
+                                <h4>${mutahusSafeHtml(payment.studentName || "All registered children")}</h4>
+                            </div>
+
+                            <span class="badge ${badgeClass}">
+                                ${mutahusSafeHtml(paymentStatus)}
+                            </span>
+                        </div>
+
+                        <div class="step68-payment-card-body">
+                            <div>
+                                <span>Amount</span>
+                                <strong>RM${Number(payment.amount || 0).toFixed(2)}</strong>
+                            </div>
+
+                            <div>
+                                <span>Receipt</span>
+                                <strong>${mutahusSafeHtml(payment.receiptName || "No file")}</strong>
+                            </div>
+                        </div>
+
+                        <div class="step68-payment-card-actions">
+                            <button
+                                class="step68-payment-button"
+                                type="button"
+                                onclick="viewParentDetailReceipt('${payment.id}')"
+                            >
+                                👁 View Receipt
+                            </button>
+
+                            ${invoiceButton}
+                        </div>
+                    </article>
+                `;
+            })
+            .join("");
     }
 
     modalBody.innerHTML = `
-        <div class="parent-profile-card">
-            <div class="profile-avatar">${(parent.name || "P").charAt(0).toUpperCase()}</div>
-            <div>
-                <h2>${parent.name}</h2>
-                <p>${parent.phone || "-"} • ${parent.email || "-"}</p>
-                <span class="badge paid">${parent.status || "Active"}</span>
-            </div>
-        </div>
+        <section class="step68-parent-detail-shell">
+            <header class="step68-parent-detail-hero">
+                <div class="step68-parent-main">
+                    <div class="step68-parent-avatar">${mutahusSafeHtml(initial)}</div>
 
-        <div class="stats-grid mini-stats-grid">
-            <div class="stat-card">
-                <h3>Registered Children</h3>
-                <h2>${parentChildren.length}</h2>
-            </div>
-            <div class="stat-card">
-                <h3>Payment Records</h3>
-                <h2>${parentPayments.length}</h2>
-            </div>
-            <div class="stat-card">
-                <h3>Total Paid</h3>
-                <h2>RM${paidTotal}</h2>
-            </div>
-            <div class="stat-card">
-                <h3>Pending Payments</h3>
-                <h2>${pendingCount}</h2>
-            </div>
-        </div>
+                    <div class="step68-parent-heading">
+                        <span class="page-kicker">PARENT ACCOUNT</span>
+                        <h2>${mutahusSafeHtml(parent.name || "Parent")}</h2>
 
-        <h3>Children</h3>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Child</th>
-                        <th>School</th>
-                        <th>Class</th>
-                        <th>Session</th>
-                        <th>Pickup</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>${childrenRows}</tbody>
-            </table>
-        </div>
+                        <div class="step68-parent-contact-line">
+                            <span>📞 ${mutahusSafeHtml(parent.phone || "-")}</span>
+                            <span>✉️ ${mutahusSafeHtml(parent.email || "-")}</span>
+                        </div>
+                    </div>
+                </div>
 
-        <h3>Payments</h3>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Student</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Receipt</th>
-                    </tr>
-                </thead>
-                <tbody>${paymentRows}</tbody>
-            </table>
-        </div>
+                <span class="badge ${accountStatusClass} step68-account-badge">
+                    ${mutahusSafeHtml(status)}
+                </span>
+            </header>
+
+            <div class="step68-contact-actions">
+                <a
+                    href="${cleanPhone ? `tel:${mutahusSafeHtml(cleanPhone)}` : "#"}"
+                    class="${cleanPhone ? "" : "is-disabled"}"
+                >
+                    📞 Call Parent
+                </a>
+
+                <a
+                    href="${parent.email ? `mailto:${mutahusSafeHtml(parent.email)}` : "#"}"
+                    class="${parent.email ? "" : "is-disabled"}"
+                >
+                    ✉️ Send Email
+                </a>
+
+                <a
+                    href="${whatsappPhone ? `https://api.whatsapp.com/send?phone=${mutahusSafeHtml(whatsappPhone)}&text=Assalamualaikum%2C%20ini%20daripada%20MUTHAQUS%20GLOBAL%20ENTERPRISE.` : "#"}"
+                    class="${whatsappPhone ? "whatsapp" : "is-disabled"}"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    💬 WhatsApp
+                </a>
+            </div>
+
+            <section class="step68-parent-summary">
+                <article>
+                    <span>🎒</span>
+                    <div>
+                        <small>Registered Children</small>
+                        <strong>${parentChildren.length}</strong>
+                    </div>
+                </article>
+
+                <article>
+                    <span>🧾</span>
+                    <div>
+                        <small>Payment Records</small>
+                        <strong>${parentPayments.length}</strong>
+                    </div>
+                </article>
+
+                <article>
+                    <span>✅</span>
+                    <div>
+                        <small>Total Paid</small>
+                        <strong>RM${paidTotal.toFixed(2)}</strong>
+                    </div>
+                </article>
+
+                <article>
+                    <span>⏳</span>
+                    <div>
+                        <small>Pending Payments</small>
+                        <strong>${pendingCount}</strong>
+                    </div>
+                </article>
+            </section>
+
+            <section class="step68-detail-section">
+                <div class="step68-section-heading">
+                    <div>
+                        <span class="page-kicker">CHILD RECORDS</span>
+                        <h3>Registered Children</h3>
+                        <p>School, class, session and monthly service fee.</p>
+                    </div>
+
+                    <span class="step68-record-count">
+                        ${parentChildren.length} ${
+                            parentChildren.length === 1
+                                ? "Child"
+                                : "Children"
+                        }
+                    </span>
+                </div>
+
+                <div class="step68-child-grid">
+                    ${childrenContent}
+                </div>
+            </section>
+
+            <section class="step68-detail-section">
+                <div class="step68-section-heading">
+                    <div>
+                        <span class="page-kicker">PAYMENT HISTORY</span>
+                        <h3>Payment Records</h3>
+                        <p>Review receipt files and approved invoices.</p>
+                    </div>
+
+                    <span class="step68-record-count">
+                        ${parentPayments.length} ${
+                            parentPayments.length === 1
+                                ? "Record"
+                                : "Records"
+                        }
+                    </span>
+                </div>
+
+                <div class="step68-payment-grid">
+                    ${paymentsContent}
+                </div>
+            </section>
+        </section>
     `;
 
     modal.classList.add("show");
+    document.body.classList.add("step68-parent-modal-open");
+
+    modal.querySelector(".modal-close-btn")?.focus();
 }
 
 async function updateParentStatus(parentId, status) {
@@ -6680,4 +6883,55 @@ document.addEventListener("DOMContentLoaded",()=>{["announcementTitle","announce
 })();
 
 // MUTHAQUS_STEP66_REMOVE_DUPLICATE_PAYMENT_FILTER
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP68_PARENT_DETAILS_MODAL_POLISH
+   ========================================================= */
+
+function viewParentDetailReceipt(paymentId) {
+    const payment =
+        (window.parentDetailPaymentMap || {})[paymentId];
+
+    if (!payment) {
+        alert("Payment record not found. Please reopen Parent Details.");
+        return;
+    }
+
+    showReceiptInfo(
+        payment.receiptName || "",
+        payment.note || "",
+        payment.receiptDataUrl || ""
+    );
+}
+
+function downloadParentDetailInvoice(paymentId) {
+    const payment =
+        (window.parentDetailPaymentMap || {})[paymentId];
+
+    if (!payment) {
+        alert("Payment record not found. Please reopen Parent Details.");
+        return;
+    }
+
+    window.adminPaymentInvoiceMap =
+        window.adminPaymentInvoiceMap || {};
+
+    window.adminPaymentInvoiceMap[paymentId] = payment;
+
+    downloadPaymentInvoice(paymentId, "admin");
+}
+
+document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+
+    const modal = document.getElementById("parentDetailModal");
+
+    if (modal?.classList.contains("show")) {
+        closeParentDetails();
+    }
+});
+
+// MUTHAQUS_STEP68_PARENT_DETAILS_MODAL_POLISH
 

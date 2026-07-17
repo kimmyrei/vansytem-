@@ -7,7 +7,7 @@
     <title>Parent Management | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body class="page-admin-parents step68-admin-parents">
 
 <div class="app-shell">
     
@@ -105,7 +105,16 @@
             </div>
 
             <div class="table-scroll-shell admin-record-table-shell">
-                <table class="admin-record-table parent-record-table">
+                <table class="admin-record-table parent-record-table step68-parent-table">
+                    <colgroup>
+                        <col class="step68-parent-col">
+                        <col class="step68-phone-col">
+                        <col class="step68-email-col">
+                        <col class="step68-children-col">
+                        <col class="step68-payment-col">
+                        <col class="step68-account-col">
+                        <col class="step68-action-col">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Parent</th>
@@ -127,13 +136,27 @@
 <script src="app.js"></script>
 <script>loadAdminParents();</script>
 
-<div id="parentDetailModal" class="parent-detail-modal">
-    <div class="parent-detail-content">
-        <button class="modal-close-btn" onclick="closeParentDetails()">×</button>
+<div
+    id="parentDetailModal"
+    class="parent-detail-modal step68-parent-detail-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Parent account details"
+>
+    <div class="parent-detail-content step68-parent-detail-content">
+        <button
+            class="modal-close-btn step68-parent-detail-close"
+            type="button"
+            onclick="closeParentDetails()"
+            aria-label="Close parent details"
+        >
+            ×
+        </button>
+
         <div id="parentDetailBody"></div>
     </div>
 </div>
 
 </body>
 </html>
-<!-- MUTHAQUS_STEP62_ADMIN_PARENTS_MOBILE_CARDS -->
+<!-- MUTHAQUS_STEP68_PARENT_DETAILS_MODAL_POLISH -->
