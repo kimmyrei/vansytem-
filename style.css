@@ -5847,3 +5847,126 @@ textarea:focus {
 }
 
 /* MUTAHUS_RESTORE_PREVIOUS_FULL_STYLE_CSS */
+
+
+/* =========================================================
+   MUTAHUS_STEP55_ADMIN_LOGIN_DESKTOP_LAYOUT_REPAIR
+
+   Targeted desktop repair only:
+   - Restores normal document flow.
+   - Keeps the taskbar full width at the top.
+   - Restores the Admin Login two-column layout.
+   - Does not change mobile layout or existing styles/features.
+   ========================================================= */
+
+@media (min-width: 901px) {
+    html {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        align-items: initial !important;
+        justify-content: initial !important;
+    }
+
+    body > header.top-taskbar {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 76px !important;
+        margin: 0 !important;
+        transform: none !important;
+        float: none !important;
+        clear: both !important;
+        z-index: 3000 !important;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(420px, 520px) !important;
+        align-items: center !important;
+        justify-content: stretch !important;
+        column-gap: 50px !important;
+
+        position: relative !important;
+        inset: auto !important;
+        float: none !important;
+
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        min-height: calc(100vh - 76px) !important;
+
+        margin: 0 !important;
+        padding: 60px 7% !important;
+        transform: none !important;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg > .auth-info-panel {
+        display: block !important;
+        width: 100% !important;
+        max-width: 720px !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg > .auth-card-pro {
+        display: block !important;
+        width: 100% !important;
+        max-width: 520px !important;
+        min-width: 0 !important;
+        margin: 0 0 0 auto !important;
+        transform: none !important;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg .info-grid-pro {
+        width: 100% !important;
+        max-width: 540px !important;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg form,
+    body > main.auth-page-pro.admin-auth-bg input,
+    body > main.auth-page-pro.admin-auth-bg button.full-btn {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Mobile-only More controls must remain absent on desktop. */
+    #mutahusMobileFeatureBtn,
+    #mutahusMobileFeaturePanel,
+    #mutahusMobileFeatureBackdrop,
+    .mobile-menu-btn {
+        display: none !important;
+    }
+}
+
+/* Slightly narrower desktop/tablet landscape adjustment. */
+@media (min-width: 901px) and (max-width: 1120px) {
+    body > main.auth-page-pro.admin-auth-bg {
+        grid-template-columns: minmax(0, 1fr) minmax(380px, 440px) !important;
+        column-gap: 30px !important;
+        padding-left: 5% !important;
+        padding-right: 5% !important;
+    }
+
+    body > main.auth-page-pro.admin-auth-bg .auth-info-panel h1 {
+        font-size: clamp(38px, 5vw, 50px) !important;
+    }
+}
+
+/* MUTAHUS_STEP55_ADMIN_LOGIN_DESKTOP_LAYOUT_REPAIR */
+
