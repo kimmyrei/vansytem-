@@ -3257,7 +3257,20 @@ function buildMutahusMobileFeatureItems(page) {
         items += mutahusMobileLink("admin-login.html", "🛡️", "Admin Login", page);
         note = "Parent account actions are grouped here for mobile view.";
     } else {
-        return null;
+        /*
+         * Public pages previously returned null, so Home and Terms/Rules
+         * used a different mobile taskbar/menu from the other pages.
+         * Give public pages the same blue More menu and button.
+         */
+        items += mutahusMobileLink("index.html", "🏠", "Home", page);
+        items += mutahusMobileLink("index.html#service", "🚐", "Service", page);
+        items += mutahusMobileLink("index.html#schools", "🏫", "Schools", page);
+        items += mutahusMobileLink("index.html#payment", "💳", "Payment", page);
+        items += mutahusMobileLink("index.html#faq", "❓", "FAQ", page);
+        items += mutahusMobileLink("terms-rules.html", "📘", "Rules", page);
+        items += mutahusMobileLink("parent-login.html", "🔐", "Parent Login", page);
+        items += mutahusMobileLink("admin-login.html", "🛡️", "Admin Login", page);
+        note = "All public website links are grouped here for a consistent mobile experience.";
     }
 
     return { items, note };
@@ -5352,18 +5365,27 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
             return /(^|\/)style\.css(?:[?#].*)?$/i.test(href);
         });
 
+        /*
+         * Keep the stylesheet already loaded by the HTML.
+         * Step 56 changed its href again after DOMContentLoaded, forcing
+         * the browser to download and apply CSS twice. That caused the
+         * one-second unstyled flash during navigation.
+         */
         if (localStyles.length === 0) {
             const link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = "/style.css?v=step56";
-            link.dataset.mutahusStep56Style = "true";
+            link.href = "/style.css";
+            link.dataset.mutahusStep57Style = "true";
             document.head.appendChild(link);
             return;
         }
 
-        localStyles[0].href = "/style.css?v=step56";
-        localStyles[0].dataset.mutahusStep56Style = "true";
+        localStyles[0].dataset.mutahusStep57Style = "true";
 
+        /*
+         * Remove only genuine duplicate style.css tags. Never replace
+         * the href of the stylesheet that is already active.
+         */
         localStyles.slice(1).forEach((link) => link.remove());
     }
 
@@ -5646,4 +5668,312 @@ window.addEventListener("load", mutahusStep32CleanTopAndBankFix);
 })();
 
 // MUTAHUS_STEP56_LINK_INTEGRITY_AND_PAGE_POLISH
+
+
+/* =========================================================
+   MUTAHUS_STEP57_UNIFIED_TASKBAR_SMOOTH_NAVIGATION
+
+   Targeted improvements:
+   - Home and Terms/Rules use the same mobile taskbar as other pages
+   - Prevents the stylesheet from being reloaded after page render
+   - Adds professional same-origin page transitions
+   - Prefetches common internal pages for faster navigation
+   ========================================================= */
+(function () {
+    "use strict";
+
+    if (window.__mutahusStep57Loaded) return;
+    window.__mutahusStep57Loaded = true;
+
+    const MOBILE_QUERY = window.matchMedia("(max-width: 860px)");
+    const PUBLIC_PAGES = new Set([
+        "index.html",
+        "terms-rules.html"
+    ]);
+
+    function currentPage() {
+        return window.location.pathname.split("/").pop() || "index.html";
+    }
+
+    function isPublicPage() {
+        return PUBLIC_PAGES.has(currentPage());
+    }
+
+    function applyPageClasses() {
+        document.body.classList.toggle(
+            "mutahus-step57-public-menu",
+            isPublicPage()
+        );
+
+        document.documentElement.classList.add(
+            "mutahus-step57-professional-flow"
+        );
+        document.body.classList.add(
+            "mutahus-step57-professional-flow"
+        );
+    }
+
+    function closeAllOldMobileMenus() {
+        document
+            .querySelectorAll(
+                ".taskbar-links.show-mobile-menu, " +
+                ".business-nav nav.show-mobile-menu"
+            )
+            .forEach((menu) => {
+                menu.classList.remove("show-mobile-menu");
+            });
+    }
+
+    function normalizePublicMobileTaskbar() {
+        applyPageClasses();
+
+        if (!MOBILE_QUERY.matches || !isPublicPage()) return;
+
+        const featureButton = document.getElementById(
+            "mutahusMobileFeatureBtn"
+        );
+
+        if (featureButton) {
+            document.body.classList.add(
+                "mutahus-step57-has-feature-button"
+            );
+
+            featureButton.innerHTML = "•••";
+            featureButton.setAttribute("aria-label", "More");
+            featureButton.title = "More";
+        }
+
+        closeAllOldMobileMenus();
+    }
+
+    function createTransitionCover() {
+        let cover = document.getElementById(
+            "mutahusStep57TransitionCover"
+        );
+
+        if (cover) return cover;
+
+        cover = document.createElement("div");
+        cover.id = "mutahusStep57TransitionCover";
+        cover.className = "mutahus-step57-transition-cover";
+        cover.setAttribute("aria-hidden", "true");
+
+        cover.innerHTML = `
+            <div class="mutahus-step57-transition-brand">
+                <span>🚐</span>
+                <div>
+                    <strong>Mutahus Global</strong>
+                    <small>School Van Service</small>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(cover);
+        return cover;
+    }
+
+    function showTransitionCover() {
+        const cover = createTransitionCover();
+
+        requestAnimationFrame(() => {
+            cover.classList.add("show");
+            document.body.classList.add(
+                "mutahus-step57-page-leaving"
+            );
+        });
+    }
+
+    function hideTransitionCover() {
+        const cover = document.getElementById(
+            "mutahusStep57TransitionCover"
+        );
+
+        if (cover) {
+            cover.classList.remove("show");
+        }
+
+        document.body.classList.remove(
+            "mutahus-step57-page-leaving"
+        );
+    }
+
+    function isEligibleInternalNavigation(event, anchor) {
+        if (!anchor) return false;
+        if (event.defaultPrevented) return false;
+        if (event.button !== 0) return false;
+        if (
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+        ) {
+            return false;
+        }
+
+        if (anchor.hasAttribute("download")) return false;
+
+        const target = (
+            anchor.getAttribute("target") || ""
+        ).toLowerCase();
+
+        if (target && target !== "_self") return false;
+
+        const rawHref = anchor.getAttribute("href") || "";
+
+        if (
+            !rawHref ||
+            rawHref.startsWith("#") ||
+            rawHref.startsWith("mailto:") ||
+            rawHref.startsWith("tel:") ||
+            rawHref.startsWith("javascript:")
+        ) {
+            return false;
+        }
+
+        const url = new URL(rawHref, window.location.href);
+
+        if (url.origin !== window.location.origin) return false;
+
+        /*
+         * Hash navigation on the same page should remain instant.
+         */
+        if (
+            url.pathname === window.location.pathname &&
+            url.search === window.location.search &&
+            url.hash
+        ) {
+            return false;
+        }
+
+        return (
+            url.pathname.endsWith(".html") ||
+            url.pathname.endsWith("/") ||
+            url.pathname === window.location.pathname
+        );
+    }
+
+    function installSmoothNavigationFallback() {
+        document.addEventListener(
+            "click",
+            function (event) {
+                const anchor = event.target.closest("a[href]");
+
+                if (!isEligibleInternalNavigation(event, anchor)) {
+                    return;
+                }
+
+                const destination = new URL(
+                    anchor.href,
+                    window.location.href
+                ).href;
+
+                event.preventDefault();
+                closeAllOldMobileMenus();
+                showTransitionCover();
+
+                window.setTimeout(() => {
+                    window.location.assign(destination);
+                }, 170);
+            },
+            true
+        );
+
+        window.addEventListener("pageshow", hideTransitionCover);
+    }
+
+    function prefetchInternalPages() {
+        const urls = new Set();
+
+        document.querySelectorAll("a[href]").forEach((anchor) => {
+            try {
+                const url = new URL(
+                    anchor.getAttribute("href"),
+                    window.location.href
+                );
+
+                if (url.origin !== window.location.origin) return;
+                if (!url.pathname.endsWith(".html")) return;
+                if (url.pathname === window.location.pathname) return;
+
+                url.hash = "";
+                urls.add(url.href);
+            } catch (error) {
+                // Ignore invalid or action-only links.
+            }
+        });
+
+        Array.from(urls)
+            .slice(0, 14)
+            .forEach((href) => {
+                if (
+                    document.querySelector(
+                        `link[rel="prefetch"][href="${href}"]`
+                    )
+                ) {
+                    return;
+                }
+
+                const link = document.createElement("link");
+                link.rel = "prefetch";
+                link.href = href;
+                link.as = "document";
+                document.head.appendChild(link);
+            });
+    }
+
+    function runStep57() {
+        applyPageClasses();
+        normalizePublicMobileTaskbar();
+        hideTransitionCover();
+
+        if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(prefetchInternalPages, {
+                timeout: 1800
+            });
+        } else {
+            window.setTimeout(prefetchInternalPages, 900);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", runStep57);
+    window.addEventListener("load", runStep57);
+    window.addEventListener("pageshow", runStep57);
+    window.addEventListener("resize", normalizePublicMobileTaskbar);
+    window.addEventListener(
+        "orientationchange",
+        normalizePublicMobileTaskbar
+    );
+
+    if (typeof MOBILE_QUERY.addEventListener === "function") {
+        MOBILE_QUERY.addEventListener(
+            "change",
+            normalizePublicMobileTaskbar
+        );
+    }
+
+    let observerTimer = null;
+    const observer = new MutationObserver(() => {
+        window.clearTimeout(observerTimer);
+        observerTimer = window.setTimeout(() => {
+            normalizePublicMobileTaskbar();
+        }, 100);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!document.body) return;
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+
+    installSmoothNavigationFallback();
+
+    window.setTimeout(runStep57, 250);
+    window.setTimeout(runStep57, 900);
+    window.setTimeout(runStep57, 1600);
+})();
+
+// MUTAHUS_STEP57_UNIFIED_TASKBAR_SMOOTH_NAVIGATION
 

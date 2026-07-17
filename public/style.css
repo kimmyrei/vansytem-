@@ -6737,3 +6737,405 @@ a.mutahus-broken-link {
 
 /* MUTAHUS_STEP56_ALL_PAGES_LINK_STYLE_POLISH */
 
+
+/* =========================================================
+   MUTAHUS_STEP57_UNIFIED_MOBILE_TASKBAR_SMOOTH_FLOW
+
+   - One consistent mobile taskbar for public/auth pages
+   - No white/unstyled flash between desktop pages
+   - Professional same-origin page transition
+   - Existing Step 56 design remains intact
+   ========================================================= */
+
+/*
+ * Modern Chromium uses this for smooth cross-document
+ * transitions between same-origin HTML pages.
+ */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root) {
+    animation:
+        mutahusStep57OldPage 0.18s ease both;
+}
+
+::view-transition-new(root) {
+    animation:
+        mutahusStep57NewPage 0.24s ease both;
+}
+
+@keyframes mutahusStep57OldPage {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.995);
+    }
+}
+
+@keyframes mutahusStep57NewPage {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/*
+ * Branded fallback cover for browsers/WebViews without
+ * cross-document View Transitions.
+ */
+.mutahus-step57-transition-cover {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483200;
+    display: grid;
+    place-items: center;
+    padding:
+        calc(20px + env(safe-area-inset-top, 0px))
+        20px
+        calc(20px + env(safe-area-inset-bottom, 0px));
+    background:
+        radial-gradient(
+            circle at 18% 12%,
+            rgba(218, 255, 232, 0.9),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 82% 8%,
+            rgba(219, 234, 254, 0.95),
+            transparent 34%
+        ),
+        #f4f8fd;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 0.17s ease,
+        visibility 0.17s ease;
+}
+
+.mutahus-step57-transition-cover.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.mutahus-step57-transition-brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 18px;
+    border: 1px solid rgba(190, 211, 232, 0.92);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 22px 60px rgba(15, 60, 104, 0.16);
+    color: #0f3c68;
+    transform: translateY(7px) scale(0.985);
+    transition: transform 0.2s ease;
+}
+
+.mutahus-step57-transition-cover.show
+    .mutahus-step57-transition-brand {
+    transform: translateY(0) scale(1);
+}
+
+.mutahus-step57-transition-brand > span {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #e8f3ff, #d9ffe7);
+    font-size: 25px;
+}
+
+.mutahus-step57-transition-brand strong,
+.mutahus-step57-transition-brand small {
+    display: block;
+}
+
+.mutahus-step57-transition-brand strong {
+    font-size: 17px;
+    font-weight: 950;
+    letter-spacing: -0.025em;
+}
+
+.mutahus-step57-transition-brand small {
+    margin-top: 2px;
+    color: #6a7f93;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/*
+ * Do not let previous page-enter animations run twice
+ * during a native cross-document transition.
+ */
+@supports (view-transition-name: root) {
+    body.mutahus-step54-page-enter header.top-taskbar,
+    body.mutahus-step54-page-enter main {
+        animation: none !important;
+    }
+}
+
+/* ---------- One consistent public mobile taskbar ---------- */
+
+@media (max-width: 860px) {
+    body.mutahus-step57-public-menu
+        .top-taskbar,
+    body.mutahus-step57-public-menu
+        .business-nav {
+        position: sticky !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 76px !important;
+        margin: 0 !important;
+        padding:
+            calc(10px + env(safe-area-inset-top, 0px))
+            76px
+            10px
+            14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        border: 0 !important;
+        border-radius: 0 0 22px 22px !important;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(20, 63, 115, 0.99),
+                rgba(15, 60, 104, 0.99)
+            ) !important;
+        box-shadow:
+            0 10px 30px rgba(7, 35, 64, 0.18) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        overflow: visible !important;
+        transform: none !important;
+        z-index: 5000 !important;
+    }
+
+    body.mutahus-step57-public-menu
+        .top-taskbar
+        .brand-block,
+    body.mutahus-step57-public-menu
+        .business-nav
+        .business-logo {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+
+    body.mutahus-step57-public-menu
+        .top-taskbar
+        .brand-icon,
+    body.mutahus-step57-public-menu
+        .business-nav
+        .business-logo
+        > span {
+        flex: 0 0 44px !important;
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        display: grid !important;
+        place-items: center !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 14px !important;
+        background: rgba(255, 255, 255, 0.13) !important;
+        color: #ffffff !important;
+        font-size: 22px !important;
+        line-height: 1 !important;
+    }
+
+    body.mutahus-step57-public-menu
+        .top-taskbar
+        .brand-block
+        > div,
+    body.mutahus-step57-public-menu
+        .business-nav
+        .business-logo
+        > div {
+        min-width: 0 !important;
+    }
+
+    body.mutahus-step57-public-menu
+        .top-taskbar
+        .brand-block
+        strong,
+    body.mutahus-step57-public-menu
+        .business-nav
+        .business-logo
+        strong {
+        display: block !important;
+        margin: 0 !important;
+        color: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 950 !important;
+        line-height: 1.18 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    body.mutahus-step57-public-menu
+        .top-taskbar
+        .brand-block
+        small,
+    body.mutahus-step57-public-menu
+        .business-nav
+        .business-logo
+        small {
+        display: block !important;
+        margin: 3px 0 0 !important;
+        color: rgba(255, 255, 255, 0.76) !important;
+        font-size: 10.5px !important;
+        font-weight: 650 !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /*
+     * The new blue More button is now used on Home and Rules too.
+     * Hide the older hamburger/taskbar menu so every page matches.
+     */
+    body.mutahus-step57-has-feature-button
+        .top-taskbar
+        .mobile-menu-btn,
+    body.mutahus-step57-has-feature-button
+        .business-nav
+        .mobile-menu-btn,
+    body.mutahus-step57-has-feature-button
+        .business-nav
+        > button {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+
+    body.mutahus-step57-public-menu
+        .top-taskbar
+        .taskbar-links,
+    body.mutahus-step57-public-menu
+        .business-nav
+        nav {
+        display: none !important;
+    }
+
+    /*
+     * Same top-right More button dimensions across Home, Rules,
+     * Parent Login, Parent Register and Admin Login.
+     */
+    body.mutahus-step57-public-menu
+        #mutahusMobileFeatureBtn,
+    body.mutahus-step54-has-more
+        #mutahusMobileFeatureBtn {
+        position: fixed !important;
+        top: calc(
+            12px + env(safe-area-inset-top, 0px)
+        ) !important;
+        right: 14px !important;
+        left: auto !important;
+        bottom: auto !important;
+        width: 52px !important;
+        min-width: 52px !important;
+        height: 52px !important;
+        min-height: 52px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid rgba(255, 255, 255, 0.22) !important;
+        border-radius: 17px !important;
+        background:
+            linear-gradient(
+                180deg,
+                #2e7bdd,
+                #1760b8
+            ) !important;
+        color: #ffffff !important;
+        font-size: 18px !important;
+        font-weight: 950 !important;
+        letter-spacing: 3px !important;
+        line-height: 1 !important;
+        box-shadow:
+            0 13px 28px rgba(7, 35, 64, 0.24),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+        z-index: 6000 !important;
+    }
+
+    body.mutahus-step57-public-menu
+        #mutahusMobileFeaturePanel,
+    body.mutahus-step54-has-more
+        #mutahusMobileFeaturePanel {
+        top: calc(
+            76px + env(safe-area-inset-top, 0px)
+        ) !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(
+            100dvh -
+            96px -
+            env(safe-area-inset-top, 0px)
+        ) !important;
+        border-radius: 22px !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+    }
+
+    body.mutahus-step57-public-menu
+        #mutahusMobileFeaturePanel:not(.show),
+    body.mutahus-step54-has-more
+        #mutahusMobileFeaturePanel:not(.show) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+}
+
+/*
+ * Keep navigation stable during the brief fallback exit.
+ */
+body.mutahus-step57-page-leaving {
+    overflow: hidden !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 0.01ms !important;
+    }
+
+    .mutahus-step57-transition-cover,
+    .mutahus-step57-transition-brand {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* MUTAHUS_STEP57_UNIFIED_MOBILE_TASKBAR_SMOOTH_FLOW */
+
