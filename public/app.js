@@ -292,19 +292,27 @@ async function loadParentDashboard() {
     const table = document.getElementById("childrenTable");
 
     if (announcementBox) {
-        announcementBox.innerHTML = `<div class="announcement announcement-card-pro"><strong>Loading announcements...</strong></div>`;
+        announcementBox.innerHTML = `
+            <div class="announcement announcement-card-pro">
+                <strong>Loading announcements...</strong>
+            </div>
+        `;
     }
 
     if (table) {
         table.innerHTML = `
             <tr>
-                <td colspan="8" class="empty-row">Loading dashboard data...</td>
+                <td colspan="7" class="empty-row">
+                    Loading dashboard data...
+                </td>
             </tr>
         `;
     }
 
     try {
-        const response = await fetch(`/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}`);
+        const response = await fetch(
+            `/api/parent-dashboard?parentId=${encodeURIComponent(parent.id)}`
+        );
         const result = await response.json();
 
         if (!result.success) {
@@ -317,80 +325,212 @@ async function loadParentDashboard() {
         const payments = result.payments || [];
         const announcements = result.announcements || [];
 
-        localStorage.setItem(VS.currentParentKey, JSON.stringify(currentParent));
+        localStorage.setItem(
+            VS.currentParentKey,
+            JSON.stringify(currentParent)
+        );
 
-        document.getElementById("parentNameDisplay").innerText = currentParent.name;
-        document.getElementById("totalChildren").innerText = children.length;
+        const parentNameDisplay =
+            document.getElementById("parentNameDisplay");
+        const totalChildren =
+            document.getElementById("totalChildren");
+        const pendingPayment =
+            document.getElementById("pendingPayment");
 
-        const pendingCount = payments.filter(payment => payment.status === "Pending").length;
-        const paidAmount = payments
-            .filter(payment => payment.status === "Paid")
-            .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+        if (parentNameDisplay) {
+            parentNameDisplay.innerText =
+                currentParent.name || "Parent";
+        }
 
-        document.getElementById("pendingPayment").innerText = pendingCount;
-        document.getElementById("totalPaid").innerText = "RM" + paidAmount;
+        if (totalChildren) {
+            totalChildren.innerText = children.length;
+        }
+
+        const pendingCount = payments.filter(
+            payment => payment.status === "Pending"
+        ).length;
+
+        if (pendingPayment) {
+            pendingPayment.innerText = pendingCount;
+        }
+
+        renderParentPaymentDueReminder(children, payments);
 
         if (announcementBox) {
             announcementBox.innerHTML = "";
 
             announcements.slice(0, 3).forEach(item => {
-                const categoryClass = getAnnouncementCategoryBadgeClass(item.type);
+                const categoryClass =
+                    getAnnouncementCategoryBadgeClass(item.type);
 
                 announcementBox.innerHTML += `
-                    <div class="announcement announcement-card-pro">
+                    <article class="announcement announcement-card-pro step70-parent-announcement">
                         <div class="announcement-top-row">
-                            <span class="badge ${categoryClass}">${item.type}</span>
-                            <small>${item.date || ""}</small>
+                            <span class="badge ${categoryClass}">
+                                ${mutahusSafeHtml(item.type || "Announcement")}
+                            </span>
+
+                            <small>
+                                ${mutahusSafeHtml(item.date || "")}
+                            </small>
                         </div>
-                        <strong>📢 ${item.title}</strong>
-                        <p>${item.message}</p>
-                    </div>
+
+                        <strong>
+                            📢 ${mutahusSafeHtml(item.title || "Announcement")}
+                        </strong>
+
+                        <p>
+                            ${mutahusSafeHtml(item.message || "")}
+                        </p>
+                    </article>
                 `;
             });
 
             if (announcements.length === 0) {
                 announcementBox.innerHTML = `
-                    <div class="announcement announcement-card-pro">
-                        <strong>No announcements yet.</strong>
-                        <p>Updates from admin will appear here.</p>
-                    </div>
+                    <article class="announcement announcement-card-pro step70-parent-announcement step70-empty-announcement">
+                        <span>🔔</span>
+                        <div>
+                            <strong>No new announcement</strong>
+                            <p>Updates from admin will appear here.</p>
+                        </div>
+                    </article>
                 `;
             }
         }
 
-        if (!table) return;
+        if (!table) {
+            loadParentPaymentHistory(payments);
+            return;
+        }
 
         table.innerHTML = "";
 
         if (children.length === 0) {
             table.innerHTML = `
                 <tr>
-                    <td colspan="8" class="empty-row">
-                        No child registered yet. Click <strong>Register Child</strong> to register your child.
+                    <td colspan="7" class="empty-row">
+                        <div class="step70-parent-empty-state">
+                            <span>🎒</span>
+                            <strong>No child registered yet</strong>
+                            <p>
+                                Register your first child to begin using
+                                the school van service.
+                            </p>
+                            <a
+                                href="add-student.html"
+                                class="btn btn-primary-pro"
+                            >
+                                Register Child
+                            </a>
+                        </div>
                     </td>
                 </tr>
             `;
         } else {
             children.forEach(child => {
-                const latestPayment = payments
-                    .filter(payment => payment.studentId === child.id)
-                    .sort((a, b) => new Date(b.createdSort) - new Date(a.createdSort))[0];
+                const childPayments = payments.filter(payment => {
+                    return (
+                        payment.studentId === child.id ||
+                        !payment.studentId ||
+                        payment.studentName ===
+                            "All registered children"
+                    );
+                });
 
-                const paymentStatus = latestPayment ? latestPayment.status : (child.paymentStatus || "Unpaid");
-                const badgeClass = paymentStatus === "Paid" ? "paid" : paymentStatus === "Pending" ? "pending" : paymentStatus === "Rejected" ? "rejected" : "unpaid";
-                const studentStatusClass = getStudentStatusBadgeClass(child.status || "Pending Review");
+                const latestPayment = childPayments
+                    .slice()
+                    .sort((first, second) => {
+                        return (
+                            new Date(second.createdSort || 0) -
+                            new Date(first.createdSort || 0)
+                        );
+                    })[0];
+
+                const paymentStatus = latestPayment
+                    ? latestPayment.status
+                    : child.paymentStatus || "Unpaid";
+
+                const badgeClass =
+                    getPaymentBadgeClass(paymentStatus);
+
+                const studentStatus =
+                    child.status || "Pending Review";
+
+                const studentStatusClass =
+                    getStudentStatusBadgeClass(studentStatus);
 
                 table.innerHTML += `
-                    <tr>
-                        <td><strong>${child.name}</strong><br><small>${child.id}</small></td>
-                        <td>${child.school || "-"}${child.kafa ? `<br><small>KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}</small>` : ""}<br><small>Amount: RM${Number(child.monthlyAmount || 0).toFixed(2)}</small></td>
-                        <td>${child.classYear}</td>
-                        <td>${child.session}</td>
-                        <td>${child.pickupLocation}</td>
-                        <td><span class="badge ${studentStatusClass}">${child.status || "Pending Review"}</span></td>
-                        <td><span class="badge ${badgeClass}">${paymentStatus}</span></td>
-                        <td>
-                            <button class="small-btn danger" onclick="deleteChild('${child.id}')">Delete</button>
+                    <tr class="step70-parent-child-row">
+                        <td data-label="Child">
+                            <div class="step70-child-identity">
+                                <span>🎒</span>
+                                <div>
+                                    <strong>
+                                        ${mutahusSafeHtml(child.name || "-")}
+                                    </strong>
+                                    <small>
+                                        ID: ${mutahusSafeHtml(child.id || "-")}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td data-label="School / KAFA">
+                            <strong>
+                                ${mutahusSafeHtml(child.school || "Not applicable")}
+                            </strong>
+
+                            ${
+                                child.kafa
+                                    ? `
+                                        <small>
+                                            KAFA:
+                                            ${mutahusSafeHtml(child.kafa)}
+                                            ${
+                                                child.kafaSession
+                                                    ? ` (${mutahusSafeHtml(child.kafaSession)})`
+                                                    : ""
+                                            }
+                                        </small>
+                                    `
+                                    : `<small>KAFA: Not applicable</small>`
+                            }
+
+                            <small>
+                                Monthly fee:
+                                RM${Number(child.monthlyAmount || 0).toFixed(2)}
+                            </small>
+                        </td>
+
+                        <td data-label="Class">
+                            ${mutahusSafeHtml(child.classYear || "-")}
+                        </td>
+
+                        <td data-label="Session">
+                            ${mutahusSafeHtml(child.session || "Not applicable")}
+                        </td>
+
+                        <td data-label="Student Status">
+                            <span class="badge ${studentStatusClass}">
+                                ${mutahusSafeHtml(studentStatus)}
+                            </span>
+                        </td>
+
+                        <td data-label="Payment">
+                            <span class="badge ${badgeClass}">
+                                ${mutahusSafeHtml(paymentStatus)}
+                            </span>
+                        </td>
+
+                        <td data-label="Action">
+                            <button
+                                class="small-btn danger"
+                                type="button"
+                                onclick="deleteChild('${child.id}')"
+                            >
+                                Remove Request
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -404,7 +544,9 @@ async function loadParentDashboard() {
         if (table) {
             table.innerHTML = `
                 <tr>
-                    <td colspan="8" class="empty-row">Failed to load dashboard data.</td>
+                    <td colspan="7" class="empty-row">
+                        Failed to load dashboard data.
+                    </td>
                 </tr>
             `;
         }
@@ -1407,25 +1549,29 @@ async function fetchRulesFromMongoDB() {
 
 async function loadPublicRules() {
     const list = document.getElementById("publicRulesList");
+    const count = document.getElementById("parentRulesCount");
 
     if (!list) return;
 
     list.innerHTML = `
-        <div class="normal-box">
-            <strong>Loading rules...</strong>
-            <p>Please wait while we load the latest service rules.</p>
+        <div class="step70-rules-loading">
+            <span>📘</span>
+            <strong>Loading current service rules...</strong>
         </div>
     `;
 
     try {
         const rules = await fetchRulesFromMongoDB();
 
+        if (count) count.innerText = rules.length;
+
         list.innerHTML = "";
 
         if (rules.length === 0) {
             list.innerHTML = `
-                <div class="normal-box">
-                    <strong>No rules available yet.</strong>
+                <div class="step70-rules-loading">
+                    <span>📭</span>
+                    <strong>No rules available yet</strong>
                     <p>Rules added by admin will appear here.</p>
                 </div>
             `;
@@ -1434,20 +1580,33 @@ async function loadPublicRules() {
 
         rules.forEach((rule, index) => {
             list.innerHTML += `
-                <div class="rule-card-pro">
-                    <div class="rule-icon">${rule.icon || "✅"}</div>
-                    <div>
-                        <h3>${index + 1}. ${rule.title}</h3>
-                        <p>${rule.description}</p>
+                <article class="step70-public-rule-card">
+                    <div class="step70-rule-number">
+                        ${index + 1}
                     </div>
-                </div>
+
+                    <div class="step70-rule-icon">
+                        ${mutahusSafeHtml(rule.icon || "✅")}
+                    </div>
+
+                    <div class="step70-rule-copy">
+                        <h3>
+                            ${mutahusSafeHtml(rule.title || "Service Rule")}
+                        </h3>
+
+                        <p>
+                            ${mutahusSafeHtml(rule.description || "")}
+                        </p>
+                    </div>
+                </article>
             `;
         });
     } catch (error) {
         list.innerHTML = `
-            <div class="normal-box">
-                <strong>Failed to load rules.</strong>
-                <p>${error.message}</p>
+            <div class="step70-rules-loading">
+                <span>⚠️</span>
+                <strong>Failed to load rules</strong>
+                <p>${mutahusSafeHtml(error.message)}</p>
             </div>
         `;
     }
@@ -2925,6 +3084,7 @@ async function loadParentProfilePage() {
         const currentParent = result.parent || parent;
 
         localStorage.setItem(VS.currentParentKey, JSON.stringify(currentParent));
+        renderStep70ProfileSummary(currentParent);
 
         if (nameInput) nameInput.value = currentParent.name || "";
         if (phoneInput) phoneInput.value = currentParent.phone || "";
@@ -7420,4 +7580,393 @@ document.addEventListener("keydown", function (event) {
 })();
 
 // MUTHAQUS_STEP69_AUTO_SIGN_OUT_SECURITY
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH
+   ========================================================= */
+
+const MUTHAQUS_PAYMENT_DUE_DAY = 7;
+
+function getMalaysiaDateParts() {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kuala_Lumpur",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    });
+
+    const values = {};
+
+    formatter.formatToParts(new Date()).forEach(part => {
+        if (part.type !== "literal") {
+            values[part.type] = part.value;
+        }
+    });
+
+    return {
+        year: Number(values.year),
+        month: Number(values.month),
+        day: Number(values.day)
+    };
+}
+
+function getCurrentPaymentPeriod() {
+    const parts = getMalaysiaDateParts();
+
+    const date = new Date(
+        Date.UTC(parts.year, parts.month - 1, 1)
+    );
+
+    const monthName = new Intl.DateTimeFormat("en-MY", {
+        month: "long",
+        timeZone: "UTC"
+    }).format(date);
+
+    return {
+        year: parts.year,
+        month: parts.month,
+        day: parts.day,
+        monthName,
+        label: `${monthName} ${parts.year}`,
+        isoPrefix:
+            `${parts.year}-${String(parts.month).padStart(2, "0")}`
+    };
+}
+
+function paymentMatchesCurrentPeriod(payment, period) {
+    const value = String(payment?.month || "")
+        .trim()
+        .toLowerCase();
+
+    if (!value) return false;
+
+    const compactValue = value.replace(/\s+/g, " ");
+
+    return (
+        compactValue.includes(period.label.toLowerCase()) ||
+        compactValue.includes(period.isoPrefix) ||
+        (
+            compactValue.includes(
+                period.monthName.toLowerCase()
+            ) &&
+            compactValue.includes(String(period.year))
+        )
+    );
+}
+
+function getBestCurrentPayment(payments, period) {
+    const currentPayments = payments.filter(payment =>
+        paymentMatchesCurrentPeriod(payment, period)
+    );
+
+    const statusPriority = {
+        Paid: 4,
+        Pending: 3,
+        Rejected: 2,
+        Unpaid: 1
+    };
+
+    return currentPayments
+        .slice()
+        .sort((first, second) => {
+            const statusDifference =
+                (statusPriority[second.status] || 0) -
+                (statusPriority[first.status] || 0);
+
+            if (statusDifference !== 0) {
+                return statusDifference;
+            }
+
+            return (
+                new Date(second.createdSort || second.createdAt || 0) -
+                new Date(first.createdSort || first.createdAt || 0)
+            );
+        })[0] || null;
+}
+
+function renderParentPaymentDueReminder(children, payments) {
+    const card = document.getElementById("paymentDueCard");
+    const amount = document.getElementById("paymentDueAmount");
+    const status = document.getElementById("paymentDueStatus");
+    const dateText = document.getElementById("paymentDueDate");
+    const monthText = document.getElementById("paymentDueMonth");
+    const action = document.getElementById("paymentDueAction");
+
+    if (!card || !amount || !status || !dateText) return;
+
+    const period = getCurrentPaymentPeriod();
+
+    const eligibleChildren = children.filter(
+        child => child.status !== "Rejected"
+    );
+
+    const monthlyAmount = eligibleChildren.reduce(
+        (sum, child) =>
+            sum + Number(child.monthlyAmount || 0),
+        0
+    );
+
+    const currentPayment =
+        getBestCurrentPayment(payments, period);
+
+    const dueDate = `${MUTHAQUS_PAYMENT_DUE_DAY} ${period.label}`;
+
+    card.classList.remove(
+        "is-paid",
+        "is-pending",
+        "is-overdue",
+        "is-rejected",
+        "is-empty"
+    );
+
+    if (monthText) {
+        monthText.innerText = period.label;
+    }
+
+    if (currentPayment?.status === "Paid") {
+        card.classList.add("is-paid");
+        status.innerText = "Paid";
+        amount.innerText =
+            `RM${Number(currentPayment.amount || monthlyAmount).toFixed(2)}`;
+        dateText.innerText =
+            `${period.label} payment completed`;
+
+        if (action) {
+            action.innerText = "View Payment History";
+            action.href = "#paymentHistorySection";
+        }
+
+        return;
+    }
+
+    if (currentPayment?.status === "Pending") {
+        card.classList.add("is-pending");
+        status.innerText = "Under Review";
+        amount.innerText =
+            `RM${Number(currentPayment.amount || monthlyAmount).toFixed(2)}`;
+        dateText.innerText =
+            "Receipt submitted — waiting for admin approval";
+
+        if (action) {
+            action.innerText = "View Submission";
+            action.href = "#paymentHistorySection";
+        }
+
+        return;
+    }
+
+    if (currentPayment?.status === "Rejected") {
+        card.classList.add("is-rejected");
+        status.innerText = "Action Needed";
+        amount.innerText =
+            monthlyAmount > 0
+                ? `RM${monthlyAmount.toFixed(2)}`
+                : "Resubmit";
+
+        dateText.innerText =
+            "Previous payment was rejected. Upload a new receipt.";
+
+        if (action) {
+            action.innerText = "Upload New Receipt";
+            action.href = "upload-payment.html";
+        }
+
+        return;
+    }
+
+    if (eligibleChildren.length === 0) {
+        card.classList.add("is-empty");
+        status.innerText = "Not Available";
+        amount.innerText = "No Child";
+        dateText.innerText =
+            "Register a child to receive monthly reminders.";
+
+        if (action) {
+            action.innerText = "Register Child";
+            action.href = "add-student.html";
+        }
+
+        return;
+    }
+
+    if (period.day > MUTHAQUS_PAYMENT_DUE_DAY) {
+        card.classList.add("is-overdue");
+        status.innerText = "Overdue";
+        dateText.innerText = `Due date was ${dueDate}`;
+    } else {
+        status.innerText = "Payment Due";
+        dateText.innerText = `Due by ${dueDate}`;
+    }
+
+    amount.innerText =
+        monthlyAmount > 0
+            ? `RM${monthlyAmount.toFixed(2)}`
+            : "Fee Pending";
+
+    if (action) {
+        action.innerText = "Upload Payment";
+        action.href = "upload-payment.html";
+    }
+}
+
+function renderStep70ProfileSummary(parent) {
+    if (!parent) return;
+
+    const avatar = document.getElementById("profileAvatar");
+    const displayName =
+        document.getElementById("step70ProfileName");
+    const phone =
+        document.getElementById("step70ProfilePhone");
+    const email =
+        document.getElementById("step70ProfileEmail");
+    const completionValue =
+        document.getElementById("step70ProfileCompletion");
+    const completionBar =
+        document.getElementById("step70ProfileCompletionBar");
+
+    const fields = [
+        parent.name,
+        parent.phone,
+        parent.email
+    ];
+
+    const completedFields = fields.filter(value =>
+        String(value || "").trim()
+    ).length;
+
+    const completion = Math.round(
+        (completedFields / fields.length) * 100
+    );
+
+    if (avatar) {
+        avatar.textContent =
+            String(parent.name || "P")
+                .trim()
+                .charAt(0)
+                .toUpperCase() || "P";
+    }
+
+    if (displayName) {
+        displayName.innerText = parent.name || "Parent";
+    }
+
+    if (phone) {
+        phone.innerText = parent.phone || "Not provided";
+    }
+
+    if (email) {
+        email.innerText = parent.email || "Not provided";
+    }
+
+    if (completionValue) {
+        completionValue.innerText = `${completion}%`;
+    }
+
+    if (completionBar) {
+        completionBar.style.width = `${completion}%`;
+    }
+}
+
+function setupStep70ChildRegistration() {
+    const form = document.getElementById("step70ChildForm");
+    if (!form) return;
+
+    const school = document.getElementById("schoolName");
+    const session = document.getElementById("session");
+    const kafa = document.getElementById("kafaName");
+    const kafaSession = document.getElementById("kafaSession");
+    const progressBar =
+        document.getElementById("step70ChildProgressBar");
+    const progressText =
+        document.getElementById("step70ChildProgressText");
+
+    function syncSchoolSession() {
+        if (!school || !session) return;
+
+        const notApplicable =
+            school.value === "Not applicable";
+
+        if (notApplicable) {
+            session.value = "Not applicable";
+        }
+    }
+
+    function syncKafaSession() {
+        if (!kafa || !kafaSession) return;
+
+        const hasKafa = Boolean(kafa.value);
+
+        kafaSession.disabled = !hasKafa;
+
+        if (!hasKafa) {
+            kafaSession.value = "";
+        }
+    }
+
+    function updateProgress() {
+        const requiredFields = Array.from(
+            form.querySelectorAll("[required]")
+        );
+
+        const completed = requiredFields.filter(field =>
+            String(field.value || "").trim()
+        ).length;
+
+        const percentage = requiredFields.length
+            ? Math.round(
+                  (completed / requiredFields.length) * 100
+              )
+            : 0;
+
+        if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        if (progressText) {
+            progressText.innerText =
+                percentage === 100
+                    ? "Ready to submit"
+                    : `${percentage}% completed`;
+        }
+    }
+
+    school?.addEventListener("change", function () {
+        syncSchoolSession();
+        updateProgress();
+    });
+
+    kafa?.addEventListener("change", function () {
+        syncKafaSession();
+        updateProgress();
+    });
+
+    form.addEventListener("input", updateProgress);
+    form.addEventListener("change", updateProgress);
+
+    syncSchoolSession();
+    syncKafaSession();
+    updateProgress();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setupStep70ChildRegistration();
+
+    const parent = getCurrentParent?.();
+
+    if (parent) {
+        renderStep70ProfileSummary(parent);
+    }
+});
+
+window.addEventListener("load", function () {
+    const parent = getCurrentParent?.();
+
+    if (parent) {
+        renderStep70ProfileSummary(parent);
+    }
+});
+
+// MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH
 

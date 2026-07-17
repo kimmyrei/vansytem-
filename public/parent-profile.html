@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#143f73">
-    <title>Parent Profile | MUTHAQUS GLOBAL ENTERPRISE</title>
+    <title>My Profile | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body class="page-parent-profile step70-parent-profile">
 
 <div class="app-shell">
-
+    
 <aside class="pro-sidebar parent-side">
     <div class="sidebar-brand">
         <span>🚐</span>
@@ -30,226 +30,268 @@
 
     <div class="sidebar-bottom">
         <div class="mini-help">
-            <strong>Keep details current</strong>
-            <p>Correct contact information helps the driver and admin reach you quickly.</p>
+            <strong>Need assistance?</strong>
+            <p>Use WhatsApp for route, payment or account enquiries.</p>
         </div>
-        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+
+        <a href="#" onclick="parentLogout()" class="logout-btn">
+            <span>🚪</span> Logout
+        </a>
     </div>
 </aside>
 
-<main class="app-main">
 
-    <div class="mobile-app-header mobile-parent-header">
-        <div class="mobile-brand">
-            <span>🚐</span>
-            <div>
-                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
-                <small>Parent Portal</small>
-            </div>
-        </div>
-    </div>
-
-    <nav class="mobile-bottom-nav">
-        <a href="parent-dashboard.html">
-            <span>🏠</span>
-            <small>Home</small>
-        </a>
-        <a class="active" href="parent-profile.html">
-            <span>👤</span>
-            <small>Profile</small>
-        </a>
-        <a href="add-student.html">
-            <span>🎒</span>
-            <small>Child</small>
-        </a>
-        <a href="upload-payment.html">
-            <span>💳</span>
-            <small>Pay</small>
-        </a>
-        <a href="parent-rules.html">
-            <span>📘</span>
-            <small>Rules</small>
-        </a>
-    </nav>
-
-    <div class="page-hero-bar">
+    <main class="app-main">
+        
+<div class="mobile-app-header mobile-parent-header">
+    <div class="mobile-brand">
+        <span>🚐</span>
         <div>
-            <span class="page-kicker">PARENT ACCOUNT</span>
-            <h1>My Profile</h1>
-            <p>Update your contact information and keep your MUTHAQUS GLOBAL ENTERPRISE account secure.</p>
-        </div>
-
-        <div class="hero-actions">
-            <a href="parent-dashboard.html" class="btn btn-primary-pro">Dashboard</a>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+            <small>Parent Portal</small>
         </div>
     </div>
+</div>
 
-    <section class="parent-profile-grid-pro">
+<nav class="mobile-bottom-nav">
+    <a href="parent-dashboard.html">
+        <span>🏠</span>
+        <small>Home</small>
+    </a>
 
-        <div class="parent-profile-primary">
-            <article class="form-card-pro profile-form-card">
-                <div class="form-header">
-                    <span class="page-kicker">CONTACT INFORMATION</span>
-                    <h2>Update Profile</h2>
-                    <p>Make sure your name, phone number and email address are correct.</p>
-                </div>
+    <a class="active" href="parent-profile.html">
+        <span>👤</span>
+        <small>Profile</small>
+    </a>
 
-                <form onsubmit="updateParentProfile(event)">
-                    <div class="field-group">
-                        <label for="profileName">Full Name</label>
-                        <input
-                            type="text"
-                            id="profileName"
-                            placeholder="Parent full name"
-                            autocomplete="name"
-                            required
-                        >
-                    </div>
+    <a href="add-student.html">
+        <span>🎒</span>
+        <small>Child</small>
+    </a>
 
-                    <div class="field-group">
-                        <label for="profilePhone">Phone Number</label>
-                        <input
-                            type="tel"
-                            id="profilePhone"
-                            placeholder="Example: 017-8078271"
-                            autocomplete="tel"
-                            required
-                        >
-                    </div>
+    <a href="upload-payment.html">
+        <span>💳</span>
+        <small>Pay</small>
+    </a>
 
-                    <div class="field-group">
-                        <label for="profileEmail">Email Address</label>
-                        <input
-                            type="email"
-                            id="profileEmail"
-                            placeholder="example@email.com"
-                            autocomplete="email"
-                            required
-                        >
-                    </div>
+    <a href="parent-rules.html">
+        <span>📘</span>
+        <small>Rules</small>
+    </a>
+</nav>
 
-                    <div class="profile-form-actions">
-                        <button type="submit" class="btn btn-primary-pro">
-                            Save Profile
-                        </button>
-                        <a href="parent-dashboard.html" class="btn btn-outline-pro">
-                            Cancel
-                        </a>
-                    </div>
-                </form>
-            </article>
 
-            <article class="form-card-pro profile-password-card">
-                <div class="form-header">
-                    <span class="page-kicker">ACCOUNT SECURITY</span>
-                    <h2>Change Password</h2>
-                    <p>Use at least six characters and avoid sharing your password.</p>
-                </div>
+        <section class="page-hero-bar step70-parent-hero">
+            <div>
+                <span class="page-kicker">PARENT ACCOUNT</span>
+                <h1>My Profile</h1>
+                <p>
+                    Keep your contact details accurate and protect
+                    your account with a secure password.
+                </p>
+            </div>
 
-                <form onsubmit="changeParentPassword(event)">
-                    <div class="field-group">
-                        <label for="currentPassword">Current Password</label>
-                        <input
-                            type="password"
-                            id="currentPassword"
-                            placeholder="Enter current password"
-                            autocomplete="current-password"
-                            required
-                        >
-                    </div>
+            <div class="hero-actions">
+                <a href="parent-dashboard.html" class="btn btn-light-pro">
+                    Dashboard
+                </a>
 
-                    <div class="form-grid-two">
-                        <div class="field-group">
-                            <label for="newPassword">New Password</label>
-                            <input
-                                type="password"
-                                id="newPassword"
-                                placeholder="Enter new password"
-                                autocomplete="new-password"
-                                required
-                            >
-                        </div>
+                <a href="upload-payment.html" class="btn btn-primary-pro">
+                    Payment Proof
+                </a>
+            </div>
+        </section>
 
-                        <div class="field-group">
-                            <label for="confirmPassword">Confirm New Password</label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                placeholder="Confirm new password"
-                                autocomplete="new-password"
-                                required
-                            >
-                        </div>
-                    </div>
-
-                    <div class="profile-form-actions">
-                        <button type="submit" class="btn btn-primary-pro">
-                            Change Password
-                        </button>
-                    </div>
-                </form>
-            </article>
-        </div>
-
-        <aside class="parent-profile-side">
-            <article class="profile-overview-card">
-                <div class="profile-overview-head">
+        <section class="step70-profile-layout">
+            <aside class="step70-profile-overview">
+                <div class="step70-profile-cover">
                     <div class="profile-avatar-pro" id="profileAvatar">P</div>
 
-                    <div class="profile-overview-meta" id="profileInfoBox">
-                        <strong>Loading profile...</strong>
-                        <p>Please wait while your account is loaded.</p>
+                    <div class="step70-profile-title">
+                        <span class="page-kicker">ACTIVE PARENT</span>
+                        <h2 id="step70ProfileName">Parent</h2>
+                        <span class="badge paid">Active Account</span>
                     </div>
                 </div>
 
-                <div class="profile-mini-grid">
-                    <div class="profile-mini-card">
-                        <span>Portal Access</span>
-                        <strong>Parent Account</strong>
+                <div id="profileInfoBox" class="step70-hidden-profile-info">
+                    <strong>Loading profile...</strong>
+                </div>
+
+                <div class="step70-profile-contact-list">
+                    <div>
+                        <span>📞</span>
+                        <div>
+                            <small>Phone Number</small>
+                            <strong id="step70ProfilePhone">
+                                Loading...
+                            </strong>
+                        </div>
                     </div>
 
-                    <div class="profile-mini-card">
-                        <span>Account Status</span>
-                        <strong>Active</strong>
+                    <div>
+                        <span>✉️</span>
+                        <div>
+                            <small>Email Address</small>
+                            <strong id="step70ProfileEmail">
+                                Loading...
+                            </strong>
+                        </div>
                     </div>
                 </div>
 
-                <div class="profile-quick-links">
-                    <a href="add-student.html"><span>🎒</span> Register Child</a>
-                    <a href="upload-payment.html"><span>💳</span> Upload Payment</a>
-                    <a href="parent-rules.html"><span>📘</span> View Rules</a>
+                <div class="step70-profile-completion">
+                    <div>
+                        <span>Profile completion</span>
+                        <strong id="step70ProfileCompletion">0%</strong>
+                    </div>
+
+                    <div class="step70-progress-track">
+                        <span id="step70ProfileCompletionBar"></span>
+                    </div>
                 </div>
-            </article>
-        </aside>
 
-    </section>
+                <div class="step70-profile-quick-actions">
+                    <a href="add-student.html">🎒 Register Child</a>
+                    <a href="upload-payment.html">💳 Upload Payment</a>
+                    <a href="parent-rules.html">📘 Service Rules</a>
+                </div>
+            </aside>
 
-</main>
+            <div class="step70-profile-forms">
+                <article class="form-card-pro step70-profile-form-card">
+                    <div class="form-header">
+                        <span class="page-kicker">CONTACT DETAILS</span>
+                        <h2>Update Profile</h2>
+                        <p>
+                            These details are used for account and
+                            school van service communication.
+                        </p>
+                    </div>
+
+                    <form onsubmit="updateParentProfile(event)">
+                        <div class="field-group">
+                            <label for="profileName">Full Name</label>
+                            <input
+                                type="text"
+                                id="profileName"
+                                placeholder="Parent full name"
+                                autocomplete="name"
+                                required
+                            >
+                        </div>
+
+                        <div class="step70-profile-two-column">
+                            <div class="field-group">
+                                <label for="profilePhone">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    id="profilePhone"
+                                    placeholder="Example: 017-8078271"
+                                    autocomplete="tel"
+                                    required
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="profileEmail">Email Address</label>
+                                <input
+                                    type="email"
+                                    id="profileEmail"
+                                    placeholder="example@email.com"
+                                    autocomplete="email"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary-pro full-btn"
+                        >
+                            Save Profile Changes
+                        </button>
+                    </form>
+                </article>
+
+                <article class="form-card-pro step70-security-form-card">
+                    <div class="form-header">
+                        <span class="page-kicker">ACCOUNT SECURITY</span>
+                        <h2>Change Password</h2>
+                        <p>
+                            Use at least six characters and avoid
+                            reusing an old password.
+                        </p>
+                    </div>
+
+                    <form onsubmit="changeParentPassword(event)">
+                        <div class="field-group">
+                            <label for="currentPassword">
+                                Current Password
+                            </label>
+
+                            <input
+                                type="password"
+                                id="currentPassword"
+                                placeholder="Enter current password"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </div>
+
+                        <div class="step70-profile-two-column">
+                            <div class="field-group">
+                                <label for="newPassword">
+                                    New Password
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="newPassword"
+                                    placeholder="Minimum 6 characters"
+                                    autocomplete="new-password"
+                                    required
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="confirmPassword">
+                                    Confirm Password
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="confirmPassword"
+                                    placeholder="Repeat new password"
+                                    autocomplete="new-password"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="step70-security-note">
+                            <span>🔒</span>
+                            <p>
+                                For security, your active session is
+                                protected by automatic inactivity sign out.
+                            </p>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary-pro full-btn"
+                        >
+                            Change Password
+                        </button>
+                    </form>
+                </article>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script src="app.js"></script>
-<script>
-    loadParentProfilePage();
-
-    (function () {
-        const nameInput = document.getElementById("profileName");
-        const avatar = document.getElementById("profileAvatar");
-
-        function refreshAvatar() {
-            if (!nameInput || !avatar) return;
-
-            const value = String(nameInput.value || "").trim();
-            avatar.textContent = value ? value.charAt(0).toUpperCase() : "P";
-        }
-
-        if (nameInput) {
-            nameInput.addEventListener("input", refreshAvatar);
-        }
-
-        window.setTimeout(refreshAvatar, 350);
-        window.setTimeout(refreshAvatar, 900);
-    })();
-</script>
+<script>loadParentProfilePage();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP61_PARENT_PROFILE -->
+<!-- MUTHAQUS_STEP70_PARENT_PROFILE_POLISH -->

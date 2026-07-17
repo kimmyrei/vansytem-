@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#143f73">
-    <title>Parent Rules | MUTHAQUS GLOBAL ENTERPRISE</title>
+    <title>Service Rules | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body class="page-parent-rules step70-parent-rules">
 
 <div class="app-shell">
-
+    
 <aside class="pro-sidebar parent-side">
     <div class="sidebar-brand">
         <span>🚐</span>
@@ -30,97 +30,156 @@
 
     <div class="sidebar-bottom">
         <div class="mini-help">
-            <strong>Service guidelines</strong>
-            <p>Review the latest rules before using the school van service.</p>
+            <strong>Need assistance?</strong>
+            <p>Use WhatsApp for route, payment or account enquiries.</p>
         </div>
-        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+
+        <a href="#" onclick="parentLogout()" class="logout-btn">
+            <span>🚪</span> Logout
+        </a>
     </div>
 </aside>
 
-<main class="app-main">
 
-    <div class="mobile-app-header mobile-parent-header">
-        <div class="mobile-brand">
-            <span>🚐</span>
-            <div>
-                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
-                <small>Parent Portal</small>
-            </div>
-        </div>
-    </div>
-
-    <nav class="mobile-bottom-nav">
-        <a href="parent-dashboard.html">
-            <span>🏠</span>
-            <small>Home</small>
-        </a>
-        <a href="parent-profile.html">
-            <span>👤</span>
-            <small>Profile</small>
-        </a>
-        <a href="add-student.html">
-            <span>🎒</span>
-            <small>Child</small>
-        </a>
-        <a href="upload-payment.html">
-            <span>💳</span>
-            <small>Pay</small>
-        </a>
-        <a class="active" href="parent-rules.html">
-            <span>📘</span>
-            <small>Rules</small>
-        </a>
-    </nav>
-
-    <div class="page-hero-bar">
+    <main class="app-main">
+        
+<div class="mobile-app-header mobile-parent-header">
+    <div class="mobile-brand">
+        <span>🚐</span>
         <div>
-            <span class="page-kicker">PARENT PORTAL</span>
-            <h1>Service Rules</h1>
-            <p>Read the latest MUTHAQUS GLOBAL ENTERPRISE school van rules and safety reminders.</p>
-        </div>
-
-        <div class="hero-actions">
-            <a href="parent-dashboard.html" class="btn btn-primary-pro">Dashboard</a>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+            <small>Parent Portal</small>
         </div>
     </div>
+</div>
 
-    <section class="parent-rules-layout-pro">
+<nav class="mobile-bottom-nav">
+    <a href="parent-dashboard.html">
+        <span>🏠</span>
+        <small>Home</small>
+    </a>
 
-        <article class="parent-rules-card">
-            <div class="parent-rules-card-head">
-                <div>
-                    <span class="page-kicker">RULES & GUIDELINES</span>
-                    <h2>Current Service Rules</h2>
-                    <p>Rules added or updated by admin will appear here automatically.</p>
-                </div>
+    <a href="parent-profile.html">
+        <span>👤</span>
+        <small>Profile</small>
+    </a>
+
+    <a href="add-student.html">
+        <span>🎒</span>
+        <small>Child</small>
+    </a>
+
+    <a href="upload-payment.html">
+        <span>💳</span>
+        <small>Pay</small>
+    </a>
+
+    <a class="active" href="parent-rules.html">
+        <span>📘</span>
+        <small>Rules</small>
+    </a>
+</nav>
+
+
+        <section class="page-hero-bar step70-parent-hero">
+            <div>
+                <span class="page-kicker">SERVICE GUIDELINES</span>
+                <h1>Terms & Rules</h1>
+                <p>
+                    Review the latest safety, payment and school van
+                    service guidelines.
+                </p>
             </div>
 
-            <div id="publicRulesList" class="rules-list-pro">
-                <div class="normal-box">
-                    <strong>Loading rules...</strong>
-                    <p>Please wait while we load the latest service rules.</p>
-                </div>
-            </div>
-        </article>
+            <div class="hero-actions">
+                <a href="parent-dashboard.html" class="btn btn-light-pro">
+                    Dashboard
+                </a>
 
-        <aside class="rules-side-note-pro">
-            <span>🛡️</span>
-            <h3>Safe and organised trips</h3>
-            <p>
-                Following the rules helps the driver manage routes safely,
-                reduces delays and keeps every child comfortable.
-            </p>
-
-            <div class="rules-side-actions">
-                <a href="upload-payment.html" class="btn btn-outline-pro">
+                <a href="upload-payment.html" class="btn btn-primary-pro">
                     Upload Payment
                 </a>
             </div>
-        </aside>
+        </section>
 
-    </section>
+        <section class="step70-rules-summary">
+            <article>
+                <span>📘</span>
+                <div>
+                    <small>Published Rules</small>
+                    <strong id="parentRulesCount">0</strong>
+                </div>
+            </article>
 
-</main>
+            <article>
+                <span>🛡️</span>
+                <div>
+                    <small>Main Priority</small>
+                    <strong>Child Safety</strong>
+                </div>
+            </article>
+
+            <article>
+                <span>📞</span>
+                <div>
+                    <small>Need Clarification?</small>
+                    <strong>Contact Admin</strong>
+                </div>
+            </article>
+        </section>
+
+        <section class="step70-rules-layout">
+            <article class="step70-rules-main-card">
+                <div class="step70-section-heading">
+                    <div>
+                        <span class="page-kicker">CURRENT RULES</span>
+                        <h2>School Van Service Guidelines</h2>
+                        <p>
+                            Rules are managed by admin and updated
+                            automatically on this page.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="publicRulesList" class="step70-public-rules-list">
+                    <div class="step70-rules-loading">
+                        <span>📘</span>
+                        <strong>Loading current service rules...</strong>
+                    </div>
+                </div>
+            </article>
+
+            <aside class="step70-rules-side">
+                <article class="step70-rules-note-card">
+                    <span class="step70-side-icon">✅</span>
+                    <h3>Quick reminders</h3>
+
+                    <ul>
+                        <li>Prepare children before the van arrives.</li>
+                        <li>Inform admin about contact detail changes.</li>
+                        <li>Submit monthly payment proof on time.</li>
+                        <li>Follow safety instructions from the driver.</li>
+                    </ul>
+                </article>
+
+                <article class="step70-rules-note-card step70-safety-card">
+                    <span class="step70-side-icon">🚐</span>
+                    <h3>Safe and organised trips</h3>
+                    <p>
+                        Following the guidelines helps reduce delays
+                        and keeps every child comfortable.
+                    </p>
+                </article>
+
+                <a
+                    class="step70-whatsapp-help"
+                    href="https://api.whatsapp.com/send?phone=60178078271&amp;text=Assalamualaikum%2C%20saya%20ingin%20bertanya%20tentang%20peraturan%20servis%20van."
+                >
+                    💬 Ask About a Rule
+                </a>
+            </aside>
+        </section>
+    </main>
 </div>
 
 <script src="app.js"></script>
@@ -131,4 +190,4 @@
 </script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP61_PARENT_RULES -->
+<!-- MUTHAQUS_STEP70_PARENT_RULES_POLISH -->

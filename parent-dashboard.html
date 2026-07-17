@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#143f73">
     <title>Parent Dashboard | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body class="page-parent-dashboard step70-parent-dashboard">
 
 <div class="app-shell">
     
@@ -21,153 +22,220 @@
 
     <nav class="sidebar-menu">
         <a class="active" href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
-        <a class="" href="parent-profile.html"><span>👤</span> My Profile</a>
-        <a class="" href="add-student.html"><span>🎒</span> Register Child</a>
-        <a class="" href="upload-payment.html"><span>💳</span> Payment Proof</a>
+        <a href="parent-profile.html"><span>👤</span> My Profile</a>
+        <a href="add-student.html"><span>🎒</span> Register Child</a>
+        <a href="upload-payment.html"><span>💳</span> Payment Proof</a>
         <a href="parent-rules.html"><span>📘</span> Rules</a>
     </nav>
 
     <div class="sidebar-bottom">
         <div class="mini-help">
-            <strong>Need update?</strong>
-            <p>Check announcement and payment status from your dashboard.</p>
+            <strong>Need assistance?</strong>
+            <p>Use WhatsApp for route, payment or account enquiries.</p>
         </div>
-        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+
+        <a href="#" onclick="parentLogout()" class="logout-btn">
+            <span>🚪</span> Logout
+        </a>
     </div>
 </aside>
 
 
     <main class="app-main">
-
-    <div class="mobile-app-header mobile-parent-header">
-        <div class="mobile-brand">
-            <span>🚐</span>
-            <div>
-                <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
-                <small>Parent Portal</small>
-            </div>
+        
+<div class="mobile-app-header mobile-parent-header">
+    <div class="mobile-brand">
+        <span>🚐</span>
+        <div>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+            <small>Parent Portal</small>
         </div>
-        <div class="mobile-top-actions"><a href="parent-profile.html" class="mobile-profile-link">Profile</a><a href="#" onclick="parentLogout()" class="mobile-logout">Logout</a></div>
     </div>
+</div>
 
-    <nav class="mobile-bottom-nav">
-        <a href="parent-dashboard.html" class="active">
-            <span>🏠</span>
-            <small>Home</small>
-        </a>
-        <a href="parent-profile.html">
-            <span>👤</span>
-            <small>Profile</small>
-        </a>
-        <a href="add-student.html" class="">
-            <span>🎒</span>
-            <small>Child</small>
-        </a>
-        <a href="upload-payment.html" class="">
-            <span>💳</span>
-            <small>Pay</small>
-        </a>
-        <a href="parent-rules.html">
-            <span>📘</span>
-            <small>Rules</small>
-        </a>
-    </nav>
+<nav class="mobile-bottom-nav">
+    <a class="active" href="parent-dashboard.html">
+        <span>🏠</span>
+        <small>Home</small>
+    </a>
 
-        <div class="mobile-topbar">
-            <strong>🚐 MUTHAQUS GLOBAL ENTERPRISE</strong>
-            <a href="#" onclick="parentLogout()">Logout</a>
-        </div>
+    <a href="parent-profile.html">
+        <span>👤</span>
+        <small>Profile</small>
+    </a>
 
-        <div class="page-hero-bar">
+    <a href="add-student.html">
+        <span>🎒</span>
+        <small>Child</small>
+    </a>
+
+    <a href="upload-payment.html">
+        <span>💳</span>
+        <small>Pay</small>
+    </a>
+
+    <a href="parent-rules.html">
+        <span>📘</span>
+        <small>Rules</small>
+    </a>
+</nav>
+
+
+        <section class="page-hero-bar step70-parent-hero">
             <div>
                 <span class="page-kicker">PARENT PORTAL</span>
-                <h1>Parent Dashboard</h1>
-                <p>Welcome back, <strong id="parentNameDisplay">Parent</strong>. Manage child records and payment status here.</p>
+                <h1>Welcome, <span id="parentNameDisplay">Parent</span></h1>
+                <p>
+                    View child records, current payment reminders and
+                    the latest service announcements.
+                </p>
             </div>
 
-            <div class="hero-actions" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
-                <a href="parent-profile.html" class="btn btn-light-pro">My Profile</a>
-                <a href="upload-payment.html" class="btn btn-primary-pro">Upload Payment</a>
-            </div>
-        </div>
+            <div class="hero-actions">
+                <a href="parent-profile.html" class="btn btn-light-pro">
+                    My Profile
+                </a>
 
-        <section class="stats stats-pro">
-            <div class="stat-card pro-stat"><span>🎒</span><h3>My Children</h3><h2 id="totalChildren">0</h2></div>
-            <div class="stat-card pro-stat"><span>⏳</span><h3>Pending Payment</h3><h2 id="pendingPayment">0</h2></div>
-            <div class="stat-card pro-stat"><span>✅</span><h3>Total Paid</h3><h2 id="totalPaid">RM0</h2></div>
+                <a href="upload-payment.html" class="btn btn-primary-pro">
+                    Upload Payment
+                </a>
+            </div>
         </section>
 
-        <section id="announcementList" class="announcement-list-pro"></section>
+        <section class="stats stats-pro step70-parent-stats">
+            <article class="stat-card pro-stat">
+                <span>🎒</span>
+                <h3>My Children</h3>
+                <h2 id="totalChildren">0</h2>
+                <small>Registered under this account</small>
+            </article>
 
-        
-        <section class="approval-status-guide">
+            <article class="stat-card pro-stat">
+                <span>⏳</span>
+                <h3>Pending Payment</h3>
+                <h2 id="pendingPayment">0</h2>
+                <small>Waiting for admin review</small>
+            </article>
+
+            <article
+                class="stat-card pro-stat step70-payment-due-card"
+                id="paymentDueCard"
+            >
+                <div class="step70-due-card-top">
+                    <span>📅</span>
+                    <div>
+                        <h3>Payment Due Reminder</h3>
+                        <small id="paymentDueMonth">Current Month</small>
+                    </div>
+
+                    <b id="paymentDueStatus">Checking</b>
+                </div>
+
+                <h2 id="paymentDueAmount">Loading...</h2>
+                <p id="paymentDueDate">Checking monthly payment...</p>
+
+                <a
+                    href="upload-payment.html"
+                    id="paymentDueAction"
+                    class="step70-due-action"
+                >
+                    Upload Payment
+                </a>
+            </article>
+        </section>
+
+        <section class="step70-dashboard-section">
+            <div class="step70-section-heading">
+                <div>
+                    <span class="page-kicker">LATEST UPDATE</span>
+                    <h2>Announcements</h2>
+                    <p>Important notices from MUTHAQUS GLOBAL ENTERPRISE.</p>
+                </div>
+            </div>
+
+            <div id="announcementList" class="announcement-list-pro"></div>
+        </section>
+
+        <section class="approval-status-guide step70-approval-guide">
             <div class="approval-guide-header">
                 <div>
-                    <span class="page-kicker">STUDENT APPROVAL STATUS</span>
-                    <h2>What does the status mean?</h2>
-                    <p>Admin will review every new child registration before marking it active.</p>
+                    <span class="page-kicker">STUDENT APPROVAL</span>
+                    <h2>Registration Status Guide</h2>
+                    <p>
+                        Every child registration is reviewed before
+                        joining the active van service.
+                    </p>
                 </div>
             </div>
 
             <div class="approval-status-grid">
-                <div class="approval-status-card pending-card">
+                <article class="approval-status-card pending-card">
                     <span>⏳</span>
                     <strong>Pending Review</strong>
-                    <p>Your child registration has been submitted and is waiting for admin checking.</p>
-                </div>
+                    <p>Registration has been submitted for admin checking.</p>
+                </article>
 
-                <div class="approval-status-card accepted-card">
+                <article class="approval-status-card accepted-card">
                     <span>🟦</span>
                     <strong>Accepted</strong>
-                    <p>Your child has been accepted by admin and is ready for route arrangement.</p>
-                </div>
+                    <p>The child is accepted and ready for route arrangement.</p>
+                </article>
 
-                <div class="approval-status-card active-card">
+                <article class="approval-status-card active-card">
                     <span>✅</span>
                     <strong>Active</strong>
-                    <p>Your child is currently active in the MUTHAQUS GLOBAL ENTERPRISE van service.</p>
-                </div>
+                    <p>The child is currently active in the van service.</p>
+                </article>
 
-                <div class="approval-status-card rejected-card">
+                <article class="approval-status-card rejected-card">
                     <span>❌</span>
                     <strong>Rejected</strong>
-                    <p>Your child registration was not approved. Please contact admin for more details.</p>
-                </div>
+                    <p>Contact admin for the reason and next action.</p>
+                </article>
             </div>
         </section>
 
-
-        <section class="table-box table-box-pro">
+        <section class="table-box table-box-pro step70-parent-table-card">
             <div class="table-header">
                 <div>
+                    <span class="page-kicker">CHILD RECORDS</span>
                     <h2>My Children</h2>
-                    <p>All children registered under your parent account.</p>
+                    <p>Children registered under your parent account.</p>
                 </div>
-                <a href="add-student.html" class="btn btn-primary-pro">+ Register Child</a>
+
+                <a href="add-student.html" class="btn btn-primary-pro">
+                    + Register Child
+                </a>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>School</th>
-                        <th>Class</th>
-                        <th>Session</th>
-                        <th>Pickup Location</th>
-                        <th>Student Status</th>
-                        <th>Payment</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="childrenTable"></tbody>
-            </table>
+            <div class="table-scroll-shell">
+                <table class="step70-parent-child-table">
+                    <thead>
+                        <tr>
+                            <th>Child</th>
+                            <th>School / KAFA</th>
+                            <th>Class</th>
+                            <th>Session</th>
+                            <th>Student Status</th>
+                            <th>Payment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="childrenTable"></tbody>
+                </table>
+            </div>
         </section>
 
-        <section class="table-box table-box-pro payment-history-box">
+        <section
+            class="table-box table-box-pro payment-history-box step70-parent-table-card"
+            id="paymentHistorySection"
+        >
             <div class="table-header">
                 <div>
+                    <span class="page-kicker">PAYMENT RECORDS</span>
                     <h2>Monthly Payment History</h2>
-                    <p>View your submitted payment records and receipt status.</p>
+                    <p>Review receipt status and download approved invoices.</p>
                 </div>
 
                 <div class="history-count-pill">
@@ -175,41 +243,28 @@
                 </div>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Student</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Receipt</th>
-                        <th>Invoice</th>
-                    </tr>
-                </thead>
-                <tbody id="paymentHistoryTable"></tbody>
-            </table>
-        </section>
+            <div class="table-scroll-shell">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Student</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Receipt</th>
+                            <th>Invoice</th>
+                        </tr>
+                    </thead>
 
+                    <tbody id="paymentHistoryTable"></tbody>
+                </table>
+            </div>
+        </section>
     </main>
 </div>
 
 <script src="app.js"></script>
 <script>loadParentDashboard();</script>
-
-<a class="whatsapp-float" href="https://wa.me/60178078271?text=Assalamualaikum,%20saya%20berminat%20untuk%20bertanya%20tentang%20servis%20van%20sekolah%20Mutahus%20Global." target="_blank" aria-label="Contact MUTHAQUS GLOBAL ENTERPRISE on WhatsApp">
-    <span>💬</span>
-    <div>
-        <strong>WhatsApp</strong>
-        <small>Contact Us</small>
-    </div>
-</a>
-
 </body>
 </html>
-<!-- MUTAHUS_FIX_PARENT_DASHBOARD_PROFILE_VISIBLE -->
-
-<!-- MUTAHUS_FIX_WHATSAPP_NUMBER_0178078271 -->
-
-<!-- MUTAHUS_FIX_PARENT_PORTAL_RULES_OWN_PAGE -->
-
-<!-- MUTHAQUS_STEP61_DOWNLOADABLE_INVOICE -->
+<!-- MUTHAQUS_STEP70_PARENT_DASHBOARD_PAYMENT_DUE -->

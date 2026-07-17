@@ -10485,3 +10485,1156 @@ body.muthaqus-security-warning-open {
 
 /* MUTHAQUS_STEP69_AUTO_SIGN_OUT_SECURITY */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH
+   ========================================================= */
+
+.step70-parent-hero {
+    min-height: 176px;
+    padding: 32px 36px !important;
+    border-radius: 28px !important;
+    background:
+        radial-gradient(
+            circle at 92% 8%,
+            rgba(29, 111, 209, 0.16),
+            transparent 32%
+        ),
+        linear-gradient(135deg, #ffffff, #f7fbff) !important;
+}
+
+.step70-parent-hero h1 {
+    margin: 7px 0 7px !important;
+    font-size: clamp(36px, 3.6vw, 49px) !important;
+    line-height: 1.08 !important;
+}
+
+.step70-parent-hero p {
+    max-width: 680px;
+    margin: 0;
+    line-height: 1.7;
+}
+
+.step70-parent-stats {
+    display: grid !important;
+    grid-template-columns:
+        minmax(0, 0.8fr)
+        minmax(0, 0.8fr)
+        minmax(360px, 1.4fr) !important;
+    gap: 16px !important;
+}
+
+.step70-parent-stats .pro-stat {
+    min-height: 184px;
+    padding: 22px !important;
+    border-radius: 23px !important;
+}
+
+.step70-parent-stats .pro-stat > small {
+    display: block;
+    margin-top: 8px;
+    color: #788a9d;
+    line-height: 1.4;
+}
+
+.step70-payment-due-card {
+    position: relative;
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    background:
+        radial-gradient(
+            circle at 96% 4%,
+            rgba(47, 128, 220, 0.16),
+            transparent 35%
+        ),
+        linear-gradient(135deg, #ffffff, #f5f9ff) !important;
+}
+
+.step70-payment-due-card::after {
+    content: "RM";
+    position: absolute;
+    right: 16px;
+    bottom: -18px;
+    color: rgba(20, 63, 115, 0.055);
+    font-size: 76px;
+    font-weight: 950;
+    pointer-events: none;
+}
+
+.step70-due-card-top {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 45px minmax(0, 1fr) auto;
+    gap: 11px;
+    align-items: center;
+}
+
+.step70-due-card-top > span {
+    width: 45px !important;
+    min-width: 45px;
+    height: 45px !important;
+    display: grid !important;
+    place-items: center;
+    margin: 0 !important;
+    border-radius: 14px !important;
+    background: #eaf3ff !important;
+    font-size: 21px !important;
+}
+
+.step70-due-card-top h3 {
+    min-height: 0 !important;
+    margin: 0 0 3px !important;
+    color: #143f73 !important;
+    font-size: 13px !important;
+}
+
+.step70-due-card-top small {
+    color: #74879a;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.step70-due-card-top b {
+    min-width: 82px;
+    padding: 8px 10px;
+    border: 1px solid #cfe0f1;
+    border-radius: 999px;
+    background: #f1f7ff;
+    color: #164f85;
+    font-size: 10px;
+    font-weight: 950;
+    text-align: center;
+}
+
+.step70-payment-due-card h2 {
+    position: relative;
+    z-index: 1;
+    margin: 17px 0 3px !important;
+    color: #143f73;
+    font-size: 30px !important;
+}
+
+.step70-payment-due-card > p {
+    position: relative;
+    z-index: 1;
+    min-height: 21px;
+    margin: 0 0 15px;
+    color: #667b90;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.step70-due-action {
+    position: relative;
+    z-index: 1;
+    width: fit-content;
+    min-height: 39px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    padding: 8px 14px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #2d7bd5, #1762b4);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    text-decoration: none;
+    box-shadow: 0 9px 20px rgba(23, 98, 180, 0.18);
+}
+
+.step70-payment-due-card.is-paid {
+    background:
+        radial-gradient(circle at 96% 4%, rgba(32, 175, 90, 0.14), transparent 35%),
+        linear-gradient(135deg, #ffffff, #f4fff8) !important;
+}
+
+.step70-payment-due-card.is-paid .step70-due-card-top b {
+    border-color: #b9dfc8;
+    background: #eafff2;
+    color: #167847;
+}
+
+.step70-payment-due-card.is-pending .step70-due-card-top b {
+    border-color: #efd18c;
+    background: #fff8e8;
+    color: #8a5a05;
+}
+
+.step70-payment-due-card.is-overdue,
+.step70-payment-due-card.is-rejected {
+    background:
+        radial-gradient(circle at 96% 4%, rgba(214, 50, 65, 0.12), transparent 35%),
+        linear-gradient(135deg, #ffffff, #fff7f8) !important;
+}
+
+.step70-payment-due-card.is-overdue .step70-due-card-top b,
+.step70-payment-due-card.is-rejected .step70-due-card-top b {
+    border-color: #efb8bd;
+    background: #fff0f1;
+    color: #ac202c;
+}
+
+.step70-dashboard-section {
+    margin-bottom: 24px;
+    padding: 25px;
+    border: 1px solid #d8e6f4;
+    border-radius: 25px;
+    background: #ffffff;
+    box-shadow: 0 15px 38px rgba(15, 60, 104, 0.08);
+}
+
+.step70-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.step70-section-heading h2 {
+    margin: 5px 0 4px;
+    color: #143f73;
+    font-size: 27px;
+    letter-spacing: -0.035em;
+}
+
+.step70-section-heading p {
+    margin: 0;
+    color: #6c8094;
+}
+
+.step70-parent-announcement {
+    min-height: 138px;
+    border-radius: 19px !important;
+    box-shadow: 0 10px 25px rgba(15, 60, 104, 0.06);
+}
+
+.step70-empty-announcement {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.step70-empty-announcement > span {
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eaf3ff;
+    font-size: 21px;
+}
+
+.step70-approval-guide {
+    margin-bottom: 24px;
+    border-radius: 25px !important;
+}
+
+.step70-parent-table-card {
+    overflow: hidden;
+    border-radius: 25px !important;
+}
+
+.step70-parent-child-table {
+    min-width: 1020px;
+}
+
+.step70-child-identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.step70-child-identity > span {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eaf3ff;
+    font-size: 20px;
+}
+
+.step70-child-identity strong,
+.step70-child-identity small {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.step70-child-identity small {
+    margin-top: 4px;
+    color: #7b8d9f;
+    font-size: 10px;
+}
+
+.step70-parent-child-row td small {
+    display: block;
+    margin-top: 4px;
+    color: #75889b;
+}
+
+.step70-parent-empty-state {
+    min-height: 190px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    text-align: center;
+}
+
+.step70-parent-empty-state > span {
+    font-size: 34px;
+}
+
+.step70-parent-empty-state p {
+    max-width: 420px;
+    margin: 0 0 10px;
+    color: #71849a;
+}
+
+/* ---------- Parent Profile ---------- */
+
+.step70-profile-layout {
+    display: grid;
+    grid-template-columns:
+        minmax(310px, 0.72fr)
+        minmax(0, 1.28fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.step70-profile-overview {
+    position: sticky;
+    top: 94px;
+    overflow: hidden;
+    border: 1px solid #d7e5f3;
+    border-radius: 27px;
+    background: #ffffff;
+    box-shadow: 0 18px 48px rgba(15, 60, 104, 0.10);
+}
+
+.step70-profile-cover {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 27px;
+    background:
+        radial-gradient(circle at 96% 5%, rgba(89, 166, 255, 0.30), transparent 34%),
+        linear-gradient(135deg, #143f73, #0d3159);
+}
+
+.step70-profile-cover .profile-avatar-pro {
+    width: 76px;
+    min-width: 76px;
+    height: 76px;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 15px 34px rgba(0, 0, 0, 0.18);
+}
+
+.step70-profile-title {
+    min-width: 0;
+}
+
+.step70-profile-title .page-kicker {
+    color: #8cc5ff !important;
+}
+
+.step70-profile-title h2 {
+    margin: 5px 0 9px;
+    color: #ffffff;
+    font-size: 25px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.step70-hidden-profile-info {
+    display: none;
+}
+
+.step70-profile-contact-list {
+    display: grid;
+    gap: 10px;
+    padding: 21px 21px 0;
+}
+
+.step70-profile-contact-list > div {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    border: 1px solid #dbe7f4;
+    border-radius: 16px;
+    background: #f8fbff;
+}
+
+.step70-profile-contact-list > div > span {
+    width: 41px;
+    min-width: 41px;
+    height: 41px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #eaf3ff;
+    font-size: 19px;
+}
+
+.step70-profile-contact-list small,
+.step70-profile-contact-list strong {
+    display: block;
+}
+
+.step70-profile-contact-list small {
+    margin-bottom: 4px;
+    color: #7a8c9e;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.step70-profile-contact-list strong {
+    color: #173b5d;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.step70-profile-completion {
+    margin: 18px 21px 0;
+    padding: 16px;
+    border: 1px solid #dbe7f4;
+    border-radius: 16px;
+    background: #fbfdff;
+}
+
+.step70-profile-completion > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #667b90;
+    font-size: 12px;
+}
+
+.step70-profile-completion strong {
+    color: #143f73;
+}
+
+.step70-progress-track {
+    height: 9px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e5edf5;
+}
+
+.step70-progress-track > span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #2e7cd5, #1cad62);
+    transition: width 0.25s ease;
+}
+
+.step70-profile-quick-actions {
+    display: grid;
+    gap: 9px;
+    padding: 20px 21px 22px;
+}
+
+.step70-profile-quick-actions a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 10px 13px;
+    border: 1px solid #d8e6f4;
+    border-radius: 13px;
+    background: #f7faff;
+    color: #174f83;
+    font-size: 12px;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.step70-profile-forms {
+    display: grid;
+    gap: 20px;
+}
+
+.step70-profile-form-card,
+.step70-security-form-card {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 27px !important;
+    border-radius: 26px !important;
+}
+
+.step70-profile-two-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.step70-profile-form-card form,
+.step70-security-form-card form {
+    display: grid;
+    gap: 13px;
+}
+
+.step70-security-form-card {
+    background:
+        radial-gradient(circle at 96% 2%, rgba(233, 166, 32, 0.08), transparent 29%),
+        #ffffff !important;
+}
+
+.step70-security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 14px;
+    border: 1px solid #efd28e;
+    border-radius: 15px;
+    background: #fff9eb;
+    color: #74520e;
+}
+
+.step70-security-note p {
+    margin: 0;
+    line-height: 1.55;
+}
+
+/* ---------- Register Child ---------- */
+
+.step70-child-progress-card {
+    margin-bottom: 20px;
+    padding: 17px 20px;
+    border: 1px solid #d8e6f4;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 10px 26px rgba(15, 60, 104, 0.06);
+}
+
+.step70-child-progress-card > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: #64798e;
+    font-size: 12px;
+}
+
+.step70-child-progress-card strong {
+    color: #143f73;
+}
+
+.step70-child-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.42fr) minmax(290px, 0.58fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.step70-child-form-card {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 28px !important;
+    border-radius: 27px !important;
+}
+
+.step70-child-form-card form {
+    display: grid;
+    gap: 18px;
+}
+
+.step70-form-section {
+    padding: 21px;
+    border: 1px solid #dbe7f4;
+    border-radius: 20px;
+    background: #fbfdff;
+}
+
+.step70-form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 17px;
+}
+
+.step70-form-section-title > span {
+    width: 39px;
+    min-width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: linear-gradient(180deg, #2d7bd5, #1762b4);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 950;
+    box-shadow: 0 9px 19px rgba(23, 98, 180, 0.17);
+}
+
+.step70-form-section-title h3 {
+    margin: 0 0 3px;
+    color: #143f73;
+    font-size: 18px;
+}
+
+.step70-form-section-title p {
+    margin: 0;
+    color: #74879a;
+    font-size: 11px;
+}
+
+.step70-form-two-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.step70-form-section .field-group {
+    margin-bottom: 14px;
+}
+
+.step70-form-section .field-group:last-child {
+    margin-bottom: 0;
+}
+
+.step70-form-section input,
+.step70-form-section select,
+.step70-form-section textarea {
+    background: #ffffff !important;
+}
+
+.step70-form-section select:disabled {
+    opacity: 0.62;
+    cursor: not-allowed;
+}
+
+.step70-submit-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 15px;
+    border: 1px solid #bce1ca;
+    border-radius: 16px;
+    background: #effcf4;
+    color: #176d42;
+}
+
+.step70-submit-note p {
+    margin: 0;
+    line-height: 1.55;
+}
+
+.step70-child-submit {
+    min-height: 55px;
+    border-radius: 16px !important;
+    font-size: 14px !important;
+}
+
+.step70-child-side {
+    position: sticky;
+    top: 94px;
+    display: grid;
+    gap: 15px;
+}
+
+.step70-child-help-card,
+.step70-rules-note-card {
+    padding: 22px;
+    border: 1px solid #d8e6f4;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 13px 34px rgba(15, 60, 104, 0.08);
+}
+
+.step70-side-icon {
+    width: 51px;
+    height: 51px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 15px;
+    border-radius: 16px;
+    background: #eaf3ff;
+    font-size: 24px;
+}
+
+.step70-child-help-card h3,
+.step70-rules-note-card h3 {
+    margin: 0 0 11px;
+    color: #143f73;
+    font-size: 20px;
+}
+
+.step70-child-help-card ul,
+.step70-rules-note-card ul {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding-left: 19px;
+    color: #64798e;
+    line-height: 1.55;
+}
+
+.step70-review-card {
+    background:
+        radial-gradient(circle at 96% 3%, rgba(32, 175, 90, 0.09), transparent 31%),
+        #ffffff;
+}
+
+.step70-review-step {
+    display: grid;
+    grid-template-columns: 31px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    margin-top: 11px;
+}
+
+.step70-review-step b {
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #eafff2;
+    color: #167847;
+    font-size: 11px;
+}
+
+.step70-review-step p {
+    margin: 4px 0 0;
+    color: #64798e;
+    line-height: 1.5;
+}
+
+.step70-whatsapp-help {
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border: 1px solid #a8ddbd;
+    border-radius: 15px;
+    background: linear-gradient(180deg, #edfff4, #ddf9e8);
+    color: #167847;
+    font-size: 12px;
+    font-weight: 900;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* ---------- Parent Rules ---------- */
+
+.step70-rules-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.step70-rules-summary article {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    border: 1px solid #d8e6f4;
+    border-radius: 19px;
+    background: #ffffff;
+    box-shadow: 0 10px 27px rgba(15, 60, 104, 0.06);
+}
+
+.step70-rules-summary article > span {
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eaf3ff;
+    font-size: 21px;
+}
+
+.step70-rules-summary small,
+.step70-rules-summary strong {
+    display: block;
+}
+
+.step70-rules-summary small {
+    margin-bottom: 4px;
+    color: #788a9d;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.step70-rules-summary strong {
+    color: #143f73;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+}
+
+.step70-rules-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.step70-rules-main-card {
+    min-width: 0;
+    padding: 27px;
+    border: 1px solid #d7e5f3;
+    border-radius: 27px;
+    background: #ffffff;
+    box-shadow: 0 17px 45px rgba(15, 60, 104, 0.09);
+}
+
+.step70-public-rules-list {
+    display: grid;
+    gap: 13px;
+}
+
+.step70-public-rule-card {
+    display: grid;
+    grid-template-columns: 33px 51px minmax(0, 1fr);
+    gap: 13px;
+    align-items: start;
+    padding: 18px;
+    border: 1px solid #dbe7f4;
+    border-radius: 19px;
+    background: #fbfdff;
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.step70-public-rule-card:hover {
+    transform: translateY(-2px);
+    border-color: #bbd4ed;
+    background: #f5f9ff;
+    box-shadow: 0 11px 26px rgba(15, 60, 104, 0.07);
+}
+
+.step70-rule-number {
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #143f73;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 950;
+}
+
+.step70-rule-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #eaf3ff;
+    font-size: 23px;
+}
+
+.step70-rule-copy h3 {
+    margin: 1px 0 7px;
+    color: #143f73;
+    font-size: 17px;
+}
+
+.step70-rule-copy p {
+    margin: 0;
+    color: #64798e;
+    line-height: 1.65;
+}
+
+.step70-rules-loading {
+    min-height: 160px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    padding: 22px;
+    border: 1px dashed #cbdceb;
+    border-radius: 19px;
+    background: #f8fbff;
+    text-align: center;
+}
+
+.step70-rules-loading > span {
+    font-size: 31px;
+}
+
+.step70-rules-loading p {
+    margin: 0;
+    color: #71849a;
+}
+
+.step70-rules-side {
+    position: sticky;
+    top: 94px;
+    display: grid;
+    gap: 15px;
+}
+
+.step70-safety-card {
+    background:
+        radial-gradient(circle at 96% 3%, rgba(32, 175, 90, 0.09), transparent 31%),
+        #ffffff;
+}
+
+.step70-safety-card p {
+    margin: 0;
+    color: #64798e;
+    line-height: 1.65;
+}
+
+@media (max-width: 1120px) {
+    .step70-parent-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .step70-payment-due-card {
+        grid-column: 1 / -1;
+    }
+
+    .step70-profile-layout,
+    .step70-child-layout,
+    .step70-rules-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .step70-profile-overview,
+    .step70-child-side,
+    .step70-rules-side {
+        position: static;
+    }
+}
+
+@media (max-width: 860px) {
+    body.step70-parent-dashboard .app-main,
+    body.step70-parent-profile .app-main,
+    body.step70-register-child .app-main,
+    body.step70-parent-rules .app-main {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        padding-bottom:
+            calc(130px + env(safe-area-inset-bottom, 0px))
+            !important;
+    }
+
+    .step70-parent-hero {
+        min-height: 0;
+        padding: 20px !important;
+        border-radius: 22px !important;
+    }
+
+    .step70-parent-hero h1 {
+        font-size: 31px !important;
+    }
+
+    .step70-parent-hero .hero-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .step70-parent-hero .hero-actions .btn,
+    .step70-parent-hero > .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .step70-parent-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    .step70-parent-stats .pro-stat {
+        min-height: 145px;
+        padding: 16px !important;
+        border-radius: 19px !important;
+    }
+
+    .step70-payment-due-card {
+        grid-column: 1 / -1;
+        min-height: 210px !important;
+    }
+
+    .step70-due-card-top {
+        grid-template-columns: 43px minmax(0, 1fr);
+    }
+
+    .step70-due-card-top b {
+        grid-column: 1 / -1;
+        width: fit-content;
+    }
+
+    .step70-dashboard-section,
+    .step70-profile-form-card,
+    .step70-security-form-card,
+    .step70-child-form-card,
+    .step70-rules-main-card {
+        padding: 18px !important;
+        border-radius: 21px !important;
+    }
+
+    .step70-profile-cover {
+        padding: 21px;
+    }
+
+    .step70-profile-cover .profile-avatar-pro {
+        width: 64px;
+        min-width: 64px;
+        height: 64px;
+        border-radius: 19px;
+    }
+
+    .step70-profile-title h2 {
+        font-size: 21px;
+    }
+
+    .step70-profile-two-column,
+    .step70-form-two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .step70-form-section {
+        padding: 16px;
+        border-radius: 17px;
+    }
+
+    .step70-child-progress-card {
+        padding: 15px;
+    }
+
+    .step70-rules-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .step70-public-rule-card {
+        grid-template-columns: 31px 45px minmax(0, 1fr);
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .step70-rule-icon {
+        width: 43px;
+        height: 43px;
+        font-size: 21px;
+    }
+
+    .step70-parent-table-card {
+        padding: 15px !important;
+    }
+
+    .step70-parent-table-card .table-header {
+        display: block;
+    }
+
+    .step70-parent-table-card .table-header .btn {
+        width: 100%;
+        margin-top: 12px;
+        text-align: center;
+    }
+
+    .step70-parent-child-table {
+        display: block;
+        min-width: 0 !important;
+    }
+
+    .step70-parent-child-table thead {
+        display: none;
+    }
+
+    .step70-parent-child-table tbody {
+        display: grid;
+        gap: 12px;
+    }
+
+    .step70-parent-child-row {
+        display: grid;
+        padding: 15px;
+        border: 1px solid #d9e7f4;
+        border-radius: 19px;
+        background: #ffffff;
+        box-shadow: 0 11px 27px rgba(15, 60, 104, 0.07);
+    }
+
+    .step70-parent-child-row > td {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 95px minmax(0, 1fr);
+        gap: 9px;
+        padding: 9px 0 !important;
+        border: 0 !important;
+        border-bottom: 1px solid #edf2f7 !important;
+        white-space: normal !important;
+        text-align: left !important;
+    }
+
+    .step70-parent-child-row > td::before {
+        content: attr(data-label);
+        color: #74879a;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .step70-parent-child-row > td:first-child {
+        grid-template-columns: 1fr;
+        padding-top: 0 !important;
+    }
+
+    .step70-parent-child-row > td:first-child::before {
+        display: none;
+    }
+
+    .step70-parent-child-row > td:last-child {
+        border-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .step70-parent-stats {
+        grid-template-columns: 1fr !important;
+    }
+
+    .step70-payment-due-card {
+        grid-column: auto;
+    }
+
+    .step70-profile-cover {
+        align-items: flex-start;
+    }
+
+    .step70-profile-contact-list {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .step70-profile-completion {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .step70-profile-quick-actions {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+/* MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH */
+

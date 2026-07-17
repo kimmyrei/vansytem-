@@ -3,179 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Child | Mutahus Global</title>
+    <meta name="theme-color" content="#143f73">
+    <title>Register Child | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
-
-<style>
-    /* MUTAHUS_STEP33_DASHBOARD_LAYOUT_REGISTER_PAYMENT_FIX */
-    .mutahus-form-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 340px;
-        gap: 24px;
-        align-items: start;
-    }
-
-    .mutahus-side-card {
-        background: white;
-        border: 1px solid var(--line);
-        border-radius: 26px;
-        box-shadow: var(--shadow);
-        padding: 26px;
-    }
-
-    .mutahus-side-card h3 {
-        color: var(--primary);
-        margin-bottom: 12px;
-    }
-
-    .mutahus-side-card p,
-    .mutahus-side-card li {
-        color: var(--muted);
-        line-height: 1.65;
-        font-size: 14px;
-    }
-
-    .mutahus-side-card ul {
-        padding-left: 18px;
-        margin: 12px 0 0;
-    }
-
-    .form-section-title {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin: 22px 0 14px;
-    }
-
-    .form-section-title:first-child {
-        margin-top: 0;
-    }
-
-    .form-section-title span {
-        width: 34px;
-        height: 34px;
-        display: grid;
-        place-items: center;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary-2), var(--primary));
-        color: #ffffff;
-        font-weight: 900;
-    }
-
-    .form-section-title h3 {
-        margin: 0;
-        color: var(--primary);
-    }
-
-    .form-card-pro label {
-        display: block;
-        margin: 14px 0 7px;
-        color: var(--primary);
-        font-weight: 900;
-    }
-
-    .form-card-pro textarea {
-        min-height: 110px;
-    }
-
-    .all-children-box {
-        padding: 16px;
-        border-radius: 18px;
-        border: 1px solid var(--line);
-        background: var(--soft);
-        margin: 10px 0 14px;
-    }
-
-    .all-children-box strong {
-        display: block;
-        color: var(--primary);
-        font-size: 16px;
-    }
-
-    .all-children-box p {
-        margin: 8px 0 0;
-        color: var(--muted);
-        line-height: 1.55;
-    }
-
-    .bank-card-pro {
-        background: linear-gradient(135deg, var(--primary), var(--primary-2)) !important;
-        color: #ffffff !important;
-        border: none !important;
-    }
-
-    .bank-card-pro,
-    .bank-card-pro * {
-        color: #ffffff !important;
-    }
-
-    .bank-card-pro div {
-        border-bottom-color: rgba(255,255,255,.25) !important;
-    }
-
-    .bank-card-pro span {
-        opacity: .92;
-    }
-
-    .locked-payment-date {
-        display:flex;
-        gap:14px;
-        align-items:center;
-        padding:14px 16px;
-        border:1px solid var(--line);
-        border-radius:18px;
-        background:var(--soft);
-        margin-bottom:14px;
-    }
-
-    .locked-date-icon {
-        width:46px;
-        height:46px;
-        border-radius:15px;
-        display:grid;
-        place-items:center;
-        background:#ffffff;
-        border:1px solid var(--line);
-        font-size:22px;
-        flex-shrink:0;
-    }
-
-    .locked-date-content { flex:1; }
-
-    .locked-date-content small {
-        display:block;
-        color:var(--muted);
-        font-weight:900;
-        margin-bottom:4px;
-    }
-
-    #paymentDateDisplay {
-        border:none !important;
-        background:transparent !important;
-        color:var(--primary);
-        font-size:18px;
-        font-weight:900;
-        padding:0;
-        min-height:auto;
-        box-shadow:none !important;
-    }
-
-    .locked-date-content p {
-        margin:4px 0 0;
-        color:var(--muted);
-        font-size:13px;
-        line-height:1.4;
-    }
-
-    @media(max-width: 1000px) {
-        .mutahus-form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
 </head>
-<body>
+<body class="page-add-student step70-register-child">
 
 <div class="app-shell">
     
@@ -183,155 +15,315 @@
     <div class="sidebar-brand">
         <span>🚐</span>
         <div>
-            <strong>Mutahus Global</strong>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
             <small>Parent Portal</small>
         </div>
     </div>
 
     <nav class="sidebar-menu">
-        <a class="" href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
-        <a class="" href="parent-profile.html"><span>👤</span> My Profile</a>
+        <a href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
+        <a href="parent-profile.html"><span>👤</span> My Profile</a>
         <a class="active" href="add-student.html"><span>🎒</span> Register Child</a>
-        <a class="" href="upload-payment.html"><span>💳</span> Payment Proof</a>
+        <a href="upload-payment.html"><span>💳</span> Payment Proof</a>
         <a href="parent-rules.html"><span>📘</span> Rules</a>
     </nav>
 
     <div class="sidebar-bottom">
         <div class="mini-help">
-            <strong>Need update?</strong>
-            <p>Check announcement and payment status from your dashboard.</p>
+            <strong>Need assistance?</strong>
+            <p>Use WhatsApp for route, payment or account enquiries.</p>
         </div>
-        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+
+        <a href="#" onclick="parentLogout()" class="logout-btn">
+            <span>🚪</span> Logout
+        </a>
     </div>
 </aside>
 
 
     <main class="app-main">
         
-    <div class="mobile-app-header mobile-parent-header">
-        <div class="mobile-brand">
-            <span>🚐</span>
-            <div>
-                <strong>Mutahus Global</strong>
-                <small>Parent Portal</small>
-            </div>
+<div class="mobile-app-header mobile-parent-header">
+    <div class="mobile-brand">
+        <span>🚐</span>
+        <div>
+            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+            <small>Parent Portal</small>
         </div>
     </div>
+</div>
 
-    <nav class="mobile-bottom-nav">
-        <a href="parent-dashboard.html" class="">
-            <span>🏠</span>
-            <small>Home</small>
-        </a>
-        <a href="parent-profile.html" class="">
-            <span>👤</span>
-            <small>Profile</small>
-        </a>
-        <a href="add-student.html" class="active">
-            <span>🎒</span>
-            <small>Child</small>
-        </a>
-        <a href="upload-payment.html" class="">
-            <span>💳</span>
-            <small>Pay</small>
-        </a>
-        <a href="parent-rules.html" class="">
-            <span>📘</span>
-            <small>Rules</small>
-        </a>
-    </nav>
+<nav class="mobile-bottom-nav">
+    <a href="parent-dashboard.html">
+        <span>🏠</span>
+        <small>Home</small>
+    </a>
+
+    <a href="parent-profile.html">
+        <span>👤</span>
+        <small>Profile</small>
+    </a>
+
+    <a class="active" href="add-student.html">
+        <span>🎒</span>
+        <small>Child</small>
+    </a>
+
+    <a href="upload-payment.html">
+        <span>💳</span>
+        <small>Pay</small>
+    </a>
+
+    <a href="parent-rules.html">
+        <span>📘</span>
+        <small>Rules</small>
+    </a>
+</nav>
 
 
-        <div class="page-hero-bar">
+        <section class="page-hero-bar step70-parent-hero">
             <div>
-                <span class="page-kicker">PARENT PORTAL</span>
+                <span class="page-kicker">NEW CHILD REGISTRATION</span>
                 <h1>Register Child</h1>
+                <p>
+                    Submit school, session and home details for
+                    admin review and route arrangement.
+                </p>
             </div>
-        </div>
 
-        <div class="mutahus-form-grid">
-            <section class="form-card-pro">
-                <form onsubmit="saveChild(event)">
-                    <div class="form-section-title">
-                        <span>1</span>
-                        <h3>Student Information</h3>
-                    </div>
+            <a href="parent-dashboard.html" class="btn btn-light-pro">
+                Back to Dashboard
+            </a>
+        </section>
 
-                    <label>Student Full Name</label>
-                    <input type="text" id="studentName" placeholder="Example: Adam Bin Ali" required>
+        <section class="step70-child-progress-card">
+            <div>
+                <span>Registration progress</span>
+                <strong id="step70ChildProgressText">0% completed</strong>
+            </div>
 
-                    <div class="form-two-column">
-                        <div>
-                            <label>School Name</label>
-                            <select id="schoolName" required>
-                                <option value="Not applicable">Not applicable</option>
-                                <option>SK Bertam Perdana</option>
-                                <option>SMK Bertam Perdana</option>
-                                <option>SMK Dato Kailan</option>
-                            </select>
+            <div class="step70-progress-track">
+                <span id="step70ChildProgressBar"></span>
+            </div>
+        </section>
+
+        <section class="step70-child-layout">
+            <article class="form-card-pro step70-child-form-card">
+                <div class="form-header">
+                    <span class="page-kicker">CHILD INFORMATION</span>
+                    <h2>Registration Form</h2>
+                    <p>
+                        Enter the details carefully. Admin will review
+                        the submission before activation.
+                    </p>
+                </div>
+
+                <form
+                    id="step70ChildForm"
+                    onsubmit="saveChild(event)"
+                >
+                    <div class="step70-form-section">
+                        <div class="step70-form-section-title">
+                            <span>1</span>
+                            <div>
+                                <h3>Student Details</h3>
+                                <p>Basic child and school information.</p>
+                            </div>
                         </div>
 
-                        <div>
-                            <label>KAFA / Religious School</label>
-                            <select id="kafaName">
-                                <option value="">Not applicable</option>
-                                <option>KAFA Bertam Perdana</option>
-                                <option>KAFA Masjid Abdullah Fahim</option>
-                                <option>KAFA Paya Keladi</option>
-                            </select>
+                        <div class="field-group">
+                            <label for="studentName">
+                                Student Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="studentName"
+                                placeholder="Example: Adam Bin Ali"
+                                autocomplete="name"
+                                required
+                            >
+                        </div>
+
+                        <div class="step70-form-two-column">
+                            <div class="field-group">
+                                <label for="schoolName">
+                                    School Name
+                                </label>
+
+                                <select id="schoolName" required>
+                                    <option value="Not applicable">
+                                        Not applicable
+                                    </option>
+                                    <option>SK Bertam Perdana</option>
+                                    <option>SMK Bertam Perdana</option>
+                                    <option>SMK Dato Kailan</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="kafaName">
+                                    KAFA / Religious School
+                                </label>
+
+                                <select id="kafaName">
+                                    <option value="">Not applicable</option>
+                                    <option>KAFA Bertam Perdana</option>
+                                    <option>KAFA Masjid Abdullah Fahim</option>
+                                    <option>KAFA Paya Keladi</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="classYear">Class / Year</label>
+
+                            <input
+                                type="text"
+                                id="classYear"
+                                placeholder="Example: Year 3 / Form 1"
+                                required
+                            >
                         </div>
                     </div>
 
-                    <label>Class / Year</label>
-                    <input type="text" id="classYear" placeholder="Example: Year 3 / Form 1" required>
-
-                    <div class="form-section-title">
-                        <span>2</span>
-                        <h3>Session Details</h3>
-                    </div>
-
-                    <div class="form-two-column">
-                        <div>
-                            <label>School Session</label>
-                            <select id="session" required>
-                                <option value="Not applicable">Not applicable</option>
-                                <option>Morning</option>
-                                <option>Afternoon</option>
-                            </select>
+                    <div class="step70-form-section">
+                        <div class="step70-form-section-title">
+                            <span>2</span>
+                            <div>
+                                <h3>Session Details</h3>
+                                <p>Choose the correct school and KAFA sessions.</p>
+                            </div>
                         </div>
 
-                        <div>
-                            <label>KAFA Session</label>
-                            <select id="kafaSession">
-                                <option value="">Not applicable</option>
-                                <option>Morning</option>
-                                <option>Afternoon</option>
-                            </select>
+                        <div class="step70-form-two-column">
+                            <div class="field-group">
+                                <label for="session">
+                                    School Session
+                                </label>
+
+                                <select id="session" required>
+                                    <option value="Not applicable">
+                                        Not applicable
+                                    </option>
+                                    <option>Morning</option>
+                                    <option>Afternoon</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="kafaSession">
+                                    KAFA Session
+                                </label>
+
+                                <select id="kafaSession">
+                                    <option value="">Not applicable</option>
+                                    <option>Morning</option>
+                                    <option>Afternoon</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-                    <label>Home Address</label>
-                    <textarea id="homeAddress" placeholder="Enter full home address" required></textarea>
+                    <div class="step70-form-section">
+                        <div class="step70-form-section-title">
+                            <span>3</span>
+                            <div>
+                                <h3>Home & Additional Details</h3>
+                                <p>Provide information needed for route planning.</p>
+                            </div>
+                        </div>
 
-                    <button class="btn btn-primary-pro full-btn" type="submit">Save Child Details</button>
+                        <div class="field-group">
+                            <label for="homeAddress">Home Address</label>
+
+                            <textarea
+                                id="homeAddress"
+                                rows="4"
+                                placeholder="Enter the complete home address"
+                                autocomplete="street-address"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="notes">
+                                Additional Note
+                                <small>(optional)</small>
+                            </label>
+
+                            <textarea
+                                id="notes"
+                                rows="3"
+                                maxlength="300"
+                                placeholder="Example: Gate colour, landmark or important information."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="step70-submit-note">
+                        <span>✅</span>
+                        <p>
+                            The monthly fee will be set by admin after
+                            reviewing the registration.
+                        </p>
+                    </div>
+
+                    <button
+                        class="btn btn-primary-pro full-btn step70-child-submit"
+                        type="submit"
+                    >
+                        Submit Child Registration
+                    </button>
                 </form>
-            </section>
+            </article>
 
-            <aside class="mutahus-side-card">
-                <h3>Registration Note</h3>
-                <ul>
-                    <li>Choose <strong>Not applicable</strong> if the child does not attend school or KAFA.</li>
-                    <li>School session and KAFA session are separated.</li>
-                    <li>Payment amount will be set by admin later.</li>
-                </ul>
+            <aside class="step70-child-side">
+                <article class="step70-child-help-card">
+                    <span class="step70-side-icon">📝</span>
+                    <h3>Before submitting</h3>
+
+                    <ul>
+                        <li>Use the child's full official name.</li>
+                        <li>Choose Not applicable when there is no school or KAFA.</li>
+                        <li>Check that the session is correct.</li>
+                        <li>Enter a complete home address.</li>
+                    </ul>
+                </article>
+
+                <article class="step70-child-help-card step70-review-card">
+                    <span class="step70-side-icon">🛡️</span>
+                    <h3>Admin review process</h3>
+
+                    <div class="step70-review-step">
+                        <b>1</b>
+                        <p>Parent submits the registration.</p>
+                    </div>
+
+                    <div class="step70-review-step">
+                        <b>2</b>
+                        <p>Admin checks route and service availability.</p>
+                    </div>
+
+                    <div class="step70-review-step">
+                        <b>3</b>
+                        <p>Status changes to Accepted or Active.</p>
+                    </div>
+                </article>
+
+                <a
+                    class="step70-whatsapp-help"
+                    href="https://api.whatsapp.com/send?phone=60178078271&amp;text=Assalamualaikum%2C%20saya%20ingin%20bertanya%20tentang%20pendaftaran%20anak%20untuk%20servis%20van."
+                >
+                    💬 Ask Admin on WhatsApp
+                </a>
             </aside>
-        </div>
+        </section>
     </main>
 </div>
 
 <script src="app.js"></script>
 <script>requireParentLogin();</script>
-
 </body>
 </html>
-<!-- MUTAHUS_STEP33_DASHBOARD_LAYOUT_REGISTER_PAYMENT_FIX -->
+<!-- MUTHAQUS_STEP70_REGISTER_CHILD_POLISH -->
