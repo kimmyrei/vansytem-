@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#143f73">
+    <title>Report Child Absence | Mutahus Global</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+<aside class="pro-sidebar parent-side">
+    <div class="sidebar-brand">
+        <span>🚐</span>
+        <div>
+            <strong>Mutahus Global</strong>
+            <small>Parent Portal</small>
+        </div>
+    </div>
+
+    <nav class="sidebar-menu">
+        <a href="parent-dashboard.html"><span>🏠</span> Dashboard</a>
+        <a href="parent-profile.html"><span>👤</span> My Profile</a>
+        <a href="add-student.html"><span>🎒</span> Register Child</a>
+        <a class="active" href="report-absence.html"><span>📅</span> Report Absence</a>
+        <a href="upload-payment.html"><span>💳</span> Payment Proof</a>
+        <a href="parent-rules.html"><span>📘</span> Rules</a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="mini-help">
+            <strong>Inform early</strong>
+            <p>Submit the notice before the driver starts the route whenever possible.</p>
+        </div>
+        <a href="#" onclick="parentLogout()" class="logout-btn"><span>🚪</span> Logout</a>
+    </div>
+</aside>
+
+<main class="app-main">
+
+    <div class="mobile-app-header mobile-parent-header">
+        <div class="mobile-brand">
+            <span>🚐</span>
+            <div>
+                <strong>Mutahus Global</strong>
+                <small>Parent Portal</small>
+            </div>
+        </div>
+    </div>
+
+    <nav class="mobile-bottom-nav">
+        <a href="parent-dashboard.html">
+            <span>🏠</span>
+            <small>Home</small>
+        </a>
+        <a href="parent-profile.html">
+            <span>👤</span>
+            <small>Profile</small>
+        </a>
+        <a href="add-student.html">
+            <span>🎒</span>
+            <small>Child</small>
+        </a>
+        <a href="upload-payment.html">
+            <span>💳</span>
+            <small>Pay</small>
+        </a>
+        <a href="parent-rules.html">
+            <span>📘</span>
+            <small>Rules</small>
+        </a>
+    </nav>
+
+    <div class="page-hero-bar absence-hero">
+        <div>
+            <span class="page-kicker">ROUTE NOTICE</span>
+            <h1>Report Child Absence</h1>
+            <p>Tell Mutahus Global early when your child does not need van service.</p>
+        </div>
+
+        <a href="parent-dashboard.html" class="btn btn-light-pro">Back to Dashboard</a>
+    </div>
+
+    <section class="absence-page-grid">
+        <article class="form-card-pro absence-form-card">
+            <div class="form-header">
+                <span class="page-kicker">NEW NOTICE</span>
+                <h2>Absence Details</h2>
+                <p>The notice will appear immediately in the admin absence list.</p>
+            </div>
+
+            <form id="absenceForm" onsubmit="submitAbsence(event)">
+                <div class="form-grid-two">
+                    <div class="field-group">
+                        <label for="absenceStudent">Child</label>
+                        <select id="absenceStudent" required>
+                            <option value="">Loading children...</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="absenceDate">Absence Date</label>
+                        <input id="absenceDate" type="date" required>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="absenceTrip">Affected Van Trip</label>
+                        <select id="absenceTrip" required>
+                            <option value="Both trips">Both trips</option>
+                            <option value="Morning pickup only">Morning pickup only</option>
+                            <option value="Afternoon return only">Afternoon return only</option>
+                            <option value="KAFA trip only">KAFA trip only</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="absenceReason">Reason</label>
+                        <select id="absenceReason" required>
+                            <option value="">Select reason</option>
+                            <option value="Sick">Sick</option>
+                            <option value="School holiday or event">School holiday or event</option>
+                            <option value="Family matter">Family matter</option>
+                            <option value="Different transport arrangement">Different transport arrangement</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="absenceNote">Additional Note <span>(optional)</span></label>
+                    <textarea
+                        id="absenceNote"
+                        rows="4"
+                        maxlength="300"
+                        placeholder="Example: Child has a medical appointment in the morning."
+                    ></textarea>
+                    <small>Maximum 300 characters.</small>
+                </div>
+
+                <div class="absence-important-note">
+                    <span>⚠️</span>
+                    <p>
+                        For last-minute changes after the route has started, submit this form and contact
+                        Mutahus Global through WhatsApp.
+                    </p>
+                </div>
+
+                <button class="btn btn-primary-pro full-btn" type="submit">
+                    Submit Absence Notice
+                </button>
+            </form>
+        </article>
+
+        <aside class="absence-help-card">
+            <span class="absence-help-icon">📅</span>
+            <h3>How it works</h3>
+            <ol>
+                <li>Select the child and absence date.</li>
+                <li>Choose which van trip is affected.</li>
+                <li>Submit the notice for admin review.</li>
+                <li>Admin can mark it as acknowledged.</li>
+            </ol>
+
+            <div class="absence-help-footer">
+                <strong>Need urgent help?</strong>
+                <a
+                    href="https://api.whatsapp.com/send?phone=60178078271&amp;text=Assalamualaikum%2C%20saya%20ingin%20memaklumkan%20ketidakhadiran%20anak%20untuk%20servis%20van."
+                    target="_self"
+                >
+                    WhatsApp Mutahus Global
+                </a>
+            </div>
+        </aside>
+    </section>
+
+    <section class="table-box table-box-pro absence-history-box">
+        <div class="table-header">
+            <div>
+                <span class="page-kicker">MY NOTICES</span>
+                <h2>Absence History</h2>
+                <p>Review submitted notices and cancel future notices when plans change.</p>
+            </div>
+
+            <div class="history-count-pill">
+                <span id="parentAbsenceCount">0</span> Records
+            </div>
+        </div>
+
+        <div class="table-scroll-shell">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Child</th>
+                        <th>Date</th>
+                        <th>Affected Trip</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="parentAbsenceTable"></tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+</div>
+
+<script src="app.js"></script>
+<script>loadAbsencePage();</script>
+</body>
+</html>
+<!-- MUTAHUS_STEP59_CHILD_ABSENCE -->

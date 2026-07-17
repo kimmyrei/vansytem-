@@ -94,6 +94,10 @@ async function getDashboard(db, res) {
 
   const paidPayments = await db.collection("payments").find({ status: "Paid" }).toArray();
   const pendingPayments = await db.collection("payments").find({ status: "Pending" }).toArray();
+  const todayAbsences = await db.collection("absences").countDocuments({
+    date: malaysiaTodayValue(),
+    status: { $ne: "Cancelled" }
+  });
 
   const summary = {
     totalParents: parents.length,
@@ -101,7 +105,8 @@ async function getDashboard(db, res) {
     morningCount: students.filter(student => student.session === "Morning").length,
     afternoonCount: students.filter(student => student.session === "Afternoon").length,
     pendingPayments: pendingPayments.length,
-    totalPaidMonth: paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0)
+    totalPaidMonth: paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0),
+    todayAbsences
   };
 
   const recentPayments = payments.map(payment => ({
@@ -500,6 +505,7 @@ async function getSystemBackup(db, res) {
   const paymentsRaw = await db.collection("payments").find({}).sort({ createdAt: -1 }).toArray();
   const announcementsRaw = await db.collection("announcements").find({}).sort({ createdAt: -1 }).toArray();
   const rulesRaw = await db.collection("rules").find({}).sort({ order: 1, createdAt: 1 }).toArray();
+  const absencesRaw = await db.collection("absences").find({}).sort({ date: -1, createdAt: -1 }).toArray();
   const adminsRaw = await db.collection("admins").find({}).sort({ createdAt: -1 }).toArray();
 
   const sanitizeId = item => {
@@ -526,6 +532,7 @@ async function getSystemBackup(db, res) {
 
   const announcements = announcementsRaw.map(sanitizeId);
   const rules = rulesRaw.map(sanitizeId);
+  const absences = absencesRaw.map(sanitizeId);
 
   const admins = adminsRaw.map(admin => {
     const clean = sanitizeId(admin);
@@ -544,6 +551,7 @@ async function getSystemBackup(db, res) {
       payments: payments.length,
       announcements: announcements.length,
       rules: rules.length,
+      absences: absences.length,
       admins: admins.length
     },
     parents,
@@ -551,6 +559,7 @@ async function getSystemBackup(db, res) {
     payments,
     announcements,
     rules,
+    absences,
     admins
   };
 
@@ -558,6 +567,134 @@ async function getSystemBackup(db, res) {
     success: true,
     message: "System backup generated successfully.",
     backup
+  });
+}
+
+
+
+function malaysiaTodayValue() {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  });
+
+  const parts = formatter.formatToParts(new Date());
+  const values = {};
+
+  parts.forEach(part => {
+    if (part.type !== "literal") values[part.type] = part.value;
+  });
+
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function formatAbsence(item) {
+  return {
+    id: item._id.toString(),
+    parentId: item.parentId || "",
+    parentName: item.parentName || "",
+    parentPhone: item.parentPhone || "",
+    parentEmail: item.parentEmail || "",
+    studentId: item.studentId || "",
+    studentName: item.studentName || "",
+    school: item.school || "",
+    session: item.session || "",
+    date: item.date || "",
+    trip: item.trip || "Both trips",
+    reason: item.reason || "",
+    note: item.note || "",
+    status: item.status || "Submitted",
+    createdAt: cleanDate(item.createdAt),
+    updatedAt: cleanDate(item.updatedAt),
+    acknowledgedAt: cleanDate(item.acknowledgedAt),
+    cancelledAt: cleanDate(item.cancelledAt)
+  };
+}
+
+async function getAbsences(db, res) {
+  const raw = await db
+    .collection("absences")
+    .find({})
+    .sort({ date: 1, createdAt: -1 })
+    .limit(500)
+    .toArray();
+
+  const today = malaysiaTodayValue();
+  const active = raw.filter(item => item.status !== "Cancelled");
+
+  return res.status(200).json({
+    success: true,
+    absences: raw.map(formatAbsence),
+    summary: {
+      total: raw.length,
+      today: active.filter(item => item.date === today).length,
+      upcoming: active.filter(item => item.date > today).length,
+      submitted: raw.filter(item => (item.status || "Submitted") === "Submitted").length,
+      acknowledged: raw.filter(item => item.status === "Acknowledged").length,
+      cancelled: raw.filter(item => item.status === "Cancelled").length
+    }
+  });
+}
+
+async function updateAbsenceStatus(db, data, res) {
+  const absenceId = String(data.absenceId || "").trim();
+  const status = String(data.status || "").trim();
+  const allowedStatuses = ["Submitted", "Acknowledged", "Cancelled"];
+
+  if (!absenceId || !allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      success: false,
+      message: "Valid absence ID and status are required."
+    });
+  }
+
+  let absenceObjectId;
+
+  try {
+    absenceObjectId = new ObjectId(absenceId);
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid absence notice ID."
+    });
+  }
+
+  const existing = await db.collection("absences").findOne({
+    _id: absenceObjectId
+  });
+
+  if (!existing) {
+    return res.status(404).json({
+      success: false,
+      message: "Absence notice not found."
+    });
+  }
+
+  const now = new Date();
+  const update = {
+    status,
+    updatedAt: now
+  };
+
+  if (status === "Acknowledged") {
+    update.acknowledgedAt = now;
+  }
+
+  if (status === "Cancelled") {
+    update.cancelledAt = now;
+  }
+
+  await db.collection("absences").updateOne(
+    { _id: absenceObjectId },
+    { $set: update }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Absence status updated successfully.",
+    status
   });
 }
 
@@ -574,6 +711,10 @@ module.exports = async function handler(req, res) {
 
       if (action === "rules") {
         return getRules(db, res);
+      }
+
+      if (action === "absences") {
+        return getAbsences(db, res);
       }
 
       if (action === "backup") {
@@ -619,6 +760,10 @@ module.exports = async function handler(req, res) {
         return resetRules(db, res);
       }
 
+      if (action === "update-absence-status") {
+        return updateAbsenceStatus(db, data, res);
+      }
+
       return res.status(400).json({
         success: false,
         message: "Invalid admin dashboard action."
@@ -644,3 +789,5 @@ module.exports = async function handler(req, res) {
 // MUTAHUS_STEP15_ADMIN_LOGIN_MONGODB
 
 // MUTAHUS_STEP21_ADMIN_BACKUP_DOWNLOAD
+
+// MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE

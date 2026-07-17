@@ -6809,3 +6809,295 @@ body {
 
 /* MUTAHUS_STEP58_NO_FLICKER_NATIVE_FLOW */
 
+
+
+/* =========================================================
+   MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE
+   Existing styles above are preserved.
+   ========================================================= */
+
+.table-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.table-scroll-shell {
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.absence-history-box {
+    border-top: 4px solid #2b78d0 !important;
+}
+
+.absence-page-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.75fr);
+    gap: 24px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+.absence-form-card {
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.form-grid-two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.field-group {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.field-group label span {
+    color: #71849a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.field-group > small {
+    color: #71849a;
+    line-height: 1.45;
+}
+
+.absence-important-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 18px 0;
+    padding: 15px 16px;
+    border: 1px solid #f2d18a;
+    border-radius: 16px;
+    background: #fff9e9;
+    color: #74510c;
+}
+
+.absence-important-note > span {
+    font-size: 21px;
+    line-height: 1;
+}
+
+.absence-important-note p {
+    margin: 0;
+    line-height: 1.55;
+}
+
+.absence-help-card {
+    position: sticky;
+    top: 102px;
+    padding: 26px;
+    border: 1px solid #dbe7f4;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 92% 4%, rgba(43, 120, 208, 0.13), transparent 32%),
+        #ffffff;
+    box-shadow: 0 18px 44px rgba(15, 60, 104, 0.10);
+}
+
+.absence-help-icon {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    background: #eaf3ff;
+    font-size: 28px;
+}
+
+.absence-help-card h3 {
+    margin: 0 0 14px;
+    color: #12395f;
+    font-size: 22px;
+}
+
+.absence-help-card ol {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding-left: 22px;
+    color: #51677e;
+    line-height: 1.55;
+}
+
+.absence-help-footer {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #dbe7f4;
+}
+
+.absence-help-footer strong,
+.absence-help-footer a {
+    display: block;
+}
+
+.absence-help-footer a {
+    margin-top: 8px;
+    color: #16834c;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.absence-filter-bar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.4fr) minmax(170px, 0.65fr) minmax(180px, 0.65fr) auto;
+    gap: 14px;
+    align-items: end;
+    margin: 18px 0 22px;
+    padding: 16px;
+    border: 1px solid #dbe7f4;
+    border-radius: 18px;
+    background: #f7faff;
+}
+
+.absence-filter-bar .btn {
+    min-height: 48px;
+}
+
+.absence-action-muted {
+    color: #8393a4;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.invoice-download-btn {
+    min-width: 128px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 12px;
+    border: 1px solid #b8d8c4;
+    border-radius: 11px;
+    background: #ecfff3;
+    color: #157343;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.1;
+    cursor: pointer;
+}
+
+.invoice-download-btn:hover:not(:disabled) {
+    border-color: #75bf91;
+    background: #dcfbe7;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(21, 115, 67, 0.13);
+}
+
+.invoice-download-btn.is-disabled {
+    border-color: #d9e2ec;
+    background: #f3f6f9;
+    color: #7d8c9c;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.invoice-admin-btn {
+    border-color: #b8d8c4 !important;
+    background: #ecfff3 !important;
+    color: #157343 !important;
+}
+
+.mutahus-empty-state {
+    min-height: 118px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 5px;
+    padding: 18px;
+    text-align: center;
+}
+
+.mutahus-empty-state > span {
+    font-size: 28px;
+}
+
+.mutahus-empty-state strong {
+    color: #173b5d;
+}
+
+.mutahus-empty-state small {
+    max-width: 420px;
+    color: #71849a;
+    line-height: 1.45;
+}
+
+@media (min-width: 901px) {
+    .absence-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .absence-history-box table {
+        min-width: 920px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .absence-page-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .absence-help-card {
+        position: static;
+    }
+
+    .absence-filter-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 860px) {
+    .absence-page-grid {
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .form-grid-two,
+    .absence-filter-bar {
+        grid-template-columns: 1fr;
+    }
+
+    .absence-filter-bar .btn {
+        width: 100%;
+    }
+
+    .absence-help-card {
+        padding: 21px;
+        border-radius: 21px;
+    }
+
+    .table-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .table-header-actions .btn {
+        flex: 1 1 180px;
+        text-align: center;
+    }
+
+    .absence-history-box table,
+    .page-report-absence table,
+    .page-admin-absences table {
+        min-width: 860px;
+    }
+
+    .invoice-download-btn {
+        min-width: 118px;
+    }
+}
+
+/* MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE */
+
