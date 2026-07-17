@@ -6658,9 +6658,13 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
 function injectAbsenceNavigation() {
     const page = window.location.pathname.split("/").pop() || "index.html";
 
-    document.querySelectorAll(".sidebar-menu").forEach(menu => {
-        const isAdmin = Boolean(menu.closest(".admin-side"));
-        const isParent = Boolean(menu.closest(".parent-side"));
+    document.querySelectorAll(".sidebar-menu, .side-links").forEach(menu => {
+        const isAdmin = Boolean(
+            menu.closest(".admin-side, .admin-sidebar, .admin-shell")
+        );
+        const isParent = Boolean(
+            menu.closest(".parent-side, .profile-sidebar, .rules-sidebar, .parent-shell")
+        );
 
         if (isAdmin && !menu.querySelector('a[href="admin-absences.html"]')) {
             const link = document.createElement("a");

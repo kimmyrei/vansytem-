@@ -7101,3 +7101,438 @@ body {
 
 /* MUTAHUS_STEP59_CHILD_ABSENCE_DOWNLOADABLE_INVOICE */
 
+
+
+/* =========================================================
+   MUTAHUS_STEP60_PARENT_PROFILE_RULES_ABSENCE_STYLE_FIX
+
+   Targeted repair:
+   - Parent Profile and Parent Rules now use the same portal design
+   - Report Absence remains visible in every parent sidebar / More menu
+   - Removes the harsh line/accent styling from absence cards
+   - Existing Step 59 features and CSS are preserved
+   ========================================================= */
+
+/* ---------- Consistent parent portal navigation ---------- */
+
+.parent-side .sidebar-menu a,
+.profile-sidebar .side-links a,
+.rules-sidebar .side-links a {
+    border: 1px solid transparent;
+    box-shadow: none !important;
+}
+
+.parent-side .sidebar-menu a.active,
+.parent-side .sidebar-menu a.mutahus-current-link,
+.profile-sidebar .side-links a.active,
+.profile-sidebar .side-links a.mutahus-current-link,
+.rules-sidebar .side-links a.active,
+.rules-sidebar .side-links a.mutahus-current-link {
+    border-color: rgba(255, 255, 255, 0.16) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 10px 24px rgba(5, 28, 52, 0.14) !important;
+}
+
+/* ---------- Shared Profile layout ---------- */
+
+.parent-profile-grid-pro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.85fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.parent-profile-primary,
+.parent-profile-side {
+    display: grid;
+    gap: 24px;
+}
+
+.profile-form-card,
+.profile-password-card,
+.profile-overview-card {
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.profile-overview-card {
+    position: relative;
+    overflow: hidden;
+    padding: 28px;
+    border: 1px solid var(--mutahus-line, #dbe7f4);
+    border-radius: 26px;
+    background:
+        radial-gradient(circle at 92% 8%, rgba(29, 111, 209, 0.13), transparent 32%),
+        #ffffff;
+    box-shadow: var(--mutahus-shadow-sm, 0 8px 24px rgba(15, 60, 104, 0.08));
+}
+
+.profile-overview-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+}
+
+.profile-avatar-pro {
+    width: 76px;
+    min-width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    border-radius: 23px;
+    background: linear-gradient(145deg, #2d79d6, #143f73);
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 950;
+    box-shadow: 0 14px 28px rgba(20, 63, 115, 0.24);
+}
+
+.profile-overview-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-overview-meta strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #143f73;
+    font-size: 22px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.profile-overview-meta p {
+    margin: 0 0 10px;
+    color: #687d92;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.profile-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+    margin-top: 22px;
+}
+
+.profile-mini-card {
+    padding: 16px;
+    border: 1px solid #dbe7f4;
+    border-radius: 17px;
+    background: #f8fbff;
+}
+
+.profile-mini-card span,
+.profile-mini-card strong {
+    display: block;
+}
+
+.profile-mini-card span {
+    margin-bottom: 6px;
+    color: #71849a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.profile-mini-card strong {
+    color: #173b5d;
+    font-size: 15px;
+}
+
+.profile-quick-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+    margin-top: 20px;
+}
+
+.profile-quick-links a {
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid #dbe7f4;
+    border-radius: 14px;
+    background: #f7faff;
+    color: #194b7d;
+    font-size: 13px;
+    font-weight: 850;
+    text-align: center;
+    text-decoration: none;
+}
+
+.profile-quick-links a:hover {
+    border-color: #b8d3ee;
+    background: #edf5ff;
+    transform: translateY(-1px);
+}
+
+.profile-form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.profile-form-actions .btn {
+    min-width: 150px;
+}
+
+/* ---------- Shared Parent Rules layout ---------- */
+
+.parent-rules-layout-pro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 24px;
+    align-items: start;
+}
+
+.parent-rules-card {
+    min-width: 0;
+    padding: 28px;
+    border: 1px solid #dbe7f4;
+    border-radius: 26px;
+    background: #ffffff;
+    box-shadow: 0 13px 34px rgba(15, 60, 104, 0.08);
+}
+
+.parent-rules-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.parent-rules-card-head h2 {
+    margin: 6px 0 5px;
+    color: #143f73;
+    font-size: clamp(25px, 3vw, 34px);
+    letter-spacing: -0.035em;
+}
+
+.parent-rules-card-head p {
+    margin: 0;
+    color: #6b7f94;
+    line-height: 1.65;
+}
+
+.rules-list-pro {
+    display: grid;
+    gap: 14px;
+}
+
+.rules-list-pro .rule-card-pro {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    margin: 0;
+    padding: 20px;
+    border: 1px solid #dbe7f4 !important;
+    border-radius: 19px;
+    background: #fbfdff;
+    box-shadow: none !important;
+}
+
+.rules-list-pro .rule-card-pro:hover {
+    border-color: #bdd5ee !important;
+    background: #f4f9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 25px rgba(15, 60, 104, 0.08) !important;
+}
+
+.rules-list-pro .rule-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #eaf3ff;
+    font-size: 23px;
+}
+
+.rules-list-pro .rule-card-pro h3 {
+    margin: 1px 0 7px;
+    color: #173b5d;
+    font-size: 17px;
+    line-height: 1.35;
+}
+
+.rules-list-pro .rule-card-pro p {
+    margin: 0;
+    color: #647a90;
+    line-height: 1.65;
+}
+
+.rules-side-note-pro {
+    position: sticky;
+    top: 104px;
+    padding: 24px;
+    border: 1px solid #dbe7f4;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 92% 5%, rgba(22, 163, 74, 0.11), transparent 33%),
+        #ffffff;
+    box-shadow: 0 13px 34px rgba(15, 60, 104, 0.08);
+}
+
+.rules-side-note-pro > span {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 17px;
+    border-radius: 17px;
+    background: #eaf9ef;
+    font-size: 25px;
+}
+
+.rules-side-note-pro h3 {
+    margin: 0 0 8px;
+    color: #143f73;
+    font-size: 21px;
+}
+
+.rules-side-note-pro p {
+    margin: 0;
+    color: #657b90;
+    line-height: 1.65;
+}
+
+.rules-side-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.rules-side-actions .btn {
+    width: 100%;
+    text-align: center;
+}
+
+/* ---------- Softer Report Absence styling ---------- */
+
+/* Remove the obvious blue horizontal line from absence-history cards. */
+.absence-history-box {
+    border-top: 1px solid #dbe7f4 !important;
+}
+
+/* No vertical active-line effect on the Report Absence navigation item. */
+.page-report-absence .parent-side .sidebar-menu a.active,
+.page-report-absence .parent-side .sidebar-menu a.mutahus-current-link {
+    box-shadow: 0 10px 24px rgba(5, 28, 52, 0.14) !important;
+}
+
+/* Make the report page feel like one clean surface, not separated by lines. */
+.page-report-absence .absence-form-card,
+.page-report-absence .absence-help-card,
+.page-report-absence .absence-history-box {
+    border-color: rgba(219, 231, 244, 0.82) !important;
+    box-shadow: 0 14px 36px rgba(15, 60, 104, 0.08) !important;
+}
+
+.page-report-absence .absence-form-card {
+    background:
+        radial-gradient(circle at 96% 2%, rgba(29, 111, 209, 0.07), transparent 28%),
+        #ffffff;
+}
+
+.page-report-absence .absence-important-note {
+    border: 0 !important;
+    background: linear-gradient(135deg, #fff9e9, #fffdf6);
+    box-shadow: inset 0 0 0 1px rgba(242, 209, 138, 0.42);
+}
+
+.page-report-absence .absence-help-footer {
+    margin-top: 18px;
+    padding: 15px;
+    border-top: 0 !important;
+    border-radius: 15px;
+    background: #f2fbf5;
+}
+
+.page-report-absence .absence-history-box {
+    overflow: hidden;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+    .parent-profile-grid-pro,
+    .parent-rules-layout-pro {
+        grid-template-columns: 1fr;
+    }
+
+    .rules-side-note-pro {
+        position: static;
+    }
+}
+
+@media (max-width: 860px) {
+    .parent-profile-grid-pro,
+    .parent-profile-primary,
+    .parent-profile-side {
+        gap: 16px;
+    }
+
+    .profile-overview-card,
+    .parent-rules-card,
+    .rules-side-note-pro {
+        padding: 20px;
+        border-radius: 21px;
+    }
+
+    .profile-overview-head {
+        align-items: flex-start;
+    }
+
+    .profile-avatar-pro {
+        width: 62px;
+        min-width: 62px;
+        height: 62px;
+        border-radius: 19px;
+        font-size: 25px;
+    }
+
+    .profile-mini-grid,
+    .profile-quick-links {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-form-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .profile-form-actions .btn {
+        width: 100%;
+    }
+
+    .parent-rules-card-head {
+        display: block;
+    }
+
+    .rules-list-pro .rule-card-pro {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 13px;
+        padding: 17px;
+    }
+
+    .rules-list-pro .rule-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 14px;
+        font-size: 21px;
+    }
+
+    .page-report-absence .absence-history-box {
+        border-top-width: 1px !important;
+    }
+}
+
+/* MUTAHUS_STEP60_PARENT_PROFILE_RULES_ABSENCE_STYLE_FIX */
+
