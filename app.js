@@ -5629,32 +5629,155 @@ function exportBusinessAnalyticsCSV() {
     downloadCSV(`muthaqus-business-analytics-${report.period.key}.csv`, rows);
 }
 
-(function injectOperationsNavigation() {
-    const addLinks = () => {
-        document.querySelectorAll(".sidebar-menu").forEach(menu => {
-            if (!menu.querySelector('a[href="admin-maintenance.html"]')) {
-                const settings = menu.querySelector('a[href="admin-settings.html"]');
-                const maintenance = document.createElement("a");
-                maintenance.href = "admin-maintenance.html";
-                maintenance.innerHTML = "<span>🔧</span> Maintenance";
+(function installAdminOperationsNavigation() {
+    const operationLinks = [
+        {
+            href: "admin-maintenance.html",
+            icon: "🔧",
+            label: "Maintenance"
+        },
+        {
+            href: "admin-analytics.html",
+            icon: "📈",
+            label: "Analytics"
+        }
+    ];
 
-                const analytics = document.createElement("a");
-                analytics.href = "admin-analytics.html";
-                analytics.innerHTML = "<span>📈</span> Analytics";
+    function currentPageName() {
+        return String(
+            window.location.pathname
+                .split("/")
+                .pop() || ""
+        )
+            .split("?")[0]
+            .toLowerCase();
+    }
 
-                if (settings) {
-                    menu.insertBefore(maintenance, settings);
-                    menu.insertBefore(analytics, settings);
-                } else {
-                    menu.appendChild(maintenance);
-                    menu.appendChild(analytics);
-                }
-            }
-        });
-    };
+    function removeOperationLinksFromParentPortal() {
+        document
+            .querySelectorAll(
+                '.sidebar-menu a[href="admin-maintenance.html"], ' +
+                '.sidebar-menu a[href="admin-analytics.html"], ' +
+                '.parent-side a[href="admin-maintenance.html"], ' +
+                '.parent-side a[href="admin-analytics.html"]'
+            )
+            .forEach(link => link.remove());
+    }
 
-    document.addEventListener("DOMContentLoaded", addLinks);
-    window.addEventListener("load", addLinks);
+    function addAdminOperationLinks() {
+        const page = currentPageName();
+        const isAdminPage =
+            page.startsWith("admin-") ||
+            document.body.classList.contains(
+                "page-admin-dashboard"
+            ) ||
+            document.body.classList.contains(
+                "page-admin-students"
+            ) ||
+            document.body.classList.contains(
+                "page-admin-parents"
+            ) ||
+            document.body.classList.contains(
+                "page-admin-payments"
+            ) ||
+            document.body.classList.contains(
+                "page-admin-settings"
+            ) ||
+            document.body.classList.contains(
+                "step94-maintenance-page"
+            ) ||
+            document.body.classList.contains(
+                "step95-analytics-page"
+            );
+
+        if (!isAdminPage) {
+            removeOperationLinksFromParentPortal();
+            return;
+        }
+
+        document
+            .querySelectorAll(
+                ".admin-side .sidebar-menu"
+            )
+            .forEach(menu => {
+                const settings =
+                    menu.querySelector(
+                        'a[href="admin-settings.html"]'
+                    );
+
+                operationLinks.forEach(item => {
+                    let link =
+                        menu.querySelector(
+                            `a[href="${item.href}"]`
+                        );
+
+                    if (!link) {
+                        link =
+                            document.createElement(
+                                "a"
+                            );
+
+                        link.href = item.href;
+
+                        if (settings) {
+                            menu.insertBefore(
+                                link,
+                                settings
+                            );
+                        } else {
+                            menu.appendChild(link);
+                        }
+                    }
+
+                    link.classList.add(
+                        "step96-admin-operation-link"
+                    );
+
+                    link.innerHTML = `
+                        <span class="step96-admin-nav-icon" aria-hidden="true">
+                            ${item.icon}
+                        </span>
+
+                        <span class="step96-admin-nav-label">
+                            ${item.label}
+                        </span>
+                    `;
+
+                    if (page === item.href) {
+                        link.classList.add(
+                            "active"
+                        );
+                    }
+                });
+            });
+    }
+
+    removeOperationLinksFromParentPortal();
+    addAdminOperationLinks();
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+            removeOperationLinksFromParentPortal();
+            addAdminOperationLinks();
+        }
+    );
+
+    window.addEventListener(
+        "load",
+        () => {
+            removeOperationLinksFromParentPortal();
+            addAdminOperationLinks();
+        }
+    );
+
+    window.setTimeout(
+        () => {
+            removeOperationLinksFromParentPortal();
+            addAdminOperationLinks();
+        },
+        150
+    );
 })();
 
 const MUTHAQUS_ADMIN_MAX_LOGIN_ATTEMPTS = 5;
@@ -13540,13 +13663,25 @@ function step77RenderArrearsBreakdown(
         `
         : "";
 
+    const totalVisibleMonths =
+        outstandingMonths.length +
+        pendingPastMonths.length;
+
     breakdown.innerHTML = `
         <div class="step77-breakdown-title">
-            <span class="step77-breakdown-icon">⚠</span>
+            <span class="step77-breakdown-icon">!</span>
+
             <div>
-                <strong>Previous month balance</strong>
-                <small>These months still need payment.</small>
+                <strong>Outstanding payment details</strong>
+                <small>
+                    Review the months below before making payment.
+                </small>
             </div>
+
+            <b class="step96-overdue-month-count">
+                ${totalVisibleMonths}
+                ${totalVisibleMonths === 1 ? "month" : "months"}
+            </b>
         </div>
 
         <div class="step77-month-chip-list">
@@ -14606,3 +14741,5 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE
 
 // MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS
+
+// MUTHAQUS_STEP96_ADMIN_NAV_PARENT_PAYMENT_REMINDER_POLISH
