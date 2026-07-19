@@ -13724,3 +13724,359 @@ body.muthaqus-security-warning-open {
 
 /* MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP79_ARREARS_ADMIN_STUDENTS_POLISH
+   ========================================================= */
+
+.step70-payment-due-card.is-arrears,
+.step70-payment-due-card.is-overdue {
+    gap: 0;
+}
+
+.step77-due-breakdown {
+    display: grid;
+    gap: 12px;
+    margin: 4px 0 16px;
+    padding: 14px;
+    border: 1px solid #efc7cc;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255, 250, 250, 0.98), rgba(255, 244, 245, 0.98));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+}
+
+.step77-breakdown-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: #9f2631;
+}
+
+.step77-breakdown-title > div {
+    display: grid;
+    gap: 3px;
+}
+
+.step77-breakdown-title strong {
+    display: block;
+    margin: 0;
+    color: #a3202c;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+}
+
+.step77-breakdown-title small {
+    margin: 0;
+    color: #8d5b61;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.step77-breakdown-icon {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #fff3f4;
+    border: 1px solid #f0c9ce;
+    color: #b22431;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.step77-month-chip-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    gap: 9px;
+}
+
+.step77-month-chip {
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 7px;
+    padding: 12px 13px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.25;
+}
+
+.step77-chip-month {
+    display: block;
+    width: 100%;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+}
+
+.step77-month-chip b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 950;
+    line-height: 1;
+}
+
+.step77-month-chip.overdue {
+    border: 1px solid #efc4c9;
+    background: #ffffff;
+    color: #a72531;
+}
+
+.step77-month-chip.overdue b {
+    background: #fff0f2;
+    color: #a72531;
+}
+
+.step77-month-chip.pending {
+    border: 1px solid #f0d7a0;
+    background: #fffaf0;
+    color: #8a5a05;
+}
+
+.step77-month-chip.pending b {
+    background: #fff2cf;
+    color: #8a5a05;
+}
+
+.step77-month-chip.more {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #d9e5f1;
+    background: #f5f9fd;
+    color: #4d6781;
+}
+
+.step77-month-chip.more b {
+    background: #eaf2fb;
+    color: #285f9e;
+}
+
+.step70-payment-due-card.is-arrears .step70-due-action,
+.step70-payment-due-card.is-overdue .step70-due-action {
+    min-height: 42px;
+    margin-top: 2px;
+}
+
+@media (max-width: 860px) {
+    body.step71-parent-mobile-dashboard .step70-payment-due-card,
+    body.muthaqus-step76 .step70-payment-due-card {
+        padding: 18px !important;
+    }
+
+    body.step71-parent-mobile-dashboard .step70-payment-due-card h2,
+    body.muthaqus-step76 .step70-payment-due-card h2 {
+        font-size: 32px !important;
+        line-height: 1.05 !important;
+    }
+
+    body.step71-parent-mobile-dashboard .step70-payment-due-card > p,
+    body.muthaqus-step76 .step70-payment-due-card > p {
+        margin-bottom: 13px !important;
+        font-size: 11.5px !important;
+        line-height: 1.55 !important;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-due-breakdown,
+    body.muthaqus-step76 .step77-due-breakdown {
+        gap: 10px;
+        margin-bottom: 14px;
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-breakdown-title strong,
+    body.muthaqus-step76 .step77-breakdown-title strong {
+        font-size: 12px;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-breakdown-title small,
+    body.muthaqus-step76 .step77-breakdown-title small {
+        font-size: 10px;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-month-chip-list,
+    body.muthaqus-step76 .step77-month-chip-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-month-chip,
+    body.muthaqus-step76 .step77-month-chip {
+        min-height: 78px;
+        padding: 12px;
+        border-radius: 15px;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-chip-month,
+    body.muthaqus-step76 .step77-chip-month {
+        font-size: 12px;
+        line-height: 1.25;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+
+    body.step71-parent-mobile-dashboard .step77-month-chip b,
+    body.muthaqus-step76 .step77-month-chip b {
+        font-size: 12px;
+    }
+
+    body.step71-parent-mobile-dashboard .step70-payment-due-card.is-arrears .step70-due-action,
+    body.step71-parent-mobile-dashboard .step70-payment-due-card.is-overdue .step70-due-action,
+    body.muthaqus-step76 .step70-payment-due-card.is-arrears .step70-due-action,
+    body.muthaqus-step76 .step70-payment-due-card.is-overdue .step70-due-action {
+        width: 100%;
+        min-height: 44px;
+        border-radius: 14px;
+        margin-top: 2px;
+    }
+
+    body.page-admin-students .admin-record-row > td[data-label="Service Start"],
+    body.page-admin-students .admin-record-row > td[data-label="Monthly Amount"],
+    body.page-admin-students .admin-record-row > td[data-label="Actions"] {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    body.page-admin-students .step78-service-start-box,
+    body.page-admin-students .mobile-student-amount {
+        width: 100%;
+        padding: 12px !important;
+        border-radius: 16px !important;
+        background: linear-gradient(180deg, #fbfdff, #f4f9ff) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+    }
+
+    body.page-admin-students .step78-service-start-box input {
+        min-height: 46px;
+        font-size: 15px;
+        font-weight: 850;
+    }
+
+    body.page-admin-students .step78-service-start-box button,
+    body.page-admin-students .mobile-student-amount button {
+        width: 100%;
+        min-height: 44px;
+        padding: 0 12px !important;
+        border-radius: 12px !important;
+        font-size: 13px !important;
+    }
+
+    body.page-admin-students .mobile-student-amount {
+        grid-template-columns: auto minmax(0, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    body.page-admin-students .mobile-student-amount button {
+        grid-column: 1 / -1;
+    }
+
+    body.page-admin-students .student-mobile-actions {
+        gap: 9px !important;
+    }
+
+    body.page-admin-students .student-mobile-actions .small-btn {
+        min-height: 44px !important;
+        border-radius: 12px !important;
+        font-size: 12px !important;
+        box-shadow: 0 8px 18px rgba(17, 78, 141, 0.08);
+    }
+}
+
+@media (max-width: 420px) {
+    body.step71-parent-mobile-dashboard .step77-month-chip-list,
+    body.muthaqus-step76 .step77-month-chip-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 861px) {
+    body.step67-admin-students .admin-record-table-shell {
+        border-radius: 22px;
+    }
+
+    body.step67-admin-students .step67-student-table {
+        min-width: 1520px;
+        font-size: 13.5px;
+    }
+
+    body.step67-admin-students .step67-student-col { width: 12%; }
+    body.step67-admin-students .step67-parent-col { width: 14%; }
+    body.step67-admin-students .step67-school-col { width: 15%; }
+    body.step67-admin-students .step67-class-col { width: 5%; }
+    body.step67-admin-students .step67-session-col { width: 7%; }
+    body.step67-admin-students .step67-status-col { width: 8%; }
+    body.step67-admin-students .step78-start-col { width: 12%; }
+    body.step67-admin-students .step67-amount-col { width: 12%; }
+    body.step67-admin-students .step67-actions-col { width: 15%; }
+
+    body.step67-admin-students .step67-student-table tbody td[data-label="Service Start"],
+    body.step67-admin-students .step67-student-table tbody td[data-label="Monthly Amount"],
+    body.step67-admin-students .step67-student-table tbody td[data-label="Actions"] {
+        vertical-align: top !important;
+    }
+
+    body.step67-admin-students .step78-service-start-box,
+    body.step67-admin-students .student-amount-box {
+        padding: 12px !important;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #fbfdff, #f4f9ff) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    body.step67-admin-students .step78-service-start-box label {
+        color: #5b748b;
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 0.03em;
+    }
+
+    body.step67-admin-students .step78-service-start-box input,
+    body.step67-admin-students .student-amount-box input {
+        height: 45px !important;
+        border-radius: 12px !important;
+        font-weight: 850 !important;
+    }
+
+    body.step67-admin-students .step78-service-start-box button,
+    body.step67-admin-students .student-amount-box button {
+        min-height: 42px !important;
+        border-radius: 12px !important;
+        font-size: 12.5px !important;
+        box-shadow: 0 9px 20px rgba(17, 85, 156, 0.14);
+    }
+
+    body.step67-admin-students .student-mobile-actions {
+        gap: 10px !important;
+    }
+
+    body.step67-admin-students .student-mobile-actions .small-btn {
+        min-height: 42px !important;
+        border-radius: 12px !important;
+        font-size: 11.5px !important;
+        box-shadow: 0 8px 18px rgba(20, 63, 115, 0.08);
+    }
+
+    body.step67-admin-students .record-support-text {
+        margin-top: 9px;
+        font-size: 11px;
+        color: #72869a;
+    }
+}
+
+/* MUTHAQUS_STEP79_ARREARS_ADMIN_STUDENTS_POLISH */

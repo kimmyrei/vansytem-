@@ -8852,35 +8852,39 @@ function step77RenderArrearsBreakdown(
 
     const outstandingHtml = visibleOutstanding
         .map(item => `
-            <span class="step77-month-chip overdue">
-                ${mutahusSafeHtml(step77PeriodLabel(item.period, true))}
+            <div class="step77-month-chip overdue">
+                <span class="step77-chip-month">${mutahusSafeHtml(step77PeriodLabel(item.period, true))}</span>
                 <b>RM${item.outstanding.toFixed(2)}</b>
-            </span>
+            </div>
         `)
         .join("");
 
     const pendingHtml = pendingPastMonths
         .slice(-2)
         .map(item => `
-            <span class="step77-month-chip pending">
-                ${mutahusSafeHtml(step77PeriodLabel(item.period, true))}
-                <b>Review</b>
-            </span>
+            <div class="step77-month-chip pending">
+                <span class="step77-chip-month">${mutahusSafeHtml(step77PeriodLabel(item.period, true))}</span>
+                <b>Under Review</b>
+            </div>
         `)
         .join("");
 
     const moreHtml = hiddenOutstandingCount > 0
         ? `
-            <span class="step77-month-chip more">
-                +${hiddenOutstandingCount} more
-            </span>
+            <div class="step77-month-chip more">
+                <span class="step77-chip-month">More unpaid month${hiddenOutstandingCount > 1 ? "s" : ""}</span>
+                <b>+${hiddenOutstandingCount}</b>
+            </div>
         `
         : "";
 
     breakdown.innerHTML = `
         <div class="step77-breakdown-title">
-            <span>⚠️</span>
-            <strong>Previous month balance</strong>
+            <span class="step77-breakdown-icon">⚠</span>
+            <div>
+                <strong>Previous month balance</strong>
+                <small>These months still need payment.</small>
+            </div>
         </div>
 
         <div class="step77-month-chip-list">
@@ -9848,3 +9852,6 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP77_PREVIOUS_MONTH_ARREARS_REMINDER
 
 // MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX
+
+
+// MUTHAQUS_STEP79_ARREARS_ADMIN_STUDENTS_POLISH
