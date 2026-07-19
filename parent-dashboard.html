@@ -7,7 +7,7 @@
     <title>Parent Dashboard | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page-parent-dashboard step70-parent-dashboard">
+<body class="page-parent-dashboard step70-parent-dashboard step71-parent-mobile-dashboard">
 
 <div class="app-shell">
     
@@ -102,6 +102,26 @@
             </div>
         </section>
 
+        <section class="step71-mobile-quick-actions">
+            <a href="add-student.html">
+                <span>🎒</span>
+                <strong>Register</strong>
+                <small>New child</small>
+            </a>
+
+            <a href="upload-payment.html">
+                <span>💳</span>
+                <strong>Pay</strong>
+                <small>Upload receipt</small>
+            </a>
+
+            <a href="parent-rules.html">
+                <span>📘</span>
+                <strong>Rules</strong>
+                <small>View guide</small>
+            </a>
+        </section>
+
         <section class="stats stats-pro step70-parent-stats">
             <article class="stat-card pro-stat">
                 <span>🎒</span>
@@ -144,7 +164,7 @@
             </article>
         </section>
 
-        <section class="step70-dashboard-section">
+        <section class="step70-dashboard-section step71-announcement-section">
             <div class="step70-section-heading">
                 <div>
                     <span class="page-kicker">LATEST UPDATE</span>
@@ -156,7 +176,41 @@
             <div id="announcementList" class="announcement-list-pro"></div>
         </section>
 
-        <section class="approval-status-guide step70-approval-guide">
+
+        <section class="table-box table-box-pro step70-parent-table-card step71-children-section">
+            <div class="table-header">
+                <div>
+                    <span class="page-kicker">CHILD RECORDS</span>
+                    <h2>My Children</h2>
+                    <p>Children registered under your parent account.</p>
+                </div>
+
+                <a href="add-student.html" class="btn btn-primary-pro">
+                    + Register Child
+                </a>
+            </div>
+
+            <div class="table-scroll-shell">
+                <table class="step70-parent-child-table">
+                    <thead>
+                        <tr>
+                            <th>Child</th>
+                            <th>School / KAFA</th>
+                            <th>Class</th>
+                            <th>Session</th>
+                            <th>Student Status</th>
+                            <th>Payment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="childrenTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <section class="approval-status-guide step70-approval-guide step71-approval-guide">
             <div class="approval-guide-header">
                 <div>
                     <span class="page-kicker">STUDENT APPROVAL</span>
@@ -195,40 +249,8 @@
             </div>
         </section>
 
-        <section class="table-box table-box-pro step70-parent-table-card">
-            <div class="table-header">
-                <div>
-                    <span class="page-kicker">CHILD RECORDS</span>
-                    <h2>My Children</h2>
-                    <p>Children registered under your parent account.</p>
-                </div>
-
-                <a href="add-student.html" class="btn btn-primary-pro">
-                    + Register Child
-                </a>
-            </div>
-
-            <div class="table-scroll-shell">
-                <table class="step70-parent-child-table">
-                    <thead>
-                        <tr>
-                            <th>Child</th>
-                            <th>School / KAFA</th>
-                            <th>Class</th>
-                            <th>Session</th>
-                            <th>Student Status</th>
-                            <th>Payment</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="childrenTable"></tbody>
-                </table>
-            </div>
-        </section>
-
         <section
-            class="table-box table-box-pro payment-history-box step70-parent-table-card"
+            class="table-box table-box-pro payment-history-box step70-parent-table-card step71-payment-history-section"
             id="paymentHistorySection"
         >
             <div class="table-header">
@@ -244,7 +266,7 @@
             </div>
 
             <div class="table-scroll-shell">
-                <table>
+                <table class="step71-payment-history-table">
                     <thead>
                         <tr>
                             <th>Month</th>
@@ -267,4 +289,4 @@
 <script>loadParentDashboard();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP70_PARENT_DASHBOARD_PAYMENT_DUE -->
+<!-- MUTHAQUS_STEP71_PARENT_DASHBOARD_MOBILE_POLISH -->

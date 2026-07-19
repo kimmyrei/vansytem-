@@ -1430,12 +1430,18 @@ function loadParentPaymentHistory(payments) {
 
     if (payments.length === 0) {
         historyTable.innerHTML = `
-            <tr>
+            <tr class="step71-payment-empty-row">
                 <td colspan="6" class="empty-row">
-                    <div class="mutahus-empty-state">
+                    <div class="step71-payment-empty">
                         <span>🧾</span>
-                        <strong>No payment history yet.</strong>
-                        <small>Approved payments will include a downloadable PDF invoice.</small>
+                        <strong>No payment history yet</strong>
+                        <p>
+                            Uploaded receipts and approved PDF invoices
+                            will appear here.
+                        </p>
+                        <a href="upload-payment.html" class="btn btn-primary-pro">
+                            Upload Payment
+                        </a>
                     </div>
                 </td>
             </tr>
@@ -1479,17 +1485,47 @@ function loadParentPaymentHistory(payments) {
                 `;
 
         historyTable.innerHTML += `
-            <tr>
-                <td><strong>${mutahusSafeHtml(payment.month || "-")}</strong></td>
-                <td>${mutahusSafeHtml(payment.studentName || "All registered children")}</td>
-                <td><strong>RM${Number(payment.amount || 0).toFixed(2)}</strong></td>
-                <td><span class="badge ${badgeClass}">${mutahusSafeHtml(payment.status || "Pending")}</span></td>
-                <td>
-                    <button class="receipt-button" type="button" onclick="viewParentReceipt('${payment.id}')">
-                        View Receipt
+            <tr class="step71-payment-history-row">
+                <td data-label="Month">
+                    <strong class="step71-payment-month">
+                        ${mutahusSafeHtml(payment.month || "-")}
+                    </strong>
+                </td>
+
+                <td data-label="Student">
+                    ${mutahusSafeHtml(
+                        payment.studentName ||
+                        "All registered children"
+                    )}
+                </td>
+
+                <td data-label="Amount">
+                    <strong class="step71-payment-amount">
+                        RM${Number(payment.amount || 0).toFixed(2)}
+                    </strong>
+                </td>
+
+                <td data-label="Status">
+                    <span class="badge ${badgeClass}">
+                        ${mutahusSafeHtml(
+                            payment.status || "Pending"
+                        )}
+                    </span>
+                </td>
+
+                <td data-label="Receipt">
+                    <button
+                        class="receipt-button"
+                        type="button"
+                        onclick="viewParentReceipt('${payment.id}')"
+                    >
+                        👁 View Receipt
                     </button>
                 </td>
-                <td>${invoiceButton}</td>
+
+                <td data-label="Invoice">
+                    ${invoiceButton}
+                </td>
             </tr>
         `;
     });
@@ -7970,3 +8006,4 @@ window.addEventListener("load", function () {
 
 // MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH
 
+// MUTHAQUS_STEP71_PARENT_DASHBOARD_MOBILE_POLISH
