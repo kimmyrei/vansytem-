@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#143f73">
+    <title>Business Analytics | MUTHAQUS GLOBAL ENTERPRISE</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body class="step95-analytics-page">
+<div class="app-shell">
+    <aside class="pro-sidebar admin-side">
+        <div class="sidebar-brand"><span>🚐</span><div><strong>MUTHAQUS GLOBAL ENTERPRISE</strong><small>Admin Control</small></div></div>
+        
+        <nav class="sidebar-menu">
+            <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
+            <a href="admin-students.html"><span>🎒</span> Students</a>
+            <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
+            <a href="admin-payments.html"><span>💳</span> Payments</a>
+            <a href="admin-announcements.html"><span>📢</span> Announcements</a>
+            <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
+
+            <a href="admin-maintenance.html"><span>🔧</span> Maintenance</a>
+            <a class="active" href="admin-analytics.html"><span>📈</span> Analytics</a>
+            <a href="admin-settings.html"><span>⚙️</span> Settings</a>
+        </nav>
+        <div class="sidebar-bottom"><a href="#" onclick="adminLogout()" class="logout-btn"><span>🚪</span> Logout</a></div>
+    </aside>
+
+    <main class="app-main">
+        <div class="mobile-app-header mobile-admin-header"><div class="mobile-brand"><span>🚐</span><div><strong>MUTHAQUS GLOBAL ENTERPRISE</strong><small>Business Analytics</small></div></div></div>
+
+        <section class="page-hero-bar">
+            <div><span class="page-kicker">BUSINESS PERFORMANCE</span><h1>Business Analytics</h1><p>Understand revenue, operating costs, collection performance and estimated profit in one dashboard.</p></div>
+            <div class="step95-hero-actions"><select id="analyticsMonth" onchange="renderBusinessAnalytics()"></select><button class="btn btn-light-pro" type="button" onclick="exportBusinessAnalyticsCSV()">⬇ Export CSV</button></div>
+        </section>
+
+        <div id="analyticsMainContent">
+            <section class="step95-kpis">
+                <article class="revenue"><span>💰</span><div><small>Revenue</small><strong id="analyticsRevenue">RM0.00</strong><p id="analyticsRevenueTrend">—</p></div></article>
+                <article class="expense"><span>💸</span><div><small>Expenses</small><strong id="analyticsExpenses">RM0.00</strong></div></article>
+                <article class="profit"><span>📈</span><div><small>Net Profit</small><strong id="analyticsNetProfit">RM0.00</strong><p id="analyticsProfitTrend">—</p></div></article>
+                <article><span>✅</span><div><small>Collection Rate</small><strong id="analyticsCollectionRate">0.0%</strong></div></article>
+                <article class="danger"><span>⚠️</span><div><small>Outstanding</small><strong id="analyticsOutstanding">RM0.00</strong></div></article>
+                <article><span>🎒</span><div><small>Active Students</small><strong id="analyticsActiveStudents">0</strong></div></article>
+                <article><span>👨‍👩‍👧</span><div><small>Active Parents</small><strong id="analyticsActiveParents">0</strong></div></article>
+                <article><span>🧾</span><div><small>Average Fee</small><strong id="analyticsAverageFee">RM0.00</strong></div></article>
+            </section>
+
+            <section class="step95-grid">
+                <article class="step95-panel">
+                    <div class="step95-panel-head"><span>📊</span><div><small>MONTHLY COMPARISON</small><h2>Revenue vs Expenses</h2></div></div>
+                    <div class="step95-bars">
+                        <div><label>Revenue</label><div><span id="analyticsRevenueBar" class="revenue"></span></div><strong id="analyticsRevenue">RM0.00</strong></div>
+                        <div><label>Expenses</label><div><span id="analyticsExpenseBar" class="expense"></span></div><strong id="analyticsExpenses">RM0.00</strong></div>
+                    </div>
+                </article>
+
+                <article class="step95-panel">
+                    <div class="step95-panel-head"><span>💳</span><div><small>PAYMENT HEALTH</small><h2>Collection Status</h2></div></div>
+                    <div id="analyticsPaymentStatus" class="step95-status-list"></div>
+                </article>
+
+                <article class="step95-panel">
+                    <div class="step95-panel-head"><span>🔧</span><div><small>COST BREAKDOWN</small><h2>Expenses by Category</h2></div></div>
+                    <div id="analyticsExpenseBreakdown" class="step95-expense-breakdown"></div>
+                </article>
+
+                <article class="step95-panel forecast">
+                    <div class="step95-panel-head"><span>🔮</span><div><small>NEXT MONTH ESTIMATE</small><h2>Simple Forecast</h2></div></div>
+                    <div class="step95-forecast">
+                        <div><small>Expected Revenue</small><strong id="analyticsForecastRevenue">RM0.00</strong></div>
+                        <div><small>Estimated Expenses</small><strong id="analyticsForecastExpense">RM0.00</strong></div>
+                        <div><small>Estimated Profit</small><strong id="analyticsForecastProfit">RM0.00</strong></div>
+                    </div>
+                    <p>Forecast uses active monthly fees and the recent three-month average operating cost.</p>
+                </article>
+            </section>
+        </div>
+    </main>
+</div>
+<script src="app.js"></script>
+<script>loadBusinessAnalytics();</script>
+</body>
+</html>
+<!-- MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS -->

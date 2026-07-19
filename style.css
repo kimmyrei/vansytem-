@@ -17222,11 +17222,11 @@ header h3 {
 
 
 /* =========================================================
-   MUTHAQUS STEP 84 + 86 + 89
+   MUTHAQUS SECURITY, REPORT & RECOVERY
    SECURITY, MONTHLY REPORT, BACKUP & RESTORE
    ========================================================= */
 
-/* Step 84: Login Security */
+/* Login Security */
 .step84-login-status {
     width: 100%;
     display: flex;
@@ -17283,7 +17283,7 @@ header h3 {
     color: #9f2631;
 }
 
-/* Step 84: Settings Security Overview */
+/* Settings Security Overview */
 .step84-settings-hero {
     background:
         radial-gradient(
@@ -17776,7 +17776,7 @@ header h3 {
 }
 
 
-/* Step 89: Backup & Restore */
+/* Backup & Restore */
 .step89-recovery-section {
     background:
         radial-gradient(
@@ -18663,3 +18663,566 @@ header h3 {
 
 /* MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE */
 
+
+
+/* =========================================================
+   MUTHAQUS STEP 93, 94 & 95
+   ========================================================= */
+
+.step93-payment-badges {
+    display: grid;
+    justify-items: end;
+    gap: 5px;
+}
+
+.step93-duplicate-badge,
+.step93-safe-badge {
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 7.5px;
+    font-weight: 950;
+    white-space: nowrap;
+}
+
+.step93-duplicate-badge {
+    border: 1px solid #efbdc2;
+    background: #fff0f2;
+    color: #a72531;
+}
+
+.step93-safe-badge {
+    border: 1px solid #badfc8;
+    background: #ecfaf2;
+    color: #177747;
+}
+
+/* Maintenance */
+.step94-summary,
+.step95-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 11px;
+    margin-bottom: 16px;
+}
+
+.step94-summary article,
+.step95-kpis article {
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 16px;
+    border: 1px solid #d8e6f3;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 9px 24px rgba(15,60,104,.065);
+}
+
+.step94-summary article > span,
+.step95-kpis article > span {
+    width: 43px;
+    min-width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eaf3ff;
+    font-size: 19px;
+}
+
+.step94-summary small,
+.step94-summary strong,
+.step95-kpis small,
+.step95-kpis strong,
+.step95-kpis p {
+    display: block;
+}
+
+.step94-summary small,
+.step95-kpis small {
+    margin-bottom: 5px;
+    color: #71869a;
+    font-size: 8.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.step94-summary strong,
+.step95-kpis strong {
+    color: #143f73;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+}
+
+.step95-kpis p {
+    margin: 5px 0 0;
+    font-size: 8px;
+    font-weight: 850;
+    color: #63809a;
+}
+
+.step95-kpis .profit strong { color: #177747; }
+.step95-kpis .expense strong,
+.step95-kpis .danger strong { color: #a72531; }
+
+.step94-layout {
+    display: grid;
+    grid-template-columns: minmax(300px,.75fr) minmax(0,1.25fr);
+    gap: 14px;
+}
+
+.step94-form-card,
+.step94-record-card,
+.step95-panel {
+    min-width: 0;
+    padding: 21px;
+    border: 1px solid #d8e6f3;
+    border-radius: 23px;
+    background: #fff;
+    box-shadow: 0 13px 34px rgba(15,60,104,.075);
+}
+
+.step94-heading,
+.step95-panel-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-bottom: 16px;
+}
+
+.step94-heading > span,
+.step95-panel-head > span {
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #eaf3ff;
+    font-size: 20px;
+}
+
+.step94-heading small,
+.step94-heading h2,
+.step94-heading p,
+.step95-panel-head small,
+.step95-panel-head h2 {
+    display: block;
+}
+
+.step94-heading small,
+.step95-panel-head small {
+    margin-bottom: 4px;
+    color: #2672b7;
+    font-size: 8.5px;
+    font-weight: 950;
+    letter-spacing: .07em;
+}
+
+.step94-heading h2,
+.step95-panel-head h2 {
+    margin: 0;
+    color: #143f73;
+    font-size: 20px;
+}
+
+.step94-heading p {
+    margin: 4px 0 0;
+    color: #71869a;
+    font-size: 10px;
+}
+
+.step94-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 11px;
+}
+
+.step94-form-grid .wide { grid-column: 1 / -1; }
+
+.step94-form-grid label {
+    display: block;
+    margin-bottom: 6px;
+    color: #38566f;
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.step94-form-grid input,
+.step94-form-grid select,
+.step94-form-grid textarea {
+    width: 100%;
+    margin: 0;
+    border-radius: 11px;
+    background: #fbfdff;
+}
+
+.step94-form-grid input,
+.step94-form-grid select { min-height: 44px; }
+
+.step94-form-actions,
+.step94-expense-card footer {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+    margin-top: 13px;
+}
+
+.step94-form-actions .btn { width: 100%; margin: 0; }
+
+.step94-record-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 13px;
+}
+
+.step94-record-head h2 {
+    margin: 5px 0 0;
+    color: #143f73;
+    font-size: 22px;
+}
+
+.step94-visible {
+    min-width: 88px;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: 10px;
+    border: 1px solid #d6e4f2;
+    border-radius: 14px;
+    background: #f7faff;
+    color: #72869a;
+    font-size: 8px;
+    font-weight: 850;
+}
+
+.step94-visible span { color: #143f73; font-size: 19px; font-weight: 950; }
+
+.step94-filter {
+    display: grid;
+    grid-template-columns: minmax(0,1.2fr) minmax(150px,.65fr) minmax(150px,.65fr) auto;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 11px;
+    border: 1px solid #dbe7f3;
+    border-radius: 15px;
+    background: #f8fbff;
+}
+
+.step94-filter input,
+.step94-filter select,
+.step94-filter .btn { min-height: 42px; margin: 0; }
+
+.step94-expense-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+
+.step94-expense-card {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #dce8f3;
+    border-radius: 17px;
+    background: #fff;
+}
+
+.step94-expense-card header {
+    display: grid;
+    grid-template-columns: 42px minmax(0,1fr) auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.step94-expense-card header > span {
+    width: 42px; height: 42px; display: grid; place-items: center;
+    border-radius: 13px; background: #eaf3ff; font-size: 18px;
+}
+
+.step94-expense-card header small,
+.step94-expense-card header strong,
+.step94-expense-card header p { display: block; }
+
+.step94-expense-card header small { color: #2873b8; font-size: 8px; font-weight: 900; }
+.step94-expense-card header strong { margin-top: 3px; color: #143f73; font-size: 12px; overflow-wrap: anywhere; }
+.step94-expense-card header p { margin: 3px 0 0; color: #778b9f; font-size: 8px; }
+.step94-expense-card header > b { color: #a72531; font-size: 14px; white-space: nowrap; }
+
+.step94-expense-details {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 7px;
+    margin-top: 11px;
+}
+
+.step94-expense-details > div {
+    padding: 9px;
+    border: 1px solid #e1eaf3;
+    border-radius: 11px;
+    background: #f8fbff;
+}
+
+.step94-expense-details small,
+.step94-expense-details strong { display: block; }
+.step94-expense-details small { margin-bottom: 4px; color: #788b9f; font-size: 7.5px; font-weight: 850; }
+.step94-expense-details strong { color: #244d70; font-size: 9.5px; overflow-wrap: anywhere; }
+
+.step94-expense-note {
+    margin: 9px 0 0;
+    padding: 9px;
+    border-radius: 10px;
+    background: #fff9ec;
+    color: #76591e;
+    font-size: 8.5px;
+    line-height: 1.45;
+}
+
+.step94-expense-card footer button {
+    min-height: 38px;
+    border: 1px solid #cfe0ef;
+    border-radius: 10px;
+    background: #f5f9fe;
+    color: #175b9e;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.step94-expense-card footer button.danger {
+    border-color: #efc5c9;
+    background: #fff2f4;
+    color: #a72531;
+}
+
+.step94-empty {
+    grid-column: 1 / -1;
+    min-height: 145px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    padding: 20px;
+    border: 1px dashed #cbddeb;
+    border-radius: 16px;
+    background: #f8fbff;
+    text-align: center;
+}
+
+.step94-empty.compact { min-height: 105px; }
+.step94-empty > span { font-size: 28px; }
+.step94-empty strong { color: #143f73; }
+.step94-empty p { margin: 0; color: #71859a; font-size: 9px; }
+
+/* Analytics */
+.step95-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.step95-hero-actions select {
+    min-width: 190px;
+    min-height: 44px;
+    margin: 0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.step95-kpis { grid-template-columns: repeat(4,minmax(0,1fr)); }
+
+.step95-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 14px;
+}
+
+.step95-bars {
+    display: grid;
+    gap: 18px;
+}
+
+.step95-bars > div {
+    display: grid;
+    grid-template-columns: 70px minmax(0,1fr) 90px;
+    gap: 10px;
+    align-items: center;
+}
+
+.step95-bars label { color: #567087; font-size: 9px; font-weight: 900; }
+.step95-bars > div > div { height: 14px; overflow: hidden; border-radius: 999px; background: #e6eef6; }
+.step95-bars span { display: block; width: 0; height: 100%; border-radius: inherit; transition: width .35s ease; }
+.step95-bars span.revenue { background: linear-gradient(90deg,#2478d1,#2bae68); }
+.step95-bars span.expense { background: linear-gradient(90deg,#d94750,#f0a13a); }
+.step95-bars strong { color: #143f73; font-size: 10px; text-align: right; }
+
+.step95-status-list { display: grid; gap: 8px; }
+.step95-status-list > div {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px; border: 1px solid #e0e9f2; border-radius: 12px; background: #f8fbff;
+}
+.step95-status-list span { color: #567087; font-size: 9px; font-weight: 850; }
+.step95-status-list strong { color: #143f73; font-size: 15px; }
+
+.step95-expense-breakdown {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+}
+
+.step95-expense-breakdown article {
+    display: flex; align-items: center; gap: 9px;
+    padding: 11px; border: 1px solid #e0e9f2; border-radius: 12px; background: #f8fbff;
+}
+.step95-expense-breakdown article > span {
+    width: 36px; min-width: 36px; height: 36px; display: grid; place-items: center;
+    border-radius: 11px; background: #eaf3ff; font-size: 16px;
+}
+.step95-expense-breakdown strong,
+.step95-expense-breakdown small { display: block; }
+.step95-expense-breakdown strong { color: #143f73; font-size: 10px; }
+.step95-expense-breakdown small { margin-top: 3px; color: #a72531; font-size: 9px; font-weight: 850; }
+
+.step95-forecast {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 8px;
+}
+
+.step95-forecast > div {
+    padding: 12px;
+    border: 1px solid #dbe7f3;
+    border-radius: 13px;
+    background: #f8fbff;
+}
+.step95-forecast small,
+.step95-forecast strong { display: block; }
+.step95-forecast small { margin-bottom: 5px; color: #71869a; font-size: 8px; font-weight: 850; }
+.step95-forecast strong { color: #143f73; font-size: 14px; overflow-wrap: anywhere; }
+.step95-panel.forecast > p { margin: 12px 0 0; color: #71859a; font-size: 9px; line-height: 1.5; }
+
+@media (max-width: 1100px) {
+    .step94-layout { grid-template-columns: 1fr; }
+    .step95-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width: 860px) {
+    body.step94-maintenance-page .app-main,
+    body.step95-analytics-page .app-main {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .step94-summary,
+    .step95-kpis,
+    .step95-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 8px;
+    }
+
+    .step94-layout { grid-template-columns: 1fr; gap: 10px; }
+
+    .step94-form-card,
+    .step94-record-card,
+    .step95-panel {
+        padding: 15px;
+        border-radius: 20px;
+    }
+
+    .step94-form-grid,
+    .step94-filter,
+    .step94-expense-list {
+        grid-template-columns: 1fr;
+    }
+
+    .step94-form-grid .wide { grid-column: auto; }
+
+    .step94-form-grid input,
+    .step94-form-grid select,
+    .step94-form-grid textarea,
+    .step94-filter input,
+    .step94-filter select,
+    .step94-filter .btn {
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    .step94-record-head { display: block; }
+    .step94-visible { width: 100%; margin-top: 10px; }
+
+    .step95-hero-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-top: 10px;
+    }
+
+    .step95-hero-actions select,
+    .step95-hero-actions .btn {
+        width: 100%;
+        min-height: 46px;
+        margin: 0;
+    }
+
+    .step95-grid { grid-template-columns: 1fr; }
+
+    .step95-bars > div {
+        grid-template-columns: 60px minmax(0,1fr);
+    }
+    .step95-bars strong {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    .step95-forecast { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 430px) {
+    .step94-summary,
+    .step95-kpis,
+    .step95-expense-breakdown,
+    .step94-expense-details {
+        grid-template-columns: 1fr;
+    }
+
+    .step94-form-actions,
+    .step94-expense-card footer {
+        grid-template-columns: 1fr;
+    }
+
+    .step94-expense-card header {
+        grid-template-columns: 40px minmax(0,1fr);
+    }
+
+    .step94-expense-card header > b {
+        grid-column: 1 / -1;
+        padding-left: 50px;
+    }
+}
+
+/* MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS */
+
+
+.step94-quick-links {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.step94-quick-links a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px;
+    border: 1px solid #d8e6f3;
+    border-radius: 16px;
+    background: #fff;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(15,60,104,.055);
+}
+.step94-quick-links a > span {
+    width: 42px; min-width: 42px; height: 42px;
+    display: grid; place-items: center;
+    border-radius: 13px; background: #eaf3ff; font-size: 18px;
+}
+.step94-quick-links strong,
+.step94-quick-links small { display: block; }
+.step94-quick-links strong { color: #143f73; font-size: 12px; }
+.step94-quick-links small { margin-top: 3px; color: #71869a; font-size: 8.5px; }
+@media(max-width:600px){.step94-quick-links{grid-template-columns:1fr;}}

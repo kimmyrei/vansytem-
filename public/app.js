@@ -1339,6 +1339,134 @@ function showReceiptInfo(receiptName, note, receiptDataUrl) {
     document.body.appendChild(modal);
 }
 
+function step93NormaliseReceiptName(value) {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "");
+}
+
+function step93PaymentPeriodKey(value) {
+    const period = step77ParsePaymentPeriod(value);
+    return period?.key || String(value || "").trim().toLowerCase();
+}
+
+function step93FindPossibleDuplicates(newPayment, payments) {
+    const targetMonth = step93PaymentPeriodKey(newPayment.month);
+    const targetName = step93NormaliseReceiptName(newPayment.receiptName);
+    const targetAmount = Number(newPayment.amount || 0);
+    const targetSize = Number(newPayment.receiptSize || 0);
+
+    return (payments || []).filter(payment => {
+        const sameMonth =
+            step93PaymentPeriodKey(payment.month) === targetMonth;
+
+        const sameAmount =
+            Math.abs(Number(payment.amount || 0) - targetAmount) < 0.01;
+
+        const sameFile =
+            targetName &&
+            step93NormaliseReceiptName(payment.receiptName) === targetName;
+
+        const sameSize =
+            targetSize > 0 &&
+            Number(payment.receiptSize || 0) === targetSize;
+
+        const activeStatus =
+            payment.status !== "Rejected";
+
+        return activeStatus && (
+            (sameMonth && sameAmount) ||
+            (sameFile && sameSize) ||
+            (sameMonth && sameFile)
+        );
+    });
+}
+
+async function step93CheckDuplicateBeforeUpload(parent, paymentData) {
+    try {
+        const response = await fetch("/api/parent-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                parentId: parent.id,
+                parentEmail: parent.email || ""
+            })
+        });
+
+        const result = await response.json();
+        if (!result.success) return true;
+
+        const duplicates = step93FindPossibleDuplicates(
+            paymentData,
+            result.payments || []
+        );
+
+        if (!duplicates.length) return true;
+
+        const latest = duplicates[0];
+        const message = [
+            "Possible duplicate payment detected.",
+            "",
+            `Existing month: ${latest.month || "-"}`,
+            `Existing amount: RM${Number(latest.amount || 0).toFixed(2)}`,
+            `Existing status: ${latest.status || "Pending"}`,
+            "",
+            "The same month, amount or receipt may already exist.",
+            "Submit this payment anyway?"
+        ].join("\n");
+
+        return confirm(message);
+    } catch (error) {
+        console.warn("Duplicate check unavailable:", error.message);
+        return true;
+    }
+}
+
+function step93DuplicateKey(payment) {
+    return [
+        String(payment.parentId || payment.parentEmail || payment.parentName || "").toLowerCase(),
+        step93PaymentPeriodKey(payment.month),
+        Number(payment.amount || 0).toFixed(2),
+        step93NormaliseReceiptName(payment.receiptName),
+        Number(payment.receiptSize || 0)
+    ].join("|");
+}
+
+function step93PrepareAdminDuplicateFlags(payments) {
+    const groups = new Map();
+
+    (payments || []).forEach(payment => {
+        if (payment.status === "Rejected") return;
+
+        const key = step93DuplicateKey(payment);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(payment);
+    });
+
+    window.step93DuplicatePaymentIds = new Set();
+
+    groups.forEach(records => {
+        if (records.length > 1) {
+            records.forEach(record => {
+                window.step93DuplicatePaymentIds.add(
+                    String(record.sourcePaymentId || record.id || "")
+                );
+            });
+        }
+    });
+}
+
+function step93IsDuplicatePayment(payment) {
+    return Boolean(
+        window.step93DuplicatePaymentIds?.has(
+            String(payment.sourcePaymentId || payment.id || "")
+        )
+    );
+}
+
 async function submitPayment(event) {
     event.preventDefault();
 
@@ -1443,6 +1571,17 @@ async function submitPayment(event) {
                 .filter(Boolean)
                 .join("\n")
         };
+
+        const continueUpload =
+            await step93CheckDuplicateBeforeUpload(
+                parent,
+                paymentData
+            );
+
+        if (!continueUpload) {
+            alert("Payment submission cancelled. Please check Payment History first.");
+            return;
+        }
 
         const response = await fetch("/api/upload-payment", {
             method: "POST",
@@ -2901,6 +3040,10 @@ async function loadAdminPayments() {
 
         window.adminPaymentsData =
             payments;
+
+        step93PrepareAdminDuplicateFlags(
+            payments
+        );
 
         window.adminStudentsForArrears =
             students;
@@ -4933,6 +5076,586 @@ async function removeParentAndRecords(parentId) {
 
 // MUTAHUS_STEP14_ADMIN_PARENTS_MONGODB_FINAL
 
+
+function step94ExpenseCategoryIcon(category) {
+    const icons = {
+        Fuel: "⛽",
+        Service: "🔧",
+        Tyre: "🛞",
+        "Road Tax": "📄",
+        Insurance: "🛡️",
+        Repair: "🧰",
+        Cleaning: "🧼",
+        "Parking / Toll": "🛣️",
+        Other: "📦"
+    };
+
+    return icons[category] || "📦";
+}
+
+function step94FormatMoney(value) {
+    return `RM${Number(value || 0).toFixed(2)}`;
+}
+
+function step94MonthKey(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function step94TodayInput() {
+    const now = new Date();
+    return [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+    ].join("-");
+}
+
+async function loadMaintenancePage() {
+    requireAdminLogin();
+
+    const date = document.getElementById("expenseDate");
+    if (date && !date.value) date.value = step94TodayInput();
+
+    try {
+        const response = await fetch("/api/admin-dashboard?action=van-expenses");
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load expense records.");
+        }
+
+        window.muthaqusVanExpenses = result.expenses || [];
+        renderMaintenanceRecords();
+    } catch (error) {
+        const list = document.getElementById("maintenanceExpenseList");
+        if (list) {
+            list.innerHTML = `
+                <div class="step94-empty">
+                    <span>⚠️</span>
+                    <strong>Unable to load records</strong>
+                    <p>${mutahusSafeHtml(error.message)}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+async function saveVanExpense(event) {
+    event.preventDefault();
+
+    const id = document.getElementById("expenseRecordId")?.value || "";
+    const data = {
+        action: "save-van-expense",
+        expenseId: id,
+        vanPlate: document.getElementById("expenseVanPlate").value.trim(),
+        date: document.getElementById("expenseDate").value,
+        category: document.getElementById("expenseCategory").value,
+        description: document.getElementById("expenseDescription").value.trim(),
+        amount: Number(document.getElementById("expenseAmount").value || 0),
+        nextServiceDate: document.getElementById("expenseNextService").value,
+        status: document.getElementById("expenseStatus").value,
+        note: document.getElementById("expenseNote").value.trim()
+    };
+
+    if (!data.vanPlate || !data.date || !data.category || data.amount <= 0) {
+        alert("Please complete van plate, date, category and amount.");
+        return;
+    }
+
+    const button = event.target.querySelector("button[type='submit']");
+    const original = button?.innerText || "";
+
+    if (button) {
+        button.disabled = true;
+        button.innerText = "Saving...";
+    }
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Failed to save expense.");
+        }
+
+        alert(id ? "Expense record updated." : "Expense record added.");
+        resetExpenseForm();
+        loadMaintenancePage();
+    } catch (error) {
+        alert("Expense error: " + error.message);
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerText = original;
+        }
+    }
+}
+
+function editVanExpense(id) {
+    const item = (window.muthaqusVanExpenses || []).find(record => record.id === id);
+    if (!item) return;
+
+    const values = {
+        expenseRecordId: item.id,
+        expenseVanPlate: item.vanPlate,
+        expenseDate: item.date,
+        expenseCategory: item.category,
+        expenseDescription: item.description,
+        expenseAmount: Number(item.amount || 0).toFixed(2),
+        expenseNextService: item.nextServiceDate || "",
+        expenseStatus: item.status || "Completed",
+        expenseNote: item.note || ""
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.value = value;
+    });
+
+    const title = document.getElementById("expenseFormTitle");
+    if (title) title.innerText = "Edit Expense Record";
+
+    document.getElementById("expenseFormCard")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+function resetExpenseForm() {
+    const form = document.getElementById("vanExpenseForm");
+    form?.reset();
+
+    const id = document.getElementById("expenseRecordId");
+    if (id) id.value = "";
+
+    const date = document.getElementById("expenseDate");
+    if (date) date.value = step94TodayInput();
+
+    const title = document.getElementById("expenseFormTitle");
+    if (title) title.innerText = "Add Expense Record";
+}
+
+async function deleteVanExpense(id) {
+    if (!confirm("Remove this expense record?")) return;
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "delete-van-expense",
+                expenseId: id
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Failed to remove expense.");
+        }
+
+        loadMaintenancePage();
+    } catch (error) {
+        alert("Delete error: " + error.message);
+    }
+}
+
+function renderMaintenanceRecords() {
+    const list = document.getElementById("maintenanceExpenseList");
+    if (!list) return;
+
+    const query = String(document.getElementById("expenseSearch")?.value || "")
+        .trim().toLowerCase();
+    const category = document.getElementById("expenseCategoryFilter")?.value || "";
+    const month = document.getElementById("expenseMonthFilter")?.value || "";
+
+    const records = (window.muthaqusVanExpenses || []).filter(item => {
+        const text = [
+            item.vanPlate,
+            item.category,
+            item.description,
+            item.status,
+            item.note
+        ].join(" ").toLowerCase();
+
+        return (
+            (!query || text.includes(query)) &&
+            (!category || item.category === category) &&
+            (!month || step94MonthKey(item.date) === month)
+        );
+    });
+
+    const total = records.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const fuel = records
+        .filter(item => item.category === "Fuel")
+        .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const maintenance = records
+        .filter(item => ["Service", "Repair", "Tyre"].includes(item.category))
+        .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const upcoming = records.filter(item => {
+        if (!item.nextServiceDate) return false;
+        const days = (new Date(item.nextServiceDate) - new Date()) / 86400000;
+        return days >= 0 && days <= 30;
+    }).length;
+
+    const summary = {
+        maintenanceTotalExpense: step94FormatMoney(total),
+        maintenanceFuelExpense: step94FormatMoney(fuel),
+        maintenanceServiceExpense: step94FormatMoney(maintenance),
+        maintenanceUpcomingCount: upcoming,
+        maintenanceVisibleCount: records.length
+    };
+
+    Object.entries(summary).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value;
+    });
+
+    if (!records.length) {
+        list.innerHTML = `
+            <div class="step94-empty">
+                <span>🔧</span>
+                <strong>No matching expense record</strong>
+                <p>Add a new record or change the filters.</p>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = records.map(item => `
+        <article class="step94-expense-card">
+            <header>
+                <span>${step94ExpenseCategoryIcon(item.category)}</span>
+
+                <div>
+                    <small>${mutahusSafeHtml(item.category)}</small>
+                    <strong>${mutahusSafeHtml(item.description || item.category)}</strong>
+                    <p>${mutahusSafeHtml(item.vanPlate)} • ${mutahusSafeHtml(item.date)}</p>
+                </div>
+
+                <b>${step94FormatMoney(item.amount)}</b>
+            </header>
+
+            <div class="step94-expense-details">
+                <div>
+                    <small>Status</small>
+                    <strong>${mutahusSafeHtml(item.status || "Completed")}</strong>
+                </div>
+
+                <div>
+                    <small>Next Service / Renewal</small>
+                    <strong>${mutahusSafeHtml(item.nextServiceDate || "Not set")}</strong>
+                </div>
+            </div>
+
+            ${item.note ? `<p class="step94-expense-note">${mutahusSafeHtml(item.note)}</p>` : ""}
+
+            <footer>
+                <button type="button" onclick="editVanExpense('${item.id}')">
+                    Edit
+                </button>
+                <button class="danger" type="button" onclick="deleteVanExpense('${item.id}')">
+                    Remove
+                </button>
+            </footer>
+        </article>
+    `).join("");
+}
+
+function resetMaintenanceFilters() {
+    ["expenseSearch", "expenseCategoryFilter", "expenseMonthFilter"].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.value = "";
+    });
+    renderMaintenanceRecords();
+}
+
+function exportMaintenanceCSV() {
+    const records = window.muthaqusVanExpenses || [];
+    if (!records.length) {
+        alert("No expense records are available.");
+        return;
+    }
+
+    const rows = [[
+        "Date", "Van Plate", "Category", "Description",
+        "Amount", "Status", "Next Service", "Note"
+    ]];
+
+    records.forEach(item => {
+        rows.push([
+            item.date,
+            item.vanPlate,
+            item.category,
+            item.description,
+            Number(item.amount || 0).toFixed(2),
+            item.status,
+            item.nextServiceDate,
+            item.note
+        ]);
+    });
+
+    downloadCSV(`muthaqus-van-expenses-${todayFileDate()}.csv`, rows);
+}
+
+async function loadBusinessAnalytics() {
+    requireAdminLogin();
+
+    try {
+        const [paymentResponse, studentResponse, expenseResponse] = await Promise.all([
+            fetch("/api/admin-payments"),
+            fetch("/api/admin-students"),
+            fetch("/api/admin-dashboard?action=van-expenses")
+        ]);
+
+        const paymentResult = await paymentResponse.json();
+        const studentResult = await studentResponse.json();
+        const expenseResult = await expenseResponse.json();
+
+        if (!paymentResult.success || !studentResult.success || !expenseResult.success) {
+            throw new Error("Unable to load complete business data.");
+        }
+
+        window.step95Payments = paymentResult.payments || [];
+        window.step95Students = studentResult.students || [];
+        window.step95Expenses = expenseResult.expenses || [];
+
+        step95PrepareMonthOptions();
+        renderBusinessAnalytics();
+    } catch (error) {
+        const panel = document.getElementById("analyticsMainContent");
+        if (panel) {
+            panel.innerHTML = `
+                <div class="step94-empty">
+                    <span>⚠️</span>
+                    <strong>Unable to load analytics</strong>
+                    <p>${mutahusSafeHtml(error.message)}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+function step95PrepareMonthOptions() {
+    const select = document.getElementById("analyticsMonth");
+    if (!select) return;
+
+    const periods = step82GetPaymentPeriods(
+        window.step95Students || [],
+        window.step95Payments || []
+    );
+
+    select.innerHTML = periods.map(period => `
+        <option value="${period.key}">
+            ${mutahusSafeHtml(step77PeriodLabel(period))}
+        </option>
+    `).join("");
+}
+
+function step95AnalyticsForPeriod(period) {
+    const records = step82BuildMonthlyParentRecords(
+        window.step95Students || [],
+        window.step95Payments || [],
+        period
+    );
+
+    const revenue = records.reduce((sum, item) => sum + Number(item.paid || 0), 0);
+    const expected = records.reduce((sum, item) => sum + Number(item.expected || 0), 0);
+    const outstanding = records.reduce((sum, item) => sum + Number(item.outstanding || 0), 0);
+
+    const expenses = (window.step95Expenses || [])
+        .filter(item => step94MonthKey(item.date) === period.key)
+        .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+    const activeStudents = (window.step95Students || []).filter(student => {
+        const start = step77ParseChildStartPeriod(student.serviceStartMonth || student.createdAt);
+        return student.status !== "Rejected" &&
+            (!start || step77ComparePeriods(start, period) <= 0);
+    });
+
+    return {
+        period,
+        label: step77PeriodLabel(period),
+        records,
+        revenue,
+        expected,
+        outstanding,
+        expenses,
+        netProfit: revenue - expenses,
+        collectionRate: expected > 0 ? revenue / expected * 100 : 0,
+        activeStudents: activeStudents.length,
+        activeParents: new Set(activeStudents.map(step82StudentParentKey)).size,
+        averageFee: activeStudents.length
+            ? activeStudents.reduce((sum, child) => sum + Number(child.monthlyAmount || 0), 0) / activeStudents.length
+            : 0
+    };
+}
+
+function renderBusinessAnalytics() {
+    const period = step77PeriodFromKey(
+        document.getElementById("analyticsMonth")?.value || ""
+    );
+    if (!period) return;
+
+    const report = step95AnalyticsForPeriod(period);
+    window.step95CurrentAnalytics = report;
+
+    const previous = step95AnalyticsForPeriod(step77AddMonths(period, -1));
+    const profitChange = report.netProfit - previous.netProfit;
+    const revenueChange = report.revenue - previous.revenue;
+
+    const values = {
+        analyticsRevenue: step94FormatMoney(report.revenue),
+        analyticsExpenses: step94FormatMoney(report.expenses),
+        analyticsNetProfit: step94FormatMoney(report.netProfit),
+        analyticsCollectionRate: `${report.collectionRate.toFixed(1)}%`,
+        analyticsOutstanding: step94FormatMoney(report.outstanding),
+        analyticsActiveStudents: report.activeStudents,
+        analyticsActiveParents: report.activeParents,
+        analyticsAverageFee: step94FormatMoney(report.averageFee),
+        analyticsRevenueTrend: `${revenueChange >= 0 ? "↑" : "↓"} ${step94FormatMoney(Math.abs(revenueChange))}`,
+        analyticsProfitTrend: `${profitChange >= 0 ? "↑" : "↓"} ${step94FormatMoney(Math.abs(profitChange))}`
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value;
+    });
+
+    const max = Math.max(report.revenue, report.expenses, 1);
+    const revenueBar = document.getElementById("analyticsRevenueBar");
+    const expenseBar = document.getElementById("analyticsExpenseBar");
+    if (revenueBar) revenueBar.style.width = `${report.revenue / max * 100}%`;
+    if (expenseBar) expenseBar.style.width = `${report.expenses / max * 100}%`;
+
+    const statusList = document.getElementById("analyticsPaymentStatus");
+    if (statusList) {
+        const statuses = [
+            ["Paid", report.records.filter(r => r.status === "Paid").length],
+            ["Under Review", report.records.filter(r => r.status === "Under Review").length],
+            ["Partially Paid", report.records.filter(r => r.status === "Partially Paid").length],
+            ["Unpaid / Rejected", report.records.filter(r => ["Unpaid", "Rejected"].includes(r.status)).length]
+        ];
+
+        statusList.innerHTML = statuses.map(([label, count]) => `
+            <div>
+                <span>${mutahusSafeHtml(label)}</span>
+                <strong>${count}</strong>
+            </div>
+        `).join("");
+    }
+
+    const expenseBreakdown = document.getElementById("analyticsExpenseBreakdown");
+    if (expenseBreakdown) {
+        const groups = {};
+        (window.step95Expenses || [])
+            .filter(item => step94MonthKey(item.date) === period.key)
+            .forEach(item => {
+                groups[item.category] = (groups[item.category] || 0) + Number(item.amount || 0);
+            });
+
+        const entries = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+
+        expenseBreakdown.innerHTML = entries.length
+            ? entries.map(([category, amount]) => `
+                <article>
+                    <span>${step94ExpenseCategoryIcon(category)}</span>
+                    <div>
+                        <strong>${mutahusSafeHtml(category)}</strong>
+                        <small>${step94FormatMoney(amount)}</small>
+                    </div>
+                </article>
+            `).join("")
+            : `
+                <div class="step94-empty compact">
+                    <span>📊</span>
+                    <strong>No expenses for this month</strong>
+                </div>
+            `;
+    }
+
+    const forecastRevenue = report.expected;
+    const averageExpense = [0, 1, 2].map(offset => {
+        const p = step77AddMonths(period, -offset);
+        return (window.step95Expenses || [])
+            .filter(item => step94MonthKey(item.date) === p.key)
+            .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    }).reduce((a, b) => a + b, 0) / 3;
+
+    const forecast = {
+        analyticsForecastRevenue: step94FormatMoney(forecastRevenue),
+        analyticsForecastExpense: step94FormatMoney(averageExpense),
+        analyticsForecastProfit: step94FormatMoney(forecastRevenue - averageExpense)
+    };
+
+    Object.entries(forecast).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value;
+    });
+}
+
+function exportBusinessAnalyticsCSV() {
+    const report = window.step95CurrentAnalytics;
+    if (!report) {
+        alert("Analytics report is not ready.");
+        return;
+    }
+
+    const rows = [
+        ["MUTHAQUS GLOBAL ENTERPRISE", "Business Analytics"],
+        ["Month", report.label],
+        [],
+        ["Revenue", report.revenue.toFixed(2)],
+        ["Expenses", report.expenses.toFixed(2)],
+        ["Net Profit", report.netProfit.toFixed(2)],
+        ["Collection Rate", `${report.collectionRate.toFixed(1)}%`],
+        ["Outstanding", report.outstanding.toFixed(2)],
+        ["Active Students", report.activeStudents],
+        ["Active Parents", report.activeParents],
+        ["Average Fee", report.averageFee.toFixed(2)]
+    ];
+
+    downloadCSV(`muthaqus-business-analytics-${report.period.key}.csv`, rows);
+}
+
+(function injectOperationsNavigation() {
+    const addLinks = () => {
+        document.querySelectorAll(".sidebar-menu").forEach(menu => {
+            if (!menu.querySelector('a[href="admin-maintenance.html"]')) {
+                const settings = menu.querySelector('a[href="admin-settings.html"]');
+                const maintenance = document.createElement("a");
+                maintenance.href = "admin-maintenance.html";
+                maintenance.innerHTML = "<span>🔧</span> Maintenance";
+
+                const analytics = document.createElement("a");
+                analytics.href = "admin-analytics.html";
+                analytics.innerHTML = "<span>📈</span> Analytics";
+
+                if (settings) {
+                    menu.insertBefore(maintenance, settings);
+                    menu.insertBefore(analytics, settings);
+                } else {
+                    menu.appendChild(maintenance);
+                    menu.appendChild(analytics);
+                }
+            }
+        });
+    };
+
+    document.addEventListener("DOMContentLoaded", addLinks);
+    window.addEventListener("load", addLinks);
+})();
 
 const MUTHAQUS_ADMIN_MAX_LOGIN_ATTEMPTS = 5;
 const MUTHAQUS_ADMIN_LOCK_MINUTES = 15;
@@ -11461,12 +12184,28 @@ function step82PaymentRecordCard(payment) {
                     </div>
                 </div>
 
-                <span class="badge ${badgeClass}">
-                    ${mutahusSafeHtml(
-                        payment.status ||
-                        "Pending"
-                    )}
-                </span>
+                <div class="step93-payment-badges">
+                    <span class="badge ${badgeClass}">
+                        ${mutahusSafeHtml(
+                            payment.status ||
+                            "Pending"
+                        )}
+                    </span>
+
+                    ${
+                        step93IsDuplicatePayment(payment)
+                            ? `
+                                <span class="step93-duplicate-badge">
+                                    Possible Duplicate
+                                </span>
+                            `
+                            : `
+                                <span class="step93-safe-badge">
+                                    Checked
+                                </span>
+                            `
+                    }
+                </div>
             </header>
 
             <div class="step82-payment-record-info">
@@ -13865,3 +14604,5 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP83_SINGLE_STUDENT_SEARCH_FIX
 
 // MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE
+
+// MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS

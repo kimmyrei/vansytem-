@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#143f73">
+    <title>Maintenance & Expenses | MUTHAQUS GLOBAL ENTERPRISE</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body class="step94-maintenance-page">
+<div class="app-shell">
+    <aside class="pro-sidebar admin-side">
+        <div class="sidebar-brand"><span>🚐</span><div><strong>MUTHAQUS GLOBAL ENTERPRISE</strong><small>Admin Control</small></div></div>
+        
+        <nav class="sidebar-menu">
+            <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
+            <a href="admin-students.html"><span>🎒</span> Students</a>
+            <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
+            <a href="admin-payments.html"><span>💳</span> Payments</a>
+            <a href="admin-announcements.html"><span>📢</span> Announcements</a>
+            <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
+
+            <a class="active" href="admin-maintenance.html"><span>🔧</span> Maintenance</a>
+            <a href="admin-analytics.html"><span>📈</span> Analytics</a>
+            <a href="admin-settings.html"><span>⚙️</span> Settings</a>
+        </nav>
+        <div class="sidebar-bottom"><a href="#" onclick="adminLogout()" class="logout-btn"><span>🚪</span> Logout</a></div>
+    </aside>
+
+    <main class="app-main">
+        <div class="mobile-app-header mobile-admin-header"><div class="mobile-brand"><span>🚐</span><div><strong>MUTHAQUS GLOBAL ENTERPRISE</strong><small>Maintenance & Expenses</small></div></div></div>
+
+        <section class="page-hero-bar">
+            <div><span class="page-kicker">OPERATING COST CONTROL</span><h1>Maintenance & Expenses</h1><p>Track fuel, service, repairs, renewals and the true operating cost of every van.</p></div>
+            <button class="btn btn-light-pro" type="button" onclick="exportMaintenanceCSV()">⬇ Export CSV</button>
+        </section>
+
+        <section class="step94-summary">
+            <article><span>💸</span><div><small>Total Expenses</small><strong id="maintenanceTotalExpense">RM0.00</strong></div></article>
+            <article><span>⛽</span><div><small>Fuel</small><strong id="maintenanceFuelExpense">RM0.00</strong></div></article>
+            <article><span>🔧</span><div><small>Service & Repair</small><strong id="maintenanceServiceExpense">RM0.00</strong></div></article>
+            <article><span>📅</span><div><small>Upcoming Within 30 Days</small><strong id="maintenanceUpcomingCount">0</strong></div></article>
+        </section>
+
+        <section class="step94-layout">
+            <article id="expenseFormCard" class="step94-form-card">
+                <div class="step94-heading"><span>➕</span><div><small>EXPENSE ENTRY</small><h2 id="expenseFormTitle">Add Expense Record</h2><p>Save operating costs and upcoming service dates.</p></div></div>
+
+                <form id="vanExpenseForm" onsubmit="saveVanExpense(event)">
+                    <input type="hidden" id="expenseRecordId">
+                    <div class="step94-form-grid">
+                        <div><label for="expenseVanPlate">Van Plate</label><input id="expenseVanPlate" placeholder="Example: PXX 1234" required></div>
+                        <div><label for="expenseDate">Date</label><input id="expenseDate" type="date" required></div>
+                        <div><label for="expenseCategory">Category</label>
+                            <select id="expenseCategory" required>
+                                <option value="Fuel">Fuel</option><option value="Service">Service</option><option value="Tyre">Tyre</option><option value="Road Tax">Road Tax</option><option value="Insurance">Insurance</option><option value="Repair">Repair</option><option value="Cleaning">Cleaning</option><option value="Parking / Toll">Parking / Toll</option><option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div><label for="expenseAmount">Amount (RM)</label><input id="expenseAmount" type="number" min="0.01" step="0.01" inputmode="decimal" required></div>
+                        <div class="wide"><label for="expenseDescription">Description</label><input id="expenseDescription" placeholder="Example: Engine oil and filter"></div>
+                        <div><label for="expenseNextService">Next Service / Renewal</label><input id="expenseNextService" type="date"></div>
+                        <div><label for="expenseStatus">Status</label><select id="expenseStatus"><option>Completed</option><option>Scheduled</option><option>Pending</option><option>Overdue</option></select></div>
+                        <div class="wide"><label for="expenseNote">Notes</label><textarea id="expenseNote" rows="3" placeholder="Workshop, invoice number or additional information"></textarea></div>
+                    </div>
+                    <div class="step94-form-actions"><button class="btn btn-primary-pro" type="submit">Save Expense</button><button class="btn btn-outline-pro" type="button" onclick="resetExpenseForm()">Clear Form</button></div>
+                </form>
+            </article>
+
+            <article class="step94-record-card">
+                <div class="step94-record-head">
+                    <div><span class="page-kicker">EXPENSE HISTORY</span><h2>Van Expense Records</h2></div>
+                    <div class="step94-visible"><span id="maintenanceVisibleCount">0</span> Records</div>
+                </div>
+
+                <div class="step94-filter">
+                    <input id="expenseSearch" type="search" placeholder="Search van, description or note..." oninput="renderMaintenanceRecords()">
+                    <select id="expenseCategoryFilter" onchange="renderMaintenanceRecords()"><option value="">All Categories</option><option>Fuel</option><option>Service</option><option>Tyre</option><option>Road Tax</option><option>Insurance</option><option>Repair</option><option>Cleaning</option><option>Parking / Toll</option><option>Other</option></select>
+                    <input id="expenseMonthFilter" type="month" onchange="renderMaintenanceRecords()">
+                    <button class="btn btn-outline-pro" type="button" onclick="resetMaintenanceFilters()">Reset</button>
+                </div>
+
+                <div id="maintenanceExpenseList" class="step94-expense-list"><div class="step94-empty"><span>⏳</span><strong>Loading records...</strong></div></div>
+            </article>
+        </section>
+    </main>
+</div>
+<script src="app.js"></script>
+<script>loadMaintenancePage();</script>
+</body>
+</html>
+<!-- MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS -->

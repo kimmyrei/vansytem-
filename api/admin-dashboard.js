@@ -1125,6 +1125,143 @@ async function restoreSystemBackup(db, data, req, res) {
   });
 }
 
+function cleanExpenseText(value, maximum = 500) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maximum);
+}
+
+function expenseDateValue(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+async function getVanExpenses(db, res) {
+  const records = await db
+    .collection("van_expenses")
+    .find({})
+    .sort({ date: -1, createdAt: -1 })
+    .toArray();
+
+  return res.status(200).json({
+    success: true,
+    expenses: records.map(item => ({
+      id: item._id.toString(),
+      vanPlate: item.vanPlate || "",
+      date: item.date || "",
+      category: item.category || "Other",
+      description: item.description || "",
+      amount: Number(item.amount || 0),
+      nextServiceDate: item.nextServiceDate || "",
+      status: item.status || "Completed",
+      note: item.note || "",
+      createdAt: cleanDateTime(item.createdAt),
+      updatedAt: cleanDateTime(item.updatedAt)
+    }))
+  });
+}
+
+async function saveVanExpense(db, data, req, res) {
+  const vanPlate = cleanExpenseText(data.vanPlate, 30);
+  const date = cleanExpenseText(data.date, 20);
+  const category = cleanExpenseText(data.category, 50);
+  const description = cleanExpenseText(data.description, 250);
+  const amount = Number(data.amount || 0);
+  const nextServiceDate = cleanExpenseText(data.nextServiceDate, 20);
+  const status = cleanExpenseText(data.status || "Completed", 40);
+  const note = cleanExpenseText(data.note, 700);
+
+  if (!vanPlate || !date || !category || amount <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Van plate, date, category and a valid amount are required."
+    });
+  }
+
+  const document = {
+    vanPlate,
+    date,
+    category,
+    description,
+    amount,
+    nextServiceDate,
+    status,
+    note,
+    updatedAt: new Date()
+  };
+
+  let expenseId = cleanExpenseText(data.expenseId, 80);
+
+  if (expenseId) {
+    if (!ObjectId.isValid(expenseId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid expense record."
+      });
+    }
+
+    await db.collection("van_expenses").updateOne(
+      { _id: new ObjectId(expenseId) },
+      { $set: document }
+    );
+  } else {
+    document.createdAt = new Date();
+    const result = await db.collection("van_expenses").insertOne(document);
+    expenseId = result.insertedId.toString();
+  }
+
+  await recordAdminActivity(db, {
+    adminUsername: data.adminUsername || "admin",
+    adminName: data.adminName || "Admin",
+    category: "System",
+    action: data.expenseId ? "Van expense updated" : "Van expense added",
+    target: vanPlate,
+    details: `${category}: RM${amount.toFixed(2)}.`
+  }, req);
+
+  return res.status(200).json({
+    success: true,
+    message: "Expense record saved successfully.",
+    expenseId
+  });
+}
+
+async function deleteVanExpense(db, data, req, res) {
+  const expenseId = cleanExpenseText(data.expenseId, 80);
+
+  if (!ObjectId.isValid(expenseId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid expense record."
+    });
+  }
+
+  const existing = await db.collection("van_expenses").findOne({
+    _id: new ObjectId(expenseId)
+  });
+
+  await db.collection("van_expenses").deleteOne({
+    _id: new ObjectId(expenseId)
+  });
+
+  await recordAdminActivity(db, {
+    adminUsername: data.adminUsername || "admin",
+    adminName: data.adminName || "Admin",
+    category: "System",
+    action: "Van expense removed",
+    target: existing?.vanPlate || expenseId,
+    details: existing
+      ? `${existing.category || "Expense"}: RM${Number(existing.amount || 0).toFixed(2)}.`
+      : "Expense record removed."
+  }, req);
+
+  return res.status(200).json({
+    success: true,
+    message: "Expense record removed successfully."
+  });
+}
+
 module.exports = async function handler(req, res) {
   try {
     const { db } = await connectToDatabase();
@@ -1150,6 +1287,10 @@ module.exports = async function handler(req, res) {
 
       if (action === "admin-security") {
         return getAdminSecurity(db, req, res);
+      }
+
+      if (action === "van-expenses") {
+        return getVanExpenses(db, res);
       }
 
       return getDashboard(db, res);
@@ -1199,6 +1340,14 @@ module.exports = async function handler(req, res) {
         return restoreSystemBackup(db, data, req, res);
       }
 
+      if (action === "save-van-expense") {
+        return saveVanExpense(db, data, req, res);
+      }
+
+      if (action === "delete-van-expense") {
+        return deleteVanExpense(db, data, req, res);
+      }
+
       return res.status(400).json({
         success: false,
         message: "Invalid admin dashboard action."
@@ -1228,3 +1377,5 @@ module.exports = async function handler(req, res) {
 // MUTHAQUS_STEP61_REBRAND_RULE_CLEANUP
 
 // MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE
+
+// MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS
