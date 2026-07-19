@@ -7,7 +7,7 @@
     <title>Student Management | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page-admin-students step67-admin-students step81-admin-students">
+<body class="page-admin-students step67-admin-students step81-admin-students step82-admin-students">
 
 <div class="app-shell">
     
@@ -82,8 +82,8 @@
         <div class="page-hero-bar">
             <div>
                 <span class="page-kicker">STUDENT RECORDS</span>
-                <h1>Student Management</h1>
-                <p>Review student information, monthly fees and account status in one place.</p>
+                <h1>Parents & Children</h1>
+                <p>Parents are sorted by name. Open a parent record to review and manage every child under that account.</p>
             </div>
 
             <button class="btn btn-light-pro" type="button" onclick="exportStudentsCSV()">Export Students CSV</button>
@@ -99,14 +99,21 @@
         <section class="step81-student-management-section">
             <div class="step81-student-section-head">
                 <div>
-                    <span class="page-kicker">REGISTERED STUDENTS</span>
-                    <h2>Student Records</h2>
-                    <p>Review student details, billing settings and approval status in organised cards.</p>
+                    <span class="page-kicker">FAMILY RECORDS</span>
+                    <h2>Parents & Registered Children</h2>
+                    <p>Click a parent name to view children, update fees and manage approval status.</p>
                 </div>
 
-                <div class="step81-student-count">
-                    <span id="studentVisibleCount">0</span>
-                    Records
+                <div class="step82-student-counts">
+                    <div>
+                        <span id="studentVisibleCount">0</span>
+                        <small>Parents</small>
+                    </div>
+
+                    <div>
+                        <span id="studentVisibleStudentCount">0</span>
+                        <small>Children</small>
+                    </div>
                 </div>
             </div>
 
@@ -142,6 +149,16 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="studentParentSort">Sort parents</label>
+                    <select id="studentParentSort" onchange="renderAdminStudentCards()">
+                        <option value="az">Parent Name A–Z</option>
+                        <option value="za">Parent Name Z–A</option>
+                        <option value="children">Most Children</option>
+                        <option value="pending">Pending First</option>
+                    </select>
+                </div>
+
                 <button class="btn btn-outline-pro" type="button" onclick="resetAdminStudentFilters()">
                     Reset
                 </button>
@@ -161,4 +178,4 @@
 <script>loadAdminStudents();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN -->
+<!-- MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM -->

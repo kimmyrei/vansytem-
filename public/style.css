@@ -15595,3 +15595,1628 @@ body.step81-admin-payments .step80-arrears-actions .btn {
 }
 
 /* MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN */
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM
+   ========================================================= */
+
+/* ---------------- Family-grouped student management ---------------- */
+
+body.step82-admin-students .step81-student-filter {
+    grid-template-columns:
+        minmax(240px, 1.4fr)
+        repeat(3, minmax(160px, 0.72fr))
+        auto;
+}
+
+.step82-student-counts {
+    display: flex;
+    gap: 9px;
+}
+
+.step82-student-counts > div {
+    min-width: 98px;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    padding: 11px 14px;
+    border: 1px solid #d6e4f2;
+    border-radius: 16px;
+    background: #f7faff;
+}
+
+.step82-student-counts span {
+    color: #143f73;
+    font-size: 21px;
+    font-weight: 950;
+}
+
+.step82-student-counts small {
+    color: #72869a;
+    font-size: 9px;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+body.step82-admin-students
+.step81-student-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+.step82-family-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #d7e5f3;
+    border-radius: 24px;
+    background:
+        radial-gradient(
+            circle at 97% 3%,
+            rgba(39, 120, 208, 0.075),
+            transparent 27%
+        ),
+        #ffffff;
+    box-shadow: 0 13px 34px rgba(15, 60, 104, 0.075);
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.step82-family-card.is-open {
+    border-color: #a9c9e7;
+    box-shadow: 0 17px 42px rgba(15, 60, 104, 0.115);
+}
+
+.step82-family-header {
+    display: grid;
+    grid-template-columns:
+        minmax(280px, 1.2fr)
+        minmax(330px, 1fr)
+        auto;
+    gap: 18px;
+    align-items: center;
+    padding: 20px;
+}
+
+.step82-family-identity {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.step82-parent-avatar {
+    width: 58px;
+    min-width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #c9dff2;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #eaf4ff, #d9ebff);
+    color: #155b9e;
+    font-size: 23px;
+    font-weight: 950;
+}
+
+.step82-family-identity small,
+.step82-family-identity h3,
+.step82-family-identity p {
+    display: block;
+}
+
+.step82-family-identity small {
+    margin-bottom: 3px;
+    color: #2873b8;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.065em;
+    text-transform: uppercase;
+}
+
+.step82-family-identity h3 {
+    margin: 0 0 5px;
+    color: #143f73;
+    font-size: 20px;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+}
+
+.step82-family-identity p {
+    margin: 0;
+    color: #71869a;
+    font-size: 10px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.step82-family-identity p span {
+    margin: 0 5px;
+    color: #adc0d1;
+}
+
+.step82-family-metrics {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.step82-family-metrics > div {
+    min-width: 0;
+    min-height: 68px;
+    display: grid;
+    align-content: center;
+    gap: 5px;
+    padding: 11px;
+    border: 1px solid #dce8f3;
+    border-radius: 15px;
+    background: #f8fbff;
+    text-align: center;
+}
+
+.step82-family-metrics small {
+    color: #778b9f;
+    font-size: 8.5px;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+.step82-family-metrics strong {
+    color: #143f73;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.step82-view-children {
+    min-width: 145px;
+    min-height: 47px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 13px;
+    border: 1px solid #cfe0ef;
+    border-radius: 14px;
+    background: #f4f9ff;
+    color: #175b9e;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.step82-view-children b {
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #e1effd;
+    font-size: 18px;
+}
+
+.step82-family-bulk-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 13px;
+    padding: 11px 20px;
+    border-top: 1px solid #e6eef6;
+    border-bottom: 1px solid #e6eef6;
+    background: #f8fbff;
+}
+
+.step82-family-bulk-actions > span {
+    color: #6d8296;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.step82-family-bulk-actions > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.step82-family-bulk-actions button {
+    min-height: 37px;
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 11px;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.step82-family-bulk-actions .accept {
+    background: #18a956;
+}
+
+.step82-family-bulk-actions .active {
+    background: #e7a32d;
+}
+
+.step82-family-bulk-actions .reject {
+    background: #de353d;
+}
+
+.step82-family-children {
+    padding: 20px;
+    background: linear-gradient(180deg, #fbfdff, #f4f9fe);
+}
+
+.step82-family-children[hidden] {
+    display: none !important;
+}
+
+.step82-family-children-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.step82-family-children-head small,
+.step82-family-children-head h4 {
+    display: block;
+}
+
+.step82-family-children-head small {
+    margin-bottom: 4px;
+    color: #2b75b9;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.065em;
+}
+
+.step82-family-children-head h4 {
+    margin: 0;
+    color: #143f73;
+    font-size: 18px;
+}
+
+.step82-family-children-head > span {
+    padding: 7px 10px;
+    border: 1px solid #cfe0ef;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #4f6b83;
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.step82-child-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.step82-child-card {
+    min-width: 0;
+    display: grid;
+    gap: 13px;
+    padding: 16px;
+    border: 1px solid #d9e6f2;
+    border-radius: 19px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(15, 60, 104, 0.055);
+}
+
+.step82-child-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9eff5;
+}
+
+.step82-child-identity {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.step82-child-identity > span {
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eaf3ff;
+    color: #175b9e;
+    font-size: 18px;
+    font-weight: 950;
+}
+
+.step82-child-identity small,
+.step82-child-identity h4,
+.step82-child-identity p {
+    display: block;
+}
+
+.step82-child-identity small {
+    margin-bottom: 3px;
+    color: #71869a;
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.step82-child-identity h4 {
+    margin: 0 0 3px;
+    color: #143f73;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.step82-child-identity p {
+    margin: 0;
+    color: #8495a5;
+    font-size: 8px;
+    overflow-wrap: anywhere;
+}
+
+.step82-child-badges {
+    display: grid;
+    justify-items: end;
+    gap: 6px;
+}
+
+.step82-child-badges .badge {
+    min-width: 78px;
+    justify-content: center;
+}
+
+.step82-child-information {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.4fr)
+        repeat(2, minmax(95px, 0.6fr));
+    gap: 8px;
+}
+
+.step82-child-information > div {
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid #e0e9f2;
+    border-radius: 13px;
+    background: #f8fbff;
+}
+
+.step82-child-information small,
+.step82-child-information strong,
+.step82-child-information p {
+    display: block;
+}
+
+.step82-child-information small {
+    margin-bottom: 5px;
+    color: #778b9e;
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.step82-child-information strong {
+    color: #234c6f;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.step82-child-information p {
+    margin: 4px 0 0;
+    color: #72869a;
+    font-size: 9px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.step82-child-settings {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.step82-child-settings > section {
+    min-width: 0;
+    display: grid;
+    gap: 9px;
+    padding: 12px;
+    border: 1px solid #d8e6f3;
+    border-radius: 15px;
+    background: linear-gradient(180deg, #fbfdff, #f4f9ff);
+}
+
+.step82-child-settings > section.fee {
+    border-color: #cce5d5;
+    background: linear-gradient(180deg, #fbfffd, #f2fbf5);
+}
+
+.step82-setting-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.step82-setting-title > span {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #e9f3fe;
+    font-size: 15px;
+}
+
+.step82-setting-title small,
+.step82-setting-title strong {
+    display: block;
+}
+
+.step82-setting-title small {
+    margin-bottom: 2px;
+    color: #758a9e;
+    font-size: 8px;
+}
+
+.step82-setting-title strong {
+    color: #143f73;
+    font-size: 11px;
+}
+
+.step82-child-settings input {
+    width: 100%;
+    min-height: 43px;
+    margin: 0;
+    border-radius: 11px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.step82-child-settings button {
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(180deg, #2f80d5, #1762b4);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.step82-child-settings .fee button {
+    background: linear-gradient(180deg, #2bae68, #178449);
+}
+
+.step82-fee-input {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 7px;
+    align-items: center;
+}
+
+.step82-fee-input > span {
+    color: #176b42;
+    font-size: 11px;
+    font-weight: 950;
+}
+
+.step82-fee-input input {
+    text-align: right;
+}
+
+.step82-child-actions {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.step82-child-actions button {
+    min-width: 0;
+    min-height: 40px;
+    padding: 7px;
+    border: 0;
+    border-radius: 11px;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 900;
+}
+
+.step82-child-actions .accept {
+    background: #18a956;
+}
+
+.step82-child-actions .active {
+    background: #e7a32d;
+}
+
+.step82-child-actions .reject {
+    background: #df353e;
+}
+
+.step82-child-actions .remove {
+    background: #9d2632;
+}
+
+.step82-child-actions button:disabled {
+    opacity: 0.42;
+}
+
+/* ---------------- Monthly payment tracker ---------------- */
+
+.step82-monthly-tracker,
+.step82-payment-history-section {
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 27px;
+    border: 1px solid #d6e4f2;
+    border-radius: 27px;
+    background:
+        radial-gradient(
+            circle at 97% 2%,
+            rgba(39, 120, 208, 0.09),
+            transparent 27%
+        ),
+        #ffffff;
+    box-shadow: 0 18px 48px rgba(15, 60, 104, 0.09);
+}
+
+.step82-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 17px;
+}
+
+.step82-section-head h2 {
+    margin: 5px 0 5px;
+    color: #143f73;
+    font-size: 28px;
+    letter-spacing: -0.04em;
+}
+
+.step82-section-head p {
+    margin: 0;
+    max-width: 700px;
+    color: #6d8195;
+    line-height: 1.6;
+}
+
+.step82-month-selector {
+    min-width: 225px;
+    padding: 12px;
+    border: 1px solid #d6e4f2;
+    border-radius: 16px;
+    background: #f7faff;
+}
+
+.step82-month-selector label {
+    display: block;
+    margin-bottom: 7px;
+    color: #567087;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.step82-month-selector select {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    border-radius: 11px;
+    background: #ffffff;
+    font-weight: 850;
+}
+
+.step82-month-summary {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 11px;
+    margin-bottom: 16px;
+}
+
+.step82-month-summary article {
+    min-width: 0;
+    min-height: 98px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 16px;
+    border: 1px solid #dbe7f3;
+    border-radius: 18px;
+    background: #fbfdff;
+}
+
+.step82-month-summary article.danger {
+    border-color: #efc5c9;
+    background: #fff8f9;
+}
+
+.step82-month-summary article > span {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #eaf3ff;
+    font-size: 20px;
+}
+
+.step82-month-summary article.danger > span {
+    background: #fff0f2;
+}
+
+.step82-month-summary small,
+.step82-month-summary strong {
+    display: block;
+}
+
+.step82-month-summary small {
+    margin-bottom: 4px;
+    color: #72869a;
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.step82-month-summary strong {
+    color: #143f73;
+    font-size: 19px;
+    overflow-wrap: anywhere;
+}
+
+.step82-month-summary article.danger strong {
+    color: #a72531;
+}
+
+.step82-month-filter,
+.step82-history-filter {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.35fr)
+        minmax(180px, 0.65fr)
+        auto;
+    gap: 11px;
+    align-items: end;
+    margin-bottom: 16px;
+    padding: 13px;
+    border: 1px solid #dbe7f3;
+    border-radius: 17px;
+    background: #f8fbff;
+}
+
+.step82-history-filter {
+    grid-template-columns:
+        minmax(0, 1.25fr)
+        minmax(170px, 0.55fr)
+        minmax(180px, 0.65fr)
+        auto;
+}
+
+.step82-month-filter label,
+.step82-history-filter label {
+    display: block;
+    margin-bottom: 6px;
+    color: #567087;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.step82-month-filter input,
+.step82-month-filter select,
+.step82-history-filter input,
+.step82-history-filter select {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    border-radius: 11px;
+    background: #ffffff;
+}
+
+.step82-month-filter .btn,
+.step82-history-filter .btn {
+    min-height: 44px;
+    margin: 0;
+}
+
+.step82-month-columns {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.step82-month-panel {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #dbe7f3;
+    border-radius: 21px;
+    background: #fbfdff;
+}
+
+.step82-month-panel.needs-payment {
+    border-color: #efc3c8;
+    background: #fffafb;
+}
+
+.step82-month-panel > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 11px;
+    padding: 15px;
+    border-bottom: 1px solid #e4edf5;
+    background: #f7faff;
+}
+
+.step82-month-panel.needs-payment > header {
+    border-color: #efcbd0;
+    background: #fff2f4;
+}
+
+.step82-month-panel > header > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.step82-month-panel > header > div > span {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #eaf3ff;
+    font-size: 18px;
+}
+
+.step82-month-panel.needs-payment
+> header > div > span {
+    background: #ffe8eb;
+}
+
+.step82-month-panel header small,
+.step82-month-panel header h3 {
+    display: block;
+}
+
+.step82-month-panel header small {
+    margin-bottom: 3px;
+    color: #6d8296;
+    font-size: 8px;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+}
+
+.step82-month-panel header h3 {
+    margin: 0;
+    color: #143f73;
+    font-size: 17px;
+}
+
+.step82-month-panel.needs-payment
+header h3 {
+    color: #a72531;
+}
+
+.step82-month-panel > header > b {
+    min-width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #e7f1fb;
+    color: #185b9d;
+    font-size: 13px;
+}
+
+.step82-month-panel.needs-payment
+> header > b {
+    background: #ffe5e8;
+    color: #a72531;
+}
+
+.step82-month-account-list {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+}
+
+.step82-month-account-card {
+    min-width: 0;
+    display: grid;
+    gap: 11px;
+    padding: 14px;
+    border: 1px solid #dce8f3;
+    border-radius: 17px;
+    background: #ffffff;
+    box-shadow: 0 8px 21px rgba(15, 60, 104, 0.055);
+}
+
+.step82-month-account-card.unpaid,
+.step82-month-account-card.partial,
+.step82-month-account-card.rejected {
+    border-color: #efc6cb;
+}
+
+.step82-month-account-card > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.step82-month-parent {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.step82-month-parent > span {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #eaf3ff;
+    color: #175b9e;
+    font-size: 17px;
+    font-weight: 950;
+}
+
+.step82-month-parent strong,
+.step82-month-parent small {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.step82-month-parent strong {
+    color: #143f73;
+    font-size: 13px;
+}
+
+.step82-month-parent small {
+    margin-top: 3px;
+    color: #74889c;
+    font-size: 9px;
+}
+
+.step82-month-status {
+    flex: 0 0 auto;
+    padding: 6px 9px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 950;
+    white-space: nowrap;
+}
+
+.step82-month-status.paid {
+    background: #e9fbf1;
+    color: #147847;
+}
+
+.step82-month-status.review {
+    background: #fff6df;
+    color: #855b0c;
+}
+
+.step82-month-status.partial,
+.step82-month-status.unpaid,
+.step82-month-status.rejected {
+    background: #fff0f2;
+    color: #a72531;
+}
+
+.step82-month-amounts {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.step82-month-amounts > div {
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #e1eaf3;
+    border-radius: 11px;
+    background: #f8fbff;
+}
+
+.step82-month-amounts small,
+.step82-month-amounts strong {
+    display: block;
+}
+
+.step82-month-amounts small {
+    margin-bottom: 4px;
+    color: #788b9f;
+    font-size: 7.5px;
+    font-weight: 850;
+}
+
+.step82-month-amounts strong {
+    color: #194b75;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+.step82-month-children {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.step82-month-children span {
+    max-width: 100%;
+    padding: 5px 8px;
+    border: 1px solid #dce8f3;
+    border-radius: 999px;
+    background: #f6faff;
+    color: #567087;
+    font-size: 8px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.step82-month-account-card > footer {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.step82-month-account-card > footer button {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid #cfe0ef;
+    border-radius: 11px;
+    background: #f5f9fe;
+    color: #175b9e;
+    font-size: 9px;
+    font-weight: 900;
+}
+
+.step82-month-account-card
+> footer button.reminder {
+    border-color: #9ed8b8;
+    background: #eafaf1;
+    color: #147847;
+}
+
+.step82-month-empty {
+    min-height: 145px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    padding: 20px;
+    border: 1px dashed #cbddeb;
+    border-radius: 16px;
+    background: #f8fbff;
+    text-align: center;
+}
+
+.step82-month-empty.success {
+    border-color: #b8dfc7;
+    background: #f3fcf7;
+}
+
+.step82-month-empty > span {
+    font-size: 29px;
+}
+
+.step82-month-empty strong {
+    color: #143f73;
+}
+
+.step82-month-empty p {
+    margin: 0;
+    max-width: 330px;
+    color: #71859a;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+/* ---------------- Payment history grouped by month ---------------- */
+
+.step82-history-count {
+    min-width: 100px;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    padding: 11px 14px;
+    border: 1px solid #d6e4f2;
+    border-radius: 16px;
+    background: #f7faff;
+    color: #72869a;
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.step82-history-count span {
+    color: #143f73;
+    font-size: 21px;
+    font-weight: 950;
+}
+
+.step82-payment-month-groups {
+    display: grid;
+    gap: 11px;
+}
+
+.step82-payment-month-group {
+    overflow: hidden;
+    border: 1px solid #d8e6f3;
+    border-radius: 19px;
+    background: #ffffff;
+}
+
+.step82-payment-month-group > summary {
+    list-style: none;
+    display: grid;
+    grid-template-columns:
+        minmax(210px, 1fr)
+        auto;
+    gap: 15px;
+    align-items: center;
+    padding: 15px 17px;
+    cursor: pointer;
+    background:
+        radial-gradient(
+            circle at 97% 2%,
+            rgba(39, 120, 208, 0.07),
+            transparent 28%
+        ),
+        #fbfdff;
+}
+
+.step82-payment-month-group
+> summary::-webkit-details-marker {
+    display: none;
+}
+
+.step82-payment-month-heading {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.step82-payment-month-heading > span {
+    width: 43px;
+    min-width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #eaf3ff;
+    font-size: 19px;
+}
+
+.step82-payment-month-heading small,
+.step82-payment-month-heading h3 {
+    display: block;
+}
+
+.step82-payment-month-heading small {
+    margin-bottom: 3px;
+    color: #2a74b8;
+    font-size: 8px;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+}
+
+.step82-payment-month-heading h3 {
+    margin: 0;
+    color: #143f73;
+    font-size: 17px;
+}
+
+.step82-payment-month-summary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.step82-payment-month-summary span,
+.step82-payment-month-summary strong {
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #eef5fc;
+    color: #4d6a83;
+    font-size: 8.5px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.step82-payment-month-summary span.paid {
+    background: #e9fbf1;
+    color: #147847;
+}
+
+.step82-payment-month-summary span.pending {
+    background: #fff6df;
+    color: #855b0c;
+}
+
+.step82-payment-month-summary strong {
+    background: #143f73;
+    color: #ffffff;
+}
+
+.step82-payment-month-summary b {
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #e5f0fb;
+    color: #175b9e;
+    font-size: 15px;
+    transition: transform 0.18s ease;
+}
+
+.step82-payment-month-group[open]
+.step82-payment-month-summary b {
+    transform: rotate(180deg);
+}
+
+.step82-payment-record-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 12px;
+    border-top: 1px solid #e5edf5;
+    background: #f7faff;
+}
+
+.step82-payment-record-card {
+    min-width: 0;
+    display: grid;
+    gap: 11px;
+    padding: 14px;
+    border: 1px solid #dce8f3;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.step82-payment-record-card > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 9px;
+}
+
+.step82-payment-person {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.step82-payment-person > span {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #eaf3ff;
+    color: #175b9e;
+    font-size: 16px;
+    font-weight: 950;
+}
+
+.step82-payment-person strong,
+.step82-payment-person small {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.step82-payment-person strong {
+    color: #143f73;
+    font-size: 12px;
+}
+
+.step82-payment-person small {
+    margin-top: 3px;
+    color: #75899d;
+    font-size: 8px;
+}
+
+.step82-payment-record-info {
+    display: grid;
+    grid-template-columns:
+        1.2fr 0.65fr 1.25fr;
+    gap: 7px;
+}
+
+.step82-payment-record-info > div {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #e1eaf3;
+    border-radius: 11px;
+    background: #f8fbff;
+}
+
+.step82-payment-record-info small,
+.step82-payment-record-info strong {
+    display: block;
+}
+
+.step82-payment-record-info small {
+    margin-bottom: 4px;
+    color: #778b9f;
+    font-size: 7.5px;
+    font-weight: 850;
+}
+
+.step82-payment-record-info strong {
+    color: #244d70;
+    font-size: 9.5px;
+    overflow-wrap: anywhere;
+}
+
+.step82-payment-record-actions {
+    display: grid;
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.step82-payment-record-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    margin: 0;
+    padding: 6px;
+    border-radius: 10px;
+    font-size: 8.5px;
+    white-space: normal;
+}
+
+@media (max-width: 1220px) {
+    body.step82-admin-students
+    .step81-student-filter {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    body.step82-admin-students
+    .step81-student-filter
+    .step81-search-field {
+        grid-column: 1 / -1;
+    }
+
+    .step82-family-header {
+        grid-template-columns:
+            minmax(260px, 1fr)
+            minmax(300px, 0.9fr);
+    }
+
+    .step82-view-children {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .step82-child-grid,
+    .step82-payment-record-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 980px) {
+    .step82-family-header,
+    .step82-month-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .step82-family-metrics {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .step82-month-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .step82-history-filter {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 860px) {
+    body.step82-admin-students .app-main,
+    body.step82-admin-payments .app-main {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    body.step82-admin-students
+    .step81-student-filter,
+    .step82-month-filter,
+    .step82-history-filter {
+        grid-template-columns: 1fr;
+        gap: 9px;
+        padding: 12px;
+    }
+
+    .step82-student-counts {
+        width: 100%;
+        margin-top: 11px;
+    }
+
+    .step82-student-counts > div {
+        flex: 1;
+    }
+
+    .step82-family-card {
+        border-radius: 20px;
+    }
+
+    .step82-family-header {
+        grid-template-columns: 1fr;
+        gap: 13px;
+        padding: 15px;
+    }
+
+    .step82-family-identity {
+        align-items: flex-start;
+    }
+
+    .step82-parent-avatar {
+        width: 50px;
+        min-width: 50px;
+        height: 50px;
+        border-radius: 15px;
+    }
+
+    .step82-family-identity h3 {
+        font-size: 18px;
+    }
+
+    .step82-family-identity p span {
+        display: none;
+    }
+
+    .step82-family-identity p {
+        display: grid;
+        gap: 2px;
+    }
+
+    .step82-family-metrics {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .step82-family-metrics > div {
+        min-height: 64px;
+        padding: 9px 5px;
+    }
+
+    .step82-family-metrics strong {
+        font-size: 13px;
+    }
+
+    .step82-view-children {
+        width: 100%;
+        min-height: 45px;
+    }
+
+    .step82-family-bulk-actions {
+        display: grid;
+        gap: 9px;
+        padding: 12px 15px;
+    }
+
+    .step82-family-bulk-actions > div {
+        display: grid;
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .step82-family-bulk-actions button {
+        min-height: 39px;
+        padding: 6px;
+        font-size: 8.5px;
+    }
+
+    .step82-family-children {
+        padding: 14px;
+    }
+
+    .step82-family-children-head {
+        align-items: flex-start;
+    }
+
+    .step82-child-grid,
+    .step82-child-information,
+    .step82-child-settings {
+        grid-template-columns: 1fr;
+    }
+
+    .step82-child-card {
+        padding: 14px;
+        border-radius: 17px;
+    }
+
+    .step82-child-head {
+        display: grid;
+    }
+
+    .step82-child-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-items: initial;
+    }
+
+    .step82-child-badges .badge {
+        min-width: 0;
+    }
+
+    .step82-child-settings input {
+        font-size: 16px;
+    }
+
+    .step82-child-actions {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .step82-child-actions button {
+        min-height: 43px;
+        font-size: 10px;
+    }
+
+    .step82-monthly-tracker,
+    .step82-payment-history-section {
+        margin-bottom: 12px;
+        padding: 15px;
+        border-radius: 21px;
+    }
+
+    .step82-section-head {
+        display: block;
+        margin-bottom: 14px;
+    }
+
+    .step82-section-head h2 {
+        font-size: 23px;
+    }
+
+    .step82-month-selector,
+    .step82-history-count {
+        width: 100%;
+        margin-top: 11px;
+    }
+
+    .step82-month-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .step82-month-summary article {
+        min-height: 105px;
+        display: grid;
+        align-content: start;
+        gap: 8px;
+        padding: 13px;
+    }
+
+    .step82-month-summary article > span {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+    }
+
+    .step82-month-summary strong {
+        font-size: 15px;
+    }
+
+    .step82-month-columns {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .step82-month-account-card {
+        padding: 13px;
+    }
+
+    .step82-month-account-card > header {
+        align-items: flex-start;
+    }
+
+    .step82-month-status {
+        max-width: 95px;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .step82-month-amounts {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .step82-payment-month-group > summary {
+        grid-template-columns: 1fr;
+        gap: 11px;
+        padding: 14px;
+    }
+
+    .step82-payment-month-summary {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .step82-payment-month-summary b {
+        margin-left: auto;
+    }
+
+    .step82-payment-record-grid {
+        grid-template-columns: 1fr;
+        padding: 9px;
+    }
+
+    .step82-payment-record-info {
+        grid-template-columns: 1fr;
+    }
+
+    .step82-payment-record-actions {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .step82-payment-record-actions
+    button:first-child,
+    .step82-payment-record-actions
+    .invoice-admin-btn {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 430px) {
+    .step82-family-metrics,
+    .step82-family-bulk-actions > div,
+    .step82-month-summary,
+    .step82-month-amounts {
+        grid-template-columns: 1fr;
+    }
+
+    .step82-family-metrics > div {
+        min-height: 58px;
+    }
+}
+
+/* MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM */
+

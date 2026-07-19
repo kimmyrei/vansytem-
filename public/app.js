@@ -2449,21 +2449,29 @@ function step80FilterPaymentRecords(recordId) {
 }
 
 async function loadAdminPayments() {
-    const table = document.getElementById(
-        "adminPaymentsTable"
-    );
+    const records =
+        document.getElementById(
+            "adminPaymentMonthGroups"
+        );
 
-    const arrearsList = document.getElementById(
-        "adminArrearsList"
-    );
+    const arrearsList =
+        document.getElementById(
+            "adminArrearsList"
+        );
 
-    if (table) {
-        table.innerHTML = `
-            <tr class="s64-empty-row">
-                <td colspan="7" class="empty-row">
+    const unpaidList =
+        document.getElementById(
+            "monthlyUnpaidList"
+        );
+
+    if (records) {
+        records.innerHTML = `
+            <div class="step82-month-empty">
+                <span>⏳</span>
+                <strong>
                     Loading payment records...
-                </td>
-            </tr>
+                </strong>
+            </div>
         `;
     }
 
@@ -2471,7 +2479,20 @@ async function loadAdminPayments() {
         arrearsList.innerHTML = `
             <div class="step80-arrears-empty loading">
                 <span>⏳</span>
-                <strong>Checking outstanding balances...</strong>
+                <strong>
+                    Checking outstanding balances...
+                </strong>
+            </div>
+        `;
+    }
+
+    if (unpaidList) {
+        unpaidList.innerHTML = `
+            <div class="step82-month-empty">
+                <span>⏳</span>
+                <strong>
+                    Preparing monthly tracker...
+                </strong>
             </div>
         `;
     }
@@ -2487,6 +2508,7 @@ async function loadAdminPayments() {
 
         const paymentResult =
             await paymentResponse.json();
+
         const studentResult =
             await studentResponse.json();
 
@@ -2513,8 +2535,12 @@ async function loadAdminPayments() {
         const summary =
             paymentResult.summary || {};
 
-        window.adminPaymentsData = payments;
-        window.adminStudentsForArrears = students;
+        window.adminPaymentsData =
+            payments;
+
+        window.adminStudentsForArrears =
+            students;
+
         window.adminPaymentReceiptMap = {};
         window.adminPaymentInvoiceMap = {};
 
@@ -2541,7 +2567,8 @@ async function loadAdminPayments() {
             paymentTotalCollection:
                 "RM" +
                 Number(
-                    summary.totalCollection || 0
+                    summary.totalCollection ||
+                    0
                 ).toFixed(2),
             paymentPaidCount:
                 summary.paidCount || 0,
@@ -2549,17 +2576,22 @@ async function loadAdminPayments() {
                 summary.pendingCount || 0,
             paymentUnpaidCount:
                 arrearsRecords.filter(
-                    record => record.outstanding > 0
+                    record =>
+                        record.outstanding >
+                        0
                 ).length
         };
 
         Object.entries(values).forEach(
             ([id, value]) => {
                 const element =
-                    document.getElementById(id);
+                    document.getElementById(
+                        id
+                    );
 
                 if (element) {
-                    element.innerText = value;
+                    element.innerText =
+                        value;
                 }
             }
         );
@@ -2568,16 +2600,25 @@ async function loadAdminPayments() {
             arrearsRecords
         );
 
+        step82PreparePaymentMonthOptions();
+        renderAdminMonthlyPaymentTracker();
         renderAdminArrearsManagement();
         renderAdminPaymentRecords();
     } catch (error) {
-        if (table) {
-            table.innerHTML = `
-                <tr class="s64-empty-row">
-                    <td colspan="7" class="empty-row">
-                        ${mutahusSafeHtml(error.message)}
-                    </td>
-                </tr>
+        const message =
+            mutahusSafeHtml(
+                error.message
+            );
+
+        if (records) {
+            records.innerHTML = `
+                <div class="step82-month-empty">
+                    <span>⚠️</span>
+                    <strong>
+                        Unable to load payment records
+                    </strong>
+                    <p>${message}</p>
+                </div>
             `;
         }
 
@@ -2585,8 +2626,22 @@ async function loadAdminPayments() {
             arrearsList.innerHTML = `
                 <div class="step80-arrears-empty">
                     <span>⚠️</span>
-                    <strong>Unable to load arrears records</strong>
-                    <p>${mutahusSafeHtml(error.message)}</p>
+                    <strong>
+                        Unable to load arrears records
+                    </strong>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        if (unpaidList) {
+            unpaidList.innerHTML = `
+                <div class="step82-month-empty">
+                    <span>⚠️</span>
+                    <strong>
+                        Unable to load monthly tracker
+                    </strong>
+                    <p>${message}</p>
                 </div>
             `;
         }
@@ -2838,6 +2893,447 @@ async function resetDefaultRules() {
 // MUTAHUS_STEP12_RULES_MONGODB
 
 
+function step82StudentParentKey(child) {
+    return (
+        String(child.parentId || "").trim() ||
+        String(child.parentEmail || "")
+            .trim()
+            .toLowerCase() ||
+        `${String(child.parentName || "Parent")
+            .trim()
+            .toLowerCase()}|` +
+        `${String(child.parentPhone || "")
+            .replace(/\D/g, "")}`
+    );
+}
+
+function step82BuildStudentFamilies(children) {
+    const familyMap = new Map();
+
+    (children || []).forEach(child => {
+        const key = step82StudentParentKey(child);
+
+        if (!familyMap.has(key)) {
+            familyMap.set(key, {
+                key,
+                parentId: child.parentId || "",
+                parentName:
+                    child.parentName || "Parent",
+                parentPhone:
+                    child.parentPhone || "",
+                parentEmail:
+                    child.parentEmail || "",
+                children: []
+            });
+        }
+
+        familyMap.get(key).children.push(child);
+    });
+
+    return Array.from(familyMap.values());
+}
+
+function step82ParentSearchText(family) {
+    return [
+        family.parentName,
+        family.parentPhone,
+        family.parentEmail,
+        ...family.children.flatMap(child => [
+            child.name,
+            child.id,
+            child.school,
+            child.kafa,
+            child.classYear,
+            child.session,
+            child.status,
+            child.paymentStatus
+        ])
+    ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+}
+
+function step82FamilyPendingCount(family) {
+    return family.children.filter(child =>
+        (child.status || "Pending Review") ===
+        "Pending Review"
+    ).length;
+}
+
+function step82FamilyMonthlyFee(family) {
+    return family.children
+        .filter(child => child.status !== "Rejected")
+        .reduce(
+            (sum, child) =>
+                sum +
+                Number(child.monthlyAmount || 0),
+            0
+        );
+}
+
+function step82ToggleParentChildren(familyId) {
+    if (!window.step82ExpandedFamilies) {
+        window.step82ExpandedFamilies = new Set();
+    }
+
+    if (
+        window.step82ExpandedFamilies.has(
+            familyId
+        )
+    ) {
+        window.step82ExpandedFamilies.delete(
+            familyId
+        );
+    } else {
+        window.step82ExpandedFamilies.add(
+            familyId
+        );
+    }
+
+    renderAdminStudentCards();
+}
+
+async function step82SetStudentStatusSilently(
+    studentId,
+    status
+) {
+    const response = await fetch(
+        "/api/update-student-status",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                action: "update-status",
+                studentId,
+                status
+            })
+        }
+    );
+
+    const result = await response.json();
+
+    if (!result.success) {
+        throw new Error(
+            result.message ||
+            "Failed to update student status."
+        );
+    }
+}
+
+async function step82BulkStudentStatus(
+    familyId,
+    status
+) {
+    const family =
+        (window.step82FamilyMap || {})[
+            familyId
+        ];
+
+    if (!family) {
+        alert("Parent record not found.");
+        return;
+    }
+
+    const targets = family.children.filter(
+        child =>
+            (child.status ||
+                "Pending Review") !== status
+    );
+
+    if (!targets.length) {
+        alert(
+            `All children are already ${status}.`
+        );
+        return;
+    }
+
+    if (
+        status === "Rejected" &&
+        !confirm(
+            `Reject all ${targets.length} child record` +
+            `${targets.length === 1 ? "" : "s"} ` +
+            `under ${family.parentName}?`
+        )
+    ) {
+        return;
+    }
+
+    try {
+        await Promise.all(
+            targets.map(child =>
+                step82SetStudentStatusSilently(
+                    child.id,
+                    status
+                )
+            )
+        );
+
+        alert(
+            `${targets.length} child record` +
+            `${targets.length === 1 ? "" : "s"} ` +
+            `updated to ${status}.`
+        );
+
+        loadAdminStudents();
+    } catch (error) {
+        alert(
+            "Bulk status update error: " +
+            error.message
+        );
+    }
+}
+
+function step82StudentChildCard(
+    child,
+    familyId
+) {
+    const status =
+        child.status || "Pending Review";
+    const paymentStatus =
+        child.paymentStatus || "Unpaid";
+
+    const statusClass =
+        getStudentStatusBadgeClass(status);
+
+    const paymentClass =
+        getPaymentBadgeClass(
+            paymentStatus
+        );
+
+    const sessionClass =
+        child.session === "Morning"
+            ? "morning"
+            : child.session === "Afternoon"
+            ? "afternoon"
+            : "unpaid";
+
+    const amount =
+        Number(child.monthlyAmount || 0);
+
+    const serviceStartMonth =
+        child.serviceStartMonth ||
+        step78MonthInputFromDate(
+            child.createdAt
+        ) ||
+        "";
+
+    const initial = String(
+        child.name || "S"
+    )
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+    return `
+        <article class="step82-child-card">
+            <header class="step82-child-head">
+                <div class="step82-child-identity">
+                    <span>${mutahusSafeHtml(initial)}</span>
+
+                    <div>
+                        <small>Student</small>
+                        <h4>
+                            ${mutahusSafeHtml(
+                                child.name || "-"
+                            )}
+                        </h4>
+                        <p>
+                            ID:
+                            ${mutahusSafeHtml(
+                                child.id || "-"
+                            )}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="step82-child-badges">
+                    <span class="badge ${statusClass}">
+                        ${mutahusSafeHtml(status)}
+                    </span>
+
+                    <span class="badge ${paymentClass}">
+                        ${mutahusSafeHtml(
+                            paymentStatus
+                        )}
+                    </span>
+                </div>
+            </header>
+
+            <div class="step82-child-information">
+                <div>
+                    <small>School / KAFA</small>
+                    <strong>
+                        ${mutahusSafeHtml(
+                            child.school || "-"
+                        )}
+                    </strong>
+                    <p>
+                        ${
+                            child.kafa
+                                ? `KAFA: ${mutahusSafeHtml(
+                                    child.kafa
+                                )}${
+                                    child.kafaSession
+                                        ? ` (${mutahusSafeHtml(
+                                            child.kafaSession
+                                        )})`
+                                        : ""
+                                }`
+                                : "KAFA: Not applicable"
+                        }
+                    </p>
+                </div>
+
+                <div>
+                    <small>Class</small>
+                    <strong>
+                        ${mutahusSafeHtml(
+                            child.classYear || "-"
+                        )}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>Session</small>
+                    <span class="badge ${sessionClass}">
+                        ${mutahusSafeHtml(
+                            child.session ||
+                            "Not applicable"
+                        )}
+                    </span>
+                </div>
+            </div>
+
+            <div class="step82-child-settings">
+                <section>
+                    <div class="step82-setting-title">
+                        <span>📅</span>
+                        <div>
+                            <small>Billing begins</small>
+                            <strong>
+                                Service Start
+                            </strong>
+                        </div>
+                    </div>
+
+                    <input
+                        type="month"
+                        id="serviceStart_${child.id}"
+                        value="${serviceStartMonth}"
+                        min="2026-01"
+                        aria-label="Service start month for ${
+                            mutahusSafeHtml(
+                                child.name ||
+                                "student"
+                            )
+                        }"
+                    >
+
+                    <button
+                        type="button"
+                        onclick="updateStudentServiceStartMonth('${child.id}')"
+                    >
+                        Save Start Month
+                    </button>
+                </section>
+
+                <section class="fee">
+                    <div class="step82-setting-title">
+                        <span>💳</span>
+                        <div>
+                            <small>Monthly charge</small>
+                            <strong>Monthly Fee</strong>
+                        </div>
+                    </div>
+
+                    <div class="step82-fee-input">
+                        <span>RM</span>
+                        <input
+                            type="number"
+                            id="amount_${child.id}"
+                            value="${
+                                amount > 0
+                                    ? amount.toFixed(2)
+                                    : ""
+                            }"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                            placeholder="0.00"
+                            aria-label="Monthly fee for ${
+                                mutahusSafeHtml(
+                                    child.name ||
+                                    "student"
+                                )
+                            }"
+                        >
+                    </div>
+
+                    <button
+                        type="button"
+                        onclick="updateStudentAmount('${child.id}')"
+                    >
+                        Save Monthly Fee
+                    </button>
+                </section>
+            </div>
+
+            <footer class="step82-child-actions">
+                <button
+                    class="accept"
+                    type="button"
+                    onclick="updateStudentStatus('${child.id}', 'Accepted')"
+                    ${
+                        status === "Accepted"
+                            ? "disabled"
+                            : ""
+                    }
+                >
+                    ✓ Accept
+                </button>
+
+                <button
+                    class="active"
+                    type="button"
+                    onclick="updateStudentStatus('${child.id}', 'Active')"
+                    ${
+                        status === "Active"
+                            ? "disabled"
+                            : ""
+                    }
+                >
+                    ● Mark Active
+                </button>
+
+                <button
+                    class="reject"
+                    type="button"
+                    onclick="updateStudentStatus('${child.id}', 'Rejected')"
+                    ${
+                        status === "Rejected"
+                            ? "disabled"
+                            : ""
+                    }
+                >
+                    × Reject
+                </button>
+
+                <button
+                    class="remove"
+                    type="button"
+                    onclick="removeStudent('${child.id}')"
+                >
+                    🗑 Remove
+                </button>
+            </footer>
+        </article>
+    `;
+}
+
 function step81StudentSearchText(child) {
     return [
         child.name,
@@ -2858,208 +3354,421 @@ function step81StudentSearchText(child) {
 }
 
 function renderAdminStudentCards() {
-    const container = document.getElementById("adminStudentsGrid");
+    const container =
+        document.getElementById(
+            "adminStudentsGrid"
+        );
+
     if (!container) return;
 
     const search = String(
-        document.getElementById("studentRecordSearch")?.value || ""
-    ).trim().toLowerCase();
+        document.getElementById(
+            "studentRecordSearch"
+        )?.value || ""
+    )
+        .trim()
+        .toLowerCase();
 
     const statusFilter =
-        document.getElementById("studentStatusFilter")?.value || "";
+        document.getElementById(
+            "studentStatusFilter"
+        )?.value || "";
 
     const sessionFilter =
-        document.getElementById("studentSessionFilter")?.value || "";
+        document.getElementById(
+            "studentSessionFilter"
+        )?.value || "";
 
-    const children = (window.adminStudentsData || []).filter(child => {
-        const matchesSearch = !search || step81StudentSearchText(child).includes(search);
-        const matchesStatus = !statusFilter || (child.status || "Pending Review") === statusFilter;
-        const matchesSession = !sessionFilter || (child.session || "Not applicable") === sessionFilter;
-        return matchesSearch && matchesStatus && matchesSession;
+    const sortMode =
+        document.getElementById(
+            "studentParentSort"
+        )?.value || "az";
+
+    const allFamilies =
+        step82BuildStudentFamilies(
+            window.adminStudentsData || []
+        );
+
+    const families = allFamilies
+        .map(family => {
+            const parentMatches =
+                !search ||
+                [
+                    family.parentName,
+                    family.parentPhone,
+                    family.parentEmail
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(search);
+
+            const filteredChildren =
+                family.children.filter(
+                    child => {
+                        const matchesSearch =
+                            !search ||
+                            parentMatches ||
+                            step81StudentSearchText(
+                                child
+                            ).includes(search);
+
+                        const matchesStatus =
+                            !statusFilter ||
+                            (
+                                child.status ||
+                                "Pending Review"
+                            ) === statusFilter;
+
+                        const matchesSession =
+                            !sessionFilter ||
+                            (
+                                child.session ||
+                                "Not applicable"
+                            ) === sessionFilter;
+
+                        return (
+                            matchesSearch &&
+                            matchesStatus &&
+                            matchesSession
+                        );
+                    }
+                );
+
+            return {
+                ...family,
+                children: filteredChildren,
+                originalChildren:
+                    family.children
+            };
+        })
+        .filter(family =>
+            family.children.length > 0
+        );
+
+    families.sort((first, second) => {
+        if (sortMode === "za") {
+            return second.parentName.localeCompare(
+                first.parentName
+            );
+        }
+
+        if (sortMode === "children") {
+            return (
+                second.children.length -
+                first.children.length ||
+                first.parentName.localeCompare(
+                    second.parentName
+                )
+            );
+        }
+
+        if (sortMode === "pending") {
+            return (
+                step82FamilyPendingCount(second) -
+                step82FamilyPendingCount(first) ||
+                first.parentName.localeCompare(
+                    second.parentName
+                )
+            );
+        }
+
+        return first.parentName.localeCompare(
+            second.parentName
+        );
     });
 
-    const count = document.getElementById("studentVisibleCount");
-    if (count) count.innerText = children.length;
+    const familyCount =
+        document.getElementById(
+            "studentVisibleCount"
+        );
+
+    const studentCount =
+        document.getElementById(
+            "studentVisibleStudentCount"
+        );
+
+    if (familyCount) {
+        familyCount.innerText =
+            families.length;
+    }
+
+    if (studentCount) {
+        studentCount.innerText =
+            families.reduce(
+                (sum, family) =>
+                    sum +
+                    family.children.length,
+                0
+            );
+    }
 
     container.innerHTML = "";
 
-    if (!children.length) {
+    if (!families.length) {
         container.innerHTML = `
             <div class="step81-student-empty">
-                <span>🎒</span>
-                <strong>No matching student record</strong>
-                <p>Try changing the search or filter settings.</p>
+                <span>👨‍👩‍👧</span>
+                <strong>
+                    No matching parent or student
+                </strong>
+                <p>
+                    Try changing the search,
+                    status or session filter.
+                </p>
             </div>
         `;
         return;
     }
 
-    children.forEach(child => {
-        const status = child.status || "Pending Review";
-        const paymentStatus = child.paymentStatus || "Unpaid";
-        const statusClass = getStudentStatusBadgeClass(status);
-        const paymentClass = getPaymentBadgeClass(paymentStatus);
-        const sessionClass =
-            child.session === "Morning"
-                ? "morning"
-                : child.session === "Afternoon"
-                ? "afternoon"
-                : "unpaid";
-        const amount = Number(child.monthlyAmount || 0);
-        const serviceStartMonth =
-            child.serviceStartMonth ||
-            step78MonthInputFromDate(child.createdAt) ||
-            "";
-        const initial = String(child.name || "S").trim().charAt(0).toUpperCase();
+    if (!window.step82ExpandedFamilies) {
+        window.step82ExpandedFamilies =
+            new Set();
+    }
+
+    window.step82FamilyMap = {};
+
+    families.forEach((family, index) => {
+        const familyId =
+            `family_${index}`;
+
+        window.step82FamilyMap[
+            familyId
+        ] = family;
+
+        const initial = String(
+            family.parentName || "P"
+        )
+            .trim()
+            .charAt(0)
+            .toUpperCase();
+
+        const pendingCount =
+            step82FamilyPendingCount(
+                family
+            );
+
+        const monthlyFee =
+            step82FamilyMonthlyFee(
+                family
+            );
+
+        const isExpanded =
+            window.step82ExpandedFamilies.has(
+                familyId
+            ) ||
+            Boolean(search);
+
+        if (isExpanded) {
+            window.step82ExpandedFamilies.add(
+                familyId
+            );
+        }
+
+        const childContent =
+            family.children
+                .map(child =>
+                    step82StudentChildCard(
+                        child,
+                        familyId
+                    )
+                )
+                .join("");
 
         container.innerHTML += `
-            <article class="step81-student-card">
-                <header class="step81-student-card-head">
-                    <div class="step81-student-identity">
-                        <span>${mutahusSafeHtml(initial)}</span>
+            <article class="step82-family-card ${
+                isExpanded
+                    ? "is-open"
+                    : ""
+            }">
+                <header class="step82-family-header">
+                    <button
+                        type="button"
+                        class="step82-family-identity"
+                        onclick="step82ToggleParentChildren('${familyId}')"
+                    >
+                        <span class="step82-parent-avatar">
+                            ${mutahusSafeHtml(initial)}
+                        </span>
+
                         <div>
-                            <small>Registered Student</small>
-                            <h3>${mutahusSafeHtml(child.name || "-")}</h3>
-                            <p>ID: ${mutahusSafeHtml(child.id || "-")}</p>
+                            <small>
+                                Parent Account
+                            </small>
+
+                            <h3>
+                                ${mutahusSafeHtml(
+                                    family.parentName
+                                )}
+                            </h3>
+
+                            <p>
+                                📞 ${mutahusSafeHtml(
+                                    family.parentPhone ||
+                                    "No phone"
+                                )}
+                                <span>•</span>
+                                ✉ ${mutahusSafeHtml(
+                                    family.parentEmail ||
+                                    "No email"
+                                )}
+                            </p>
+                        </div>
+                    </button>
+
+                    <div class="step82-family-metrics">
+                        <div>
+                            <small>Children</small>
+                            <strong>
+                                ${family.children.length}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <small>Pending</small>
+                            <strong>
+                                ${pendingCount}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <small>Monthly Total</small>
+                            <strong>
+                                RM${monthlyFee.toFixed(2)}
+                            </strong>
                         </div>
                     </div>
 
-                    <div class="step81-student-statuses">
-                        <span class="badge ${statusClass}">${mutahusSafeHtml(status)}</span>
-                        <span class="badge ${paymentClass}">${mutahusSafeHtml(paymentStatus)}</span>
-                    </div>
+                    <button
+                        type="button"
+                        class="step82-view-children"
+                        onclick="step82ToggleParentChildren('${familyId}')"
+                        aria-expanded="${
+                            isExpanded
+                                ? "true"
+                                : "false"
+                        }"
+                    >
+                        <span>
+                            ${
+                                isExpanded
+                                    ? "Hide Children"
+                                    : "View Children"
+                            }
+                        </span>
+
+                        <b>
+                            ${
+                                isExpanded
+                                    ? "−"
+                                    : "+"
+                            }
+                        </b>
+                    </button>
                 </header>
 
-                <div class="step81-student-info-grid">
-                    <div>
-                        <span>👨‍👩‍👧</span>
-                        <small>Parent</small>
-                        <strong>${mutahusSafeHtml(child.parentName || "-")}</strong>
-                        <p>${mutahusSafeHtml(child.parentPhone || "-")}</p>
-                        <p>${mutahusSafeHtml(child.parentEmail || "-")}</p>
-                    </div>
+                <div class="step82-family-bulk-actions">
+                    <span>
+                        Manage all children under
+                        this parent:
+                    </span>
 
                     <div>
-                        <span>🏫</span>
-                        <small>School / KAFA</small>
-                        <strong>${mutahusSafeHtml(child.school || "-")}</strong>
-                        <p>${child.kafa ? `KAFA: ${mutahusSafeHtml(child.kafa)}${child.kafaSession ? ` (${mutahusSafeHtml(child.kafaSession)})` : ""}` : "KAFA: Not applicable"}</p>
-                    </div>
-
-                    <div>
-                        <span>📚</span>
-                        <small>Class</small>
-                        <strong>${mutahusSafeHtml(child.classYear || "-")}</strong>
-                    </div>
-
-                    <div>
-                        <span>🕘</span>
-                        <small>Session</small>
-                        <span class="badge ${sessionClass}">${mutahusSafeHtml(child.session || "Not applicable")}</span>
-                    </div>
-                </div>
-
-                <div class="step81-student-control-grid">
-                    <section class="step81-control-card start">
-                        <div class="step81-control-title">
-                            <span>📅</span>
-                            <div>
-                                <small>Billing begins from</small>
-                                <strong>Service Start Month</strong>
-                            </div>
-                        </div>
-
-                        <input
-                            type="month"
-                            id="serviceStart_${child.id}"
-                            value="${serviceStartMonth}"
-                            min="2026-01"
-                            aria-label="Service start month for ${mutahusSafeHtml(child.name || "student")}"
+                        <button
+                            class="accept"
+                            type="button"
+                            onclick="step82BulkStudentStatus('${familyId}', 'Accepted')"
                         >
-
-                        <button type="button" onclick="updateStudentServiceStartMonth('${child.id}')">
-                            Save Start Month
+                            ✓ Accept All
                         </button>
-                    </section>
 
-                    <section class="step81-control-card amount">
-                        <div class="step81-control-title">
-                            <span>💳</span>
-                            <div>
-                                <small>Parent monthly charge</small>
-                                <strong>Monthly Fee</strong>
-                            </div>
-                        </div>
-
-                        <div class="step81-money-input">
-                            <span>RM</span>
-                            <input
-                                type="number"
-                                id="amount_${child.id}"
-                                value="${amount > 0 ? amount.toFixed(2) : ""}"
-                                min="0"
-                                step="0.01"
-                                inputmode="decimal"
-                                placeholder="0.00"
-                                aria-label="Monthly amount for ${mutahusSafeHtml(child.name || "student")}"
-                            >
-                        </div>
-
-                        <button type="button" onclick="updateStudentAmount('${child.id}')">
-                            Save Monthly Fee
+                        <button
+                            class="active"
+                            type="button"
+                            onclick="step82BulkStudentStatus('${familyId}', 'Active')"
+                        >
+                            ● Activate All
                         </button>
-                    </section>
+
+                        <button
+                            class="reject"
+                            type="button"
+                            onclick="step82BulkStudentStatus('${familyId}', 'Rejected')"
+                        >
+                            × Reject All
+                        </button>
+                    </div>
                 </div>
 
-                <footer class="step81-student-actions">
-                    <button
-                        class="step81-action accept"
-                        type="button"
-                        onclick="updateStudentStatus('${child.id}', 'Accepted')"
-                        ${status === "Accepted" ? "disabled" : ""}
-                    >
-                        <span>✓</span> Accept
-                    </button>
+                <section
+                    class="step82-family-children"
+                    ${
+                        isExpanded
+                            ? ""
+                            : "hidden"
+                    }
+                >
+                    <div class="step82-family-children-head">
+                        <div>
+                            <small>
+                                CHILD RECORDS
+                            </small>
 
-                    <button
-                        class="step81-action active"
-                        type="button"
-                        onclick="updateStudentStatus('${child.id}', 'Active')"
-                        ${status === "Active" ? "disabled" : ""}
-                    >
-                        <span>●</span> Mark Active
-                    </button>
+                            <h4>
+                                Children under
+                                ${mutahusSafeHtml(
+                                    family.parentName
+                                )}
+                            </h4>
+                        </div>
 
-                    <button
-                        class="step81-action reject"
-                        type="button"
-                        onclick="updateStudentStatus('${child.id}', 'Rejected')"
-                        ${status === "Rejected" ? "disabled" : ""}
-                    >
-                        <span>×</span> Reject
-                    </button>
+                        <span>
+                            ${family.children.length}
+                            ${
+                                family.children.length === 1
+                                    ? "Child"
+                                    : "Children"
+                            }
+                        </span>
+                    </div>
 
-                    <button
-                        class="step81-action remove"
-                        type="button"
-                        onclick="removeStudent('${child.id}')"
-                    >
-                        <span>🗑</span> Remove
-                    </button>
-                </footer>
+                    <div class="step82-child-grid">
+                        ${childContent}
+                    </div>
+                </section>
             </article>
         `;
     });
 }
 
 function resetAdminStudentFilters() {
-    const search = document.getElementById("studentRecordSearch");
-    const status = document.getElementById("studentStatusFilter");
-    const session = document.getElementById("studentSessionFilter");
+    const search =
+        document.getElementById(
+            "studentRecordSearch"
+        );
+
+    const status =
+        document.getElementById(
+            "studentStatusFilter"
+        );
+
+    const session =
+        document.getElementById(
+            "studentSessionFilter"
+        );
+
+    const sort =
+        document.getElementById(
+            "studentParentSort"
+        );
 
     if (search) search.value = "";
     if (status) status.value = "";
     if (session) session.value = "";
+    if (sort) sort.value = "az";
+
+    window.step82ExpandedFamilies =
+        new Set();
 
     renderAdminStudentCards();
 }
@@ -8940,15 +9649,1148 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
 
 
 /* MUTHAQUS_STEP64_PAYMENT_ANNOUNCEMENT_RULES_POLISH */
-function renderAdminPaymentRecords(){
- const table=document.getElementById("adminPaymentsTable");if(!table)return;
- const q=String(document.getElementById("paymentRecordSearch")?.value||"").trim().toLowerCase();const status=document.getElementById("paymentRecordStatus")?.value||"";
- const rows=(window.adminPaymentsData||[]).filter(p=>{const text=[p.parentName,p.parentPhone,p.studentName,p.month,p.receiptName,p.status].join(" ").toLowerCase();return(!q||text.includes(q))&&(!status||p.status===status);});
- const count=document.getElementById("paymentVisibleCount");if(count)count.innerText=rows.length;table.innerHTML="";
- if(!rows.length){table.innerHTML='<tr class="s64-empty-row"><td colspan="7"><div class="s64-empty-card"><span>💳</span><strong>No payment record matches</strong><p>Try another search or status.</p></div></td></tr>';return;}
- rows.forEach(p=>{const bc=getPaymentBadgeClass(p.status);const paid=p.status==="Paid";const rejected=p.status==="Rejected";const initial=String(p.parentName||"P").trim().charAt(0).toUpperCase();const invoice=paid?`<button class="small-btn invoice-admin-btn" type="button" onclick="downloadPaymentInvoice('${p.id}','admin')">PDF Invoice</button>`:"";table.innerHTML+=`<tr class="s64-payment-row"><td data-label="Parent"><div class="s64-person"><span>${initial}</span><div><strong>${mutahusSafeHtml(p.parentName||"-")}</strong><small>${mutahusSafeHtml(p.parentPhone||"")}</small></div></div></td><td data-label="Student"><strong>${mutahusSafeHtml(p.studentName||"All registered children")}</strong></td><td data-label="Month">${mutahusSafeHtml(p.month||"-")}</td><td data-label="Amount"><span class="s64-amount">RM${Number(p.amount||0).toFixed(2)}</span></td><td data-label="Receipt"><button class="receipt-button" type="button" onclick="viewAdminReceipt('${p.id}')">View Receipt</button><small class="s64-file">${mutahusSafeHtml(p.receiptName||"No receipt file")}</small></td><td data-label="Status"><span class="badge ${bc}">${mutahusSafeHtml(p.status||"Pending")}</span></td><td data-label="Actions"><div class="s64-pay-actions"><button class="small-btn edit payment-action-btn" data-id="${p.id}" data-status="Paid" ${paid?"disabled":""}>Approve</button><button class="small-btn danger payment-action-btn" data-id="${p.id}" data-status="Rejected" ${rejected?"disabled":""}>Reject</button><button class="small-btn warning payment-action-btn" data-id="${p.id}" data-status="Pending" ${p.status==="Pending"?"disabled":""}>Pending</button>${invoice}</div></td></tr>`;});connectPaymentButtons();
+function step82PaymentMonthKey(payment) {
+    const period =
+        step77ParsePaymentPeriod(
+            payment.month
+        );
+
+    return period
+        ? period.key
+        : "other";
 }
-function resetPaymentRecordFilters(){const q=document.getElementById("paymentRecordSearch"),s=document.getElementById("paymentRecordStatus");if(q)q.value="";if(s)s.value="";renderAdminPaymentRecords();}
+
+function step82GetPaymentPeriods(
+    students,
+    payments
+) {
+    const current =
+        getCurrentPaymentPeriod();
+
+    const currentPeriod = {
+        year: current.year,
+        month: current.month,
+        key: step77MonthKey(
+            current.year,
+            current.month
+        )
+    };
+
+    const candidates = [
+        ...(students || []).map(student =>
+            step77ParseChildStartPeriod(
+                student.serviceStartMonth ||
+                student.createdAt
+            )
+        ),
+        ...step80ExpandArrearsPayments(
+            payments || []
+        ).map(payment =>
+            step77ParsePaymentPeriod(
+                payment.month
+            )
+        )
+    ]
+        .filter(Boolean)
+        .filter(period =>
+            step77ComparePeriods(
+                period,
+                currentPeriod
+            ) <= 0
+        );
+
+    const earliest =
+        candidates.length > 0
+            ? candidates
+                .slice()
+                .sort(
+                    step77ComparePeriods
+                )[0]
+            : currentPeriod;
+
+    return step77BuildMonthRange(
+        earliest,
+        currentPeriod
+    ).reverse();
+}
+
+function step82PreparePaymentMonthOptions() {
+    const select =
+        document.getElementById(
+            "monthlyTrackerMonth"
+        );
+
+    if (!select) return;
+
+    const previousValue =
+        select.value;
+
+    const periods =
+        step82GetPaymentPeriods(
+            window.adminStudentsForArrears ||
+                [],
+            window.adminPaymentsData ||
+                []
+        );
+
+    select.innerHTML =
+        periods
+            .map(period => `
+                <option value="${period.key}">
+                    ${mutahusSafeHtml(
+                        step77PeriodLabel(
+                            period
+                        )
+                    )}
+                </option>
+            `)
+            .join("");
+
+    const current =
+        getCurrentPaymentPeriod();
+
+    const currentKey =
+        step77MonthKey(
+            current.year,
+            current.month
+        );
+
+    select.value =
+        periods.some(period =>
+            period.key === previousValue
+        )
+            ? previousValue
+            : (
+                periods.some(period =>
+                    period.key === currentKey
+                )
+                    ? currentKey
+                    : periods[0]?.key || ""
+            );
+}
+
+function step82BuildMonthlyParentRecords(
+    students,
+    payments,
+    selectedPeriod
+) {
+    if (!selectedPeriod) return [];
+
+    const expandedPayments =
+        step77UniquePayments(
+            step80ExpandArrearsPayments(
+                payments || []
+            )
+        );
+
+    const familyMap = new Map();
+
+    (students || [])
+        .filter(student =>
+            student.status !== "Rejected"
+        )
+        .forEach(student => {
+            const start =
+                step77ParseChildStartPeriod(
+                    student.serviceStartMonth ||
+                    student.createdAt
+                );
+
+            if (
+                start &&
+                step77ComparePeriods(
+                    start,
+                    selectedPeriod
+                ) > 0
+            ) {
+                return;
+            }
+
+            const key =
+                step80GetParentKey(
+                    student
+                );
+
+            if (!key) return;
+
+            if (!familyMap.has(key)) {
+                familyMap.set(key, {
+                    key,
+                    parentId:
+                        student.parentId || "",
+                    parentName:
+                        student.parentName ||
+                        "Parent",
+                    parentPhone:
+                        student.parentPhone ||
+                        "",
+                    parentEmail:
+                        student.parentEmail ||
+                        "",
+                    children: []
+                });
+            }
+
+            familyMap.get(key)
+                .children.push(student);
+        });
+
+    const monthPayments =
+        expandedPayments.filter(payment => {
+            const period =
+                step77ParsePaymentPeriod(
+                    payment.month
+                );
+
+            return (
+                period?.key ===
+                selectedPeriod.key
+            );
+        });
+
+    const records = [];
+
+    familyMap.forEach(family => {
+        const parentPayments =
+            monthPayments.filter(
+                payment =>
+                    step80GetParentKey(
+                        payment
+                    ) === family.key
+            );
+
+        const expected =
+            family.children.reduce(
+                (sum, child) =>
+                    sum +
+                    Number(
+                        child.monthlyAmount ||
+                        0
+                    ),
+                0
+            );
+
+        if (expected <= 0) return;
+
+        const totalForStatus =
+            paymentStatus =>
+                parentPayments
+                    .filter(payment =>
+                        payment.status ===
+                        paymentStatus
+                    )
+                    .reduce(
+                        (sum, payment) =>
+                            sum +
+                            Number(
+                                payment.amount ||
+                                0
+                            ),
+                        0
+                    );
+
+        const paid =
+            totalForStatus("Paid");
+
+        const pending =
+            totalForStatus("Pending");
+
+        const rejected =
+            totalForStatus("Rejected");
+
+        const remaining =
+            Math.max(
+                0,
+                expected - paid
+            );
+
+        let status =
+            "Unpaid";
+
+        if (paid >= expected) {
+            status = "Paid";
+        } else if (
+            remaining > 0 &&
+            pending >= remaining
+        ) {
+            status = "Under Review";
+        } else if (paid > 0) {
+            status = "Partially Paid";
+        } else if (rejected > 0) {
+            status = "Rejected";
+        }
+
+        records.push({
+            ...family,
+            period: selectedPeriod,
+            expected,
+            paid,
+            pending,
+            rejected,
+            outstanding:
+                Math.max(
+                    0,
+                    expected -
+                    paid -
+                    pending
+                ),
+            status,
+            payments: parentPayments
+        });
+    });
+
+    return records.sort(
+        (first, second) =>
+            first.parentName.localeCompare(
+                second.parentName
+            )
+    );
+}
+
+function step82MonthlyStatusClass(status) {
+    if (status === "Paid") return "paid";
+    if (status === "Under Review")
+        return "review";
+    if (status === "Partially Paid")
+        return "partial";
+    if (status === "Rejected")
+        return "rejected";
+    return "unpaid";
+}
+
+function step82MonthlyAccountCard(
+    record,
+    recordId
+) {
+    const statusClass =
+        step82MonthlyStatusClass(
+            record.status
+        );
+
+    const initial = String(
+        record.parentName || "P"
+    )
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+    return `
+        <article class="step82-month-account-card ${statusClass}">
+            <header>
+                <div class="step82-month-parent">
+                    <span>
+                        ${mutahusSafeHtml(initial)}
+                    </span>
+
+                    <div>
+                        <strong>
+                            ${mutahusSafeHtml(
+                                record.parentName
+                            )}
+                        </strong>
+
+                        <small>
+                            ${mutahusSafeHtml(
+                                record.parentPhone ||
+                                record.parentEmail ||
+                                "No contact"
+                            )}
+                        </small>
+                    </div>
+                </div>
+
+                <span class="step82-month-status ${statusClass}">
+                    ${mutahusSafeHtml(
+                        record.status
+                    )}
+                </span>
+            </header>
+
+            <div class="step82-month-amounts">
+                <div>
+                    <small>Expected</small>
+                    <strong>
+                        RM${record.expected.toFixed(2)}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>Paid</small>
+                    <strong>
+                        RM${record.paid.toFixed(2)}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>Pending</small>
+                    <strong>
+                        RM${record.pending.toFixed(2)}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>Balance</small>
+                    <strong>
+                        RM${record.outstanding.toFixed(2)}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="step82-month-children">
+                ${record.children
+                    .map(child => `
+                        <span>
+                            🎒 ${mutahusSafeHtml(
+                                child.name ||
+                                "Student"
+                            )}
+                        </span>
+                    `)
+                    .join("")}
+            </div>
+
+            <footer>
+                <button
+                    type="button"
+                    onclick="step82FilterMonthlyPayments('${recordId}')"
+                >
+                    View Payments
+                </button>
+
+                ${
+                    record.status !== "Paid"
+                        ? `
+                            <button
+                                type="button"
+                                class="reminder"
+                                onclick="step82WhatsAppMonthlyPayment('${recordId}')"
+                            >
+                                WhatsApp Reminder
+                            </button>
+                        `
+                        : ""
+                }
+            </footer>
+        </article>
+    `;
+}
+
+function renderAdminMonthlyPaymentTracker() {
+    const unpaidList =
+        document.getElementById(
+            "monthlyUnpaidList"
+        );
+
+    const statusList =
+        document.getElementById(
+            "monthlyPaymentStatusList"
+        );
+
+    if (!unpaidList || !statusList) {
+        return;
+    }
+
+    const selectedKey =
+        document.getElementById(
+            "monthlyTrackerMonth"
+        )?.value || "";
+
+    const selectedPeriod =
+        step77PeriodFromKey(
+            selectedKey
+        );
+
+    const query = String(
+        document.getElementById(
+            "monthlyTrackerSearch"
+        )?.value || ""
+    )
+        .trim()
+        .toLowerCase();
+
+    const statusFilter =
+        document.getElementById(
+            "monthlyTrackerStatus"
+        )?.value || "";
+
+    const allRecords =
+        step82BuildMonthlyParentRecords(
+            window.adminStudentsForArrears ||
+                [],
+            window.adminPaymentsData ||
+                [],
+            selectedPeriod
+        );
+
+    const filtered = allRecords.filter(
+        record => {
+            const text = [
+                record.parentName,
+                record.parentPhone,
+                record.parentEmail,
+                ...record.children.map(
+                    child => child.name
+                )
+            ]
+                .join(" ")
+                .toLowerCase();
+
+            const matchesSearch =
+                !query ||
+                text.includes(query);
+
+            const matchesStatus =
+                !statusFilter ||
+                record.status ===
+                    statusFilter;
+
+            return (
+                matchesSearch &&
+                matchesStatus
+            );
+        }
+    );
+
+    const expectedTotal =
+        allRecords.reduce(
+            (sum, record) =>
+                sum + record.expected,
+            0
+        );
+
+    const paidTotal =
+        allRecords.reduce(
+            (sum, record) =>
+                sum + record.paid,
+            0
+        );
+
+    const pendingTotal =
+        allRecords.reduce(
+            (sum, record) =>
+                sum + record.pending,
+            0
+        );
+
+    const unpaidRecords =
+        filtered.filter(record =>
+            [
+                "Unpaid",
+                "Partially Paid",
+                "Rejected"
+            ].includes(record.status)
+        );
+
+    const submittedRecords =
+        filtered.filter(record =>
+            [
+                "Paid",
+                "Under Review"
+            ].includes(record.status)
+        );
+
+    const values = {
+        monthlyExpectedTotal:
+            `RM${expectedTotal.toFixed(2)}`,
+        monthlyPaidTotal:
+            `RM${paidTotal.toFixed(2)}`,
+        monthlyPendingTotal:
+            `RM${pendingTotal.toFixed(2)}`,
+        monthlyUnpaidCount:
+            allRecords.filter(record =>
+                [
+                    "Unpaid",
+                    "Partially Paid",
+                    "Rejected"
+                ].includes(record.status)
+            ).length,
+        monthlyUnpaidVisibleCount:
+            unpaidRecords.length,
+        monthlySubmittedVisibleCount:
+            submittedRecords.length
+    };
+
+    Object.entries(values).forEach(
+        ([id, value]) => {
+            const element =
+                document.getElementById(id);
+
+            if (element) {
+                element.innerText =
+                    value;
+            }
+        }
+    );
+
+    window.step82MonthlyPaymentMap = {};
+
+    const registerRecord =
+        record => {
+            const id =
+                `monthly_${
+                    Object.keys(
+                        window
+                            .step82MonthlyPaymentMap
+                    ).length
+                }`;
+
+            window.step82MonthlyPaymentMap[
+                id
+            ] = record;
+
+            return id;
+        };
+
+    unpaidList.innerHTML =
+        unpaidRecords.length
+            ? unpaidRecords
+                .map(record =>
+                    step82MonthlyAccountCard(
+                        record,
+                        registerRecord(record)
+                    )
+                )
+                .join("")
+            : `
+                <div class="step82-month-empty success">
+                    <span>✅</span>
+                    <strong>
+                        No unpaid account
+                    </strong>
+                    <p>
+                        Every matching parent has
+                        paid or submitted a receipt.
+                    </p>
+                </div>
+            `;
+
+    statusList.innerHTML =
+        submittedRecords.length
+            ? submittedRecords
+                .map(record =>
+                    step82MonthlyAccountCard(
+                        record,
+                        registerRecord(record)
+                    )
+                )
+                .join("")
+            : `
+                <div class="step82-month-empty">
+                    <span>💳</span>
+                    <strong>
+                        No paid or submitted record
+                    </strong>
+                    <p>
+                        Payment activity for this
+                        month will appear here.
+                    </p>
+                </div>
+            `;
+}
+
+function resetAdminMonthlyTrackerFilters() {
+    const search =
+        document.getElementById(
+            "monthlyTrackerSearch"
+        );
+
+    const status =
+        document.getElementById(
+            "monthlyTrackerStatus"
+        );
+
+    if (search) search.value = "";
+    if (status) status.value = "";
+
+    renderAdminMonthlyPaymentTracker();
+}
+
+function step82MonthlyReminderText(record) {
+    return (
+        `Assalamualaikum ${record.parentName}, ` +
+        `bayaran servis van untuk ` +
+        `${step77PeriodLabel(record.period)} ` +
+        `masih berbaki ` +
+        `RM${record.outstanding.toFixed(2)}. ` +
+        `Sila semak Parent Portal dan ` +
+        `muat naik bukti bayaran. ` +
+        `Terima kasih.`
+    );
+}
+
+function step82WhatsAppMonthlyPayment(
+    recordId
+) {
+    const record =
+        (window.step82MonthlyPaymentMap ||
+            {})[recordId];
+
+    if (!record) {
+        alert(
+            "Monthly payment record not found."
+        );
+        return;
+    }
+
+    const phone =
+        step80NormalisePhone(
+            record.parentPhone
+        );
+
+    if (!phone) {
+        alert(
+            "Parent phone number is not available."
+        );
+        return;
+    }
+
+    window.open(
+        `https://api.whatsapp.com/send?phone=${phone}` +
+        `&text=${encodeURIComponent(
+            step82MonthlyReminderText(
+                record
+            )
+        )}`,
+        "_blank",
+        "noopener"
+    );
+}
+
+function step82FilterMonthlyPayments(
+    recordId
+) {
+    const record =
+        (window.step82MonthlyPaymentMap ||
+            {})[recordId];
+
+    if (!record) return;
+
+    const search =
+        document.getElementById(
+            "paymentRecordSearch"
+        );
+
+    const status =
+        document.getElementById(
+            "paymentRecordStatus"
+        );
+
+    if (search) {
+        search.value =
+            record.parentName;
+    }
+
+    if (status) {
+        status.value = "";
+    }
+
+    renderAdminPaymentRecords();
+
+    document
+        .getElementById(
+            "paymentRecordsSection"
+        )
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
+
+function step82PaymentRecordCard(payment) {
+    const sourcePaymentId =
+        payment.sourcePaymentId ||
+        payment.id;
+
+    const badgeClass =
+        getPaymentBadgeClass(
+            payment.status
+        );
+
+    const paid =
+        payment.status === "Paid";
+
+    const rejected =
+        payment.status === "Rejected";
+
+    const initial = String(
+        payment.parentName || "P"
+    )
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+
+    const invoice = paid
+        ? `
+            <button
+                class="small-btn invoice-admin-btn"
+                type="button"
+                onclick="downloadPaymentInvoice('${sourcePaymentId}', 'admin')"
+            >
+                PDF Invoice
+            </button>
+        `
+        : "";
+
+    return `
+        <article class="step82-payment-record-card">
+            <header>
+                <div class="step82-payment-person">
+                    <span>
+                        ${mutahusSafeHtml(initial)}
+                    </span>
+
+                    <div>
+                        <strong>
+                            ${mutahusSafeHtml(
+                                payment.parentName ||
+                                "-"
+                            )}
+                        </strong>
+
+                        <small>
+                            ${mutahusSafeHtml(
+                                payment.parentPhone ||
+                                ""
+                            )}
+                        </small>
+                    </div>
+                </div>
+
+                <span class="badge ${badgeClass}">
+                    ${mutahusSafeHtml(
+                        payment.status ||
+                        "Pending"
+                    )}
+                </span>
+            </header>
+
+            <div class="step82-payment-record-info">
+                <div>
+                    <small>Student</small>
+                    <strong>
+                        ${mutahusSafeHtml(
+                            payment.studentName ||
+                            "All registered children"
+                        )}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>Amount</small>
+                    <strong>
+                        RM${Number(
+                            payment.amount || 0
+                        ).toFixed(2)}
+                    </strong>
+                </div>
+
+                <div>
+                    <small>Receipt</small>
+                    <strong>
+                        ${mutahusSafeHtml(
+                            payment.receiptName ||
+                            "No receipt file"
+                        )}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="step82-payment-record-actions">
+                <button
+                    class="receipt-button"
+                    type="button"
+                    onclick="viewAdminReceipt('${sourcePaymentId}')"
+                >
+                    View Receipt
+                </button>
+
+                <button
+                    class="small-btn edit payment-action-btn"
+                    data-id="${sourcePaymentId}"
+                    data-status="Paid"
+                    ${paid ? "disabled" : ""}
+                >
+                    Approve
+                </button>
+
+                <button
+                    class="small-btn warning payment-action-btn"
+                    data-id="${sourcePaymentId}"
+                    data-status="Pending"
+                    ${
+                        payment.status ===
+                        "Pending"
+                            ? "disabled"
+                            : ""
+                    }
+                >
+                    Pending
+                </button>
+
+                <button
+                    class="small-btn danger payment-action-btn"
+                    data-id="${sourcePaymentId}"
+                    data-status="Rejected"
+                    ${
+                        rejected
+                            ? "disabled"
+                            : ""
+                    }
+                >
+                    Reject
+                </button>
+
+                ${invoice}
+            </div>
+        </article>
+    `;
+}
+
+function renderAdminPaymentRecords() {
+    const container =
+        document.getElementById(
+            "adminPaymentMonthGroups"
+        );
+
+    if (!container) return;
+
+    const query = String(
+        document.getElementById(
+            "paymentRecordSearch"
+        )?.value || ""
+    )
+        .trim()
+        .toLowerCase();
+
+    const statusFilter =
+        document.getElementById(
+            "paymentRecordStatus"
+        )?.value || "";
+
+    const sortMode =
+        document.getElementById(
+            "paymentMonthSort"
+        )?.value || "newest";
+
+    const expandedPayments =
+        step80ExpandArrearsPayments(
+            window.adminPaymentsData ||
+            []
+        );
+
+    const records =
+        expandedPayments.filter(payment => {
+            const text = [
+                payment.parentName,
+                payment.parentPhone,
+                payment.parentEmail,
+                payment.studentName,
+                payment.month,
+                payment.receiptName,
+                payment.status
+            ]
+                .join(" ")
+                .toLowerCase();
+
+            return (
+                (!query ||
+                    text.includes(query)) &&
+                (!statusFilter ||
+                    payment.status ===
+                    statusFilter)
+            );
+        });
+
+    const count =
+        document.getElementById(
+            "paymentVisibleCount"
+        );
+
+    if (count) {
+        count.innerText =
+            records.length;
+    }
+
+    container.innerHTML = "";
+
+    if (!records.length) {
+        container.innerHTML = `
+            <div class="step82-month-empty">
+                <span>💳</span>
+                <strong>
+                    No payment record matches
+                </strong>
+                <p>
+                    Try another search,
+                    month order or status.
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    const groups = new Map();
+
+    records.forEach(payment => {
+        const period =
+            step77ParsePaymentPeriod(
+                payment.month
+            );
+
+        const key =
+            period?.key || "other";
+
+        if (!groups.has(key)) {
+            groups.set(key, {
+                key,
+                period,
+                label:
+                    period
+                        ? step77PeriodLabel(
+                            period
+                        )
+                        : "Other / Combined Records",
+                records: []
+            });
+        }
+
+        groups.get(key)
+            .records.push(payment);
+    });
+
+    const groupList =
+        Array.from(groups.values());
+
+    groupList.sort((first, second) => {
+        if (!first.period) return 1;
+        if (!second.period) return -1;
+
+        const comparison =
+            step77ComparePeriods(
+                first.period,
+                second.period
+            );
+
+        return sortMode === "oldest"
+            ? comparison
+            : -comparison;
+    });
+
+    groupList.forEach(
+        (group, index) => {
+            const paidCount =
+                group.records.filter(
+                    payment =>
+                        payment.status ===
+                        "Paid"
+                ).length;
+
+            const pendingCount =
+                group.records.filter(
+                    payment =>
+                        payment.status ===
+                        "Pending"
+                ).length;
+
+            const totalAmount =
+                group.records.reduce(
+                    (sum, payment) =>
+                        sum +
+                        Number(
+                            payment.amount ||
+                            0
+                        ),
+                    0
+                );
+
+            container.innerHTML += `
+                <details
+                    class="step82-payment-month-group"
+                    ${
+                        index === 0 ||
+                        query ||
+                        statusFilter
+                            ? "open"
+                            : ""
+                    }
+                >
+                    <summary>
+                        <div class="step82-payment-month-heading">
+                            <span>📅</span>
+
+                            <div>
+                                <small>
+                                    PAYMENT MONTH
+                                </small>
+
+                                <h3>
+                                    ${mutahusSafeHtml(
+                                        group.label
+                                    )}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <div class="step82-payment-month-summary">
+                            <span>
+                                ${group.records.length}
+                                Records
+                            </span>
+
+                            <span class="paid">
+                                ${paidCount} Paid
+                            </span>
+
+                            <span class="pending">
+                                ${pendingCount} Review
+                            </span>
+
+                            <strong>
+                                RM${totalAmount.toFixed(2)}
+                            </strong>
+
+                            <b>⌄</b>
+                        </div>
+                    </summary>
+
+                    <div class="step82-payment-record-grid">
+                        ${group.records
+                            .map(payment =>
+                                step82PaymentRecordCard(
+                                    payment
+                                )
+                            )
+                            .join("")}
+                    </div>
+                </details>
+            `;
+        }
+    );
+
+    connectPaymentButtons();
+}
+function resetPaymentRecordFilters() {
+    const search =
+        document.getElementById(
+            "paymentRecordSearch"
+        );
+
+    const status =
+        document.getElementById(
+            "paymentRecordStatus"
+        );
+
+    const sort =
+        document.getElementById(
+            "paymentMonthSort"
+        );
+
+    if (search) search.value = "";
+    if (status) status.value = "";
+    if (sort) sort.value = "newest";
+
+    renderAdminPaymentRecords();
+}
 function updateAnnouncementDraftPreview(){const box=document.getElementById("announcementDraftPreview");if(!box)return;const title=document.getElementById("announcementTitle")?.value.trim()||"Announcement title";const type=document.getElementById("announcementType")?.value||"General Announcement";const priority=document.getElementById("announcementPriority")?.value||"Normal";const msg=document.getElementById("announcementMessage")?.value.trim()||"Your announcement message will appear here.";const cc=getAnnouncementCategoryBadgeClass(type);const pc=priority==="Urgent"?"rejected":priority==="Important"?"pending":"morning";box.innerHTML=`<div class="s64-parent-preview ${priority.toLowerCase()}"><div class="s64-preview-top"><span class="badge ${cc}">${mutahusSafeHtml(type)}</span><span class="badge ${pc}">${mutahusSafeHtml(priority)}</span></div><h3>${mutahusSafeHtml(title)}</h3><p>${mutahusSafeHtml(msg)}</p></div>`;}
 document.addEventListener("DOMContentLoaded",()=>{["announcementTitle","announcementType","announcementPriority","announcementMessage"].forEach(id=>{document.getElementById(id)?.addEventListener("input",updateAnnouncementDraftPreview);document.getElementById(id)?.addEventListener("change",updateAnnouncementDraftPreview);});updateAnnouncementDraftPreview();});
 
@@ -10978,3 +12820,5 @@ window.addEventListener("load", function () {
 
 
 // MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN
+
+// MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM
