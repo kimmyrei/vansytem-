@@ -14080,3 +14080,915 @@ body.muthaqus-security-warning-open {
 }
 
 /* MUTHAQUS_STEP79_ARREARS_ADMIN_STUDENTS_POLISH */
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP80_PAYMENT_ARREARS_MANAGEMENT
+   ========================================================= */
+
+/* Parent arrears reminder — readable on every screen */
+.step70-payment-due-card.is-arrears {
+    overflow: visible !important;
+    min-height: auto !important;
+}
+
+.step77-due-breakdown {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.step77-month-chip-list {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns:
+        repeat(auto-fit, minmax(145px, 1fr))
+        !important;
+    gap: 10px !important;
+}
+
+.step77-month-chip {
+    min-width: 0 !important;
+    min-height: 76px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 9px !important;
+    padding: 13px 14px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+.step77-chip-month {
+    width: 100%;
+    display: block;
+    color: inherit;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.step77-month-chip b {
+    min-width: 0 !important;
+    max-width: 100%;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+}
+
+.step77-month-chip.more {
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    text-align: left !important;
+}
+
+.step70-payment-due-card.is-arrears
+.step70-due-action {
+    position: relative;
+    z-index: 3;
+    width: fit-content;
+    min-height: 44px;
+    margin-top: 2px;
+}
+
+/* Admin arrears section */
+.step80-arrears-section {
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 27px;
+    border: 1px solid #d5e4f2;
+    border-radius: 27px;
+    background:
+        radial-gradient(
+            circle at 97% 2%,
+            rgba(210, 52, 65, 0.08),
+            transparent 27%
+        ),
+        #ffffff;
+    box-shadow: 0 18px 48px rgba(15, 60, 104, 0.09);
+}
+
+.step80-arrears-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.step80-arrears-section-head h2 {
+    margin: 5px 0 5px;
+    color: #143f73;
+    font-size: 28px;
+    letter-spacing: -0.04em;
+}
+
+.step80-arrears-section-head p {
+    margin: 0;
+    color: #6d8195;
+    line-height: 1.6;
+}
+
+.step80-arrears-count {
+    min-width: 104px;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: 12px 15px;
+    border: 1px solid #d5e4f2;
+    border-radius: 17px;
+    background: #f6faff;
+    color: #6d8195;
+    font-size: 10px;
+    font-weight: 850;
+    text-align: center;
+}
+
+.step80-arrears-count span {
+    color: #143f73;
+    font-size: 22px;
+    font-weight: 950;
+}
+
+.step80-arrears-summary {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 17px;
+}
+
+.step80-arrears-summary article {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 17px;
+    border: 1px solid #dbe7f3;
+    border-radius: 18px;
+    background: #fbfdff;
+}
+
+.step80-arrears-summary article > span {
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #eaf3ff;
+    font-size: 21px;
+}
+
+.step80-arrears-summary small,
+.step80-arrears-summary strong {
+    display: block;
+}
+
+.step80-arrears-summary small {
+    margin-bottom: 4px;
+    color: #71859a;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.step80-arrears-summary strong {
+    color: #143f73;
+    font-size: 20px;
+    overflow-wrap: anywhere;
+}
+
+.step80-arrears-filter {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.4fr)
+        minmax(190px, 0.65fr)
+        auto;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 17px;
+    padding: 14px;
+    border: 1px solid #dbe7f3;
+    border-radius: 18px;
+    background: #f8fbff;
+}
+
+.step80-arrears-filter label {
+    display: block;
+    margin-bottom: 7px;
+    color: #526c83;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.step80-arrears-filter input,
+.step80-arrears-filter select {
+    width: 100%;
+    min-height: 45px;
+    margin: 0;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.step80-arrears-filter .btn {
+    min-height: 45px;
+    margin: 0;
+}
+
+.step80-arrears-list {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.step80-arrears-card {
+    min-width: 0;
+    display: grid;
+    gap: 14px;
+    padding: 19px;
+    border: 1px solid #d8e6f3;
+    border-radius: 21px;
+    background:
+        radial-gradient(
+            circle at 96% 4%,
+            rgba(210, 52, 65, 0.07),
+            transparent 28%
+        ),
+        #ffffff;
+    box-shadow: 0 11px 29px rgba(15, 60, 104, 0.07);
+}
+
+.step80-arrears-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.step80-arrears-parent {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.step80-arrears-parent > span {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background:
+        linear-gradient(
+            145deg,
+            #eaf3ff,
+            #dcecff
+        );
+    color: #175a9c;
+    font-size: 19px;
+    font-weight: 950;
+}
+
+.step80-arrears-parent strong,
+.step80-arrears-parent small {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.step80-arrears-parent strong {
+    color: #143f73;
+    font-size: 15px;
+}
+
+.step80-arrears-parent small {
+    margin-top: 4px;
+    color: #75899d;
+    font-size: 10px;
+}
+
+.step80-arrears-status {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 950;
+    white-space: nowrap;
+}
+
+.step80-arrears-status.overdue {
+    border: 1px solid #efbdc2;
+    background: #fff0f2;
+    color: #aa2531;
+}
+
+.step80-arrears-status.review {
+    border: 1px solid #efd18d;
+    background: #fff8e8;
+    color: #855b0c;
+}
+
+.step80-arrears-money {
+    display: grid;
+    grid-template-columns:
+        1.35fr 1fr 0.65fr;
+    gap: 9px;
+}
+
+.step80-arrears-money > div {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #dce8f3;
+    border-radius: 15px;
+    background: #f8fbff;
+}
+
+.step80-arrears-money small,
+.step80-arrears-money strong {
+    display: block;
+}
+
+.step80-arrears-money small {
+    margin-bottom: 5px;
+    color: #74889c;
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.step80-arrears-money strong {
+    color: #143f73;
+    font-size: 17px;
+    overflow-wrap: anywhere;
+}
+
+.step80-arrears-money > div:first-child {
+    border-color: #efc6ca;
+    background: #fff7f8;
+}
+
+.step80-arrears-money > div:first-child strong {
+    color: #a72531;
+}
+
+.step80-arrears-children {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.step80-arrears-children span {
+    max-width: 100%;
+    padding: 7px 9px;
+    border: 1px solid #dbe7f3;
+    border-radius: 999px;
+    background: #f6faff;
+    color: #4f6880;
+    font-size: 9px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.step80-arrears-months {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(98px, 1fr));
+    gap: 8px;
+}
+
+.step80-admin-month-chip {
+    min-width: 0;
+    min-height: 61px;
+    display: grid;
+    align-content: center;
+    gap: 6px;
+    padding: 10px;
+    border-radius: 14px;
+}
+
+.step80-admin-month-chip small,
+.step80-admin-month-chip b {
+    display: block;
+    white-space: nowrap;
+}
+
+.step80-admin-month-chip small {
+    font-size: 9px;
+    font-weight: 850;
+}
+
+.step80-admin-month-chip b {
+    font-size: 12px;
+    font-weight: 950;
+}
+
+.step80-admin-month-chip.overdue {
+    border: 1px solid #efc3c8;
+    background: #fff7f8;
+    color: #a72531;
+}
+
+.step80-admin-month-chip.review {
+    border: 1px solid #efd292;
+    background: #fff9ec;
+    color: #855b0c;
+}
+
+.step80-arrears-actions {
+    display: grid;
+    grid-template-columns:
+        1.3fr 1fr 1fr;
+    gap: 8px;
+}
+
+.step80-arrears-actions .btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    margin: 0;
+    padding: 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    white-space: normal;
+}
+
+.step80-arrears-empty {
+    grid-column: 1 / -1;
+    min-height: 175px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    padding: 22px;
+    border: 1px dashed #cbddeb;
+    border-radius: 18px;
+    background: #f8fbff;
+    text-align: center;
+}
+
+.step80-arrears-empty > span {
+    font-size: 31px;
+}
+
+.step80-arrears-empty strong {
+    color: #143f73;
+}
+
+.step80-arrears-empty p {
+    margin: 0;
+    color: #71859a;
+}
+
+/* Outstanding upload page */
+.step80-arrears-upload-panel {
+    display: grid;
+    gap: 13px;
+    margin: 15px 0 18px;
+    padding: 17px;
+    border: 1px solid #efc6ca;
+    border-radius: 18px;
+    background:
+        radial-gradient(
+            circle at 96% 5%,
+            rgba(210, 52, 65, 0.08),
+            transparent 31%
+        ),
+        #fff8f9;
+}
+
+.step80-arrears-upload-head {
+    display: grid;
+    grid-template-columns:
+        42px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.step80-arrears-upload-head > span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: #fff0f2;
+    font-size: 20px;
+}
+
+.step80-arrears-upload-head strong,
+.step80-arrears-upload-head p {
+    display: block;
+}
+
+.step80-arrears-upload-head strong {
+    color: #a72531;
+    font-size: 13px;
+}
+
+.step80-arrears-upload-head p {
+    margin: 3px 0 0;
+    color: #875b61;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.step80-arrears-upload-head b {
+    color: #a72531;
+    font-size: 19px;
+    white-space: nowrap;
+}
+
+.step80-arrears-upload-months {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(135px, 1fr));
+    gap: 8px;
+}
+
+.step80-arrears-upload-months > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #efcbd0;
+    border-radius: 13px;
+    background: #ffffff;
+    color: #7e3e46;
+    font-size: 10px;
+}
+
+.step80-arrears-upload-months strong {
+    color: #a72531;
+    white-space: nowrap;
+}
+
+.step80-payment-mode-note {
+    display: block;
+    margin-top: 8px;
+    color: #a72531;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.step80-disabled-month-picker {
+    opacity: 0.55;
+}
+
+/* Admin Students — remove wide desktop table and use clean cards */
+@media (min-width: 861px) {
+    body.step67-admin-students
+    .admin-record-table-shell {
+        overflow: visible !important;
+        border: 0 !important;
+        background: transparent !important;
+    }
+
+    body.step67-admin-students
+    .step67-student-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: block !important;
+        table-layout: auto !important;
+        border: 0 !important;
+        background: transparent !important;
+    }
+
+    body.step67-admin-students
+    .step67-student-table colgroup,
+    body.step67-admin-students
+    .step67-student-table thead {
+        display: none !important;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody tr {
+        width: 100%;
+        min-width: 0;
+        display: grid !important;
+        grid-template-columns:
+            repeat(12, minmax(0, 1fr));
+        gap: 0 12px;
+        padding: 20px !important;
+        border: 1px solid #d8e6f3 !important;
+        border-radius: 22px !important;
+        background:
+            radial-gradient(
+                circle at 96% 3%,
+                rgba(39, 120, 208, 0.07),
+                transparent 30%
+            ),
+            #ffffff !important;
+        box-shadow: 0 12px 31px rgba(15, 60, 104, 0.07);
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody tr:hover {
+        background: #ffffff !important;
+        box-shadow:
+            0 15px 38px rgba(15, 60, 104, 0.11),
+            inset 4px 0 0 #2877ca;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: block !important;
+        padding: 11px 0 !important;
+        border: 0 !important;
+        border-bottom: 1px solid #edf2f7 !important;
+        background: transparent !important;
+        vertical-align: top !important;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 7px;
+        color: #7890a4;
+        font-size: 9px;
+        font-weight: 950;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(1),
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(2),
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(3) {
+        grid-column: span 6;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(4),
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(5),
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(6) {
+        grid-column: span 4;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(7),
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(8) {
+        grid-column: span 6;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td:nth-child(9) {
+        grid-column: 1 / -1;
+        padding-bottom: 0 !important;
+        border-bottom: 0 !important;
+    }
+
+    body.step67-admin-students
+    .step67-student-table tbody td:first-child::before {
+        display: none;
+    }
+
+    body.step67-admin-students
+    .student-mobile-actions {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr))
+            !important;
+    }
+
+    body.step67-admin-students
+    .student-mobile-actions
+    .small-btn:nth-child(3),
+    body.step67-admin-students
+    .student-mobile-actions
+    .remove-record-btn {
+        grid-column: auto !important;
+    }
+}
+
+@media (max-width: 1100px) and (min-width: 861px) {
+    .step80-arrears-list,
+    body.step67-admin-students
+    .step67-student-table tbody {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 860px) {
+    .step70-payment-due-card.is-arrears {
+        padding: 18px !important;
+    }
+
+    .step77-month-chip-list {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr))
+            !important;
+    }
+
+    .step77-month-chip {
+        min-height: 80px !important;
+    }
+
+    .step70-payment-due-card.is-arrears
+    .step70-due-action {
+        width: 100%;
+    }
+
+    .step80-arrears-section {
+        margin-bottom: 12px;
+        padding: 16px;
+        border-radius: 21px;
+    }
+
+    .step80-arrears-section-head {
+        display: block;
+        margin-bottom: 14px;
+    }
+
+    .step80-arrears-section-head h2 {
+        font-size: 22px;
+    }
+
+    .step80-arrears-count {
+        width: 100%;
+        grid-template-columns: auto auto;
+        justify-content: center;
+        align-items: center;
+        margin-top: 12px;
+    }
+
+    .step80-arrears-count span {
+        font-size: 18px;
+    }
+
+    .step80-arrears-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .step80-arrears-summary article {
+        min-height: 105px;
+        display: grid;
+        align-content: start;
+        gap: 8px;
+        padding: 13px;
+    }
+
+    .step80-arrears-summary article > span {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: 18px;
+    }
+
+    .step80-arrears-summary strong {
+        font-size: 16px;
+    }
+
+    .step80-arrears-filter {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .step80-arrears-filter input,
+    .step80-arrears-filter select,
+    .step80-arrears-filter .btn {
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    .step80-arrears-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .step80-arrears-card {
+        padding: 15px;
+        border-radius: 18px;
+    }
+
+    .step80-arrears-card-head {
+        align-items: flex-start;
+    }
+
+    .step80-arrears-status {
+        max-width: 105px;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .step80-arrears-money {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .step80-arrears-money > div:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .step80-arrears-months {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .step80-arrears-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .step80-arrears-actions .btn {
+        min-height: 44px;
+        font-size: 11px;
+    }
+
+    .step80-arrears-upload-head {
+        grid-template-columns:
+            42px minmax(0, 1fr);
+    }
+
+    .step80-arrears-upload-head b {
+        grid-column: 1 / -1;
+        padding-left: 52px;
+    }
+
+    .step80-arrears-upload-months {
+        grid-template-columns: 1fr;
+    }
+
+    body.page-admin-students
+    .admin-record-row > td[data-label="Service Start"],
+    body.page-admin-students
+    .admin-record-row > td[data-label="Monthly Amount"],
+    body.page-admin-students
+    .admin-record-row > td[data-label="Actions"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.page-admin-students
+    .step78-service-start-box,
+    body.page-admin-students
+    .mobile-student-amount {
+        width: 100% !important;
+        padding: 12px !important;
+        border-radius: 16px !important;
+    }
+
+    body.page-admin-students
+    .mobile-student-amount {
+        grid-template-columns:
+            auto minmax(0, 1fr)
+            !important;
+    }
+
+    body.page-admin-students
+    .mobile-student-amount button {
+        grid-column: 1 / -1;
+        width: 100% !important;
+    }
+
+    body.page-admin-students
+    .student-mobile-actions {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr))
+            !important;
+    }
+}
+
+@media (max-width: 430px) {
+    .step77-month-chip-list,
+    .step80-arrears-summary,
+    .step80-arrears-months {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* MUTHAQUS_STEP80_PAYMENT_ARREARS_MANAGEMENT */
+

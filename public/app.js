@@ -772,6 +772,7 @@ async function loadPaymentUploadPage() {
         });
 
         updatePaymentAmountFromSelectedStudent();
+        step80ApplyArrearsUploadMode();
 
         if (children.length === 0 && notice) {
             notice.innerHTML = `
@@ -830,6 +831,29 @@ function updatePaymentAmountFromSelectedStudent() {
     const children = window.parentPaymentChildren || [];
 
     if (!amountInput) return;
+
+    const arrearsItems =
+        step80GetArrearsItemsFromUrl();
+
+    if (arrearsItems.length > 0) {
+        amountInput.readOnly = true;
+        amountInput.value =
+            step80ArrearsTotal(
+                arrearsItems
+            ).toFixed(2);
+
+        if (amountInfo) {
+            amountInfo.innerText =
+                `Outstanding total for ` +
+                `${arrearsItems.length} month` +
+                `${arrearsItems.length === 1 ? "" : "s"}.`;
+            amountInfo.style.color = "#a72531";
+        }
+
+        updateAllChildrenSummary();
+        step80ApplyArrearsUploadMode();
+        return;
+    }
 
     amountInput.readOnly = true;
 
@@ -1370,20 +1394,43 @@ async function submitPayment(event) {
     try {
         const receiptDataUrl = await fileToDataURL(receiptFile);
 
+        const arrearsItems =
+            step80GetArrearsItemsFromUrl();
+
+        const userNote =
+            document.getElementById("paymentNote")
+                ? document
+                    .getElementById("paymentNote")
+                    .value
+                    .trim()
+                : "";
+
+        const arrearsMarker =
+            arrearsItems.length > 0
+                ? `[ARREARS:${step80ArrearsItemsToPayload(
+                    arrearsItems
+                )}]`
+                : "";
+
         const paymentData = {
             parentId: parent.id,
             parentEmail: parent.email || "",
             paymentMode,
             studentId: "",
             studentIds: selectedStudentIds,
-            month: document.getElementById("paymentMonth").value,
+            month:
+                arrearsItems.length > 0
+                    ? `Outstanding Balance (${arrearsItems.length} months)`
+                    : document.getElementById("paymentMonth").value,
             amount: Number(document.getElementById("paymentAmount").value),
             datePaid: document.getElementById("paymentDate").value,
             receiptName: receiptFile.name,
             receiptType: receiptFile.type || "",
             receiptSize: receiptFile.size || 0,
             receiptDataUrl,
-            note: document.getElementById("paymentNote") ? document.getElementById("paymentNote").value.trim() : ""
+            note: [userNote, arrearsMarker]
+                .filter(Boolean)
+                .join("\n")
         };
 
         const response = await fetch("/api/upload-payment", {
@@ -1542,20 +1589,1003 @@ function viewParentReceipt(paymentId) {
     showReceiptInfo(payment.receiptName, payment.note, payment.receiptDataUrl);
 }
 
+function step80ParseArrearsMarker(note) {
+    const match = String(note || "").match(
+        /\[ARREARS:([^\]]+)\]/i
+    );
+
+    if (!match) return [];
+
+    return match[1]
+        .split(";")
+        .map(entry => {
+            const parts = entry.split("=");
+            const period = step77PeriodFromKey(
+                String(parts[0] || "").trim()
+            );
+            const amount = Number(parts[1] || 0);
+
+            if (!period || amount <= 0) return null;
+
+            return {
+                period,
+                amount
+            };
+        })
+        .filter(Boolean);
+}
+
+function step80ExpandArrearsPayments(payments) {
+    const expanded = [];
+
+    (payments || []).forEach(payment => {
+        const allocations = step80ParseArrearsMarker(
+            payment.note
+        );
+
+        if (!allocations.length) {
+            expanded.push(payment);
+            return;
+        }
+
+        allocations.forEach(allocation => {
+            expanded.push({
+                ...payment,
+                id:
+                    `${payment.id || "payment"}-` +
+                    allocation.period.key,
+                sourcePaymentId: payment.id || "",
+                month: step77PeriodLabel(
+                    allocation.period
+                ),
+                amount: allocation.amount,
+                arrearsPeriodKey: allocation.period.key
+            });
+        });
+    });
+
+    return expanded;
+}
+
+function step80NormalisePhone(value) {
+    const digits = String(value || "")
+        .replace(/[^\d]/g, "");
+
+    if (!digits) return "";
+
+    if (digits.startsWith("0")) {
+        return "60" + digits.slice(1);
+    }
+
+    return digits;
+}
+
+function step80ArrearsItemsToPayload(items) {
+    return (items || [])
+        .filter(item => item?.period && Number(item.amount || 0) > 0)
+        .map(item =>
+            `${item.period.key}=${Number(item.amount).toFixed(2)}`
+        )
+        .join(";");
+}
+
+function step80BuildArrearsPaymentUrl(items) {
+    const payload = step80ArrearsItemsToPayload(items);
+
+    if (!payload) return "upload-payment.html";
+
+    return (
+        "upload-payment.html?mode=arrears&items=" +
+        encodeURIComponent(payload)
+    );
+}
+
+function step80GetArrearsItemsFromUrl() {
+    const parameters = new URLSearchParams(
+        window.location.search
+    );
+
+    if (parameters.get("mode") !== "arrears") {
+        return [];
+    }
+
+    const payload = parameters.get("items") || "";
+
+    return payload
+        .split(";")
+        .map(entry => {
+            const parts = entry.split("=");
+            const period = step77PeriodFromKey(
+                String(parts[0] || "").trim()
+            );
+            const amount = Number(parts[1] || 0);
+
+            if (!period || amount <= 0) return null;
+
+            return {
+                period,
+                amount
+            };
+        })
+        .filter(Boolean);
+}
+
+function step80ArrearsTotal(items) {
+    return (items || []).reduce(
+        (sum, item) =>
+            sum + Number(item.amount || 0),
+        0
+    );
+}
+
+function step80ApplyArrearsUploadMode() {
+    const items = step80GetArrearsItemsFromUrl();
+
+    if (!items.length) return false;
+
+    const form = document.querySelector(
+        "form[onsubmit='submitPayment(event)']"
+    );
+    const summary = document.getElementById(
+        "allChildrenSummary"
+    );
+    const amountInput = document.getElementById(
+        "paymentAmount"
+    );
+    const amountInfo = document.getElementById(
+        "paymentAmountInfo"
+    );
+    const hiddenMonth = document.getElementById(
+        "paymentMonth"
+    );
+    const monthSelect = document.getElementById(
+        "paymentMonthName"
+    );
+    const yearSelect = document.getElementById(
+        "paymentYear"
+    );
+
+    if (!form || !amountInput) return false;
+
+    form.classList.add("step80-arrears-upload-form");
+
+    const total = step80ArrearsTotal(items);
+    const marker = step80ArrearsItemsToPayload(items);
+
+    amountInput.value = total.toFixed(2);
+    amountInput.readOnly = true;
+    amountInput.dataset.step80Arrears = marker;
+
+    if (amountInfo) {
+        amountInfo.innerText =
+            `Outstanding total for ${items.length} month` +
+            `${items.length === 1 ? "" : "s"}.`;
+        amountInfo.style.color = "#a72531";
+    }
+
+    if (hiddenMonth) {
+        hiddenMonth.value =
+            `Outstanding Balance (${items.length} months)`;
+    }
+
+    [monthSelect, yearSelect].forEach(select => {
+        if (!select) return;
+        select.required = false;
+        select.disabled = true;
+        select.closest("div")?.classList.add(
+            "step80-disabled-month-picker"
+        );
+    });
+
+    let panel = document.getElementById(
+        "step80ArrearsUploadPanel"
+    );
+
+    if (!panel) {
+        panel = document.createElement("section");
+        panel.id = "step80ArrearsUploadPanel";
+        panel.className = "step80-arrears-upload-panel";
+
+        const anchor =
+            document.getElementById("allChildrenBox") ||
+            form.firstElementChild;
+
+        anchor?.insertAdjacentElement(
+            "afterend",
+            panel
+        );
+    }
+
+    panel.innerHTML = `
+        <div class="step80-arrears-upload-head">
+            <span>⚠️</span>
+            <div>
+                <strong>Outstanding Balance Payment</strong>
+                <p>
+                    One receipt will cover the selected unpaid months.
+                </p>
+            </div>
+            <b>RM${total.toFixed(2)}</b>
+        </div>
+
+        <div class="step80-arrears-upload-months">
+            ${items
+                .map(item => `
+                    <div>
+                        <span>
+                            ${mutahusSafeHtml(
+                                step77PeriodLabel(item.period)
+                            )}
+                        </span>
+                        <strong>
+                            RM${Number(item.amount).toFixed(2)}
+                        </strong>
+                    </div>
+                `)
+                .join("")}
+        </div>
+    `;
+
+    if (summary) {
+        summary.insertAdjacentHTML(
+            "beforeend",
+            `
+                <span class="step80-payment-mode-note">
+                    This submission is for previous outstanding months.
+                </span>
+            `
+        );
+    }
+
+    return true;
+}
+
+function step80GetParentKey(item) {
+    return (
+        String(item.parentId || "").trim() ||
+        String(item.parentEmail || "").trim().toLowerCase() ||
+        `${String(item.parentName || "").trim().toLowerCase()}|` +
+        `${String(item.parentPhone || "").replace(/\D/g, "")}`
+    );
+}
+
+function step80CalculateAdminArrears(students, payments) {
+    const current = getCurrentPaymentPeriod();
+
+    const currentPeriod = {
+        year: current.year,
+        month: current.month,
+        key: step77MonthKey(
+            current.year,
+            current.month
+        )
+    };
+
+    const expandedPayments = step77UniquePayments(
+        step80ExpandArrearsPayments(payments)
+    );
+
+    const parentGroups = new Map();
+
+    (students || [])
+        .filter(student => student.status !== "Rejected")
+        .forEach(student => {
+            const key = step80GetParentKey(student);
+
+            if (!key) return;
+
+            if (!parentGroups.has(key)) {
+                parentGroups.set(key, {
+                    key,
+                    parentId: student.parentId || "",
+                    parentName: student.parentName || "Parent",
+                    parentPhone: student.parentPhone || "",
+                    parentEmail: student.parentEmail || "",
+                    children: []
+                });
+            }
+
+            parentGroups.get(key).children.push(student);
+        });
+
+    const results = [];
+
+    parentGroups.forEach(parent => {
+        const parentPayments = expandedPayments.filter(
+            payment =>
+                step80GetParentKey(payment) === parent.key
+        );
+
+        const startPeriods = [
+            ...parent.children.map(child =>
+                step77ParseChildStartPeriod(
+                    child.serviceStartMonth ||
+                    child.createdAt
+                )
+            ),
+            ...parentPayments.map(payment =>
+                step77ParsePaymentPeriod(payment.month)
+            )
+        ]
+            .filter(Boolean)
+            .filter(period =>
+                step77ComparePeriods(
+                    period,
+                    currentPeriod
+                ) <= 0
+            );
+
+        const start =
+            startPeriods.length > 0
+                ? startPeriods
+                    .slice()
+                    .sort(step77ComparePeriods)[0]
+                : currentPeriod;
+
+        const range = step77BuildMonthRange(
+            start,
+            currentPeriod
+        );
+
+        const paymentGroups = new Map();
+
+        parentPayments.forEach(payment => {
+            const period = step77ParsePaymentPeriod(
+                payment.month
+            );
+
+            if (!period) return;
+
+            if (!paymentGroups.has(period.key)) {
+                paymentGroups.set(period.key, []);
+            }
+
+            paymentGroups.get(period.key).push(payment);
+        });
+
+        const months = range.map(period => {
+            const records =
+                paymentGroups.get(period.key) || [];
+
+            const expected =
+                step77ExpectedAmountForPeriod(
+                    parent.children,
+                    period,
+                    start
+                );
+
+            const total = status => {
+                return records
+                    .filter(record =>
+                        record.status === status
+                    )
+                    .reduce(
+                        (sum, record) =>
+                            sum +
+                            Number(record.amount || 0),
+                        0
+                    );
+            };
+
+            const paid = total("Paid");
+            const pending = total("Pending");
+            const remaining = Math.max(
+                0,
+                expected - paid
+            );
+
+            const isPast =
+                step77ComparePeriods(
+                    period,
+                    currentPeriod
+                ) < 0;
+
+            const currentIsLate =
+                period.key === currentPeriod.key &&
+                current.day > MUTHAQUS_PAYMENT_DUE_DAY;
+
+            return {
+                period,
+                expected,
+                paid,
+                pending,
+                remaining,
+                isDue: isPast || currentIsLate
+            };
+        });
+
+        const overdueMonths = months
+            .filter(month =>
+                month.isDue &&
+                month.expected > 0 &&
+                month.remaining > 0 &&
+                month.pending < month.remaining
+            )
+            .map(month => ({
+                ...month,
+                outstanding: Math.max(
+                    0,
+                    month.remaining - month.pending
+                )
+            }));
+
+        const pendingMonths = months.filter(
+            month =>
+                month.isDue &&
+                month.expected > 0 &&
+                month.remaining > 0 &&
+                month.pending >= month.remaining
+        );
+
+        const outstanding = overdueMonths.reduce(
+            (sum, month) =>
+                sum + Number(month.outstanding || 0),
+            0
+        );
+
+        const pendingTotal = pendingMonths.reduce(
+            (sum, month) =>
+                sum + Number(month.pending || 0),
+            0
+        );
+
+        if (
+            outstanding <= 0 &&
+            pendingMonths.length === 0
+        ) {
+            return;
+        }
+
+        results.push({
+            ...parent,
+            overdueMonths,
+            pendingMonths,
+            outstanding,
+            pendingTotal,
+            monthlyFee: parent.children.reduce(
+                (sum, child) =>
+                    sum +
+                    Number(child.monthlyAmount || 0),
+                0
+            )
+        });
+    });
+
+    return results.sort((first, second) => {
+        if (second.outstanding !== first.outstanding) {
+            return second.outstanding - first.outstanding;
+        }
+
+        return first.parentName.localeCompare(
+            second.parentName
+        );
+    });
+}
+
+function step80UpdateArrearsSummary(records) {
+    const outstandingRecords = records.filter(
+        record => record.outstanding > 0
+    );
+
+    const values = {
+        arrearsTotalOutstanding:
+            "RM" +
+            outstandingRecords
+                .reduce(
+                    (sum, record) =>
+                        sum + record.outstanding,
+                    0
+                )
+                .toFixed(2),
+        arrearsParentCount:
+            outstandingRecords.length,
+        arrearsMonthCount:
+            outstandingRecords.reduce(
+                (sum, record) =>
+                    sum + record.overdueMonths.length,
+                0
+            ),
+        arrearsReviewCount:
+            records.reduce(
+                (sum, record) =>
+                    sum + record.pendingMonths.length,
+                0
+            )
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.innerText = value;
+        }
+    });
+}
+
+function renderAdminArrearsManagement() {
+    const list = document.getElementById(
+        "adminArrearsList"
+    );
+
+    if (!list) return;
+
+    const query = String(
+        document.getElementById(
+            "arrearsSearchInput"
+        )?.value || ""
+    )
+        .trim()
+        .toLowerCase();
+
+    const statusFilter =
+        document.getElementById(
+            "arrearsStatusFilter"
+        )?.value || "";
+
+    const source =
+        window.adminArrearsData || [];
+
+    const records = source.filter(record => {
+        const text = [
+            record.parentName,
+            record.parentPhone,
+            record.parentEmail,
+            ...record.children.map(child => child.name)
+        ]
+            .join(" ")
+            .toLowerCase();
+
+        const matchesSearch =
+            !query || text.includes(query);
+
+        const matchesStatus =
+            !statusFilter ||
+            (
+                statusFilter === "Overdue" &&
+                record.outstanding > 0
+            ) ||
+            (
+                statusFilter === "Review" &&
+                record.pendingMonths.length > 0
+            );
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const count = document.getElementById(
+        "arrearsVisibleCount"
+    );
+
+    if (count) {
+        count.innerText = records.length;
+    }
+
+    list.innerHTML = "";
+
+    if (!records.length) {
+        list.innerHTML = `
+            <div class="step80-arrears-empty">
+                <span>✅</span>
+                <strong>No matching arrears record</strong>
+                <p>
+                    All matching accounts are clear or still under review.
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    window.adminArrearsMap = {};
+
+    records.forEach((record, index) => {
+        const recordId = `arrears_${index}`;
+        window.adminArrearsMap[recordId] = record;
+
+        const initial = String(
+            record.parentName || "P"
+        )
+            .trim()
+            .charAt(0)
+            .toUpperCase();
+
+        const overdueChips = record.overdueMonths
+            .slice(-6)
+            .map(month => `
+                <span class="step80-admin-month-chip overdue">
+                    <small>
+                        ${mutahusSafeHtml(
+                            step77PeriodLabel(
+                                month.period,
+                                true
+                            )
+                        )}
+                    </small>
+                    <b>
+                        RM${Number(
+                            month.outstanding
+                        ).toFixed(2)}
+                    </b>
+                </span>
+            `)
+            .join("");
+
+        const pendingChips = record.pendingMonths
+            .slice(-3)
+            .map(month => `
+                <span class="step80-admin-month-chip review">
+                    <small>
+                        ${mutahusSafeHtml(
+                            step77PeriodLabel(
+                                month.period,
+                                true
+                            )
+                        )}
+                    </small>
+                    <b>Review</b>
+                </span>
+            `)
+            .join("");
+
+        list.innerHTML += `
+            <article class="step80-arrears-card">
+                <header class="step80-arrears-card-head">
+                    <div class="step80-arrears-parent">
+                        <span>${initial}</span>
+
+                        <div>
+                            <strong>
+                                ${mutahusSafeHtml(
+                                    record.parentName
+                                )}
+                            </strong>
+
+                            <small>
+                                ${mutahusSafeHtml(
+                                    record.parentPhone ||
+                                    record.parentEmail ||
+                                    "No contact"
+                                )}
+                            </small>
+                        </div>
+                    </div>
+
+                    <span class="step80-arrears-status ${
+                        record.outstanding > 0
+                            ? "overdue"
+                            : "review"
+                    }">
+                        ${
+                            record.outstanding > 0
+                                ? `${record.overdueMonths.length} overdue`
+                                : "Under review"
+                        }
+                    </span>
+                </header>
+
+                <div class="step80-arrears-money">
+                    <div>
+                        <small>Outstanding balance</small>
+                        <strong>
+                            RM${record.outstanding.toFixed(2)}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>Monthly fee</small>
+                        <strong>
+                            RM${record.monthlyFee.toFixed(2)}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <small>Children</small>
+                        <strong>
+                            ${record.children.length}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="step80-arrears-children">
+                    ${record.children
+                        .map(child => `
+                            <span>
+                                🎒 ${mutahusSafeHtml(
+                                    child.name || "Student"
+                                )}
+                            </span>
+                        `)
+                        .join("")}
+                </div>
+
+                <div class="step80-arrears-months">
+                    ${overdueChips}
+                    ${pendingChips}
+                </div>
+
+                <div class="step80-arrears-actions">
+                    <button
+                        type="button"
+                        class="btn btn-primary-pro"
+                        onclick="step80WhatsAppArrears('${recordId}')"
+                    >
+                        💬 WhatsApp Reminder
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-pro"
+                        onclick="step80FilterPaymentRecords('${recordId}')"
+                    >
+                        View Payments
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-pro"
+                        onclick="step80CopyArrearsReminder('${recordId}')"
+                    >
+                        Copy Reminder
+                    </button>
+                </div>
+            </article>
+        `;
+    });
+}
+
+function resetAdminArrearsFilters() {
+    const search = document.getElementById(
+        "arrearsSearchInput"
+    );
+    const status = document.getElementById(
+        "arrearsStatusFilter"
+    );
+
+    if (search) search.value = "";
+    if (status) status.value = "";
+
+    renderAdminArrearsManagement();
+}
+
+function step80CreateReminderText(record) {
+    const monthText = record.overdueMonths
+        .map(month =>
+            `${step77PeriodLabel(month.period)} ` +
+            `(RM${month.outstanding.toFixed(2)})`
+        )
+        .join(", ");
+
+    return (
+        `Assalamualaikum ${record.parentName}, ` +
+        `rekod bayaran menunjukkan baki tertunggak ` +
+        `RM${record.outstanding.toFixed(2)} untuk ` +
+        `${monthText}. Sila semak dan muat naik bukti ` +
+        `bayaran melalui Parent Portal. Terima kasih.`
+    );
+}
+
+function step80WhatsAppArrears(recordId) {
+    const record =
+        (window.adminArrearsMap || {})[recordId];
+
+    if (!record) {
+        alert("Arrears record not found.");
+        return;
+    }
+
+    const phone = step80NormalisePhone(
+        record.parentPhone
+    );
+
+    if (!phone) {
+        alert("Parent phone number is not available.");
+        return;
+    }
+
+    const text = step80CreateReminderText(record);
+
+    window.open(
+        `https://api.whatsapp.com/send?phone=${phone}` +
+        `&text=${encodeURIComponent(text)}`,
+        "_blank",
+        "noopener"
+    );
+}
+
+function step80CopyArrearsReminder(recordId) {
+    const record =
+        (window.adminArrearsMap || {})[recordId];
+
+    if (!record) {
+        alert("Arrears record not found.");
+        return;
+    }
+
+    const text = step80CreateReminderText(record);
+
+    navigator.clipboard
+        ?.writeText(text)
+        .then(() => {
+            alert("Payment reminder copied.");
+        })
+        .catch(() => {
+            window.prompt(
+                "Copy this payment reminder:",
+                text
+            );
+        });
+}
+
+function step80FilterPaymentRecords(recordId) {
+    const record =
+        (window.adminArrearsMap || {})[recordId];
+
+    if (!record) return;
+
+    const search = document.getElementById(
+        "paymentRecordSearch"
+    );
+
+    if (search) {
+        search.value =
+            record.parentName ||
+            record.parentPhone ||
+            record.parentEmail ||
+            "";
+    }
+
+    renderAdminPaymentRecords();
+
+    document
+        .getElementById("paymentRecordsSection")
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
+
 async function loadAdminPayments() {
-    const table=document.getElementById("adminPaymentsTable");
-    if(table)table.innerHTML='<tr class="s64-empty-row"><td colspan="7" class="empty-row">Loading payment records...</td></tr>';
-    try{
-        const response=await fetch("/api/admin-payments");
-        const result=await response.json();
-        if(!result.success)throw new Error(result.message||"Failed to load payments.");
-        const payments=result.payments||[]; const summary=result.summary||{};
-        window.adminPaymentsData=payments; window.adminPaymentReceiptMap={}; window.adminPaymentInvoiceMap={};
-        payments.forEach(p=>{window.adminPaymentReceiptMap[p.id]=p;window.adminPaymentInvoiceMap[p.id]=p;});
-        const values={paymentTotalCollection:"RM"+Number(summary.totalCollection||0).toFixed(2),paymentPaidCount:summary.paidCount||0,paymentPendingCount:summary.pendingCount||0,paymentUnpaidCount:summary.unpaidCount||0};
-        Object.entries(values).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.innerText=v;});
+    const table = document.getElementById(
+        "adminPaymentsTable"
+    );
+
+    const arrearsList = document.getElementById(
+        "adminArrearsList"
+    );
+
+    if (table) {
+        table.innerHTML = `
+            <tr class="s64-empty-row">
+                <td colspan="7" class="empty-row">
+                    Loading payment records...
+                </td>
+            </tr>
+        `;
+    }
+
+    if (arrearsList) {
+        arrearsList.innerHTML = `
+            <div class="step80-arrears-empty loading">
+                <span>⏳</span>
+                <strong>Checking outstanding balances...</strong>
+            </div>
+        `;
+    }
+
+    try {
+        const [
+            paymentResponse,
+            studentResponse
+        ] = await Promise.all([
+            fetch("/api/admin-payments"),
+            fetch("/api/admin-students")
+        ]);
+
+        const paymentResult =
+            await paymentResponse.json();
+        const studentResult =
+            await studentResponse.json();
+
+        if (!paymentResult.success) {
+            throw new Error(
+                paymentResult.message ||
+                "Failed to load payments."
+            );
+        }
+
+        if (!studentResult.success) {
+            throw new Error(
+                studentResult.message ||
+                "Failed to load student records."
+            );
+        }
+
+        const payments =
+            paymentResult.payments || [];
+
+        const students =
+            studentResult.students || [];
+
+        const summary =
+            paymentResult.summary || {};
+
+        window.adminPaymentsData = payments;
+        window.adminStudentsForArrears = students;
+        window.adminPaymentReceiptMap = {};
+        window.adminPaymentInvoiceMap = {};
+
+        payments.forEach(payment => {
+            window.adminPaymentReceiptMap[
+                payment.id
+            ] = payment;
+
+            window.adminPaymentInvoiceMap[
+                payment.id
+            ] = payment;
+        });
+
+        const arrearsRecords =
+            step80CalculateAdminArrears(
+                students,
+                payments
+            );
+
+        window.adminArrearsData =
+            arrearsRecords;
+
+        const values = {
+            paymentTotalCollection:
+                "RM" +
+                Number(
+                    summary.totalCollection || 0
+                ).toFixed(2),
+            paymentPaidCount:
+                summary.paidCount || 0,
+            paymentPendingCount:
+                summary.pendingCount || 0,
+            paymentUnpaidCount:
+                arrearsRecords.filter(
+                    record => record.outstanding > 0
+                ).length
+        };
+
+        Object.entries(values).forEach(
+            ([id, value]) => {
+                const element =
+                    document.getElementById(id);
+
+                if (element) {
+                    element.innerText = value;
+                }
+            }
+        );
+
+        step80UpdateArrearsSummary(
+            arrearsRecords
+        );
+
+        renderAdminArrearsManagement();
         renderAdminPaymentRecords();
-    }catch(error){if(table)table.innerHTML=`<tr class="s64-empty-row"><td colspan="7" class="empty-row">${mutahusSafeHtml(error.message)}</td></tr>`;}
+    } catch (error) {
+        if (table) {
+            table.innerHTML = `
+                <tr class="s64-empty-row">
+                    <td colspan="7" class="empty-row">
+                        ${mutahusSafeHtml(error.message)}
+                    </td>
+                </tr>
+            `;
+        }
+
+        if (arrearsList) {
+            arrearsList.innerHTML = `
+                <div class="step80-arrears-empty">
+                    <span>⚠️</span>
+                    <strong>Unable to load arrears records</strong>
+                    <p>${mutahusSafeHtml(error.message)}</p>
+                </div>
+            `;
+        }
+    }
 }
 
 function viewAdminReceipt(paymentId) {
@@ -8925,7 +9955,9 @@ function renderParentPaymentDueReminder(children, payments) {
     );
 
     const uniquePayments =
-        step77UniquePayments(payments);
+        step77UniquePayments(
+            step80ExpandArrearsPayments(payments)
+        );
 
     const paymentPeriods = uniquePayments
         .map(payment => step77ParsePaymentPeriod(payment.month))
@@ -9171,8 +10203,25 @@ function renderParentPaymentDueReminder(children, payments) {
         }
 
         if (action) {
+            const payableItems = outstandingPastMonths.map(
+                item => ({
+                    period: item.period,
+                    amount: item.outstanding
+                })
+            );
+
+            if (currentOutstanding > 0) {
+                payableItems.push({
+                    period: currentPeriodInfo,
+                    amount: currentOutstanding
+                });
+            }
+
             action.innerText = "Pay Outstanding Balance";
-            action.href = "upload-payment.html";
+            action.href =
+                step80BuildArrearsPaymentUrl(
+                    payableItems
+                );
         }
 
         return;
@@ -9275,7 +10324,15 @@ function renderParentPaymentDueReminder(children, payments) {
             action.href =
                 currentSummary.pending > 0
                     ? "#paymentHistorySection"
-                    : "upload-payment.html";
+                    : step80BuildArrearsPaymentUrl([
+                        {
+                            period: currentPeriodInfo,
+                            amount: Math.max(
+                                0,
+                                currentSummary.remaining
+                            )
+                        }
+                    ]);
         }
 
         return;
@@ -9357,8 +10414,23 @@ function renderParentPaymentDueReminder(children, payments) {
             : "Fee Pending";
 
     if (action) {
-        action.innerText = "Upload Payment";
-        action.href = "upload-payment.html";
+        action.innerText =
+            currentPeriod.day >
+            MUTHAQUS_PAYMENT_DUE_DAY
+                ? "Pay Outstanding Balance"
+                : "Upload Payment";
+
+        action.href =
+            currentPeriod.day >
+            MUTHAQUS_PAYMENT_DUE_DAY
+                ? step80BuildArrearsPaymentUrl([
+                    {
+                        period: currentPeriodInfo,
+                        amount:
+                            currentSummary.expected
+                    }
+                ])
+                : "upload-payment.html";
     }
 }
 
@@ -9855,3 +10927,5 @@ window.addEventListener("load", function () {
 
 
 // MUTHAQUS_STEP79_ARREARS_ADMIN_STUDENTS_POLISH
+
+// MUTHAQUS_STEP80_PAYMENT_ARREARS_MANAGEMENT
