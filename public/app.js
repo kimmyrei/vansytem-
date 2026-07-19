@@ -5934,42 +5934,36 @@ function filterRowsByText(tableId, options) {
 }
 
 function setupStudentFilters() {
-    createAdminFilterPanel({
-        panelId: "studentFilterPanel",
-        title: "Search & Filter Students",
-        subtitle: "Find student records faster by name, parent, school, status or session.",
-        searchId: "studentSearchInput",
-        searchPlaceholder: "Search student / parent / school...",
-        filterOneId: "studentStatusFilter",
-        filterOneLabel: "Student Status",
-        filterOneOptions: `
-            <option value="">All Status</option>
-            <option value="Pending Review">Pending Review</option>
-            <option value="Accepted">Accepted</option>
-            <option value="Active">Active</option>
-            <option value="Rejected">Rejected</option>
-        `,
-        filterTwoId: "studentSessionFilter",
-        filterTwoLabel: "Session",
-        filterTwoOptions: `
-            <option value="">All Session</option>
-            <option value="Morning">Morning</option>
-            <option value="Afternoon">Afternoon</option>
-        `,
-        resetId: "studentFilterReset",
-        applyFunction: applyStudentFilters
-    });
+    /*
+     * Step 82 already contains the complete student search, filters
+     * and parent sorting inside the Family Records section.
+     *
+     * Remove the old automatically injected search panel so the page
+     * only displays one organised search area.
+     */
+    document
+        .querySelectorAll("#studentFilterPanel")
+        .forEach(panel => panel.remove());
 
-    applyStudentFilters();
+    if (
+        typeof renderAdminStudentCards ===
+        "function"
+    ) {
+        renderAdminStudentCards();
+    }
 }
 
 function applyStudentFilters() {
-    filterRowsByText("adminStudentsTable", {
-        searchId: "studentSearchInput",
-        filterOneId: "studentStatusFilter",
-        filterTwoId: "studentSessionFilter",
-        colspan: 9
-    });
+    document
+        .querySelectorAll("#studentFilterPanel")
+        .forEach(panel => panel.remove());
+
+    if (
+        typeof renderAdminStudentCards ===
+        "function"
+    ) {
+        renderAdminStudentCards();
+    }
 }
 
 function setupParentFilters() {
@@ -12822,3 +12816,40 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN
 
 // MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM
+
+
+
+(function removeLegacyStudentSearchPanel() {
+    function removePanel() {
+        document
+            .querySelectorAll(
+                "#studentFilterPanel"
+            )
+            .forEach(panel => panel.remove());
+    }
+
+    removePanel();
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        removePanel
+    );
+
+    window.addEventListener(
+        "load",
+        removePanel
+    );
+
+    window.setTimeout(
+        removePanel,
+        100
+    );
+
+    window.setTimeout(
+        removePanel,
+        600
+    );
+})();
+
+// MUTHAQUS_STEP83_SINGLE_STUDENT_SEARCH_FIX
+
