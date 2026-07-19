@@ -19826,3 +19826,521 @@ a[href="admin-analytics.html"] {
 
 /* MUTHAQUS_STEP96_ADMIN_NAV_PARENT_PAYMENT_REMINDER_POLISH */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP97_MAINTENANCE_ANALYTICS_DUE_CARD_FIX
+   ========================================================= */
+
+/* Fix Maintenance / Analytics sidebar labels so they do not collapse */
+.admin-side .sidebar-menu a.step96-admin-operation-link,
+.pro-sidebar .sidebar-menu a.step96-admin-operation-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    min-height: 56px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+.admin-side .sidebar-menu a.step96-admin-operation-link span,
+.pro-sidebar .sidebar-menu a.step96-admin-operation-link span {
+    width: auto !important;
+    min-width: 0 !important;
+    text-align: left !important;
+}
+
+.admin-side .sidebar-menu a.step96-admin-operation-link .step96-admin-nav-icon,
+.pro-sidebar .sidebar-menu a.step96-admin-operation-link .step96-admin-nav-icon {
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    flex: 0 0 28px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 17px !important;
+    line-height: 1 !important;
+}
+
+.admin-side .sidebar-menu a.step96-admin-operation-link .step96-admin-nav-label,
+.pro-sidebar .sidebar-menu a.step96-admin-operation-link .step96-admin-nav-label {
+    display: block !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.28 !important;
+}
+
+@media (max-width: 860px) {
+    .admin-side .sidebar-menu a.step96-admin-operation-link,
+    .pro-sidebar .sidebar-menu a.step96-admin-operation-link {
+        min-width: 168px !important;
+        min-height: 52px !important;
+        justify-content: flex-start !important;
+        padding: 13px 15px !important;
+    }
+
+    .admin-side .sidebar-menu a.step96-admin-operation-link .step96-admin-nav-label,
+    .pro-sidebar .sidebar-menu a.step96-admin-operation-link .step96-admin-nav-label {
+        font-size: 14px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+}
+
+/* Premium clean Payment Due Reminder */
+.page-parent-dashboard .step70-payment-due-card,
+body.step71-parent-mobile-dashboard .step70-payment-due-card,
+body.muthaqus-step76 .step70-payment-due-card {
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 24px !important;
+    border: 1px solid #f0d7da !important;
+    border-radius: 26px !important;
+    background: linear-gradient(135deg, #fffefe 0%, #fff7f8 100%) !important;
+    box-shadow: 0 18px 40px rgba(23, 68, 115, 0.08) !important;
+}
+
+.step70-payment-due-card::before,
+body.step71-parent-mobile-dashboard .step70-payment-due-card::before,
+body.muthaqus-step76 .step70-payment-due-card::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -24px !important;
+    right: -24px !important;
+    width: 180px !important;
+    height: 180px !important;
+    border-radius: 999px !important;
+    background: radial-gradient(circle, rgba(215,64,82,0.10) 0%, rgba(215,64,82,0.00) 70%) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+.step70-payment-due-card > *,
+body.step71-parent-mobile-dashboard .step70-payment-due-card > *,
+body.muthaqus-step76 .step70-payment-due-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.step70-due-card-top,
+body.step71-parent-mobile-dashboard .step70-due-card-top,
+body.muthaqus-step76 .step70-due-card-top {
+    display: grid !important;
+    grid-template-columns: 50px minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 1px solid #f2dfe2 !important;
+}
+
+.step70-due-card-top > span,
+body.step71-parent-mobile-dashboard .step70-due-card-top > span,
+body.muthaqus-step76 .step70-due-card-top > span {
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 50px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 16px !important;
+    background: linear-gradient(145deg, #eef4ff, #f7fbff) !important;
+    border: 1px solid #dae6f3 !important;
+    font-size: 22px !important;
+}
+
+.step70-due-card-top h3,
+body.step71-parent-mobile-dashboard .step70-due-card-top h3,
+body.muthaqus-step76 .step70-due-card-top h3 {
+    margin: 0 0 3px !important;
+    color: #143f73 !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    line-height: 1.2 !important;
+}
+
+.step70-due-card-top small,
+body.step71-parent-mobile-dashboard .step70-due-card-top small,
+body.muthaqus-step76 .step70-due-card-top small {
+    color: #7b8897 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+.step70-due-card-top b,
+body.step71-parent-mobile-dashboard .step70-due-card-top b,
+body.muthaqus-step76 .step70-due-card-top b {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 13px !important;
+    border-radius: 999px !important;
+    background: #fff0f2 !important;
+    color: #b32130 !important;
+    border: 1px solid #efcbd0 !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+}
+
+.step70-payment-due-card h2,
+body.step71-parent-mobile-dashboard .step70-payment-due-card h2,
+body.muthaqus-step76 .step70-payment-due-card h2 {
+    margin: 18px 0 6px !important;
+    color: #143f73 !important;
+    font-size: clamp(34px, 4vw, 50px) !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.step70-payment-due-card h2::before,
+body.step71-parent-mobile-dashboard .step70-payment-due-card h2::before,
+body.muthaqus-step76 .step70-payment-due-card h2::before {
+    content: "Total outstanding" !important;
+    display: block !important;
+    margin-bottom: 8px !important;
+    color: #8a96a3 !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+.step70-payment-due-card > p,
+body.step71-parent-mobile-dashboard .step70-payment-due-card > p,
+body.muthaqus-step76 .step70-payment-due-card > p {
+    margin: 0 0 16px !important;
+    color: #5d6d7f !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.55 !important;
+}
+
+.step77-due-breakdown,
+body.step71-parent-mobile-dashboard .step77-due-breakdown,
+body.muthaqus-step76 .step77-due-breakdown {
+    display: grid !important;
+    gap: 14px !important;
+    margin: 0 0 18px !important;
+    padding: 18px !important;
+    border: 1px solid #f0d5d9 !important;
+    border-radius: 22px !important;
+    background: linear-gradient(180deg, #fffefe 0%, #fff9fa 100%) !important;
+}
+
+.step77-breakdown-title,
+body.step71-parent-mobile-dashboard .step77-breakdown-title,
+body.muthaqus-step76 .step77-breakdown-title {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0,1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin: 0 !important;
+}
+
+.step77-breakdown-icon,
+body.step71-parent-mobile-dashboard .step77-breakdown-icon,
+body.muthaqus-step76 .step77-breakdown-icon {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 14px !important;
+    border: 1px solid #f0d0d4 !important;
+    background: linear-gradient(145deg, #fff3f5, #ffecee) !important;
+    color: #b42432 !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+}
+
+.step77-breakdown-title strong,
+body.step71-parent-mobile-dashboard .step77-breakdown-title strong,
+body.muthaqus-step76 .step77-breakdown-title strong {
+    display: block !important;
+    margin: 0 0 2px !important;
+    color: #b42432 !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+.step77-breakdown-title small,
+body.step71-parent-mobile-dashboard .step77-breakdown-title small,
+body.muthaqus-step76 .step77-breakdown-title small {
+    display: block !important;
+    color: #7e6c72 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.45 !important;
+}
+
+.step96-overdue-month-count,
+body.step71-parent-mobile-dashboard .step96-overdue-month-count,
+body.muthaqus-step76 .step96-overdue-month-count {
+    padding: 7px 12px !important;
+    border-radius: 999px !important;
+    background: #ffffff !important;
+    border: 1px solid #efcdd1 !important;
+    color: #b42432 !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+}
+
+.step77-month-chip-list,
+body.step71-parent-mobile-dashboard .step77-month-chip-list,
+body.muthaqus-step76 .step77-month-chip-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.step77-month-chip,
+body.step71-parent-mobile-dashboard .step77-month-chip,
+body.muthaqus-step76 .step77-month-chip {
+    min-height: 72px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    padding: 14px 15px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+}
+
+.step77-month-chip.overdue,
+body.step71-parent-mobile-dashboard .step77-month-chip.overdue,
+body.muthaqus-step76 .step77-month-chip.overdue {
+    border: 1px solid #efc8cd !important;
+    background: #ffffff !important;
+    color: #a82431 !important;
+}
+
+.step77-month-chip.pending,
+body.step71-parent-mobile-dashboard .step77-month-chip.pending,
+body.muthaqus-step76 .step77-month-chip.pending {
+    border: 1px solid #eed79c !important;
+    background: #fffaf1 !important;
+    color: #875c08 !important;
+}
+
+.step77-month-chip.more,
+body.step71-parent-mobile-dashboard .step77-month-chip.more,
+body.muthaqus-step76 .step77-month-chip.more {
+    border: 1px solid #d9e5f2 !important;
+    background: #f7fbff !important;
+    color: #53708a !important;
+}
+
+.step77-chip-month,
+body.step71-parent-mobile-dashboard .step77-chip-month,
+body.muthaqus-step76 .step77-chip-month {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    color: inherit !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+.step77-month-chip b,
+body.step71-parent-mobile-dashboard .step77-month-chip b,
+body.muthaqus-step76 .step77-month-chip b {
+    min-width: 96px !important;
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 11px !important;
+    border-radius: 999px !important;
+    background: #fff0f2 !important;
+    color: #b42432 !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.step77-month-chip.pending b,
+body.step71-parent-mobile-dashboard .step77-month-chip.pending b,
+body.muthaqus-step76 .step77-month-chip.pending b {
+    background: #fff1cd !important;
+    color: #875c08 !important;
+}
+
+.step77-month-chip.more b,
+body.step71-parent-mobile-dashboard .step77-month-chip.more b,
+body.muthaqus-step76 .step77-month-chip.more b {
+    min-width: 54px !important;
+    background: #eaf2fb !important;
+    color: #476983 !important;
+}
+
+.step70-due-action,
+body.step71-parent-mobile-dashboard .step70-due-action,
+body.muthaqus-step76 .step70-due-action {
+    width: fit-content !important;
+    min-width: 210px !important;
+    min-height: 48px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 18px !important;
+    border-radius: 15px !important;
+    background: linear-gradient(180deg, #2e7fe1, #165fb2) !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    box-shadow: 0 12px 26px rgba(22,95,178,0.20) !important;
+}
+
+@media (max-width: 1180px) {
+    .step77-month-chip-list,
+    body.step71-parent-mobile-dashboard .step77-month-chip-list,
+    body.muthaqus-step76 .step77-month-chip-list {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 860px) {
+    .step70-payment-due-card,
+    body.step71-parent-mobile-dashboard .step70-payment-due-card,
+    body.muthaqus-step76 .step70-payment-due-card {
+        padding: 18px !important;
+        border-radius: 22px !important;
+    }
+
+    .step70-due-card-top,
+    body.step71-parent-mobile-dashboard .step70-due-card-top,
+    body.muthaqus-step76 .step70-due-card-top {
+        grid-template-columns: 46px minmax(0,1fr) !important;
+    }
+
+    .step70-due-card-top b,
+    body.step71-parent-mobile-dashboard .step70-due-card-top b,
+    body.muthaqus-step76 .step70-due-card-top b {
+        grid-column: 1 / -1 !important;
+        justify-self: start !important;
+        margin-left: 58px !important;
+    }
+
+    .step70-payment-due-card h2,
+    body.step71-parent-mobile-dashboard .step70-payment-due-card h2,
+    body.muthaqus-step76 .step70-payment-due-card h2 {
+        font-size: 36px !important;
+    }
+
+    .step70-payment-due-card > p,
+    body.step71-parent-mobile-dashboard .step70-payment-due-card > p,
+    body.muthaqus-step76 .step70-payment-due-card > p {
+        font-size: 13px !important;
+    }
+
+    .step77-due-breakdown,
+    body.step71-parent-mobile-dashboard .step77-due-breakdown,
+    body.muthaqus-step76 .step77-due-breakdown {
+        padding: 15px !important;
+        border-radius: 18px !important;
+    }
+
+    .step77-breakdown-title,
+    body.step71-parent-mobile-dashboard .step77-breakdown-title,
+    body.muthaqus-step76 .step77-breakdown-title {
+        grid-template-columns: 40px minmax(0,1fr) !important;
+    }
+
+    .step96-overdue-month-count,
+    body.step71-parent-mobile-dashboard .step96-overdue-month-count,
+    body.muthaqus-step76 .step96-overdue-month-count {
+        grid-column: 1 / -1 !important;
+        justify-self: start !important;
+        margin-left: 52px !important;
+    }
+
+    .step77-month-chip-list,
+    body.step71-parent-mobile-dashboard .step77-month-chip-list,
+    body.muthaqus-step76 .step77-month-chip-list {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .step77-month-chip,
+    body.step71-parent-mobile-dashboard .step77-month-chip,
+    body.muthaqus-step76 .step77-month-chip {
+        min-height: 64px !important;
+        padding: 12px 13px !important;
+    }
+
+    .step77-chip-month,
+    body.step71-parent-mobile-dashboard .step77-chip-month,
+    body.muthaqus-step76 .step77-chip-month {
+        font-size: 15px !important;
+    }
+
+    .step77-month-chip b,
+    body.step71-parent-mobile-dashboard .step77-month-chip b,
+    body.muthaqus-step76 .step77-month-chip b {
+        min-width: 88px !important;
+        font-size: 13px !important;
+    }
+
+    .step70-due-action,
+    body.step71-parent-mobile-dashboard .step70-due-action,
+    body.muthaqus-step76 .step70-due-action {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .step70-payment-due-card,
+    body.step71-parent-mobile-dashboard .step70-payment-due-card,
+    body.muthaqus-step76 .step70-payment-due-card {
+        padding: 15px !important;
+    }
+
+    .step70-payment-due-card h2,
+    body.step71-parent-mobile-dashboard .step70-payment-due-card h2,
+    body.muthaqus-step76 .step70-payment-due-card h2 {
+        font-size: 31px !important;
+    }
+
+    .page-parent-dashboard .step77-breakdown-title strong,
+    body.step71-parent-mobile-dashboard .step77-breakdown-title strong,
+    body.muthaqus-step76 .step77-breakdown-title strong {
+        font-size: 14px !important;
+    }
+
+    .page-parent-dashboard .step77-breakdown-title small,
+    body.step71-parent-mobile-dashboard .step77-breakdown-title small,
+    body.muthaqus-step76 .step77-breakdown-title small {
+        font-size: 11px !important;
+    }
+
+    .step77-chip-month,
+    body.step71-parent-mobile-dashboard .step77-chip-month,
+    body.muthaqus-step76 .step77-chip-month {
+        font-size: 14px !important;
+    }
+
+    .step77-month-chip b,
+    body.step71-parent-mobile-dashboard .step77-month-chip b,
+    body.muthaqus-step76 .step77-month-chip b {
+        min-width: 80px !important;
+        font-size: 12px !important;
+    }
+}
