@@ -12395,3 +12395,1076 @@ body.muthaqus-security-warning-open {
 
 /* MUTHAQUS_STEP71_PARENT_DASHBOARD_MOBILE_POLISH */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH
+
+   Comprehensive phone styling for:
+   - Public pages
+   - Authentication pages
+   - Parent portal
+   - Admin portal
+   - Forms, filters, tables, cards, modals and bottom navigation
+   ========================================================= */
+
+@media (max-width: 860px) {
+    :root {
+        --step76-safe-top: env(safe-area-inset-top, 0px);
+        --step76-safe-bottom: env(safe-area-inset-bottom, 0px);
+        --step76-page-gap: 12px;
+        --step76-radius: 20px;
+        --step76-border: #d7e5f3;
+        --step76-navy: #143f73;
+        --step76-blue: #2478d1;
+        --step76-muted: #6e8296;
+        --step76-shadow: 0 11px 28px rgba(15, 60, 104, 0.08);
+    }
+
+    html {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+        scroll-behavior: smooth;
+        background: #f3f7fc;
+        transform: none !important;
+    }
+
+    body.muthaqus-step76 {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100dvh;
+        margin: 0;
+        overflow-x: hidden !important;
+        background:
+            radial-gradient(
+                circle at 92% 3%,
+                rgba(38, 120, 208, 0.10),
+                transparent 27%
+            ),
+            #f3f7fc !important;
+        color: #203a53;
+        transform: none !important;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body.muthaqus-step76 *,
+    body.muthaqus-step76 *::before,
+    body.muthaqus-step76 *::after {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    body.muthaqus-step76 img,
+    body.muthaqus-step76 video,
+    body.muthaqus-step76 canvas,
+    body.muthaqus-step76 iframe,
+    body.muthaqus-step76 object {
+        max-width: 100%;
+    }
+
+    body.muthaqus-step76 a,
+    body.muthaqus-step76 button,
+    body.muthaqus-step76 input,
+    body.muthaqus-step76 select,
+    body.muthaqus-step76 textarea {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body.muthaqus-step76 input,
+    body.muthaqus-step76 select,
+    body.muthaqus-step76 textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 50px;
+        padding: 12px 14px !important;
+        border: 1px solid #d3e1ef !important;
+        border-radius: 14px !important;
+        background: #fbfdff !important;
+        color: #1d3953;
+        font-size: 16px !important;
+        line-height: 1.35;
+        outline: none;
+        box-shadow: none !important;
+    }
+
+    body.muthaqus-step76 textarea {
+        min-height: 112px;
+        resize: vertical;
+    }
+
+    body.muthaqus-step76 input:focus,
+    body.muthaqus-step76 select:focus,
+    body.muthaqus-step76 textarea:focus {
+        border-color: #6da8df !important;
+        background: #ffffff !important;
+        box-shadow: 0 0 0 4px rgba(37, 120, 209, 0.11) !important;
+    }
+
+    body.muthaqus-step76 label {
+        display: block;
+        margin-bottom: 7px;
+        color: #274963;
+        font-size: 12px;
+        font-weight: 850;
+        line-height: 1.35;
+    }
+
+    body.muthaqus-step76 .step76-touch-target,
+    body.muthaqus-step76 .btn,
+    body.muthaqus-step76 .small-btn,
+    body.muthaqus-step76 button,
+    body.muthaqus-step76 input[type="submit"] {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+
+    body.muthaqus-step76 .btn,
+    body.muthaqus-step76 .small-btn,
+    body.muthaqus-step76 button {
+        max-width: 100%;
+        border-radius: 13px;
+        line-height: 1.25;
+        white-space: normal;
+    }
+
+    /* ---------------------------------------------------------
+       Portal shell and mobile headers
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .app-shell,
+    body.muthaqus-step76 .portal-shell,
+    body.muthaqus-step76 .rules-shell {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100dvh;
+        display: block !important;
+        overflow: visible !important;
+        transform: none !important;
+        filter: none !important;
+        perspective: none !important;
+    }
+
+    body.muthaqus-step76 .pro-sidebar,
+    body.muthaqus-step76 .parent-side,
+    body.muthaqus-step76 .admin-side,
+    body.muthaqus-step76 .portal-sidebar,
+    body.muthaqus-step76 .rules-sidebar {
+        display: none !important;
+    }
+
+    body.muthaqus-step76 .app-main,
+    body.muthaqus-step76 .portal-main,
+    body.muthaqus-step76 .rules-main,
+    body.muthaqus-step76 main {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        transform: none !important;
+    }
+
+    body.muthaqus-step76:has(.mobile-app-header) .app-main,
+    body.muthaqus-step76:has(.mobile-app-header) .portal-main,
+    body.muthaqus-step76:has(.mobile-app-header) .rules-main {
+        padding:
+            calc(82px + var(--step76-safe-top))
+            var(--step76-page-gap)
+            calc(118px + var(--step76-safe-bottom))
+            !important;
+    }
+
+    body.muthaqus-step76 .mobile-app-header {
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        z-index: 9800 !important;
+        min-height: calc(70px + var(--step76-safe-top)) !important;
+        display: flex !important;
+        align-items: center !important;
+        padding:
+            calc(8px + var(--step76-safe-top))
+            72px
+            8px
+            12px
+            !important;
+        overflow: hidden !important;
+        border: 0 !important;
+        border-radius: 0 0 22px 22px !important;
+        background:
+            radial-gradient(
+                circle at 92% 0,
+                rgba(91, 171, 255, 0.36),
+                transparent 34%
+            ),
+            linear-gradient(145deg, #143f73, #0d3159)
+            !important;
+        box-shadow: 0 13px 32px rgba(7, 35, 64, 0.22) !important;
+        transform: none !important;
+    }
+
+    body.muthaqus-step76 .mobile-brand {
+        width: 100%;
+        min-width: 0;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    body.muthaqus-step76 .mobile-brand > span,
+    body.muthaqus-step76 .mobile-app-header .brand-icon {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        display: grid !important;
+        place-items: center !important;
+        margin: 0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.22) !important;
+        border-radius: 14px !important;
+        background: rgba(255, 255, 255, 0.13) !important;
+        font-size: 21px !important;
+    }
+
+    body.muthaqus-step76 .mobile-brand > div {
+        min-width: 0;
+    }
+
+    body.muthaqus-step76 .mobile-brand strong {
+        display: block !important;
+        max-width: 240px;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 900 !important;
+        line-height: 1.15 !important;
+        letter-spacing: 0.01em;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+
+    body.muthaqus-step76 .mobile-brand small {
+        display: block !important;
+        margin-top: 3px;
+        color: #bad9f7 !important;
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+        white-space: normal !important;
+    }
+
+    body.muthaqus-step76 #mutahusMobileFeatureBtn,
+    body.muthaqus-step76 .mobile-menu-btn {
+        position: fixed !important;
+        top: calc(12px + var(--step76-safe-top)) !important;
+        right: 12px !important;
+        z-index: 9900 !important;
+        width: 49px !important;
+        min-width: 49px !important;
+        height: 49px !important;
+        display: grid !important;
+        place-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        border-radius: 16px !important;
+        background: linear-gradient(180deg, #3185dd, #1763b5) !important;
+        color: #ffffff !important;
+        box-shadow: 0 11px 25px rgba(15, 75, 135, 0.27) !important;
+        font-size: 19px !important;
+        transform: none !important;
+    }
+
+    /* Public/auth top navigation */
+    body.muthaqus-step76 .top-taskbar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9700 !important;
+        min-height: calc(70px + var(--step76-safe-top)) !important;
+        display: flex !important;
+        align-items: center !important;
+        padding:
+            calc(8px + var(--step76-safe-top))
+            68px
+            8px
+            12px
+            !important;
+        border-radius: 0 0 22px 22px !important;
+        background:
+            radial-gradient(
+                circle at 92% 0,
+                rgba(91, 171, 255, 0.35),
+                transparent 34%
+            ),
+            linear-gradient(145deg, #143f73, #0d3159)
+            !important;
+        box-shadow: 0 13px 32px rgba(7, 35, 64, 0.20) !important;
+    }
+
+    body.muthaqus-step76 .top-taskbar .brand-block {
+        max-width: calc(100vw - 95px);
+        gap: 9px !important;
+    }
+
+    body.muthaqus-step76 .top-taskbar .brand-block strong {
+        color: #ffffff !important;
+        font-size: 12px !important;
+        line-height: 1.15 !important;
+        white-space: normal !important;
+    }
+
+    body.muthaqus-step76 .top-taskbar .brand-block small {
+        color: #bad9f7 !important;
+        font-size: 9px !important;
+    }
+
+    body.muthaqus-step76 .taskbar-links {
+        position: fixed !important;
+        top: calc(72px + var(--step76-safe-top)) !important;
+        right: 10px !important;
+        left: 10px !important;
+        z-index: 9650 !important;
+        max-height: calc(100dvh - 98px);
+        display: none;
+        padding: 11px !important;
+        overflow-y: auto;
+        border: 1px solid #d5e4f2 !important;
+        border-radius: 18px !important;
+        background: rgba(255, 255, 255, 0.99) !important;
+        box-shadow: 0 18px 48px rgba(7, 35, 64, 0.22) !important;
+    }
+
+    body.muthaqus-step76 .taskbar-links.show,
+    body.muthaqus-step76 .taskbar-links.open,
+    body.muthaqus-step76 .taskbar-links.active {
+        display: grid !important;
+        gap: 6px;
+    }
+
+    body.muthaqus-step76 .taskbar-links a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 9px 12px !important;
+        border-radius: 12px !important;
+        color: #204766 !important;
+        font-size: 12px !important;
+        font-weight: 800;
+    }
+
+    /* ---------------------------------------------------------
+       Fixed bottom navigation
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .mobile-bottom-nav,
+    body.muthaqus-step76 .admin-mobile-bottom {
+        position: fixed !important;
+        right: 9px !important;
+        bottom: calc(9px + var(--step76-safe-bottom)) !important;
+        left: 9px !important;
+        z-index: 9600 !important;
+        width: auto !important;
+        max-width: none !important;
+        min-height: 72px !important;
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        gap: 3px !important;
+        margin: 0 !important;
+        padding:
+            7px
+            5px
+            calc(7px + var(--step76-safe-bottom))
+            !important;
+        overflow: hidden !important;
+        border: 1px solid rgba(188, 210, 231, 0.95) !important;
+        border-radius: 22px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        box-shadow: 0 17px 46px rgba(7, 35, 64, 0.23) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    body.muthaqus-step76 .admin-mobile-bottom {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    }
+
+    body.muthaqus-step76 .mobile-bottom-nav a,
+    body.muthaqus-step76 .admin-mobile-bottom a {
+        min-width: 0 !important;
+        min-height: 58px !important;
+        display: grid !important;
+        justify-items: center;
+        align-content: center;
+        gap: 4px !important;
+        margin: 0 !important;
+        padding: 6px 1px !important;
+        overflow: hidden;
+        border-radius: 14px !important;
+        color: #6b8094 !important;
+        text-decoration: none;
+    }
+
+    body.muthaqus-step76 .mobile-bottom-nav a span,
+    body.muthaqus-step76 .admin-mobile-bottom a span {
+        font-size: 18px !important;
+        line-height: 1 !important;
+    }
+
+    body.muthaqus-step76 .mobile-bottom-nav a small,
+    body.muthaqus-step76 .admin-mobile-bottom a small {
+        max-width: 100%;
+        color: inherit !important;
+        font-size: 8px !important;
+        font-weight: 850 !important;
+        line-height: 1.05 !important;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    body.muthaqus-step76 .admin-mobile-bottom a small {
+        font-size: 7.2px !important;
+    }
+
+    body.muthaqus-step76 .mobile-bottom-nav a.active,
+    body.muthaqus-step76 .mobile-bottom-nav a.mutahus-current-link,
+    body.muthaqus-step76 .admin-mobile-bottom a.active,
+    body.muthaqus-step76 .admin-mobile-bottom a.mutahus-current-link {
+        background: linear-gradient(180deg, #287cd3, #15599f) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(21, 89, 159, 0.24) !important;
+    }
+
+    /* ---------------------------------------------------------
+       Page headers, stats and cards
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .page-hero-bar,
+    body.muthaqus-step76 .portal-hero,
+    body.muthaqus-step76 .rules-hero {
+        min-height: 0 !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        margin:
+            0
+            0
+            var(--step76-page-gap)
+            !important;
+        padding: 20px !important;
+        overflow: hidden;
+        border: 1px solid var(--step76-border) !important;
+        border-radius: 22px !important;
+        background:
+            radial-gradient(
+                circle at 94% 5%,
+                rgba(45, 125, 214, 0.15),
+                transparent 34%
+            ),
+            linear-gradient(145deg, #ffffff, #f6faff)
+            !important;
+        box-shadow: var(--step76-shadow) !important;
+    }
+
+    body.muthaqus-step76 .page-hero-bar h1,
+    body.muthaqus-step76 .portal-hero h1,
+    body.muthaqus-step76 .rules-hero h1 {
+        max-width: 100%;
+        margin: 6px 0 6px !important;
+        color: var(--step76-navy) !important;
+        font-size: clamp(29px, 8vw, 36px) !important;
+        line-height: 1.06 !important;
+        letter-spacing: -0.045em !important;
+        overflow-wrap: anywhere;
+    }
+
+    body.muthaqus-step76 .page-hero-bar p,
+    body.muthaqus-step76 .portal-hero p,
+    body.muthaqus-step76 .rules-hero p {
+        max-width: 100%;
+        margin: 0 !important;
+        color: var(--step76-muted) !important;
+        font-size: 12px !important;
+        line-height: 1.58 !important;
+    }
+
+    body.muthaqus-step76 .page-kicker,
+    body.muthaqus-step76 .badge-pro {
+        color: #2473bd !important;
+        font-size: 9px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.075em !important;
+    }
+
+    body.muthaqus-step76 .hero-actions {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    body.muthaqus-step76 .hero-actions .btn,
+    body.muthaqus-step76 .page-hero-bar > .btn {
+        width: 100% !important;
+        min-height: 46px !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        margin: 0 !important;
+        text-align: center;
+    }
+
+    body.muthaqus-step76 .stats,
+    body.muthaqus-step76 .stats-pro,
+    body.muthaqus-step76 .dashboard-stats,
+    body.muthaqus-step76 .summary-grid {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 9px !important;
+        margin-bottom: var(--step76-page-gap) !important;
+    }
+
+    body.muthaqus-step76 .stat-card,
+    body.muthaqus-step76 .pro-stat,
+    body.muthaqus-step76 .summary-card {
+        min-height: 132px !important;
+        display: grid !important;
+        align-content: start;
+        padding: 15px !important;
+        overflow: hidden;
+        border: 1px solid var(--step76-border) !important;
+        border-radius: 18px !important;
+        background:
+            radial-gradient(
+                circle at 94% 3%,
+                rgba(38, 120, 208, 0.08),
+                transparent 31%
+            ),
+            #ffffff
+            !important;
+        box-shadow: 0 9px 24px rgba(15, 60, 104, 0.07) !important;
+    }
+
+    body.muthaqus-step76 .stat-card > span,
+    body.muthaqus-step76 .pro-stat > span,
+    body.muthaqus-step76 .summary-card > span {
+        width: 39px !important;
+        height: 39px !important;
+        display: grid !important;
+        place-items: center !important;
+        margin: 0 0 9px !important;
+        border-radius: 12px !important;
+        background: #eaf3ff !important;
+        font-size: 18px !important;
+    }
+
+    body.muthaqus-step76 .stat-card h3,
+    body.muthaqus-step76 .pro-stat h3,
+    body.muthaqus-step76 .summary-card h3 {
+        min-height: 0 !important;
+        margin: 0 0 4px !important;
+        color: #64798e !important;
+        font-size: 10px !important;
+        line-height: 1.3 !important;
+    }
+
+    body.muthaqus-step76 .stat-card h2,
+    body.muthaqus-step76 .pro-stat h2,
+    body.muthaqus-step76 .summary-card h2 {
+        margin: 0 !important;
+        color: var(--step76-navy) !important;
+        font-size: 24px !important;
+        line-height: 1.1 !important;
+    }
+
+    body.muthaqus-step76 .table-box,
+    body.muthaqus-step76 .table-box-pro,
+    body.muthaqus-step76 .admin-record-section,
+    body.muthaqus-step76 .form-card-pro,
+    body.muthaqus-step76 .auth-card-pro,
+    body.muthaqus-step76 .quick-panel-pro,
+    body.muthaqus-step76 .filter-panel,
+    body.muthaqus-step76 .s64-card,
+    body.muthaqus-step76 .step64-section-card,
+    body.muthaqus-step76 .step67-settings-card,
+    body.muthaqus-step76 .step70-rules-main-card,
+    body.muthaqus-step76 .step70-child-help-card,
+    body.muthaqus-step76 .step70-rules-note-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin:
+            0
+            0
+            var(--step76-page-gap)
+            !important;
+        padding: 17px !important;
+        overflow: visible !important;
+        border: 1px solid var(--step76-border) !important;
+        border-radius: var(--step76-radius) !important;
+        background: #ffffff !important;
+        box-shadow: var(--step76-shadow) !important;
+    }
+
+    body.muthaqus-step76 .table-header,
+    body.muthaqus-step76 .form-header,
+    body.muthaqus-step76 .step64-section-head,
+    body.muthaqus-step76 .s64-head {
+        display: block !important;
+        margin-bottom: 13px !important;
+    }
+
+    body.muthaqus-step76 .table-header h2,
+    body.muthaqus-step76 .form-header h1,
+    body.muthaqus-step76 .form-header h2,
+    body.muthaqus-step76 .step64-section-head h2,
+    body.muthaqus-step76 .s64-head h2 {
+        margin: 4px 0 5px !important;
+        color: var(--step76-navy) !important;
+        font-size: 21px !important;
+        line-height: 1.18 !important;
+        letter-spacing: -0.035em !important;
+    }
+
+    body.muthaqus-step76 .table-header p,
+    body.muthaqus-step76 .form-header p,
+    body.muthaqus-step76 .step64-section-head p,
+    body.muthaqus-step76 .s64-head p {
+        margin: 0 !important;
+        color: var(--step76-muted) !important;
+        font-size: 10.5px !important;
+        line-height: 1.52 !important;
+    }
+
+    body.muthaqus-step76 .table-header .btn,
+    body.muthaqus-step76 .table-header a.btn {
+        width: 100% !important;
+        margin-top: 11px !important;
+    }
+
+    /* ---------------------------------------------------------
+       Forms, filters and auth pages
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .auth-page-pro,
+    body.muthaqus-step76 .auth-layout,
+    body.muthaqus-step76 .register-layout {
+        width: 100% !important;
+        min-height: calc(100dvh - 70px) !important;
+        display: block !important;
+        padding:
+            22px
+            12px
+            calc(28px + var(--step76-safe-bottom))
+            !important;
+    }
+
+    body.muthaqus-step76 .auth-info-panel {
+        display: none !important;
+    }
+
+    body.muthaqus-step76 .auth-card-pro {
+        width: min(440px, 100%) !important;
+        margin: 0 auto !important;
+        padding: 22px !important;
+        border-radius: 23px !important;
+    }
+
+    body.muthaqus-step76 .auth-card-pro .form-header {
+        text-align: left !important;
+    }
+
+    body.muthaqus-step76 .auth-card-pro .form-header h1 {
+        font-size: 31px !important;
+    }
+
+    body.muthaqus-step76 form {
+        max-width: 100%;
+    }
+
+    body.muthaqus-step76 .field-group,
+    body.muthaqus-step76 .form-group {
+        width: 100%;
+        margin-bottom: 13px !important;
+    }
+
+    body.muthaqus-step76 .form-grid,
+    body.muthaqus-step76 .form-row,
+    body.muthaqus-step76 .two-column,
+    body.muthaqus-step76 .step70-form-two-column,
+    body.muthaqus-step76 .step70-profile-two-column {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+    }
+
+    body.muthaqus-step76 .filter-panel,
+    body.muthaqus-step76 .s64-filter,
+    body.muthaqus-step76 .step64-payment-filter,
+    body.muthaqus-step76 .filters-row,
+    body.muthaqus-step76 .filter-grid {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 11px !important;
+        padding: 14px !important;
+        border: 1px solid var(--step76-border) !important;
+        border-radius: 17px !important;
+        background: #f8fbff !important;
+    }
+
+    body.muthaqus-step76 .filter-panel .btn,
+    body.muthaqus-step76 .s64-filter .btn,
+    body.muthaqus-step76 .step64-payment-filter .btn {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* ---------------------------------------------------------
+       Universal responsive record cards for tables
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .table-scroll-shell,
+    body.muthaqus-step76 .admin-record-table-shell,
+    body.muthaqus-step76 .s64-table-shell,
+    body.muthaqus-step76 .step64-payment-table-shell,
+    body.muthaqus-step76 .admin-recent-payment-shell {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    body.muthaqus-step76 .table-box table:not(.step76-keep-mobile-table),
+    body.muthaqus-step76 .table-box-pro table:not(.step76-keep-mobile-table),
+    body.muthaqus-step76 .admin-record-section table:not(.step76-keep-mobile-table),
+    body.muthaqus-step76 .s64-card table:not(.step76-keep-mobile-table),
+    body.muthaqus-step76 .step64-section-card table:not(.step76-keep-mobile-table) {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: block !important;
+        border: 0 !important;
+        background: transparent !important;
+    }
+
+    body.muthaqus-step76 .table-box table thead,
+    body.muthaqus-step76 .table-box-pro table thead,
+    body.muthaqus-step76 .admin-record-section table thead,
+    body.muthaqus-step76 .s64-card table thead,
+    body.muthaqus-step76 .step64-section-card table thead {
+        display: none !important;
+    }
+
+    body.muthaqus-step76 .table-box table tbody,
+    body.muthaqus-step76 .table-box-pro table tbody,
+    body.muthaqus-step76 .admin-record-section table tbody,
+    body.muthaqus-step76 .s64-card table tbody,
+    body.muthaqus-step76 .step64-section-card table tbody {
+        width: 100% !important;
+        display: grid !important;
+        gap: 10px !important;
+    }
+
+    body.muthaqus-step76 .table-box table tbody > tr,
+    body.muthaqus-step76 .table-box-pro table tbody > tr,
+    body.muthaqus-step76 .admin-record-section table tbody > tr,
+    body.muthaqus-step76 .s64-card table tbody > tr,
+    body.muthaqus-step76 .step64-section-card table tbody > tr {
+        width: 100% !important;
+        display: grid !important;
+        padding: 14px !important;
+        overflow: hidden;
+        border: 1px solid #dce8f3 !important;
+        border-radius: 17px !important;
+        background:
+            radial-gradient(
+                circle at 95% 3%,
+                rgba(37, 119, 207, 0.07),
+                transparent 31%
+            ),
+            #ffffff
+            !important;
+        box-shadow: 0 8px 22px rgba(15, 60, 104, 0.06) !important;
+    }
+
+    body.muthaqus-step76 .table-box table tbody > tr > td,
+    body.muthaqus-step76 .table-box-pro table tbody > tr > td,
+    body.muthaqus-step76 .admin-record-section table tbody > tr > td,
+    body.muthaqus-step76 .s64-card table tbody > tr > td,
+    body.muthaqus-step76 .step64-section-card table tbody > tr > td {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: grid !important;
+        grid-template-columns: 92px minmax(0, 1fr) !important;
+        gap: 9px !important;
+        align-items: start !important;
+        padding: 9px 0 !important;
+        overflow-wrap: anywhere;
+        border: 0 !important;
+        border-bottom: 1px solid #edf2f7 !important;
+        background: transparent !important;
+        color: #294862 !important;
+        font-size: 11.5px !important;
+        line-height: 1.45 !important;
+        white-space: normal !important;
+        text-align: left !important;
+    }
+
+    body.muthaqus-step76 .table-box table tbody > tr > td::before,
+    body.muthaqus-step76 .table-box-pro table tbody > tr > td::before,
+    body.muthaqus-step76 .admin-record-section table tbody > tr > td::before,
+    body.muthaqus-step76 .s64-card table tbody > tr > td::before,
+    body.muthaqus-step76 .step64-section-card table tbody > tr > td::before {
+        content: attr(data-label);
+        color: #7a8c9e;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.045em;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    body.muthaqus-step76 .table-box table tbody > tr > td:last-child,
+    body.muthaqus-step76 .table-box-pro table tbody > tr > td:last-child,
+    body.muthaqus-step76 .admin-record-section table tbody > tr > td:last-child,
+    body.muthaqus-step76 .s64-card table tbody > tr > td:last-child,
+    body.muthaqus-step76 .step64-section-card table tbody > tr > td:last-child {
+        padding-bottom: 0 !important;
+        border-bottom: 0 !important;
+    }
+
+    body.muthaqus-step76 td .btn,
+    body.muthaqus-step76 td .small-btn,
+    body.muthaqus-step76 td button,
+    body.muthaqus-step76 .record-action-grid .small-btn,
+    body.muthaqus-step76 .student-mobile-actions .small-btn,
+    body.muthaqus-step76 .parent-mobile-actions .small-btn,
+    body.muthaqus-step76 .s64-pay-actions .small-btn,
+    body.muthaqus-step76 .step64-payment-actions .small-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 40px !important;
+        margin: 0 !important;
+        padding: 8px 7px !important;
+        border-radius: 11px !important;
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+    }
+
+    body.muthaqus-step76 .record-action-grid,
+    body.muthaqus-step76 .student-mobile-actions,
+    body.muthaqus-step76 .parent-mobile-actions,
+    body.muthaqus-step76 .s64-pay-actions,
+    body.muthaqus-step76 .step64-payment-actions,
+    body.muthaqus-step76 .step64-announcement-actions,
+    body.muthaqus-step76 .step64-rule-actions {
+        width: 100%;
+        min-width: 0 !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+
+    /* Empty rows */
+    body.muthaqus-step76 tr.empty-row,
+    body.muthaqus-step76 .empty-row {
+        width: 100% !important;
+        display: block !important;
+        padding: 20px !important;
+        border: 1px dashed #cadceb !important;
+        border-radius: 16px !important;
+        background: #f8fbff !important;
+        color: #6d8195 !important;
+        text-align: center !important;
+    }
+
+    /* ---------------------------------------------------------
+       Portal-specific layouts
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .step70-profile-layout,
+    body.muthaqus-step76 .step70-child-layout,
+    body.muthaqus-step76 .step70-rules-layout,
+    body.muthaqus-step76 .step67-settings-grid,
+    body.muthaqus-step76 .step64-announcement-workspace,
+    body.muthaqus-step76 .step64-rules-layout,
+    body.muthaqus-step76 .dashboard-grid-pro {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: var(--step76-page-gap) !important;
+    }
+
+    body.muthaqus-step76 .step70-profile-overview,
+    body.muthaqus-step76 .step70-child-side,
+    body.muthaqus-step76 .step70-rules-side,
+    body.muthaqus-step76 .step64-rule-form-card {
+        position: static !important;
+        top: auto !important;
+    }
+
+    body.muthaqus-step76 .step70-rules-summary,
+    body.muthaqus-step76 .step70-rules-summary,
+    body.muthaqus-step76 .step68-parent-summary,
+    body.muthaqus-step76 .info-grid-pro,
+    body.muthaqus-step76 .approval-status-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    body.muthaqus-step76 .step64-announcement-history-grid,
+    body.muthaqus-step76 .step68-child-grid,
+    body.muthaqus-step76 .step68-payment-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ---------------------------------------------------------
+       Modals, receipt and detail views
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .parent-detail-modal,
+    body.muthaqus-step76 .muthaqus-receipt-modal,
+    body.muthaqus-step76 .receipt-modal,
+    body.muthaqus-step76 .modal-overlay {
+        padding:
+            calc(7px + var(--step76-safe-top))
+            7px
+            calc(7px + var(--step76-safe-bottom))
+            !important;
+    }
+
+    body.muthaqus-step76 .parent-detail-content,
+    body.muthaqus-step76 .muthaqus-receipt-card,
+    body.muthaqus-step76 .receipt-modal-card,
+    body.muthaqus-step76 .modal-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: calc(
+            94dvh -
+            var(--step76-safe-top) -
+            var(--step76-safe-bottom)
+        ) !important;
+        overflow-y: auto !important;
+        border-radius: 22px !important;
+    }
+
+    body.muthaqus-step76 .muthaqus-receipt-body {
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    body.muthaqus-step76 .muthaqus-receipt-image {
+        max-width: 100% !important;
+        max-height: 65dvh !important;
+        object-fit: contain !important;
+    }
+
+    body.muthaqus-step76 .muthaqus-pdf-actions,
+    body.muthaqus-step76 .step68-payment-card-actions,
+    body.muthaqus-step76 .step68-contact-actions {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ---------------------------------------------------------
+       Landing page/public section spacing
+       --------------------------------------------------------- */
+
+    body.muthaqus-step76 .hero,
+    body.muthaqus-step76 .home-hero,
+    body.muthaqus-step76 .landing-hero,
+    body.muthaqus-step76 .public-hero {
+        min-height: 0 !important;
+        padding:
+            28px
+            15px
+            30px
+            !important;
+    }
+
+    body.muthaqus-step76 .hero h1,
+    body.muthaqus-step76 .home-hero h1,
+    body.muthaqus-step76 .landing-hero h1 {
+        max-width: 100%;
+        font-size: clamp(33px, 10vw, 46px) !important;
+        line-height: 1.03 !important;
+        overflow-wrap: anywhere;
+    }
+
+    body.muthaqus-step76 section {
+        max-width: 100%;
+    }
+
+    body.muthaqus-step76 .section,
+    body.muthaqus-step76 .content-section,
+    body.muthaqus-step76 .faq-section,
+    body.muthaqus-step76 .rules-section {
+        padding-right: 13px !important;
+        padding-left: 13px !important;
+    }
+
+    body.muthaqus-step76 .card-grid,
+    body.muthaqus-step76 .feature-grid,
+    body.muthaqus-step76 .school-grid,
+    body.muthaqus-step76 .faq-grid {
+        grid-template-columns: 1fr !important;
+        gap: 11px !important;
+    }
+}
+
+@media (max-width: 390px) {
+    body.muthaqus-step76:has(.mobile-app-header) .app-main,
+    body.muthaqus-step76:has(.mobile-app-header) .portal-main,
+    body.muthaqus-step76:has(.mobile-app-header) .rules-main {
+        padding-right: 9px !important;
+        padding-left: 9px !important;
+    }
+
+    body.muthaqus-step76 .mobile-brand strong {
+        max-width: 200px;
+        font-size: 10.7px !important;
+    }
+
+    body.muthaqus-step76 .stats,
+    body.muthaqus-step76 .stats-pro,
+    body.muthaqus-step76 .dashboard-stats,
+    body.muthaqus-step76 .summary-grid {
+        gap: 7px !important;
+    }
+
+    body.muthaqus-step76 .stat-card,
+    body.muthaqus-step76 .pro-stat,
+    body.muthaqus-step76 .summary-card {
+        min-height: 124px !important;
+        padding: 13px !important;
+    }
+
+    body.muthaqus-step76 .mobile-bottom-nav,
+    body.muthaqus-step76 .admin-mobile-bottom {
+        right: 6px !important;
+        left: 6px !important;
+        padding-right: 3px !important;
+        padding-left: 3px !important;
+    }
+
+    body.muthaqus-step76 .admin-mobile-bottom a small {
+        font-size: 6.8px !important;
+    }
+
+    body.muthaqus-step76 .table-box table tbody > tr > td,
+    body.muthaqus-step76 .table-box-pro table tbody > tr > td,
+    body.muthaqus-step76 .admin-record-section table tbody > tr > td,
+    body.muthaqus-step76 .s64-card table tbody > tr > td,
+    body.muthaqus-step76 .step64-section-card table tbody > tr > td {
+        grid-template-columns: 82px minmax(0, 1fr) !important;
+    }
+}
+
+/* MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH */
+

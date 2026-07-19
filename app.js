@@ -250,7 +250,7 @@ async function saveChild(event) {
             return;
         }
 
-        alert("Child details saved successfully in MongoDB. Waiting for admin approval.");
+        alert("Child details saved successfully. Waiting for admin approval.");
         window.location.href = "parent-dashboard.html";
     } catch (error) {
         alert("Add child error: " + error.message);
@@ -903,7 +903,7 @@ async function updatePaymentStatus(paymentId, status) {
             return;
         }
 
-        alert("Payment has been updated to " + status + " in MongoDB.");
+        alert("Payment status updated to " + status + ".");
         loadAdminPayments();
     } catch (error) {
         alert("Update payment error: " + error.message);
@@ -914,7 +914,7 @@ async function loadAdminDashboard() {
     const recentTable = document.getElementById("recentPaymentsTable");
 
     if (recentTable) {
-        recentTable.innerHTML = `<tr><td colspan="5" class="empty-row">Loading dashboard from MongoDB...</td></tr>`;
+        recentTable.innerHTML = `<tr><td colspan="5" class="empty-row">Loading dashboard securely...</td></tr>`;
     }
 
     try {
@@ -1043,7 +1043,7 @@ async function postAnnouncement(event) {
             return;
         }
 
-        alert("Announcement posted successfully in MongoDB.");
+        alert("Announcement posted successfully.");
         document.getElementById("announcementForm").reset();
         loadAdminAnnouncements();
     } catch (error) {
@@ -1085,7 +1085,7 @@ async function updateAnnouncementStatus(id, status) {
 }
 
 async function deleteAnnouncement(id) {
-    const confirmDelete = confirm("Delete this announcement from MongoDB?");
+    const confirmDelete = confirm("Delete this announcement?");
     if (!confirmDelete) return;
 
     try {
@@ -1401,7 +1401,7 @@ async function submitPayment(event) {
             return;
         }
 
-        alert("Payment proof and receipt image saved successfully in MongoDB. Waiting for admin approval.");
+        alert("Payment proof and receipt saved successfully. Waiting for admin approval.");
         window.location.href = "parent-dashboard.html";
     } catch (error) {
         alert("Payment upload error: " + error.message);
@@ -1694,7 +1694,7 @@ async function saveRuleFromAdmin(event) {
             return;
         }
 
-        alert(result.message || "Rule saved successfully in MongoDB.");
+        alert(result.message || "Rule saved successfully.");
         cancelRuleEdit();
         loadAdminRules();
     } catch (error) {
@@ -1739,7 +1739,7 @@ function cancelRuleEdit() {
 }
 
 async function deleteRule(id) {
-    const confirmDelete = confirm("Delete this rule from MongoDB?");
+    const confirmDelete = confirm("Delete this rule?");
 
     if (!confirmDelete) return;
 
@@ -1770,7 +1770,7 @@ async function deleteRule(id) {
 }
 
 async function resetDefaultRules() {
-    const confirmReset = confirm("Reset all rules to default in MongoDB? This will remove your edited rules.");
+    const confirmReset = confirm("Reset all rules to default? This will remove your edited rules.");
 
     if (!confirmReset) return;
 
@@ -1794,7 +1794,7 @@ async function resetDefaultRules() {
 
         cancelRuleEdit();
         loadAdminRules();
-        alert("Rules reset to default in MongoDB.");
+        alert("Rules reset to default successfully.");
     } catch (error) {
         alert("Reset rules error: " + error.message);
     }
@@ -1809,7 +1809,7 @@ async function loadAdminStudents() {
     if (table) {
         table.innerHTML = `
             <tr class="admin-mobile-empty-row">
-                <td colspan="8" class="empty-row">Loading students from MongoDB...</td>
+                <td colspan="8" class="empty-row">Loading student records...</td>
             </tr>
         `;
     }
@@ -2070,7 +2070,7 @@ async function updateStudentStatus(childId, status) {
             return;
         }
 
-        alert("Student status updated to " + status + " in MongoDB.");
+        alert("Student status updated to " + status + ".");
         loadAdminStudents();
     } catch (error) {
         alert("Update student error: " + error.message);
@@ -2078,7 +2078,7 @@ async function updateStudentStatus(childId, status) {
 }
 
 async function removeStudent(childId) {
-    const confirmRemove = confirm("Are you sure you want to remove this student from MongoDB? Related payment records will also be removed.");
+    const confirmRemove = confirm("Are you sure you want to remove this student? Related payment records will also be removed.");
 
     if (!confirmRemove) return;
 
@@ -2101,7 +2101,7 @@ async function removeStudent(childId) {
             return;
         }
 
-        alert("Student removed successfully from MongoDB.");
+        alert("Student removed successfully.");
         loadAdminStudents();
     } catch (error) {
         alert("Remove student error: " + error.message);
@@ -2117,7 +2117,7 @@ async function loadAdminParents() {
     if (table) {
         table.innerHTML = `
             <tr class="admin-mobile-empty-row">
-                <td colspan="7" class="empty-row">Loading parents from MongoDB...</td>
+                <td colspan="7" class="empty-row">Loading parent records...</td>
             </tr>
         `;
     }
@@ -2654,7 +2654,7 @@ async function updateParentStatus(parentId, status) {
             return;
         }
 
-        alert("Parent status updated to " + status + " in MongoDB.");
+        alert("Parent status updated to " + status + ".");
         loadAdminParents();
     } catch (error) {
         alert("Update parent error: " + error.message);
@@ -2662,7 +2662,7 @@ async function updateParentStatus(parentId, status) {
 }
 
 async function removeParentAndRecords(parentId) {
-    const confirmRemove = confirm("Delete this parent from MongoDB? This will also delete their children and payment records.");
+    const confirmRemove = confirm("Delete this parent account? This will also delete their children and payment records.");
 
     if (!confirmRemove) return;
 
@@ -7647,7 +7647,7 @@ function downloadPaymentInvoice(paymentId, source = "parent") {
             recentTable.innerHTML = `
                 <tr class="admin-recent-empty-row">
                     <td colspan="5" class="empty-row">
-                        Loading dashboard from MongoDB...
+                        Loading dashboard securely...
                     </td>
                 </tr>
             `;
@@ -8883,3 +8883,326 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP74_PREMIUM_INVOICE_LAYOUT
 
 // MUTHAQUS_STEP75_PAYMENT_DUE_TOTAL_FIX
+
+
+
+/* =========================================================
+   MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH
+
+   1. Removes technical database wording from user-facing text.
+   2. Adds consistent mobile page identity and table labels.
+   3. Prevents duplicate mobile headers/navigation.
+   4. Makes fixed bottom navigation reliable on all portal pages.
+   ========================================================= */
+
+(function () {
+    "use strict";
+
+    if (window.__muthaqusStep76Loaded) return;
+    window.__muthaqusStep76Loaded = true;
+
+    const MOBILE_QUERY = window.matchMedia("(max-width: 860px)");
+
+    function friendlyUserText(value) {
+        let text = String(value ?? "");
+
+        const replacements = [
+            [/Loading dashboard from MongoDB\.\.\./gi, "Loading dashboard securely..."],
+            [/Loading students from MongoDB\.\.\./gi, "Loading student records..."],
+            [/Loading parents from MongoDB\.\.\./gi, "Loading parent records..."],
+            [/saved successfully in MongoDB/gi, "saved successfully"],
+            [/saved to MongoDB/gi, "saved successfully"],
+            [/updated successfully in MongoDB/gi, "updated successfully"],
+            [/updated to ([^.]+) in MongoDB/gi, "updated to $1"],
+            [/reset to default in MongoDB/gi, "reset to default successfully"],
+            [/from MongoDB/gi, ""],
+            [/to MongoDB/gi, ""],
+            [/in MongoDB/gi, ""],
+            [/MongoDB admins/gi, "secure admin records"],
+            [/MongoDB database/gi, "secure records"],
+            [/\bMongoDB\b/gi, "the system"]
+        ];
+
+        replacements.forEach(([pattern, replacement]) => {
+            text = text.replace(pattern, replacement);
+        });
+
+        return text
+            .replace(/\s{2,}/g, " ")
+            .replace(/\s+([?.!,])/g, "$1")
+            .trim();
+    }
+
+    /*
+     * Alerts and confirmations are passed through friendly wording,
+     * including messages returned from API responses.
+     */
+    const originalAlert = window.alert.bind(window);
+    const originalConfirm = window.confirm.bind(window);
+
+    window.alert = function (message) {
+        return originalAlert(friendlyUserText(message));
+    };
+
+    window.confirm = function (message) {
+        return originalConfirm(friendlyUserText(message));
+    };
+
+    function shouldSkipTextNode(node) {
+        const parent = node.parentElement;
+
+        return !parent || Boolean(
+            parent.closest(
+                "script, style, noscript, code, pre, textarea"
+            )
+        );
+    }
+
+    function sanitiseNode(root) {
+        if (!root) return;
+
+        if (root.nodeType === Node.TEXT_NODE) {
+            if (shouldSkipTextNode(root)) return;
+
+            const nextText = friendlyUserText(root.nodeValue);
+
+            if (nextText && nextText !== root.nodeValue.trim()) {
+                root.nodeValue = nextText;
+            }
+
+            return;
+        }
+
+        if (root.nodeType !== Node.ELEMENT_NODE &&
+            root.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
+            return;
+        }
+
+        if (root.nodeType === Node.ELEMENT_NODE) {
+            ["placeholder", "title", "aria-label", "data-message"].forEach(
+                attributeName => {
+                    if (!root.hasAttribute?.(attributeName)) return;
+
+                    const currentValue = root.getAttribute(attributeName);
+                    const nextValue = friendlyUserText(currentValue);
+
+                    if (nextValue !== currentValue) {
+                        root.setAttribute(attributeName, nextValue);
+                    }
+                }
+            );
+
+            if (
+                root.matches?.(
+                    'input[type="button"], input[type="submit"], input[type="reset"]'
+                )
+            ) {
+                const nextValue = friendlyUserText(root.value);
+
+                if (nextValue !== root.value) {
+                    root.value = nextValue;
+                }
+            }
+        }
+
+        const walker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode(node) {
+                    return shouldSkipTextNode(node)
+                        ? NodeFilter.FILTER_REJECT
+                        : NodeFilter.FILTER_ACCEPT;
+                }
+            }
+        );
+
+        let node;
+
+        while ((node = walker.nextNode())) {
+            const currentValue = node.nodeValue;
+            const nextValue = friendlyUserText(currentValue);
+
+            if (nextValue && nextValue !== currentValue.trim()) {
+                node.nodeValue = nextValue;
+            }
+        }
+    }
+
+    function currentPageName() {
+        return (
+            window.location.pathname.split("/").pop() ||
+            "index.html"
+        )
+            .replace(/\.html$/i, "")
+            .replace(/[^a-z0-9_-]+/gi, "-")
+            .toLowerCase();
+    }
+
+    function addStep76PageIdentity() {
+        const pageName = currentPageName();
+
+        document.body?.classList.add(
+            "muthaqus-step76",
+            "muthaqus-mobile-perfect",
+            `step76-page-${pageName}`
+        );
+
+        document.documentElement.dataset.step76Page = pageName;
+    }
+
+    function addTableLabels(table) {
+        if (
+            !table ||
+            table.dataset.step76Labels === "true" ||
+            table.closest(".muthaqus-receipt-modal")
+        ) {
+            return;
+        }
+
+        const headers = Array.from(
+            table.querySelectorAll("thead th")
+        ).map(header =>
+            friendlyUserText(header.textContent) || "Details"
+        );
+
+        if (!headers.length) return;
+
+        table.querySelectorAll("tbody tr").forEach(row => {
+            Array.from(row.children).forEach((cell, index) => {
+                if (
+                    cell.tagName !== "TD" ||
+                    cell.hasAttribute("data-label")
+                ) {
+                    return;
+                }
+
+                cell.setAttribute(
+                    "data-label",
+                    headers[index] || "Details"
+                );
+            });
+        });
+
+        table.dataset.step76Labels = "true";
+    }
+
+    function improveTables(root = document) {
+        root.querySelectorAll?.("table").forEach(addTableLabels);
+    }
+
+    function removeDuplicateElements(selector) {
+        const elements = Array.from(
+            document.querySelectorAll(selector)
+        );
+
+        elements.slice(1).forEach(element => element.remove());
+    }
+
+    function keepSingleMobileChrome() {
+        removeDuplicateElements(".mobile-app-header");
+        removeDuplicateElements(".admin-mobile-bottom");
+        removeDuplicateElements(
+            ".mobile-bottom-nav:not(.admin-mobile-bottom)"
+        );
+        removeDuplicateElements("#mutahusMobileFeatureBtn");
+    }
+
+    function moveBottomNavigationToBody() {
+        if (!MOBILE_QUERY.matches || !document.body) return;
+
+        document
+            .querySelectorAll(
+                ".mobile-bottom-nav, .admin-mobile-bottom"
+            )
+            .forEach(nav => {
+                if (nav.parentElement !== document.body) {
+                    document.body.appendChild(nav);
+                }
+            });
+    }
+
+    function normaliseMobileButtons(root = document) {
+        root.querySelectorAll?.(
+            "button, .btn, .small-btn, a.btn, input[type='submit']"
+        ).forEach(button => {
+            if (!button.hasAttribute("type") &&
+                button.tagName === "BUTTON") {
+                button.type = "button";
+            }
+
+            button.classList.add("step76-touch-target");
+        });
+    }
+
+    function applyMobileReadyState() {
+        addStep76PageIdentity();
+        keepSingleMobileChrome();
+        improveTables();
+        normaliseMobileButtons();
+
+        if (MOBILE_QUERY.matches) {
+            moveBottomNavigationToBody();
+
+            /*
+             * Fixed elements become unreliable when a transformed ancestor
+             * exists. Removing body transforms keeps the header/nav attached
+             * to the phone viewport while scrolling.
+             */
+            document.documentElement.style.transform = "none";
+            document.body.style.transform = "none";
+            document.body.classList.add("step76-mobile-ready");
+        }
+
+        sanitiseNode(document.body);
+    }
+
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    sanitiseNode(node);
+                    return;
+                }
+
+                sanitiseNode(node);
+                improveTables(node);
+                normaliseMobileButtons(node);
+            });
+        });
+
+        if (MOBILE_QUERY.matches) {
+            keepSingleMobileChrome();
+            moveBottomNavigationToBody();
+        }
+    });
+
+    if (document.body) {
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        applyMobileReadyState();
+    }
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        applyMobileReadyState
+    );
+
+    window.addEventListener("load", applyMobileReadyState);
+    window.addEventListener("pageshow", applyMobileReadyState);
+    window.addEventListener("resize", applyMobileReadyState);
+
+    MOBILE_QUERY.addEventListener?.(
+        "change",
+        applyMobileReadyState
+    );
+
+    window.setTimeout(applyMobileReadyState, 150);
+    window.setTimeout(applyMobileReadyState, 600);
+})();
+
+// MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH
+
