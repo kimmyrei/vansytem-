@@ -8495,8 +8495,67 @@ function renderParentPaymentDueReminder(children, payments) {
         0
     );
 
-    const currentPayment =
-        getBestCurrentPayment(payments, period);
+    /*
+     * A parent may have more than one payment record for the same month,
+     * for example RM300 for one child and RM80 for another child.
+     *
+     * The old version selected only one Paid record, normally the newest,
+     * so the reminder showed RM80 instead of RM380.
+     *
+     * Step 75 totals every unique payment record for the current month.
+     */
+    const seenPaymentIds = new Set();
+
+    const currentMonthPayments = payments.filter(payment => {
+        if (!paymentMatchesCurrentPeriod(payment, period)) {
+            return false;
+        }
+
+        const uniqueKey = String(
+            payment.id ||
+            [
+                payment.month,
+                payment.amount,
+                payment.studentId,
+                payment.studentName,
+                payment.receiptName,
+                payment.createdAt
+            ].join("|")
+        );
+
+        if (seenPaymentIds.has(uniqueKey)) {
+            return false;
+        }
+
+        seenPaymentIds.add(uniqueKey);
+        return true;
+    });
+
+    const sumByStatus = paymentStatus => {
+        return currentMonthPayments
+            .filter(payment => payment.status === paymentStatus)
+            .reduce(
+                (sum, payment) =>
+                    sum + Number(payment.amount || 0),
+                0
+            );
+    };
+
+    const paidAmount = sumByStatus("Paid");
+    const pendingAmount = sumByStatus("Pending");
+    const rejectedAmount = sumByStatus("Rejected");
+
+    const paidRecords = currentMonthPayments.filter(
+        payment => payment.status === "Paid"
+    );
+
+    const pendingRecords = currentMonthPayments.filter(
+        payment => payment.status === "Pending"
+    );
+
+    const rejectedRecords = currentMonthPayments.filter(
+        payment => payment.status === "Rejected"
+    );
 
     const dueDate = `${MUTHAQUS_PAYMENT_DUE_DAY} ${period.label}`;
 
@@ -8512,13 +8571,25 @@ function renderParentPaymentDueReminder(children, payments) {
         monthText.innerText = period.label;
     }
 
-    if (currentPayment?.status === "Paid") {
+    /*
+     * Fully paid:
+     * Use the real total of all Paid records for the current month.
+     */
+    if (
+        paidAmount > 0 &&
+        (
+            monthlyAmount <= 0 ||
+            paidAmount >= monthlyAmount
+        )
+    ) {
         card.classList.add("is-paid");
         status.innerText = "Paid";
-        amount.innerText =
-            `RM${Number(currentPayment.amount || monthlyAmount).toFixed(2)}`;
+        amount.innerText = `RM${paidAmount.toFixed(2)}`;
+
         dateText.innerText =
-            `${period.label} payment completed`;
+            paidRecords.length > 1
+                ? `${period.label} payment completed across ${paidRecords.length} records`
+                : `${period.label} payment completed`;
 
         if (action) {
             action.innerText = "View Payment History";
@@ -8528,13 +8599,55 @@ function renderParentPaymentDueReminder(children, payments) {
         return;
     }
 
-    if (currentPayment?.status === "Pending") {
+    /*
+     * Some money is already approved, but the monthly total is not complete.
+     */
+    if (paidAmount > 0) {
+        card.classList.add("is-pending");
+        status.innerText = "Partially Paid";
+        amount.innerText = `RM${paidAmount.toFixed(2)}`;
+
+        dateText.innerText =
+            monthlyAmount > 0
+                ? `RM${paidAmount.toFixed(2)} paid of RM${monthlyAmount.toFixed(2)}`
+                : `${period.label} payment is partially completed`;
+
+        if (action) {
+            action.innerText =
+                pendingAmount > 0
+                    ? "View Submission"
+                    : "Upload Remaining Payment";
+
+            action.href =
+                pendingAmount > 0
+                    ? "#paymentHistorySection"
+                    : "upload-payment.html";
+        }
+
+        return;
+    }
+
+    /*
+     * One or more current-month receipts are waiting for admin review.
+     * Show the total submitted amount rather than only one record.
+     */
+    if (pendingAmount > 0 || pendingRecords.length > 0) {
         card.classList.add("is-pending");
         status.innerText = "Under Review";
+
         amount.innerText =
-            `RM${Number(currentPayment.amount || monthlyAmount).toFixed(2)}`;
+            pendingAmount > 0
+                ? `RM${pendingAmount.toFixed(2)}`
+                : (
+                    monthlyAmount > 0
+                        ? `RM${monthlyAmount.toFixed(2)}`
+                        : "Submitted"
+                );
+
         dateText.innerText =
-            "Receipt submitted — waiting for admin approval";
+            pendingRecords.length > 1
+                ? `${pendingRecords.length} receipts submitted — waiting for admin approval`
+                : "Receipt submitted — waiting for admin approval";
 
         if (action) {
             action.innerText = "View Submission";
@@ -8544,13 +8657,21 @@ function renderParentPaymentDueReminder(children, payments) {
         return;
     }
 
-    if (currentPayment?.status === "Rejected") {
+    /*
+     * A rejected current-month payment needs a new receipt.
+     */
+    if (rejectedAmount > 0 || rejectedRecords.length > 0) {
         card.classList.add("is-rejected");
         status.innerText = "Action Needed";
+
         amount.innerText =
             monthlyAmount > 0
                 ? `RM${monthlyAmount.toFixed(2)}`
-                : "Resubmit";
+                : (
+                    rejectedAmount > 0
+                        ? `RM${rejectedAmount.toFixed(2)}`
+                        : "Resubmit"
+                );
 
         dateText.innerText =
             "Previous payment was rejected. Upload a new receipt.";
@@ -8760,3 +8881,5 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP71_PARENT_DASHBOARD_MOBILE_POLISH
 
 // MUTHAQUS_STEP74_PREMIUM_INVOICE_LAYOUT
+
+// MUTHAQUS_STEP75_PAYMENT_DUE_TOTAL_FIX
