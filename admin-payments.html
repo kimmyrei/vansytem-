@@ -7,7 +7,7 @@
     <title>Payment Management | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page-admin-payments step65-payment-desktop step66-payment-clean-layout step80-admin-payments step81-admin-payments step82-admin-payments">
+<body class="page-admin-payments step65-payment-desktop step66-payment-clean-layout step80-admin-payments step81-admin-payments step82-admin-payments step86-monthly-report">
 
 <div class="app-shell">
     <aside class="pro-sidebar admin-side">
@@ -252,6 +252,99 @@
             </div>
         </section>
 
+
+        <section class="step86-closing-report">
+            <div class="step86-report-head">
+                <div>
+                    <span class="page-kicker">MONTH-END REVIEW</span>
+                    <h2>Monthly Closing Report</h2>
+                    <p>
+                        Review collection performance, outstanding balances
+                        and accounts that still need attention.
+                    </p>
+                </div>
+
+                <div class="step86-report-controls">
+                    <div>
+                        <label for="monthlyClosingMonth">Report month</label>
+                        <select id="monthlyClosingMonth" onchange="renderMonthlyClosingReport()"></select>
+                    </div>
+
+                    <button class="btn btn-primary-pro" type="button" onclick="downloadMonthlyClosingPDF()">
+                        PDF Report
+                    </button>
+
+                    <button class="btn btn-outline-pro" type="button" onclick="downloadMonthlyClosingCSV()">
+                        CSV Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="step86-report-summary">
+                <article>
+                    <span>🧾</span>
+                    <div><small>Expected</small><strong id="closingExpectedTotal">RM0.00</strong></div>
+                </article>
+
+                <article class="collected">
+                    <span>✅</span>
+                    <div><small>Collected</small><strong id="closingCollectedTotal">RM0.00</strong></div>
+                </article>
+
+                <article class="pending">
+                    <span>⏳</span>
+                    <div><small>Under Review</small><strong id="closingPendingTotal">RM0.00</strong></div>
+                </article>
+
+                <article class="outstanding">
+                    <span>⚠️</span>
+                    <div><small>Outstanding</small><strong id="closingOutstandingTotal">RM0.00</strong></div>
+                </article>
+
+                <article class="rate">
+                    <span>📈</span>
+                    <div><small>Collection Rate</small><strong id="closingCollectionRate">0.0%</strong></div>
+                </article>
+            </div>
+
+            <div class="step86-rate-panel">
+                <div>
+                    <span>Collection progress</span>
+                    <strong id="closingRateTrend" class="step86-trend">0.0% vs previous month</strong>
+                </div>
+
+                <div class="step86-progress-track">
+                    <span id="closingCollectionProgress"></span>
+                </div>
+
+                <div class="step86-rate-meta">
+                    <span>Paid accounts: <b id="closingPaidAccounts">0</b></span>
+                    <span>Under review: <b id="closingReviewAccounts">0</b></span>
+                    <span>Need attention: <b id="closingAttentionCount">0</b></span>
+                    <span>Generated: <b id="closingGeneratedDate">-</b></span>
+                </div>
+            </div>
+
+            <div class="step86-attention-panel">
+                <header>
+                    <div>
+                        <span>⚠️</span>
+                        <div>
+                            <small>FOLLOW-UP LIST</small>
+                            <h3>Accounts Requiring Attention</h3>
+                        </div>
+                    </div>
+                </header>
+
+                <div id="closingAttentionList" class="step86-attention-list">
+                    <div class="step86-report-empty">
+                        <span>⏳</span>
+                        <strong>Preparing monthly report...</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="step80-arrears-section">
             <div class="step80-arrears-section-head">
                 <div>
@@ -419,4 +512,4 @@
 <script>loadAdminPayments();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM -->
+<!-- MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE -->

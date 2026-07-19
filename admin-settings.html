@@ -7,225 +7,371 @@
     <title>Admin Settings | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page-admin-settings step67-admin-settings">
+<body class="page-admin-settings step67-admin-settings step84-security-settings step89-backup-restore">
 
 <div class="app-shell">
-
-<aside class="pro-sidebar admin-side">
-    <div class="sidebar-brand">
-        <span>🚐</span>
-        <div>
-            <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
-            <small>Admin Control</small>
-        </div>
-    </div>
-
-    <nav class="sidebar-menu">
-        <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
-        <a href="admin-students.html"><span>🎒</span> Students</a>
-        <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
-        <a href="admin-payments.html"><span>💳</span> Payments</a>
-        <a href="admin-announcements.html"><span>📢</span> Announcements</a>
-        <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
-        <a class="active" href="admin-settings.html"><span>⚙️</span> Settings</a>
-    </nav>
-
-    <div class="sidebar-bottom">
-        <div class="mini-help">
-            <strong>Secure settings</strong>
-            <p>Keep backups private and protect the admin password.</p>
-        </div>
-
-        <a href="#" onclick="adminLogout()" class="logout-btn">
-            <span>🚪</span> Logout
-        </a>
-    </div>
-</aside>
-
-<main class="app-main">
-
-    <div class="mobile-app-header mobile-admin-header">
-        <div class="mobile-brand">
+    <aside class="pro-sidebar admin-side">
+        <div class="sidebar-brand">
             <span>🚐</span>
             <div>
                 <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
-                <small>Admin Settings</small>
+                <small>Admin Control</small>
             </div>
         </div>
-    </div>
 
-    <nav class="mobile-bottom-nav admin-mobile-bottom">
-        <a href="admin-dashboard.html"><span>📊</span><small>Home</small></a>
-        <a href="admin-students.html"><span>🎒</span><small>Students</small></a>
-        <a href="admin-parents.html"><span>👨‍👩‍👧</span><small>Parents</small></a>
-        <a href="admin-payments.html"><span>💳</span><small>Pay</small></a>
-        <a href="admin-announcements.html"><span>📢</span><small>Notice</small></a>
-        <a href="admin-rules.html"><span>📘</span><small>Rules</small></a>
-    </nav>
+        <nav class="sidebar-menu">
+            <a href="admin-dashboard.html"><span>📊</span> Dashboard</a>
+            <a href="admin-students.html"><span>🎒</span> Students</a>
+            <a href="admin-parents.html"><span>👨‍👩‍👧</span> Parents</a>
+            <a href="admin-payments.html"><span>💳</span> Payments</a>
+            <a href="admin-announcements.html"><span>📢</span> Announcements</a>
+            <a href="admin-rules.html"><span>📘</span> Manage Rules</a>
+            <a class="active" href="admin-settings.html"><span>⚙️</span> Settings</a>
+        </nav>
 
-    <section class="page-hero-bar step67-settings-hero">
-        <div>
-            <span class="page-kicker">ADMIN ACCOUNT</span>
-            <h1>Admin Settings</h1>
-            <p>Manage account information, create secure backups and update the admin password.</p>
+        <div class="sidebar-bottom">
+            <div class="mini-help">
+                <strong>Security Centre</strong>
+                <p>Review account activity and keep recovery files private.</p>
+            </div>
+
+            <a href="#" onclick="adminLogout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        <div class="mobile-app-header mobile-admin-header">
+            <div class="mobile-brand">
+                <span>🚐</span>
+                <div>
+                    <strong>MUTHAQUS GLOBAL ENTERPRISE</strong>
+                    <small>Security & Recovery</small>
+                </div>
+            </div>
         </div>
 
-        <div class="hero-actions">
-            <a href="admin-dashboard.html" class="btn btn-light-pro">← Dashboard</a>
-            <a href="index.html" class="btn btn-primary-pro">Main Website</a>
-        </div>
-    </section>
+        <nav class="mobile-bottom-nav admin-mobile-bottom">
+            <a href="admin-dashboard.html"><span>📊</span><small>Home</small></a>
+            <a href="admin-students.html"><span>🎒</span><small>Students</small></a>
+            <a href="admin-parents.html"><span>👨‍👩‍👧</span><small>Parents</small></a>
+            <a href="admin-payments.html"><span>💳</span><small>Pay</small></a>
+            <a href="admin-announcements.html"><span>📢</span><small>Notice</small></a>
+            <a href="admin-rules.html"><span>📘</span><small>Rules</small></a>
+        </nav>
 
-    <section class="step67-settings-grid">
-
-        <article class="step67-settings-card step67-account-card">
-            <div class="step67-card-heading">
-                <span class="step67-heading-icon">👤</span>
-                <div>
-                    <span class="page-kicker">ACCOUNT</span>
-                    <h2>Account Information</h2>
-                    <p>Details from the current authenticated admin session.</p>
-                </div>
-            </div>
-
-            <div class="step67-admin-profile">
-                <div class="step67-admin-avatar">A</div>
-
-                <div class="step67-admin-meta">
-                    <strong id="adminNameDisplay">Main Admin</strong>
-                    <span>@<span id="adminUsernameDisplay">admin</span></span>
-                    <span class="badge paid" id="adminStatusDisplay">Active</span>
-                </div>
-            </div>
-
-            <div class="step67-info-list">
-                <div>
-                    <span>Role</span>
-                    <strong id="adminRoleDisplay">superadmin</strong>
-                </div>
-
-                <div>
-                    <span>Security</span>
-                    <strong>Password protected</strong>
-                </div>
-
-                <div>
-                    <span>Database</span>
-                    <strong>MongoDB admins</strong>
-                </div>
-            </div>
-
-            <div class="step67-quick-links">
-                <a href="admin-students.html">🎒 Students</a>
-                <a href="admin-parents.html">👨‍👩‍👧 Parents</a>
-                <a href="admin-payments.html">💳 Payments</a>
-            </div>
-        </article>
-
-        <article class="step67-settings-card step67-backup-card">
-            <div class="step67-card-heading">
-                <span class="step67-heading-icon backup">💾</span>
-                <div>
-                    <span class="page-kicker">DATA SAFETY</span>
-                    <h2>System Backup</h2>
-                    <p>Download a JSON backup of important MongoDB records.</p>
-                </div>
-            </div>
-
-            <div class="step67-backup-summary">
-                <div>
-                    <span>Included data</span>
-                    <strong>Parents, students, payments, announcements and rules</strong>
-                </div>
-
-                <div>
-                    <span>Excluded data</span>
-                    <strong>Password hashes and large receipt images</strong>
-                </div>
-            </div>
-
-            <div class="step67-security-note">
-                <span>🔐</span>
+        <section class="page-hero-bar step84-settings-hero">
+            <div>
+                <span class="page-kicker">SECURITY & RECOVERY</span>
+                <h1>Admin Settings</h1>
                 <p>
-                    Keep the backup file private because it may contain parent
-                    contact details and payment information.
+                    Protect the admin account, review important actions
+                    and manage secure backup recovery.
                 </p>
             </div>
 
-            <button
-                class="btn btn-primary-pro step67-backup-button"
-                type="button"
-                onclick="downloadSystemBackup()"
-            >
-                ⬇ Download Backup JSON
-            </button>
-        </article>
-
-        <article class="step67-settings-card step67-password-card">
-            <div class="step67-card-heading">
-                <span class="step67-heading-icon password">🔑</span>
-                <div>
-                    <span class="page-kicker">SECURITY</span>
-                    <h2>Change Admin Password</h2>
-                    <p>You will be logged out after the password is changed.</p>
-                </div>
-            </div>
-
-            <form class="step67-password-form" onsubmit="changeAdminPasswordFromPage(event)">
-                <div class="field-group">
-                    <label for="adminCurrentPassword">Current Password</label>
-                    <input
-                        type="password"
-                        id="adminCurrentPassword"
-                        placeholder="Enter current admin password"
-                        autocomplete="current-password"
-                        required
-                    >
-                </div>
-
-                <div class="field-group">
-                    <label for="adminNewPassword">New Password</label>
-                    <input
-                        type="password"
-                        id="adminNewPassword"
-                        placeholder="Minimum 6 characters"
-                        autocomplete="new-password"
-                        required
-                    >
-                </div>
-
-                <div class="field-group">
-                    <label for="adminConfirmPassword">Confirm New Password</label>
-                    <input
-                        type="password"
-                        id="adminConfirmPassword"
-                        placeholder="Re-enter new password"
-                        autocomplete="new-password"
-                        required
-                    >
-                </div>
-
-                <button class="btn btn-primary-pro full-btn" type="submit">
-                    Change Password
+            <div class="hero-actions">
+                <a href="admin-dashboard.html" class="btn btn-light-pro">← Dashboard</a>
+                <button class="btn btn-primary-pro" type="button" onclick="loadAdminActivityLog()">
+                    Refresh Activity
                 </button>
-            </form>
-
-            <div class="step67-password-warning">
-                <strong>Important</strong>
-                <p>
-                    After changing the password, the previous password will stop working.
-                    Store the new password securely.
-                </p>
             </div>
-        </article>
+        </section>
 
-    </section>
+        <section class="step84-security-overview">
+            <article>
+                <span>🛡️</span>
+                <div>
+                    <small>Login Protection</small>
+                    <strong id="adminLockStatusDisplay">Protected</strong>
+                    <p>Locks for 15 minutes after 5 incorrect attempts.</p>
+                </div>
+            </article>
 
-</main>
+            <article>
+                <span>🕒</span>
+                <div>
+                    <small>Last Login</small>
+                    <strong id="adminSecurityLastLogin">Loading...</strong>
+                    <p>Most recent successful admin access.</p>
+                </div>
+            </article>
+
+            <article>
+                <span>⌛</span>
+                <div>
+                    <small>Auto Sign-Out</small>
+                    <strong>15 Minutes</strong>
+                    <p>Inactive admin sessions end automatically.</p>
+                </div>
+            </article>
+
+            <article>
+                <span>📋</span>
+                <div>
+                    <small>Today's Actions</small>
+                    <strong id="adminSecurityTodayActions">0</strong>
+                    <p>Recorded actions completed today.</p>
+                </div>
+            </article>
+        </section>
+
+        <section class="step84-settings-grid">
+            <article class="step84-settings-card account">
+                <div class="step84-card-heading">
+                    <span>👤</span>
+                    <div>
+                        <small>ADMIN ACCOUNT</small>
+                        <h2>Account Information</h2>
+                        <p>Current authenticated admin details.</p>
+                    </div>
+                </div>
+
+                <div class="step84-admin-profile">
+                    <div class="step84-admin-avatar">A</div>
+                    <div>
+                        <strong id="adminNameDisplay">Main Admin</strong>
+                        <span>@<span id="adminUsernameDisplay">admin</span></span>
+                        <span class="badge paid" id="adminStatusDisplay">Active</span>
+                    </div>
+                </div>
+
+                <div class="step84-info-list">
+                    <div><span>Role</span><strong id="adminRoleDisplay">superadmin</strong></div>
+                    <div><span>Last Login</span><strong id="adminLastLoginDisplay">Loading...</strong></div>
+                    <div><span>Incorrect Attempts</span><strong id="adminFailedAttemptsDisplay">0</strong></div>
+                    <div><span>Data Storage</span><strong>Secure system records</strong></div>
+                </div>
+            </article>
+
+            <article class="step84-settings-card password">
+                <div class="step84-card-heading">
+                    <span>🔑</span>
+                    <div>
+                        <small>ACCOUNT SECURITY</small>
+                        <h2>Change Admin Password</h2>
+                        <p>You will be signed out after changing the password.</p>
+                    </div>
+                </div>
+
+                <form class="step84-password-form" onsubmit="changeAdminPasswordFromPage(event)">
+                    <div>
+                        <label for="adminCurrentPassword">Current Password</label>
+                        <input type="password" id="adminCurrentPassword"
+                            placeholder="Enter current password"
+                            autocomplete="current-password" required>
+                    </div>
+
+                    <div>
+                        <label for="adminNewPassword">New Password</label>
+                        <input type="password" id="adminNewPassword"
+                            placeholder="Minimum 6 characters"
+                            autocomplete="new-password" required>
+                    </div>
+
+                    <div>
+                        <label for="adminConfirmPassword">Confirm New Password</label>
+                        <input type="password" id="adminConfirmPassword"
+                            placeholder="Re-enter new password"
+                            autocomplete="new-password" required>
+                    </div>
+
+                    <button class="btn btn-primary-pro" type="submit">
+                        Change Password
+                    </button>
+                </form>
+            </article>
+        </section>
+
+        <section class="step89-recovery-section">
+            <div class="step89-recovery-head">
+                <div>
+                    <span class="page-kicker">STEP 89 • DATA RECOVERY</span>
+                    <h2>Backup & Restore Centre</h2>
+                    <p>
+                        Download a secure recovery file or preview a previous
+                        backup before restoring records.
+                    </p>
+                </div>
+
+                <button class="btn btn-primary-pro" type="button" onclick="downloadSystemBackup()">
+                    ⬇ Download Fresh Backup
+                </button>
+            </div>
+
+            <div class="step89-recovery-grid">
+                <article class="step89-backup-info">
+                    <span class="step89-large-icon">💾</span>
+                    <h3>Secure Backup</h3>
+                    <p>
+                        Includes accounts, protected credentials, students,
+                        payments, notices, rules and recent admin activity.
+                    </p>
+
+                    <div>
+                        <span>Included</span>
+                        <strong>Account and operational records</strong>
+                    </div>
+
+                    <div>
+                        <span>Large receipt images</span>
+                        <strong>Excluded to keep the file manageable</strong>
+                    </div>
+
+                    <div class="step89-private-note">
+                        🔐 Keep every backup file private.
+                    </div>
+                </article>
+
+                <article class="step89-restore-card">
+                    <div class="step89-restore-title">
+                        <span>♻️</span>
+                        <div>
+                            <small>RESTORE RECORDS</small>
+                            <h3>Select Backup File</h3>
+                        </div>
+                    </div>
+
+                    <label class="step89-file-drop" for="backupRestoreFile">
+                        <span>📂</span>
+                        <strong>Choose JSON Backup</strong>
+                        <small>Click to select a MUTHAQUS backup file.</small>
+                    </label>
+
+                    <input
+                        type="file"
+                        id="backupRestoreFile"
+                        accept=".json,application/json"
+                        onchange="handleBackupFileSelection(event)"
+                    >
+
+                    <div id="backupRestorePreview" class="step89-backup-preview" hidden></div>
+
+                    <div class="step89-restore-controls">
+                        <div>
+                            <label for="restoreMode">Restore Mode</label>
+                            <select id="restoreMode">
+                                <option value="merge">
+                                    Safe Merge — update matching records
+                                </option>
+                                <option value="replace">
+                                    Replace — rebuild operational records
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="restoreConfirmation">Confirmation Text</label>
+                            <input
+                                type="text"
+                                id="restoreConfirmation"
+                                placeholder="Type RESTORE MUTHAQUS"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <label class="step89-confirm-check">
+                        <input type="checkbox" id="restoreSafetyCheck">
+                        <span>I downloaded a fresh backup before restoring.</span>
+                    </label>
+
+                    <div class="step89-restore-actions">
+                        <button
+                            id="restoreBackupButton"
+                            class="btn step89-danger-button"
+                            type="button"
+                            onclick="restoreSystemBackup()"
+                            disabled
+                        >
+                            Restore Selected Backup
+                        </button>
+
+                        <button
+                            class="btn btn-outline-pro"
+                            type="button"
+                            onclick="clearBackupRestoreSelection()"
+                        >
+                            Clear Selection
+                        </button>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="step84-activity-section">
+            <div class="step84-activity-head">
+                <div>
+                    <span class="page-kicker">STEP 84 • AUDIT HISTORY</span>
+                    <h2>Admin Activity Log</h2>
+                    <p>
+                        Review security events and important changes made
+                        through the Admin Control pages.
+                    </p>
+                </div>
+
+                <div class="step84-activity-count">
+                    <span id="activityVisibleCount">0</span>
+                    Visible
+                </div>
+            </div>
+
+            <div class="step84-activity-summary">
+                <article><span>📅</span><div><small>Today</small><strong id="activityTodayCount">0</strong></div></article>
+                <article><span>🛡️</span><div><small>Security</small><strong id="activitySecurityCount">0</strong></div></article>
+                <article><span>✏️</span><div><small>Data Changes</small><strong id="activityDataCount">0</strong></div></article>
+                <article><span>🗂️</span><div><small>Total Logs</small><strong id="activityTotalCount">0</strong></div></article>
+            </div>
+
+            <div class="step84-activity-filter">
+                <div>
+                    <label for="activitySearchInput">Search Activity</label>
+                    <input type="search" id="activitySearchInput"
+                        placeholder="Action, target or admin..."
+                        oninput="renderAdminActivityLog()">
+                </div>
+
+                <div>
+                    <label for="activityCategoryFilter">Category</label>
+                    <select id="activityCategoryFilter" onchange="renderAdminActivityLog()">
+                        <option value="">All Categories</option>
+                        <option value="Security">Security</option>
+                        <option value="Students">Students</option>
+                        <option value="Parents">Parents</option>
+                        <option value="Payments">Payments</option>
+                        <option value="Announcements">Announcements</option>
+                        <option value="Rules">Rules</option>
+                        <option value="Backup">Backup</option>
+                        <option value="System">System</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="activityDateFilter">Date</label>
+                    <input type="date" id="activityDateFilter"
+                        onchange="renderAdminActivityLog()">
+                </div>
+
+                <button class="btn btn-outline-pro" type="button"
+                    onclick="resetAdminActivityFilters()">Reset</button>
+
+                <button class="btn btn-primary-pro" type="button"
+                    onclick="exportAdminActivityLogCSV()">Export CSV</button>
+            </div>
+
+            <div id="adminActivityList" class="step84-activity-list">
+                <div class="step84-activity-empty">
+                    <span>⏳</span>
+                    <strong>Loading activity history...</strong>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script src="app.js"></script>
 <script>loadAdminSettingsPage();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP67_ADMIN_SETTINGS_POLISH -->
+<!-- MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE -->

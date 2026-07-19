@@ -106,6 +106,17 @@ function parentLogout() {
 }
 
 function adminLogout() {
+    const admin = getCurrentAdmin();
+
+    if (admin) {
+        step84RecordActivity({
+            category: "Security",
+            action: "Admin logged out",
+            target: admin.username || "admin",
+            details: "The admin session was ended."
+        });
+    }
+
     localStorage.removeItem(VS.adminKey);
     localStorage.removeItem("muthaqus_admin_last_activity");
     window.location.href = "index.html";
@@ -2448,6 +2459,359 @@ function step80FilterPaymentRecords(recordId) {
         });
 }
 
+function step86PrepareClosingMonthOptions() {
+    const target = document.getElementById("monthlyClosingMonth");
+    const source = document.getElementById("monthlyTrackerMonth");
+    if (!target || !source) return;
+
+    const previous = target.value;
+    target.innerHTML = source.innerHTML;
+    target.value = Array.from(target.options).some(option => option.value === previous)
+        ? previous
+        : source.value;
+
+    renderMonthlyClosingReport();
+}
+
+function step86BuildClosingReport(selectedPeriod) {
+    if (!selectedPeriod) return null;
+
+    const records = step82BuildMonthlyParentRecords(
+        window.adminStudentsForArrears || [],
+        window.adminPaymentsData || [],
+        selectedPeriod
+    );
+
+    const expected = records.reduce((sum, record) => sum + record.expected, 0);
+    const collected = records.reduce((sum, record) => sum + record.paid, 0);
+    const pending = records.reduce((sum, record) => sum + record.pending, 0);
+    const outstanding = records.reduce(
+        (sum, record) => sum + Math.max(0, record.expected - record.paid - record.pending),
+        0
+    );
+    const collectionRate = expected > 0 ? collected / expected * 100 : 0;
+
+    const previousPeriod = step77AddMonths(selectedPeriod, -1);
+    const previousRecords = step82BuildMonthlyParentRecords(
+        window.adminStudentsForArrears || [],
+        window.adminPaymentsData || [],
+        previousPeriod
+    );
+    const previousExpected = previousRecords.reduce((sum, record) => sum + record.expected, 0);
+    const previousCollected = previousRecords.reduce((sum, record) => sum + record.paid, 0);
+    const previousRate = previousExpected > 0 ? previousCollected / previousExpected * 100 : 0;
+
+    return {
+        period: selectedPeriod,
+        label: step77PeriodLabel(selectedPeriod),
+        generatedAt: new Date().toISOString(),
+        records,
+        expected,
+        collected,
+        pending,
+        outstanding,
+        collectionRate,
+        previousPeriod,
+        previousRate,
+        rateDifference: collectionRate - previousRate,
+        paidAccounts: records.filter(record => record.status === "Paid").length,
+        reviewAccounts: records.filter(record => record.status === "Under Review").length,
+        attentionRecords: records.filter(
+            record => record.status !== "Paid" && record.status !== "Under Review"
+        )
+    };
+}
+
+function renderMonthlyClosingReport() {
+    const selectedPeriod = step77PeriodFromKey(
+        document.getElementById("monthlyClosingMonth")?.value || ""
+    );
+    const report = step86BuildClosingReport(selectedPeriod);
+    window.step86ClosingReport = report;
+    if (!report) return;
+
+    const values = {
+        closingExpectedTotal: `RM${report.expected.toFixed(2)}`,
+        closingCollectedTotal: `RM${report.collected.toFixed(2)}`,
+        closingPendingTotal: `RM${report.pending.toFixed(2)}`,
+        closingOutstandingTotal: `RM${report.outstanding.toFixed(2)}`,
+        closingCollectionRate: `${report.collectionRate.toFixed(1)}%`,
+        closingPaidAccounts: report.paidAccounts,
+        closingReviewAccounts: report.reviewAccounts,
+        closingAttentionCount: report.attentionRecords.length,
+        closingGeneratedDate: step84FormatDateTime(report.generatedAt)
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value;
+    });
+
+    const progress = document.getElementById("closingCollectionProgress");
+    if (progress) {
+        progress.style.width = `${Math.min(100, Math.max(0, report.collectionRate))}%`;
+    }
+
+    const trend = document.getElementById("closingRateTrend");
+    if (trend) {
+        const positive = report.rateDifference >= 0;
+        trend.className = `step86-trend ${positive ? "positive" : "negative"}`;
+        trend.innerText =
+            `${positive ? "↑" : "↓"} ${Math.abs(report.rateDifference).toFixed(1)}% ` +
+            `vs ${step77PeriodLabel(report.previousPeriod, true)}`;
+    }
+
+    const attention = document.getElementById("closingAttentionList");
+    if (!attention) return;
+
+    const records = report.attentionRecords.slice()
+        .sort((first, second) => second.outstanding - first.outstanding);
+
+    attention.innerHTML = records.length
+        ? records.map(record => `
+            <article class="step86-attention-item">
+                <div>
+                    <strong>${mutahusSafeHtml(record.parentName)}</strong>
+                    <small>${mutahusSafeHtml(record.children.map(child => child.name).join(", "))}</small>
+                </div>
+                <span class="step86-report-status ${step82MonthlyStatusClass(record.status)}">
+                    ${mutahusSafeHtml(record.status)}
+                </span>
+                <div class="step86-attention-money">
+                    <small>Balance</small>
+                    <strong>RM${record.outstanding.toFixed(2)}</strong>
+                </div>
+            </article>
+        `).join("")
+        : `
+            <div class="step86-report-empty">
+                <span>✅</span>
+                <strong>No account needs attention</strong>
+                <p>All accounts are paid or waiting for approval.</p>
+            </div>
+        `;
+}
+
+function downloadMonthlyClosingCSV() {
+    const report = window.step86ClosingReport;
+    if (!report) {
+        alert("Generate the monthly report first.");
+        return;
+    }
+
+    const rows = [
+        ["MUTHAQUS GLOBAL ENTERPRISE", "Monthly Closing Report"],
+        ["Month", report.label],
+        ["Generated", step84FormatDateTime(report.generatedAt)],
+        [],
+        [
+            "Parent", "Phone", "Email", "Children",
+            "Expected", "Paid", "Pending", "Outstanding", "Status"
+        ]
+    ];
+
+    report.records.forEach(record => {
+        rows.push([
+            record.parentName,
+            record.parentPhone,
+            record.parentEmail,
+            record.children.map(child => child.name).join("; "),
+            record.expected.toFixed(2),
+            record.paid.toFixed(2),
+            record.pending.toFixed(2),
+            record.outstanding.toFixed(2),
+            record.status
+        ]);
+    });
+
+    rows.push([]);
+    rows.push([
+        "TOTAL", "", "", "",
+        report.expected.toFixed(2),
+        report.collected.toFixed(2),
+        report.pending.toFixed(2),
+        report.outstanding.toFixed(2),
+        `${report.collectionRate.toFixed(1)}%`
+    ]);
+
+    downloadCSV(`muthaqus-monthly-report-${report.period.key}.csv`, rows);
+
+    step84RecordActivity({
+        category: "Payments",
+        action: "Monthly report CSV downloaded",
+        target: report.label,
+        details: `Collection rate ${report.collectionRate.toFixed(1)}%.`
+    });
+}
+
+function step86BuildPdfDocument(pageStreams) {
+    const pageCount = pageStreams.length;
+    const fontRegularId = 3 + pageCount * 2;
+    const fontBoldId = fontRegularId + 1;
+    const objects = [];
+    const pageIds = [];
+
+    objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+
+    pageStreams.forEach((stream, index) => {
+        const pageId = 3 + index * 2;
+        const contentId = pageId + 1;
+        pageIds.push(`${pageId} 0 R`);
+
+        objects[pageId] =
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] " +
+            `/Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> >> ` +
+            `/Contents ${contentId} 0 R >>`;
+
+        objects[contentId] = `<< /Length ${stream.length} >>\nstream\n${stream}endstream`;
+    });
+
+    objects[2] = `<< /Type /Pages /Kids [${pageIds.join(" ")}] /Count ${pageCount} >>`;
+    objects[fontRegularId] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+    objects[fontBoldId] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>";
+
+    const totalObjects = fontBoldId;
+    let pdf = "%PDF-1.4\n";
+    const offsets = [0];
+
+    for (let index = 1; index <= totalObjects; index += 1) {
+        offsets[index] = pdf.length;
+        pdf += `${index} 0 obj\n${objects[index]}\nendobj\n`;
+    }
+
+    const xrefOffset = pdf.length;
+    pdf += `xref\n0 ${totalObjects + 1}\n`;
+    pdf += "0000000000 65535 f \n";
+
+    for (let index = 1; index <= totalObjects; index += 1) {
+        pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+    }
+
+    pdf += `trailer\n<< /Size ${totalObjects + 1} /Root 1 0 R >>\n`;
+    pdf += `startxref\n${xrefOffset}\n%%EOF`;
+    return pdf;
+}
+
+function step86ReportPageHeader(report, pageNumber, totalPages) {
+    let stream = "";
+    stream += mutahusPdfFilledRect(0, 750, 595, 92, "0.055 0.235 0.405");
+    stream += mutahusPdfFilledRect(0, 742, 595, 8, "0.070 0.650 0.300");
+    stream += mutahusPdfStyledText(42, 805, 15, "MUTHAQUS GLOBAL ENTERPRISE", true, "1 1 1");
+    stream += mutahusPdfStyledText(42, 785, 9, "Monthly Payment Closing Report", false, "0.72 0.84 0.96");
+    stream += mutahusPdfStyledText(404, 805, 10, report.label, true, "1 1 1");
+    stream += mutahusPdfStyledText(450, 785, 8, `Page ${pageNumber} of ${totalPages}`, false, "0.72 0.84 0.96");
+    return stream;
+}
+
+function step86BuildMonthlyReportPdf(report) {
+    const firstPageRows = 11;
+    const otherPageRows = 17;
+    const chunks = [report.records.slice(0, firstPageRows)];
+    let cursor = firstPageRows;
+
+    while (cursor < report.records.length) {
+        chunks.push(report.records.slice(cursor, cursor + otherPageRows));
+        cursor += otherPageRows;
+    }
+
+    const pageStreams = chunks.map((records, pageIndex) => {
+        let stream = step86ReportPageHeader(report, pageIndex + 1, chunks.length);
+        let tableTop = 704;
+
+        if (pageIndex === 0) {
+            const cards = [
+                ["EXPECTED", `RM ${report.expected.toFixed(2)}`],
+                ["COLLECTED", `RM ${report.collected.toFixed(2)}`],
+                ["PENDING", `RM ${report.pending.toFixed(2)}`],
+                ["OUTSTANDING", `RM ${report.outstanding.toFixed(2)}`],
+                ["RATE", `${report.collectionRate.toFixed(1)}%`]
+            ];
+
+            cards.forEach(([label, value], index) => {
+                const x = 42 + index * 103;
+                stream += mutahusPdfFilledRect(x, 662, 94, 54, "0.950 0.976 1.000");
+                stream += mutahusPdfStrokedRect(x, 662, 94, 54, "0.82 0.88 0.94");
+                stream += mutahusPdfStyledText(x + 9, 695, 6.5, label, true, "0.365 0.455 0.545");
+                stream += mutahusPdfStyledText(x + 9, 676, 10, value, true, "0.085 0.185 0.300");
+            });
+
+            stream += mutahusPdfStyledText(
+                42, 636, 8,
+                `Generated: ${step84FormatDateTime(report.generatedAt)}`,
+                false, "0.365 0.455 0.545"
+            );
+            tableTop = 602;
+        }
+
+        stream += mutahusPdfFilledRect(42, tableTop, 511, 29, "0.055 0.235 0.405");
+        [
+            [50, "PARENT"], [218, "EXPECTED"], [290, "PAID"],
+            [352, "PENDING"], [420, "BALANCE"], [490, "STATUS"]
+        ].forEach(([x, text]) => {
+            stream += mutahusPdfStyledText(x, tableTop + 10, 7, text, true, "1 1 1");
+        });
+
+        let y = tableTop - 28;
+
+        records.forEach((record, index) => {
+            if (index % 2 === 0) {
+                stream += mutahusPdfFilledRect(42, y - 5, 511, 27, "0.950 0.976 1.000");
+            }
+
+            stream += mutahusPdfLine(42, y - 6, 553, y - 6, "0.82 0.88 0.94");
+            stream += mutahusPdfStyledText(
+                50, y + 4, 7.5,
+                mutahusInvoiceShortText(record.parentName, 28),
+                true, "0.085 0.185 0.300"
+            );
+            stream += mutahusPdfStyledText(218, y + 4, 7.5, `RM${record.expected.toFixed(2)}`, false, "0.085 0.185 0.300");
+            stream += mutahusPdfStyledText(290, y + 4, 7.5, `RM${record.paid.toFixed(2)}`, false, "0.085 0.185 0.300");
+            stream += mutahusPdfStyledText(352, y + 4, 7.5, `RM${record.pending.toFixed(2)}`, false, "0.085 0.185 0.300");
+            stream += mutahusPdfStyledText(420, y + 4, 7.5, `RM${record.outstanding.toFixed(2)}`, true, "0.085 0.185 0.300");
+            stream += mutahusPdfStyledText(490, y + 4, 6.5, record.status, true, "0.085 0.185 0.300");
+            y -= 28;
+        });
+
+        stream += mutahusPdfLine(42, 65, 553, 65, "0.82 0.88 0.94");
+        stream += mutahusPdfStyledText(
+            42, 44, 7,
+            "Electronic management report generated by MUTHAQUS GLOBAL ENTERPRISE.",
+            false, "0.365 0.455 0.545"
+        );
+
+        return stream;
+    });
+
+    return step86BuildPdfDocument(pageStreams);
+}
+
+function downloadMonthlyClosingPDF() {
+    const report = window.step86ClosingReport;
+    if (!report) {
+        alert("Generate the monthly report first.");
+        return;
+    }
+
+    const pdf = step86BuildMonthlyReportPdf(report);
+    const blob = new Blob([pdf], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `muthaqus-monthly-report-${report.period.key}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    step84RecordActivity({
+        category: "Payments",
+        action: "Monthly report PDF downloaded",
+        target: report.label,
+        details: `Collection rate ${report.collectionRate.toFixed(1)}%.`
+    });
+}
+
 async function loadAdminPayments() {
     const records =
         document.getElementById(
@@ -2601,6 +2965,7 @@ async function loadAdminPayments() {
         );
 
         step82PreparePaymentMonthOptions();
+        step86PrepareClosingMonthOptions();
         renderAdminMonthlyPaymentTracker();
         renderAdminArrearsManagement();
         renderAdminPaymentRecords();
@@ -4569,15 +4934,437 @@ async function removeParentAndRecords(parentId) {
 // MUTAHUS_STEP14_ADMIN_PARENTS_MONGODB_FINAL
 
 
+const MUTHAQUS_ADMIN_MAX_LOGIN_ATTEMPTS = 5;
+const MUTHAQUS_ADMIN_LOCK_MINUTES = 15;
+
+function step84FormatDateTime(value) {
+    if (!value) return "Not available";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString("en-MY", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function step84SecurityMessage(message, type = "info") {
+    const box = document.getElementById("adminLoginSecurityStatus");
+    if (!box) return;
+    box.className = `step84-login-status ${type}`;
+    box.innerHTML = `
+        <span>${type === "danger" ? "🔒" : type === "warning" ? "⚠️" : type === "success" ? "✅" : "🛡️"}</span>
+        <p>${mutahusSafeHtml(message)}</p>
+    `;
+    box.hidden = false;
+}
+
+function step84StartLoginLockCountdown(seconds) {
+    const form = document.querySelector("form[onsubmit='adminLogin(event)']");
+    const button = form?.querySelector("button[type='submit']");
+    if (!button) return;
+
+    let remaining = Math.max(1, Number(seconds || 0));
+    button.disabled = true;
+    button.dataset.securityLocked = "true";
+
+    const render = () => {
+        const minutes = Math.floor(remaining / 60);
+        const secs = String(remaining % 60).padStart(2, "0");
+        button.innerText = `Locked ${minutes}:${secs}`;
+        step84SecurityMessage(
+            `Too many incorrect attempts. Try again in ${minutes}:${secs}.`,
+            "danger"
+        );
+    };
+
+    render();
+    clearInterval(window.step84LoginLockTimer);
+    window.step84LoginLockTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+            clearInterval(window.step84LoginLockTimer);
+            button.disabled = false;
+            button.dataset.securityLocked = "false";
+            button.innerText = "Log In Securely";
+            step84SecurityMessage(
+                "The temporary lock has ended. You may try again.",
+                "success"
+            );
+            return;
+        }
+        render();
+    }, 1000);
+}
+
+function step84ActivityCategoryIcon(category) {
+    return ({
+        Security: "🛡️",
+        Students: "🎒",
+        Parents: "👨‍👩‍👧",
+        Payments: "💳",
+        Announcements: "📢",
+        Rules: "📘",
+        Backup: "💾",
+        System: "⚙️"
+    })[category] || "⚙️";
+}
+
+async function loadAdminSecurityOverview() {
+    const admin = getCurrentAdmin();
+    if (!admin) return;
+
+    try {
+        const response = await fetch(
+            "/api/admin-dashboard?action=admin-security&username=" +
+            encodeURIComponent(admin.username || "admin")
+        );
+        const result = await response.json();
+        if (!result.success) return;
+
+        const security = result.security || {};
+        const values = {
+            adminLastLoginDisplay: step84FormatDateTime(security.lastLoginAt),
+            adminFailedAttemptsDisplay: Number(security.failedLoginAttempts || 0),
+            adminLockStatusDisplay: security.isLocked ? "Temporarily Locked" : "Protected",
+            adminSecurityLastLogin: step84FormatDateTime(security.lastLoginAt),
+            adminSecurityTodayActions: Number(security.todayActions || 0)
+        };
+
+        Object.entries(values).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        });
+
+        const badge = document.getElementById("adminLockStatusDisplay");
+        if (badge) badge.className = security.isLocked ? "badge rejected" : "badge paid";
+    } catch (error) {
+        console.warn("Security overview unavailable:", error.message);
+    }
+}
+
+async function loadAdminActivityLog() {
+    const list = document.getElementById("adminActivityList");
+    if (!list) return;
+
+    list.innerHTML = `
+        <div class="step84-activity-empty">
+            <span>⏳</span>
+            <strong>Loading activity history...</strong>
+        </div>
+    `;
+
+    try {
+        const response = await fetch("/api/admin-dashboard?action=activity-log&limit=250");
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message || "Failed to load activity history.");
+
+        window.muthaqusAdminActivity = result.activities || [];
+        const summary = result.summary || {};
+        const values = {
+            activityTodayCount: summary.today || 0,
+            activitySecurityCount: summary.security || 0,
+            activityDataCount: summary.dataChanges || 0,
+            activityTotalCount: summary.total || 0
+        };
+
+        Object.entries(values).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        });
+
+        renderAdminActivityLog();
+    } catch (error) {
+        list.innerHTML = `
+            <div class="step84-activity-empty">
+                <span>⚠️</span>
+                <strong>Unable to load activity history</strong>
+                <p>${mutahusSafeHtml(error.message)}</p>
+            </div>
+        `;
+    }
+}
+
+function renderAdminActivityLog() {
+    const list = document.getElementById("adminActivityList");
+    if (!list) return;
+
+    const query = String(document.getElementById("activitySearchInput")?.value || "")
+        .trim().toLowerCase();
+    const category = document.getElementById("activityCategoryFilter")?.value || "";
+    const selectedDate = document.getElementById("activityDateFilter")?.value || "";
+
+    const activities = (window.muthaqusAdminActivity || []).filter(item => {
+        const text = [
+            item.action, item.category, item.target, item.details,
+            item.adminName, item.adminUsername
+        ].filter(Boolean).join(" ").toLowerCase();
+
+        const date = item.createdAt ? new Date(item.createdAt) : null;
+        const key = date && !Number.isNaN(date.getTime())
+            ? [
+                date.getFullYear(),
+                String(date.getMonth() + 1).padStart(2, "0"),
+                String(date.getDate()).padStart(2, "0")
+              ].join("-")
+            : "";
+
+        return (!query || text.includes(query)) &&
+               (!category || item.category === category) &&
+               (!selectedDate || key === selectedDate);
+    });
+
+    const visible = document.getElementById("activityVisibleCount");
+    if (visible) visible.innerText = activities.length;
+
+    if (!activities.length) {
+        list.innerHTML = `
+            <div class="step84-activity-empty">
+                <span>🗂️</span>
+                <strong>No matching activity</strong>
+                <p>Try changing the search, category or date.</p>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = activities.map(item => `
+        <article class="step84-activity-item">
+            <span class="step84-activity-icon">${step84ActivityCategoryIcon(item.category)}</span>
+            <div class="step84-activity-content">
+                <div>
+                    <strong>${mutahusSafeHtml(item.action || "Admin action")}</strong>
+                    <span class="step84-category">${mutahusSafeHtml(item.category || "System")}</span>
+                </div>
+                <p>${mutahusSafeHtml(item.details || "Action completed.")}</p>
+                <footer>
+                    <span>👤 ${mutahusSafeHtml(item.adminName || item.adminUsername || "Admin")}</span>
+                    ${item.target ? `<span>🎯 ${mutahusSafeHtml(item.target)}</span>` : ""}
+                    <time>${mutahusSafeHtml(step84FormatDateTime(item.createdAt))}</time>
+                </footer>
+            </div>
+        </article>
+    `).join("");
+}
+
+function resetAdminActivityFilters() {
+    const ids = ["activitySearchInput", "activityCategoryFilter", "activityDateFilter"];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+    renderAdminActivityLog();
+}
+
+function exportAdminActivityLogCSV() {
+    const activities = window.muthaqusAdminActivity || [];
+    if (!activities.length) {
+        alert("No activity history is available.");
+        return;
+    }
+
+    const rows = [[
+        "Date and Time", "Admin", "Category", "Action", "Target", "Details"
+    ]];
+
+    activities.forEach(item => {
+        rows.push([
+            step84FormatDateTime(item.createdAt),
+            item.adminName || item.adminUsername || "Admin",
+            item.category || "System",
+            item.action || "",
+            item.target || "",
+            item.details || ""
+        ]);
+    });
+
+    downloadCSV(`muthaqus-admin-activity-${todayFileDate()}.csv`, rows);
+}
+
+function step84DescribeAdminMutation(url, body) {
+    const path = String(url || "");
+
+    if (path.includes("/api/update-student-status")) {
+        if (body.action === "update-amount") {
+            return {
+                category: "Students",
+                action: "Monthly fee updated",
+                target: `Student ${body.studentId || ""}`,
+                details: `Monthly fee changed to RM${Number(body.monthlyAmount || 0).toFixed(2)}.`
+            };
+        }
+        if (body.action === "update-service-start") {
+            return {
+                category: "Students",
+                action: "Service start updated",
+                target: `Student ${body.studentId || ""}`,
+                details: `Service start month changed to ${body.serviceStartMonth || "-"}.`
+            };
+        }
+        if (body.action === "remove-student") {
+            return {
+                category: "Students",
+                action: "Student removed",
+                target: `Student ${body.studentId || ""}`,
+                details: "Student and related records were removed."
+            };
+        }
+        return {
+            category: "Students",
+            action: "Student status updated",
+            target: `Student ${body.studentId || ""}`,
+            details: `Status changed to ${body.status || "-"}.`
+        };
+    }
+
+    if (path.includes("/api/update-payment-status")) {
+        return {
+            category: "Payments",
+            action: "Payment status updated",
+            target: `Payment ${body.paymentId || ""}`,
+            details: `Status changed to ${body.status || "-"}.`
+        };
+    }
+
+    if (path.includes("/api/admin-parents")) {
+        if (body.action === "delete-parent") {
+            return {
+                category: "Parents",
+                action: "Parent account removed",
+                target: `Parent ${body.parentId || ""}`,
+                details: "Parent account and related records were removed."
+            };
+        }
+        return {
+            category: "Parents",
+            action: "Parent status updated",
+            target: `Parent ${body.parentId || ""}`,
+            details: `Status changed to ${body.status || "-"}.`
+        };
+    }
+
+    if (path.includes("/api/admin-dashboard")) {
+        const map = {
+            "post-announcement": {
+                category: "Announcements",
+                action: "Announcement published",
+                target: body.title || "Announcement",
+                details: "A new announcement was published."
+            },
+            "update-announcement-status": {
+                category: "Announcements",
+                action: "Announcement status updated",
+                target: body.announcementId || "Announcement",
+                details: `Status changed to ${body.status || "-"}.`
+            },
+            "delete-announcement": {
+                category: "Announcements",
+                action: "Announcement removed",
+                target: body.announcementId || "Announcement",
+                details: "An announcement was removed."
+            },
+            "save-rule": {
+                category: "Rules",
+                action: body.ruleId ? "Rule updated" : "Rule added",
+                target: body.title || "Rule",
+                details: "Rules information was saved."
+            },
+            "delete-rule": {
+                category: "Rules",
+                action: "Rule removed",
+                target: body.ruleId || "Rule",
+                details: "A rule was removed."
+            },
+            "reset-rules": {
+                category: "Rules",
+                action: "Rules reset",
+                target: "Rules",
+                details: "Default rules were restored."
+            }
+        };
+        return map[body.action] || null;
+    }
+
+    return null;
+}
+
+async function step84RecordActivity(activity) {
+    const admin = getCurrentAdmin();
+    if (!admin || !activity) return;
+
+    try {
+        await window.__muthaqusOriginalFetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                ...activity,
+                activityAction: activity.action || "Admin action",
+                action: "record-activity",
+                adminUsername: admin.username || "admin",
+                adminName: admin.name || "Admin"
+            }),
+            keepalive: true
+        });
+    } catch (error) {
+        console.warn("Activity record skipped:", error.message);
+    }
+}
+
+(function installAdminActivityTracking() {
+    if (window.__muthaqusAdminActivityTracking) return;
+    window.__muthaqusAdminActivityTracking = true;
+
+    const originalFetch = window.fetch.bind(window);
+    window.__muthaqusOriginalFetch = originalFetch;
+
+    window.fetch = async function(input, options = {}) {
+        const response = await originalFetch(input, options);
+
+        try {
+            const url = typeof input === "string" ? input : input?.url || "";
+            const method = String(
+                options.method || (typeof input !== "string" ? input?.method : "GET") || "GET"
+            ).toUpperCase();
+
+            if (method !== "POST" || !getCurrentAdmin()) return response;
+
+            let body = {};
+            if (typeof options.body === "string") {
+                try { body = JSON.parse(options.body); } catch (error) { body = {}; }
+            }
+
+            if ([
+                "record-activity", "admin-login",
+                "change-admin-password", "restore-backup"
+            ].includes(body.action)) {
+                return response;
+            }
+
+            const result = await response.clone().json().catch(() => null);
+            if (!result?.success) return response;
+
+            const activity = step84DescribeAdminMutation(url, body);
+            if (activity) setTimeout(() => step84RecordActivity(activity), 0);
+        } catch (error) {
+            console.warn("Activity tracking skipped:", error.message);
+        }
+
+        return response;
+    };
+})();
+
 async function adminLogin(event) {
     event.preventDefault();
 
     const submitButton = event.target.querySelector("button[type='submit']");
-    const originalText = submitButton ? submitButton.innerText : "";
+    if (submitButton?.dataset.securityLocked === "true") return;
 
+    const originalText = submitButton ? submitButton.innerText : "";
     if (submitButton) {
         submitButton.disabled = true;
-        submitButton.innerText = "Logging in...";
+        submitButton.innerText = "Checking account...";
     }
 
     const loginData = {
@@ -4589,27 +5376,43 @@ async function adminLogin(event) {
     try {
         const response = await fetch("/api/admin-dashboard", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(loginData)
         });
 
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.message || "Invalid admin username or password.");
+            if (result.locked && result.remainingSeconds) {
+                step84StartLoginLockCountdown(result.remainingSeconds);
+                return;
+            }
+
+            const remaining = Number(result.attemptsRemaining);
+            step84SecurityMessage(
+                Number.isFinite(remaining)
+                    ? `${result.message} ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`
+                    : (result.message || "Invalid admin username or password."),
+                remaining <= 2 ? "warning" : "danger"
+            );
             return;
         }
 
         localStorage.setItem(VS.adminKey, JSON.stringify(result.admin));
+        localStorage.setItem("muthaqus_admin_last_activity", String(Date.now()));
 
-        alert("Admin login successful.");
-        window.location.href = "admin-dashboard.html";
+        step84SecurityMessage(
+            "Login successful. Opening Admin Control...",
+            "success"
+        );
+
+        setTimeout(() => {
+            window.location.href = "admin-dashboard.html";
+        }, 350);
     } catch (error) {
-        alert("Admin login error: " + error.message);
+        step84SecurityMessage("Login error: " + error.message, "danger");
     } finally {
-        if (submitButton) {
+        if (submitButton && submitButton.dataset.securityLocked !== "true") {
             submitButton.disabled = false;
             submitButton.innerText = originalText;
         }
@@ -5203,18 +6006,22 @@ async function resetParentPassword(event) {
 
 function loadAdminSettingsPage() {
     const admin = requireAdminLogin();
-
     if (!admin) return;
 
-    const nameBox = document.getElementById("adminNameDisplay");
-    const usernameBox = document.getElementById("adminUsernameDisplay");
-    const roleBox = document.getElementById("adminRoleDisplay");
-    const statusBox = document.getElementById("adminStatusDisplay");
+    const values = {
+        adminNameDisplay: admin.name || "Admin",
+        adminUsernameDisplay: admin.username || "admin",
+        adminRoleDisplay: admin.role || "admin",
+        adminStatusDisplay: admin.status || "Active"
+    };
 
-    if (nameBox) nameBox.innerText = admin.name || "Admin";
-    if (usernameBox) usernameBox.innerText = admin.username || "admin";
-    if (roleBox) roleBox.innerText = admin.role || "admin";
-    if (statusBox) statusBox.innerText = admin.status || "Active";
+    Object.entries(values).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value;
+    });
+
+    loadAdminSecurityOverview();
+    loadAdminActivityLog();
 }
 
 async function changeAdminPasswordFromPage(event) {
@@ -5293,6 +6100,202 @@ document.addEventListener("DOMContentLoaded", protectAdminSettingsPage);
 // MUTAHUS_STEP20_ADMIN_SETTINGS_PASSWORD_UI
 
 
+function step89BackupCount(backup, key) {
+    if (backup?.counts && Number.isFinite(Number(backup.counts[key]))) {
+        return Number(backup.counts[key]);
+    }
+
+    return Array.isArray(backup?.[key])
+        ? backup[key].length
+        : 0;
+}
+
+function step89ValidateBackup(backup) {
+    if (!backup || typeof backup !== "object") {
+        throw new Error("The selected file is not a valid backup.");
+    }
+
+    const system = String(backup.system || "").toUpperCase();
+
+    if (!system.includes("MUTHAQUS") && !system.includes("MUTAHUS")) {
+        throw new Error("This file does not appear to be a MUTHAQUS system backup.");
+    }
+
+    const required = ["parents", "students", "payments", "announcements", "rules"];
+    const missing = required.filter(key => !Array.isArray(backup[key]));
+
+    if (missing.length) {
+        throw new Error(`Backup is missing: ${missing.join(", ")}.`);
+    }
+
+    return true;
+}
+
+function step89RenderBackupPreview(backup, fileName) {
+    const preview = document.getElementById("backupRestorePreview");
+    const button = document.getElementById("restoreBackupButton");
+    if (!preview) return;
+
+    const counts = {
+        parents: step89BackupCount(backup, "parents"),
+        students: step89BackupCount(backup, "students"),
+        payments: step89BackupCount(backup, "payments"),
+        announcements: step89BackupCount(backup, "announcements"),
+        rules: step89BackupCount(backup, "rules"),
+        activities: step89BackupCount(backup, "adminActivityLogs")
+    };
+
+    preview.hidden = false;
+    preview.innerHTML = `
+        <header>
+            <span>📦</span>
+            <div>
+                <strong>${mutahusSafeHtml(fileName)}</strong>
+                <small>Exported: ${mutahusSafeHtml(step84FormatDateTime(backup.exportedAt))}</small>
+            </div>
+            <b>Ready</b>
+        </header>
+
+        <div class="step89-preview-counts">
+            <div><span>${counts.parents}</span><small>Parents</small></div>
+            <div><span>${counts.students}</span><small>Students</small></div>
+            <div><span>${counts.payments}</span><small>Payments</small></div>
+            <div><span>${counts.announcements}</span><small>Notices</small></div>
+            <div><span>${counts.rules}</span><small>Rules</small></div>
+            <div><span>${counts.activities}</span><small>Activities</small></div>
+        </div>
+
+        <p>
+            Large receipt images may not be included.
+            Existing matching receipt images are preserved during restore.
+        </p>
+    `;
+
+    if (button) button.disabled = false;
+}
+
+async function handleBackupFileSelection(event) {
+    const file = event.target.files?.[0];
+    const preview = document.getElementById("backupRestorePreview");
+    const button = document.getElementById("restoreBackupButton");
+
+    if (!file) {
+        window.step89SelectedBackup = null;
+        if (preview) preview.hidden = true;
+        if (button) button.disabled = true;
+        return;
+    }
+
+    try {
+        const backup = JSON.parse(await file.text());
+        step89ValidateBackup(backup);
+        window.step89SelectedBackup = backup;
+        step89RenderBackupPreview(backup, file.name);
+    } catch (error) {
+        window.step89SelectedBackup = null;
+        event.target.value = "";
+        if (preview) preview.hidden = true;
+        if (button) button.disabled = true;
+        alert("Backup file error: " + error.message);
+    }
+}
+
+function clearBackupRestoreSelection() {
+    const input = document.getElementById("backupRestoreFile");
+    const preview = document.getElementById("backupRestorePreview");
+    const button = document.getElementById("restoreBackupButton");
+    const confirmation = document.getElementById("restoreConfirmation");
+    const checkbox = document.getElementById("restoreSafetyCheck");
+
+    if (input) input.value = "";
+    if (preview) preview.hidden = true;
+    if (button) button.disabled = true;
+    if (confirmation) confirmation.value = "";
+    if (checkbox) checkbox.checked = false;
+
+    window.step89SelectedBackup = null;
+}
+
+async function restoreSystemBackup() {
+    const admin = requireAdminLogin();
+    const backup = window.step89SelectedBackup;
+    if (!admin) return;
+
+    if (!backup) {
+        alert("Please select and preview a backup file first.");
+        return;
+    }
+
+    const mode = document.getElementById("restoreMode")?.value || "merge";
+    const confirmation = String(
+        document.getElementById("restoreConfirmation")?.value || ""
+    ).trim().toUpperCase();
+    const safetyChecked = Boolean(
+        document.getElementById("restoreSafetyCheck")?.checked
+    );
+
+    if (!safetyChecked) {
+        alert("Confirm that a current backup has been downloaded first.");
+        return;
+    }
+
+    if (confirmation !== "RESTORE MUTHAQUS") {
+        alert('Type "RESTORE MUTHAQUS" exactly to continue.');
+        return;
+    }
+
+    const warning = mode === "replace"
+        ? "Replace current operational records with this backup? This is a major change."
+        : "Merge this backup with current records? Matching records will be updated.";
+
+    if (!confirm(warning)) return;
+
+    const button = document.getElementById("restoreBackupButton");
+    const originalText = button?.innerText || "";
+
+    if (button) {
+        button.disabled = true;
+        button.innerText = "Restoring records...";
+    }
+
+    try {
+        const response = await fetch("/api/admin-dashboard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "restore-backup",
+                mode,
+                confirmation,
+                adminUsername: admin.username || "admin",
+                adminName: admin.name || "Admin",
+                backup
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Restore failed.");
+        }
+
+        const warningText = Array.isArray(result.warnings) && result.warnings.length
+            ? "\n\nNotes:\n- " + result.warnings.join("\n- ")
+            : "";
+
+        alert("Backup restored successfully." + warningText);
+        clearBackupRestoreSelection();
+        loadAdminSecurityOverview();
+        loadAdminActivityLog();
+    } catch (error) {
+        alert("Restore error: " + error.message);
+    } finally {
+        if (button) {
+            button.disabled = !window.step89SelectedBackup;
+            button.innerText = originalText;
+        }
+    }
+}
+
 function downloadJSON(filename, data) {
     const jsonText = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonText], { type: "application/json;charset=utf-8;" });
@@ -5321,15 +6324,19 @@ function todayBackupDate() {
 
 async function downloadSystemBackup() {
     const admin = requireAdminLogin();
-
     if (!admin) return;
 
-    const confirmBackup = confirm("Download a JSON backup of parents, students, payments, announcements and rules?");
+    const confirmBackup = confirm(
+        "Download a secure JSON backup of accounts, students, payments, announcements, rules and recent activity?"
+    );
 
     if (!confirmBackup) return;
 
     try {
-        const response = await fetch("/api/admin-dashboard?action=backup");
+        const response = await fetch(
+            "/api/admin-dashboard?action=backup&username=" +
+            encodeURIComponent(admin.username || "admin")
+        );
         const result = await response.json();
 
         if (!result.success) {
@@ -5337,9 +6344,13 @@ async function downloadSystemBackup() {
             return;
         }
 
-        downloadJSON(`mutahus-backup-${todayBackupDate()}.json`, result.backup);
+        downloadJSON(
+            `muthaqus-secure-backup-${todayBackupDate()}.json`,
+            result.backup
+        );
 
-        alert("System backup downloaded successfully.");
+        alert("Secure backup downloaded successfully. Keep the file private.");
+        loadAdminActivityLog();
     } catch (error) {
         alert("Backup download error: " + error.message);
     }
@@ -12853,3 +13864,4 @@ window.addEventListener("load", function () {
 
 // MUTHAQUS_STEP83_SINGLE_STUDENT_SEARCH_FIX
 
+// MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE
