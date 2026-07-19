@@ -13598,3 +13598,129 @@ body.muthaqus-security-warning-open {
 
 /* MUTHAQUS_STEP77_PREVIOUS_MONTH_ARREARS_REMINDER */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX
+   ========================================================= */
+
+@media (min-width: 861px) {
+    body.step67-admin-students .step67-student-table {
+        min-width: 1420px;
+    }
+
+    body.step67-admin-students .step67-student-col {
+        width: 12%;
+    }
+
+    body.step67-admin-students .step67-parent-col {
+        width: 13%;
+    }
+
+    body.step67-admin-students .step67-school-col {
+        width: 14%;
+    }
+
+    body.step67-admin-students .step67-class-col {
+        width: 5%;
+    }
+
+    body.step67-admin-students .step67-session-col {
+        width: 7%;
+    }
+
+    body.step67-admin-students .step67-status-col {
+        width: 8%;
+    }
+
+    body.step67-admin-students .step78-start-col {
+        width: 12%;
+    }
+
+    body.step67-admin-students .step67-amount-col {
+        width: 13%;
+    }
+
+    body.step67-admin-students .step67-actions-col {
+        width: 16%;
+    }
+}
+
+.step78-service-start-box {
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #d7e5f3;
+    border-radius: 15px;
+    background: #f7faff;
+}
+
+.step78-service-start-box label {
+    margin: 0;
+    color: #526c83;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.step78-service-start-box input {
+    width: 100%;
+    min-width: 0;
+    height: 43px;
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid #cfdfee;
+    border-radius: 11px;
+    background: #ffffff;
+    color: #143f73;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.step78-service-start-box button {
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 9px;
+    border: 0;
+    border-radius: 11px;
+    background: linear-gradient(
+        180deg,
+        #2d7bd4,
+        #1762b8
+    );
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.step78-service-start-box button:hover {
+    background: linear-gradient(
+        180deg,
+        #3787df,
+        #1b6ac2
+    );
+}
+
+@media (max-width: 860px) {
+    body.muthaqus-step76 .step78-service-start-box {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    body.muthaqus-step76
+    .step78-service-start-box input {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    body.muthaqus-step76
+    .step78-service-start-box button {
+        min-height: 44px;
+    }
+}
+
+/* MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX */
+

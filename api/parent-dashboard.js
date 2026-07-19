@@ -395,6 +395,7 @@ module.exports = async function handler(req, res) {
       schoolDisplay: student.schoolDisplay || (student.kafa ? `${student.school || ""} + ${student.kafa}` : (student.school || "")),
       monthlyAmount: Number(student.monthlyAmount || 0),
       amountMode: student.amountMode || "Admin Set Amount (RM)",
+      serviceStartMonth: student.serviceStartMonth || "",
       classYear: student.classYear,
       session: student.session,
       homeAddress: student.homeAddress,
@@ -480,3 +481,5 @@ module.exports = async function handler(req, res) {
 // MUTAHUS_STEP30_USER_COMPLAINT_FIXES
 
 // MUTHAQUS_STEP61_PARENT_DASHBOARD_INVOICE_FIELDS
+
+// MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX

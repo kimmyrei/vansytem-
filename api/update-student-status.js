@@ -1,6 +1,10 @@
 const { ObjectId } = require("mongodb");
 const { connectToDatabase } = require("./_db");
 
+function isValidServiceStartMonth(value) {
+  return /^\d{4}-(0[1-9]|1[0-2])$/.test(String(value || ""));
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -34,7 +38,9 @@ module.exports = async function handler(req, res) {
 
     const { db } = await connectToDatabase();
 
-    const student = await db.collection("students").findOne({ _id: studentObjectId });
+    const student = await db
+      .collection("students")
+      .findOne({ _id: studentObjectId });
 
     if (!student) {
       return res.status(404).json({
@@ -44,15 +50,20 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === "remove-student") {
-      await db.collection("students").deleteOne({ _id: studentObjectId });
-      await db.collection("payments").deleteMany({ studentId: studentId });
+      await db
+        .collection("students")
+        .deleteOne({ _id: studentObjectId });
+
+      await db
+        .collection("payments")
+        .deleteMany({ studentId });
 
       return res.status(200).json({
         success: true,
-        message: "Student and related payment records removed successfully."
+        message:
+          "Student and related payment records removed successfully."
       });
     }
-
 
     if (action === "update-amount") {
       const monthlyAmount = Number(data.monthlyAmount || 0);
@@ -81,8 +92,42 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    if (action === "update-service-start") {
+      const serviceStartMonth = String(
+        data.serviceStartMonth || ""
+      ).trim();
+
+      if (!isValidServiceStartMonth(serviceStartMonth)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Please choose a valid service start month."
+        });
+      }
+
+      await db.collection("students").updateOne(
+        { _id: studentObjectId },
+        {
+          $set: {
+            serviceStartMonth,
+            updatedAt: new Date()
+          }
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Service start month updated successfully."
+      });
+    }
+
     const status = (data.status || "").trim();
-    const allowedStatuses = ["Pending Review", "Accepted", "Rejected", "Active"];
+    const allowedStatuses = [
+      "Pending Review",
+      "Accepted",
+      "Rejected",
+      "Active"
+    ];
 
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
@@ -109,7 +154,7 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to update student status.",
+      message: "Failed to update student record.",
       error: {
         name: error.name,
         message: error.message
@@ -118,4 +163,4 @@ module.exports = async function handler(req, res) {
   }
 };
 
-// MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
+// MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX

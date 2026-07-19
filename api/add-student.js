@@ -57,6 +57,10 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const now = new Date();
+    const serviceStartMonth =
+      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
     const child = {
       parentId: parent._id.toString(),
       parentName: parent.name,
@@ -76,8 +80,9 @@ module.exports = async function handler(req, res) {
       amountMode: "Admin Set Amount (RM)",
       paymentStatus: "Unpaid",
       status: "Pending Review",
-      createdAt: new Date(),
-      updatedAt: new Date()
+      serviceStartMonth,
+      createdAt: now,
+      updatedAt: now
     };
 
     const result = await db.collection("students").insertOne(child);
@@ -102,3 +107,5 @@ module.exports = async function handler(req, res) {
 // MUTAHUS_STEP26_PAYMENT_ADMIN_AMOUNT_SCHOOL_KAFA_RECEIPT_FIX
 
 // MUTAHUS_STEP30_USER_COMPLAINT_FIXES
+
+// MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX

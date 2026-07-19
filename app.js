@@ -1809,7 +1809,7 @@ async function loadAdminStudents() {
     if (table) {
         table.innerHTML = `
             <tr class="admin-mobile-empty-row">
-                <td colspan="8" class="empty-row">Loading student records...</td>
+                <td colspan="9" class="empty-row">Loading student records...</td>
             </tr>
         `;
     }
@@ -1826,7 +1826,7 @@ async function loadAdminStudents() {
             if (table) {
                 table.innerHTML = `
                     <tr class="admin-mobile-empty-row">
-                        <td colspan="8" class="empty-row">Failed to load students.</td>
+                        <td colspan="9" class="empty-row">Failed to load students.</td>
                     </tr>
                 `;
             }
@@ -1859,7 +1859,7 @@ async function loadAdminStudents() {
         if (children.length === 0) {
             table.innerHTML = `
                 <tr class="admin-mobile-empty-row">
-                    <td colspan="8" class="empty-row">
+                    <td colspan="9" class="empty-row">
                         <div class="mutahus-empty-state">
                             <span>🎒</span>
                             <strong>No students registered yet.</strong>
@@ -1884,6 +1884,10 @@ async function loadAdminStudents() {
             const paymentStatus = child.paymentStatus || "Unpaid";
             const paymentClass = getPaymentBadgeClass(paymentStatus);
             const amount = Number(child.monthlyAmount || 0);
+            const serviceStartMonth =
+                child.serviceStartMonth ||
+                step78MonthInputFromDate(child.createdAt) ||
+                "";
 
             table.innerHTML += `
                 <tr class="admin-record-row student-record-row">
@@ -1927,6 +1931,33 @@ async function loadAdminStudents() {
                             <span class="badge ${statusClass}">${status}</span>
                             <span class="badge ${paymentClass}">${paymentStatus}</span>
                         </div>
+                    </td>
+
+                    <td data-label="Service Start">
+                        <div class="step78-service-start-box">
+                            <label for="serviceStart_${child.id}">
+                                Start month
+                            </label>
+
+                            <input
+                                type="month"
+                                id="serviceStart_${child.id}"
+                                value="${serviceStartMonth}"
+                                min="2026-01"
+                                aria-label="Service start month for ${child.name || "student"}"
+                            >
+
+                            <button
+                                type="button"
+                                onclick="updateStudentServiceStartMonth('${child.id}')"
+                            >
+                                Save Start Month
+                            </button>
+                        </div>
+
+                        <small class="record-support-text">
+                            Unpaid reminders begin from this month.
+                        </small>
                     </td>
 
                     <td data-label="Monthly Amount">
@@ -2006,10 +2037,68 @@ async function loadAdminStudents() {
         if (table) {
             table.innerHTML = `
                 <tr class="admin-mobile-empty-row">
-                    <td colspan="8" class="empty-row">Failed to load students.</td>
+                    <td colspan="9" class="empty-row">Failed to load students.</td>
                 </tr>
             `;
         }
+    }
+}
+
+function step78MonthInputFromDate(value) {
+    const period = step77ParseChildStartPeriod(value);
+
+    return period
+        ? step77MonthKey(period.year, period.month)
+        : "";
+}
+
+async function updateStudentServiceStartMonth(childId) {
+    const input = document.getElementById(
+        "serviceStart_" + childId
+    );
+
+    const serviceStartMonth = String(
+        input ? input.value : ""
+    ).trim();
+
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(serviceStartMonth)) {
+        alert("Please choose a valid service start month.");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "/api/update-student-status",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    action: "update-service-start",
+                    studentId: childId,
+                    serviceStartMonth
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(
+                result.message ||
+                "Failed to update service start month."
+            );
+            return;
+        }
+
+        alert("Service start month updated successfully.");
+        loadAdminStudents();
+    } catch (error) {
+        alert(
+            "Update service start month error: " +
+            error.message
+        );
     }
 }
 
@@ -4094,7 +4183,7 @@ function applyStudentFilters() {
         searchId: "studentSearchInput",
         filterOneId: "studentStatusFilter",
         filterTwoId: "studentSessionFilter",
-        colspan: 8
+        colspan: 9
     });
 }
 
@@ -8691,7 +8780,10 @@ function step77ExpectedAmountForPeriod(
         if (amount <= 0) return sum;
 
         const childStart =
-            step77ParseChildStartPeriod(child.createdAt) ||
+            step77ParseChildStartPeriod(
+                child.serviceStartMonth ||
+                child.createdAt
+            ) ||
             fallbackStartPeriod;
 
         if (
@@ -8837,7 +8929,10 @@ function renderParentPaymentDueReminder(children, payments) {
 
     const childStartPeriods = eligibleChildren
         .map(child =>
-            step77ParseChildStartPeriod(child.createdAt)
+            step77ParseChildStartPeriod(
+                child.serviceStartMonth ||
+                child.createdAt
+            )
         )
         .filter(Boolean);
 
@@ -9751,3 +9846,5 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH
 
 // MUTHAQUS_STEP77_PREVIOUS_MONTH_ARREARS_REMINDER
+
+// MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX
