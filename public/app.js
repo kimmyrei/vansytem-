@@ -6289,114 +6289,865 @@ function mutahusPdfText(x, y, size, value, bold = false) {
     return `BT /${font} ${size} Tf 0.10 0.20 0.32 rg ${x} ${y} Td (${mutahusPdfAscii(value)}) Tj ET\n`;
 }
 
+function mutahusPdfStyledText(
+    x,
+    y,
+    size,
+    value,
+    bold = false,
+    color = "0.10 0.20 0.32"
+) {
+    const font = bold ? "F2" : "F1";
+
+    return (
+        `BT /${font} ${size} Tf ${color} rg ` +
+        `${x} ${y} Td (${mutahusPdfAscii(value)}) Tj ET\n`
+    );
+}
+
+function mutahusPdfFilledRect(
+    x,
+    y,
+    width,
+    height,
+    fillColor
+) {
+    return `${fillColor} rg ${x} ${y} ${width} ${height} re f\n`;
+}
+
+function mutahusPdfStrokedRect(
+    x,
+    y,
+    width,
+    height,
+    strokeColor = "0.82 0.88 0.94",
+    lineWidth = 1
+) {
+    return (
+        `${strokeColor} RG ${lineWidth} w ` +
+        `${x} ${y} ${width} ${height} re S\n`
+    );
+}
+
+function mutahusPdfLine(
+    x1,
+    y1,
+    x2,
+    y2,
+    color = "0.82 0.88 0.94",
+    lineWidth = 1
+) {
+    return (
+        `${color} RG ${lineWidth} w ` +
+        `${x1} ${y1} m ${x2} ${y2} l S\n`
+    );
+}
+
+function mutahusPdfCircle(
+    centerX,
+    centerY,
+    radius,
+    fillColor
+) {
+    const control = radius * 0.5522847498;
+
+    return (
+        `${fillColor} rg ` +
+        `${centerX + radius} ${centerY} m ` +
+        `${centerX + radius} ${centerY + control} ` +
+        `${centerX + control} ${centerY + radius} ` +
+        `${centerX} ${centerY + radius} c ` +
+        `${centerX - control} ${centerY + radius} ` +
+        `${centerX - radius} ${centerY + control} ` +
+        `${centerX - radius} ${centerY} c ` +
+        `${centerX - radius} ${centerY - control} ` +
+        `${centerX - control} ${centerY - radius} ` +
+        `${centerX} ${centerY - radius} c ` +
+        `${centerX + control} ${centerY - radius} ` +
+        `${centerX + radius} ${centerY - control} ` +
+        `${centerX + radius} ${centerY} c f\n`
+    );
+}
+
+function mutahusInvoiceDisplayDate(value) {
+    if (!value) return "-";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function mutahusInvoiceShortText(value, maxLength = 44) {
+    const text = String(value ?? "").trim();
+
+    if (text.length <= maxLength) {
+        return text || "-";
+    }
+
+    return text.slice(0, Math.max(1, maxLength - 3)) + "...";
+}
+
 function mutahusBuildInvoicePdf(payment) {
     const invoiceNumber = `MGE-INV-${String(payment.id || Date.now())
         .replace(/[^a-z0-9]/gi, "")
         .slice(-10)
         .toUpperCase()}`;
 
-    const issueDate =
+    const paidDateValue =
         payment.reviewedAt ||
         payment.updatedAt ||
+        payment.datePaid ||
         payment.createdAt ||
-        new Date().toLocaleDateString("en-GB");
+        new Date();
+
+    const issueDate =
+        mutahusInvoiceDisplayDate(paidDateValue);
+
+    const servicePeriod =
+        payment.month || "Monthly Service";
 
     const studentName =
         payment.studentName ||
         payment.studentNames ||
         "All registered children";
 
-    const amount = Number(payment.amount || 0).toFixed(2);
-    const description = `School van service fee - ${payment.month || "Monthly payment"}`;
+    const parentName =
+        payment.parentName || "Parent";
+
+    const parentPhone =
+        payment.parentPhone || "-";
+
+    const parentEmail =
+        payment.parentEmail || "-";
+
+    const amount =
+        Number(payment.amount || 0).toFixed(2);
+
+    const paymentReference =
+        mutahusInvoiceShortText(
+            payment.id || "-",
+            24
+        );
+
+    const receiptName =
+        mutahusInvoiceShortText(
+            payment.receiptName || "Uploaded receipt",
+            55
+        );
+
+    const description =
+        `School van service fee`;
+
+    const noteLines = mutahusPdfWrap(
+        payment.note ||
+            "Thank you. This document confirms that the monthly school van service payment has been approved.",
+        78
+    ).slice(0, 4);
+
+    const parentNameLines =
+        mutahusPdfWrap(parentName, 34).slice(0, 2);
+
+    const studentLines =
+        mutahusPdfWrap(studentName, 54).slice(0, 2);
 
     let stream = "";
 
-    // Header background and accent.
-    stream += "0.06 0.24 0.41 rg 0 760 595 82 re f\n";
-    stream += "0.09 0.64 0.29 rg 0 750 595 10 re f\n";
-    stream += "1 1 1 rg BT /F2 16 Tf 42 798 Td (MUTHAQUS GLOBAL ENTERPRISE) Tj ET\n";
-    stream += "0.88 0.94 1 rg BT /F1 10 Tf 42 780 Td (Reliable School Van Service) Tj ET\n";
-    stream += "1 1 1 rg BT /F2 19 Tf 430 790 Td (INVOICE) Tj ET\n";
+    const navy = "0.055 0.235 0.405";
+    const blue = "0.105 0.390 0.685";
+    const green = "0.070 0.650 0.300";
+    const paleBlue = "0.950 0.976 1.000";
+    const paleGreen = "0.935 0.995 0.958";
+    const darkText = "0.085 0.185 0.300";
+    const mutedText = "0.365 0.455 0.545";
+    const white = "1 1 1";
 
-    stream += mutahusPdfText(42, 720, 10, "Invoice Number", true);
-    stream += mutahusPdfText(150, 720, 10, invoiceNumber);
-    stream += mutahusPdfText(42, 701, 10, "Issue Date", true);
-    stream += mutahusPdfText(150, 701, 10, issueDate);
-    stream += mutahusPdfText(42, 682, 10, "Payment ID", true);
-    stream += mutahusPdfText(150, 682, 10, payment.id || "-");
-    stream += mutahusPdfText(360, 720, 10, "Status", true);
-    stream += "0.09 0.64 0.29 rg 430 704 112 28 re f\n";
-    stream += "1 1 1 rg BT /F2 12 Tf 466 713 Td (PAID) Tj ET\n";
+    // Premium header.
+    stream += mutahusPdfFilledRect(
+        0,
+        738,
+        595,
+        104,
+        navy
+    );
 
-    // Bill to panel.
-    stream += "0.95 0.98 1 rg 42 574 511 82 re f\n";
-    stream += mutahusPdfText(55, 636, 11, "BILL TO", true);
-    stream += mutahusPdfText(55, 616, 12, payment.parentName || "Parent");
-    stream += mutahusPdfText(55, 598, 9, payment.parentPhone || "-");
-    stream += mutahusPdfText(270, 598, 9, payment.parentEmail || "-");
+    stream += mutahusPdfFilledRect(
+        0,
+        730,
+        595,
+        8,
+        green
+    );
 
-    // Item table.
-    stream += "0.06 0.24 0.41 rg 42 528 511 34 re f\n";
-    stream += "1 1 1 rg BT /F2 10 Tf 55 540 Td (DESCRIPTION) Tj ET\n";
-    stream += "1 1 1 rg BT /F2 10 Tf 420 540 Td (AMOUNT) Tj ET\n";
-    stream += "0.80 0.87 0.94 RG 42 478 511 50 re S\n";
-    stream += mutahusPdfText(55, 506, 10, description);
-    stream += mutahusPdfText(55, 488, 9, `Student: ${studentName}`);
-    stream += mutahusPdfText(438, 497, 11, `RM ${amount}`, true);
+    // Minimal van-style brand mark.
+    stream += mutahusPdfFilledRect(
+        44,
+        778,
+        46,
+        30,
+        white
+    );
 
-    stream += "0.06 0.24 0.41 rg 350 424 203 42 re f\n";
-    stream += "1 1 1 rg BT /F2 12 Tf 367 440 Td (TOTAL PAID) Tj ET\n";
-    stream += `1 1 1 rg BT /F2 14 Tf 470 440 Td (RM ${mutahusPdfAscii(amount)}) Tj ET\n`;
+    stream += mutahusPdfFilledRect(
+        50,
+        789,
+        28,
+        13,
+        blue
+    );
 
-    let noteY = 390;
-    stream += mutahusPdfText(42, noteY, 11, "PAYMENT DETAILS", true);
-    noteY -= 22;
-    stream += mutahusPdfText(42, noteY, 9, `Payment Month: ${payment.month || "-"}`);
-    noteY -= 17;
-    stream += mutahusPdfText(42, noteY, 9, `Date Paid: ${payment.datePaid || "-"}`);
-    noteY -= 17;
-    stream += mutahusPdfText(42, noteY, 9, `Receipt: ${payment.receiptName || "Uploaded receipt"}`);
-    noteY -= 24;
+    stream += mutahusPdfFilledRect(
+        79,
+        783,
+        7,
+        19,
+        green
+    );
 
-    stream += mutahusPdfText(42, noteY, 11, "NOTE", true);
-    noteY -= 18;
+    stream += mutahusPdfCircle(
+        56,
+        776,
+        5,
+        "0.10 0.20 0.32"
+    );
 
-    mutahusPdfWrap(
-        payment.note || "Thank you. This invoice confirms that the monthly school van service payment has been approved.",
-        78
-    ).slice(0, 5).forEach(line => {
-        stream += mutahusPdfText(42, noteY, 9, line);
-        noteY -= 15;
+    stream += mutahusPdfCircle(
+        80,
+        776,
+        5,
+        "0.10 0.20 0.32"
+    );
+
+    stream += mutahusPdfStyledText(
+        104,
+        802,
+        16,
+        "MUTHAQUS GLOBAL ENTERPRISE",
+        true,
+        white
+    );
+
+    stream += mutahusPdfStyledText(
+        104,
+        782,
+        9,
+        "Reliable School Van Service",
+        false,
+        "0.78 0.88 0.97"
+    );
+
+    stream += mutahusPdfStyledText(
+        393,
+        804,
+        9,
+        "PAYMENT DOCUMENT",
+        true,
+        "0.68 0.84 0.98"
+    );
+
+    stream += mutahusPdfStyledText(
+        393,
+        781,
+        22,
+        "INVOICE",
+        true,
+        white
+    );
+
+    // Paid status pill.
+    stream += mutahusPdfFilledRect(
+        454,
+        747,
+        98,
+        25,
+        green
+    );
+
+    stream += mutahusPdfStyledText(
+        484,
+        755,
+        10,
+        "PAID",
+        true,
+        white
+    );
+
+    // Invoice metadata strip.
+    stream += mutahusPdfFilledRect(
+        42,
+        664,
+        511,
+        46,
+        paleBlue
+    );
+
+    stream += mutahusPdfStrokedRect(
+        42,
+        664,
+        511,
+        46
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        692,
+        8,
+        "INVOICE NUMBER",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        676,
+        10,
+        invoiceNumber,
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfLine(
+        220,
+        672,
+        220,
+        702
+    );
+
+    stream += mutahusPdfStyledText(
+        238,
+        692,
+        8,
+        "ISSUE DATE",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        238,
+        676,
+        10,
+        issueDate,
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfLine(
+        366,
+        672,
+        366,
+        702
+    );
+
+    stream += mutahusPdfStyledText(
+        384,
+        692,
+        8,
+        "SERVICE PERIOD",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        384,
+        676,
+        10,
+        mutahusInvoiceShortText(
+            servicePeriod,
+            24
+        ),
+        true,
+        darkText
+    );
+
+    // Bill To card.
+    stream += mutahusPdfFilledRect(
+        42,
+        556,
+        247,
+        88,
+        white
+    );
+
+    stream += mutahusPdfStrokedRect(
+        42,
+        556,
+        247,
+        88
+    );
+
+    stream += mutahusPdfFilledRect(
+        42,
+        632,
+        247,
+        12,
+        blue
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        614,
+        9,
+        "BILL TO",
+        true,
+        blue
+    );
+
+    let parentY = 596;
+
+    parentNameLines.forEach((line, index) => {
+        stream += mutahusPdfStyledText(
+            56,
+            parentY - index * 15,
+            index === 0 ? 12 : 10,
+            line,
+            true,
+            darkText
+        );
     });
 
-    stream += "0.82 0.87 0.92 RG 42 112 511 0 re S\n";
-    stream += mutahusPdfText(42, 91, 9, "MUTHAQUS GLOBAL ENTERPRISE | School Van Service");
-    stream += mutahusPdfText(42, 75, 9, "Contact: 017-8078271");
-    stream += mutahusPdfText(42, 50, 8, "This invoice was generated electronically and does not require a signature.");
-    stream += mutahusPdfText(455, 50, 8, "Page 1 of 1");
+    const parentDetailsY =
+        parentNameLines.length > 1
+            ? 560
+            : 572;
+
+    stream += mutahusPdfStyledText(
+        56,
+        parentDetailsY,
+        8.5,
+        parentPhone,
+        false,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        146,
+        parentDetailsY,
+        8.5,
+        mutahusInvoiceShortText(
+            parentEmail,
+            28
+        ),
+        false,
+        mutedText
+    );
+
+    // Payment summary card.
+    stream += mutahusPdfFilledRect(
+        306,
+        556,
+        247,
+        88,
+        paleGreen
+    );
+
+    stream += mutahusPdfStrokedRect(
+        306,
+        556,
+        247,
+        88,
+        "0.72 0.88 0.78"
+    );
+
+    stream += mutahusPdfFilledRect(
+        306,
+        632,
+        247,
+        12,
+        green
+    );
+
+    stream += mutahusPdfStyledText(
+        320,
+        614,
+        9,
+        "PAYMENT SUMMARY",
+        true,
+        green
+    );
+
+    stream += mutahusPdfStyledText(
+        320,
+        594,
+        8,
+        "STATUS",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        320,
+        578,
+        11,
+        "PAID",
+        true,
+        green
+    );
+
+    stream += mutahusPdfStyledText(
+        409,
+        594,
+        8,
+        "REFERENCE",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        409,
+        578,
+        9,
+        paymentReference,
+        true,
+        darkText
+    );
+
+    // Service item table.
+    stream += mutahusPdfFilledRect(
+        42,
+        500,
+        511,
+        34,
+        navy
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        512,
+        9,
+        "SERVICE DESCRIPTION",
+        true,
+        white
+    );
+
+    stream += mutahusPdfStyledText(
+        459,
+        512,
+        9,
+        "AMOUNT",
+        true,
+        white
+    );
+
+    stream += mutahusPdfFilledRect(
+        42,
+        407,
+        511,
+        93,
+        white
+    );
+
+    stream += mutahusPdfStrokedRect(
+        42,
+        407,
+        511,
+        93
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        477,
+        11,
+        description,
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        458,
+        8,
+        `Service period: ${servicePeriod}`,
+        false,
+        mutedText
+    );
+
+    let studentY = 439;
+
+    studentLines.forEach(line => {
+        stream += mutahusPdfStyledText(
+            56,
+            studentY,
+            8.5,
+            `Student: ${line}`,
+            false,
+            mutedText
+        );
+
+        studentY -= 14;
+    });
+
+    stream += mutahusPdfStyledText(
+        453,
+        458,
+        12,
+        `RM ${amount}`,
+        true,
+        darkText
+    );
+
+    // Total paid card.
+    stream += mutahusPdfFilledRect(
+        337,
+        342,
+        216,
+        48,
+        navy
+    );
+
+    stream += mutahusPdfStyledText(
+        354,
+        371,
+        8,
+        "TOTAL PAYMENT",
+        true,
+        "0.70 0.84 0.96"
+    );
+
+    stream += mutahusPdfStyledText(
+        354,
+        352,
+        12,
+        "TOTAL PAID",
+        true,
+        white
+    );
+
+    stream += mutahusPdfStyledText(
+        470,
+        355,
+        16,
+        `RM ${amount}`,
+        true,
+        white
+    );
+
+    // Payment details panel.
+    stream += mutahusPdfFilledRect(
+        42,
+        252,
+        511,
+        70,
+        paleBlue
+    );
+
+    stream += mutahusPdfStrokedRect(
+        42,
+        252,
+        511,
+        70
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        303,
+        10,
+        "PAYMENT DETAILS",
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        283,
+        8,
+        "PAYMENT MONTH",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        56,
+        267,
+        9.5,
+        servicePeriod,
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfStyledText(
+        218,
+        283,
+        8,
+        "DATE APPROVED",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        218,
+        267,
+        9.5,
+        issueDate,
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfStyledText(
+        382,
+        283,
+        8,
+        "RECEIPT FILE",
+        true,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        382,
+        267,
+        8.5,
+        receiptName,
+        true,
+        darkText
+    );
+
+    // Confirmation note.
+    stream += mutahusPdfFilledRect(
+        42,
+        159,
+        511,
+        72,
+        white
+    );
+
+    stream += mutahusPdfStrokedRect(
+        42,
+        159,
+        511,
+        72
+    );
+
+    stream += mutahusPdfFilledRect(
+        42,
+        159,
+        7,
+        72,
+        green
+    );
+
+    stream += mutahusPdfStyledText(
+        62,
+        211,
+        10,
+        "PAYMENT CONFIRMATION",
+        true,
+        darkText
+    );
+
+    let noteY = 192;
+
+    noteLines.forEach(line => {
+        stream += mutahusPdfStyledText(
+            62,
+            noteY,
+            8.5,
+            line,
+            false,
+            mutedText
+        );
+
+        noteY -= 14;
+    });
+
+    // Footer.
+    stream += mutahusPdfLine(
+        42,
+        114,
+        553,
+        114,
+        "0.78 0.85 0.91"
+    );
+
+    stream += mutahusPdfStyledText(
+        42,
+        91,
+        9,
+        "MUTHAQUS GLOBAL ENTERPRISE",
+        true,
+        darkText
+    );
+
+    stream += mutahusPdfStyledText(
+        42,
+        75,
+        8,
+        "School Van Service  |  Contact: 017-8078271",
+        false,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        42,
+        49,
+        7.5,
+        "This electronic invoice confirms an approved payment and does not require a signature.",
+        false,
+        mutedText
+    );
+
+    stream += mutahusPdfStyledText(
+        505,
+        49,
+        7.5,
+        "1 / 1",
+        true,
+        mutedText
+    );
 
     const objects = [];
-    objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
-    objects[2] = "<< /Type /Pages /Kids [3 0 R] /Count 1 >>";
-    objects[3] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>";
-    objects[4] = `<< /Length ${stream.length} >>\nstream\n${stream}endstream`;
-    objects[5] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
-    objects[6] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>";
+
+    objects[1] =
+        "<< /Type /Catalog /Pages 2 0 R >>";
+
+    objects[2] =
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>";
+
+    objects[3] =
+        "<< /Type /Page /Parent 2 0 R " +
+        "/MediaBox [0 0 595 842] " +
+        "/Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> " +
+        "/Contents 4 0 R >>";
+
+    objects[4] =
+        `<< /Length ${stream.length} >>\n` +
+        `stream\n${stream}endstream`;
+
+    objects[5] =
+        "<< /Type /Font /Subtype /Type1 " +
+        "/BaseFont /Helvetica >>";
+
+    objects[6] =
+        "<< /Type /Font /Subtype /Type1 " +
+        "/BaseFont /Helvetica-Bold >>";
 
     let pdf = "%PDF-1.4\n";
     const offsets = [0];
 
     for (let index = 1; index <= 6; index += 1) {
         offsets[index] = pdf.length;
-        pdf += `${index} 0 obj\n${objects[index]}\nendobj\n`;
+        pdf += (
+            `${index} 0 obj\n` +
+            `${objects[index]}\n` +
+            `endobj\n`
+        );
     }
 
     const xrefOffset = pdf.length;
+
     pdf += "xref\n0 7\n";
     pdf += "0000000000 65535 f \n";
 
     for (let index = 1; index <= 6; index += 1) {
-        pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+        pdf += (
+            `${String(offsets[index]).padStart(10, "0")} ` +
+            "00000 n \n"
+        );
     }
 
     pdf += "trailer\n<< /Size 7 /Root 1 0 R >>\n";
@@ -8007,3 +8758,5 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH
 
 // MUTHAQUS_STEP71_PARENT_DASHBOARD_MOBILE_POLISH
+
+// MUTHAQUS_STEP74_PREMIUM_INVOICE_LAYOUT
