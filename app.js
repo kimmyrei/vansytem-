@@ -8473,44 +8473,192 @@ function getBestCurrentPayment(payments, period) {
         })[0] || null;
 }
 
-function renderParentPaymentDueReminder(children, payments) {
-    const card = document.getElementById("paymentDueCard");
-    const amount = document.getElementById("paymentDueAmount");
-    const status = document.getElementById("paymentDueStatus");
-    const dateText = document.getElementById("paymentDueDate");
-    const monthText = document.getElementById("paymentDueMonth");
-    const action = document.getElementById("paymentDueAction");
+function step77MonthKey(year, month) {
+    return `${Number(year)}-${String(Number(month)).padStart(2, "0")}`;
+}
 
-    if (!card || !amount || !status || !dateText) return;
+function step77PeriodFromKey(key) {
+    const match = String(key || "").match(/^(\d{4})-(\d{2})$/);
 
-    const period = getCurrentPaymentPeriod();
+    if (!match) return null;
 
-    const eligibleChildren = children.filter(
-        child => child.status !== "Rejected"
+    return {
+        year: Number(match[1]),
+        month: Number(match[2]),
+        key: step77MonthKey(match[1], match[2])
+    };
+}
+
+function step77PeriodLabel(period, short = false) {
+    if (!period) return "-";
+
+    const date = new Date(
+        Date.UTC(period.year, period.month - 1, 1)
     );
 
-    const monthlyAmount = eligibleChildren.reduce(
-        (sum, child) =>
-            sum + Number(child.monthlyAmount || 0),
-        0
+    return new Intl.DateTimeFormat("en-MY", {
+        month: short ? "short" : "long",
+        year: "numeric",
+        timeZone: "UTC"
+    }).format(date);
+}
+
+function step77ComparePeriods(first, second) {
+    return (
+        first.year * 12 + first.month -
+        (second.year * 12 + second.month)
+    );
+}
+
+function step77AddMonths(period, amount) {
+    const date = new Date(
+        Date.UTC(period.year, period.month - 1 + amount, 1)
     );
 
-    /*
-     * A parent may have more than one payment record for the same month,
-     * for example RM300 for one child and RM80 for another child.
-     *
-     * The old version selected only one Paid record, normally the newest,
-     * so the reminder showed RM80 instead of RM380.
-     *
-     * Step 75 totals every unique payment record for the current month.
-     */
-    const seenPaymentIds = new Set();
+    return {
+        year: date.getUTCFullYear(),
+        month: date.getUTCMonth() + 1,
+        key: step77MonthKey(
+            date.getUTCFullYear(),
+            date.getUTCMonth() + 1
+        )
+    };
+}
 
-    const currentMonthPayments = payments.filter(payment => {
-        if (!paymentMatchesCurrentPeriod(payment, period)) {
-            return false;
-        }
+function step77ParsePaymentPeriod(value) {
+    const text = String(value || "").trim();
 
+    if (!text) return null;
+
+    const isoMatch = text.match(/\b(\d{4})[-/](0?[1-9]|1[0-2])\b/);
+
+    if (isoMatch) {
+        return {
+            year: Number(isoMatch[1]),
+            month: Number(isoMatch[2]),
+            key: step77MonthKey(isoMatch[1], isoMatch[2])
+        };
+    }
+
+    const monthNames = {
+        january: 1,
+        jan: 1,
+        february: 2,
+        feb: 2,
+        march: 3,
+        mar: 3,
+        april: 4,
+        apr: 4,
+        may: 5,
+        june: 6,
+        jun: 6,
+        july: 7,
+        jul: 7,
+        august: 8,
+        aug: 8,
+        september: 9,
+        sep: 9,
+        sept: 9,
+        october: 10,
+        oct: 10,
+        november: 11,
+        nov: 11,
+        december: 12,
+        dec: 12
+    };
+
+    const normalised = text
+        .toLowerCase()
+        .replace(/[.,]/g, " ")
+        .replace(/\s+/g, " ");
+
+    const yearMatch = normalised.match(/\b(20\d{2})\b/);
+
+    if (!yearMatch) return null;
+
+    const monthEntry = Object.entries(monthNames).find(
+        ([monthName]) =>
+            new RegExp(`\\b${monthName}\\b`, "i").test(normalised)
+    );
+
+    if (!monthEntry) return null;
+
+    return {
+        year: Number(yearMatch[1]),
+        month: Number(monthEntry[1]),
+        key: step77MonthKey(
+            yearMatch[1],
+            monthEntry[1]
+        )
+    };
+}
+
+function step77ParseChildStartPeriod(value) {
+    if (!value) return null;
+
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return {
+            year: value.getFullYear(),
+            month: value.getMonth() + 1,
+            key: step77MonthKey(
+                value.getFullYear(),
+                value.getMonth() + 1
+            )
+        };
+    }
+
+    const text = String(value).trim();
+
+    const dayFirstMatch = text.match(
+        /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
+    );
+
+    if (dayFirstMatch) {
+        return {
+            year: Number(dayFirstMatch[3]),
+            month: Number(dayFirstMatch[2]),
+            key: step77MonthKey(
+                dayFirstMatch[3],
+                dayFirstMatch[2]
+            )
+        };
+    }
+
+    const isoMatch = text.match(
+        /^(\d{4})-(\d{1,2})(?:-\d{1,2})?/
+    );
+
+    if (isoMatch) {
+        return {
+            year: Number(isoMatch[1]),
+            month: Number(isoMatch[2]),
+            key: step77MonthKey(
+                isoMatch[1],
+                isoMatch[2]
+            )
+        };
+    }
+
+    const parsedDate = new Date(text);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+        return {
+            year: parsedDate.getFullYear(),
+            month: parsedDate.getMonth() + 1,
+            key: step77MonthKey(
+                parsedDate.getFullYear(),
+                parsedDate.getMonth() + 1
+            )
+        };
+    }
+
+    return step77ParsePaymentPeriod(text);
+}
+
+function step77UniquePayments(payments) {
+    const seen = new Set();
+
+    return payments.filter(payment => {
         const uniqueKey = String(
             payment.id ||
             [
@@ -8523,73 +8671,482 @@ function renderParentPaymentDueReminder(children, payments) {
             ].join("|")
         );
 
-        if (seenPaymentIds.has(uniqueKey)) {
+        if (seen.has(uniqueKey)) {
             return false;
         }
 
-        seenPaymentIds.add(uniqueKey);
+        seen.add(uniqueKey);
         return true;
     });
+}
 
-    const sumByStatus = paymentStatus => {
-        return currentMonthPayments
-            .filter(payment => payment.status === paymentStatus)
-            .reduce(
-                (sum, payment) =>
-                    sum + Number(payment.amount || 0),
-                0
-            );
+function step77ExpectedAmountForPeriod(
+    children,
+    targetPeriod,
+    fallbackStartPeriod
+) {
+    return children.reduce((sum, child) => {
+        const amount = Number(child.monthlyAmount || 0);
+
+        if (amount <= 0) return sum;
+
+        const childStart =
+            step77ParseChildStartPeriod(child.createdAt) ||
+            fallbackStartPeriod;
+
+        if (
+            childStart &&
+            step77ComparePeriods(childStart, targetPeriod) > 0
+        ) {
+            return sum;
+        }
+
+        return sum + amount;
+    }, 0);
+}
+
+function step77BuildMonthRange(startPeriod, endPeriod) {
+    if (!startPeriod || !endPeriod) return [];
+
+    const periods = [];
+    let cursor = {
+        year: startPeriod.year,
+        month: startPeriod.month,
+        key: startPeriod.key
     };
 
-    const paidAmount = sumByStatus("Paid");
-    const pendingAmount = sumByStatus("Pending");
-    const rejectedAmount = sumByStatus("Rejected");
+    /*
+     * Maximum 36 months prevents accidental huge reminders when old
+     * or invalid dates exist.
+     */
+    while (
+        step77ComparePeriods(cursor, endPeriod) <= 0 &&
+        periods.length < 36
+    ) {
+        periods.push(cursor);
+        cursor = step77AddMonths(cursor, 1);
+    }
 
-    const paidRecords = currentMonthPayments.filter(
-        payment => payment.status === "Paid"
+    return periods;
+}
+
+function step77EnsureArrearsBreakdown(card, dateText) {
+    let breakdown = document.getElementById(
+        "paymentDueBreakdown"
     );
 
-    const pendingRecords = currentMonthPayments.filter(
-        payment => payment.status === "Pending"
+    if (breakdown) return breakdown;
+
+    breakdown = document.createElement("div");
+    breakdown.id = "paymentDueBreakdown";
+    breakdown.className = "step77-due-breakdown";
+    breakdown.hidden = true;
+
+    dateText.insertAdjacentElement("afterend", breakdown);
+
+    return breakdown;
+}
+
+function step77RenderArrearsBreakdown(
+    breakdown,
+    outstandingMonths,
+    pendingPastMonths = []
+) {
+    if (!breakdown) return;
+
+    const visibleOutstanding = outstandingMonths.slice(-4);
+    const hiddenOutstandingCount =
+        Math.max(0, outstandingMonths.length - visibleOutstanding.length);
+
+    const outstandingHtml = visibleOutstanding
+        .map(item => `
+            <span class="step77-month-chip overdue">
+                ${mutahusSafeHtml(step77PeriodLabel(item.period, true))}
+                <b>RM${item.outstanding.toFixed(2)}</b>
+            </span>
+        `)
+        .join("");
+
+    const pendingHtml = pendingPastMonths
+        .slice(-2)
+        .map(item => `
+            <span class="step77-month-chip pending">
+                ${mutahusSafeHtml(step77PeriodLabel(item.period, true))}
+                <b>Review</b>
+            </span>
+        `)
+        .join("");
+
+    const moreHtml = hiddenOutstandingCount > 0
+        ? `
+            <span class="step77-month-chip more">
+                +${hiddenOutstandingCount} more
+            </span>
+        `
+        : "";
+
+    breakdown.innerHTML = `
+        <div class="step77-breakdown-title">
+            <span>⚠️</span>
+            <strong>Previous month balance</strong>
+        </div>
+
+        <div class="step77-month-chip-list">
+            ${outstandingHtml}
+            ${pendingHtml}
+            ${moreHtml}
+        </div>
+    `;
+
+    breakdown.hidden =
+        outstandingMonths.length === 0 &&
+        pendingPastMonths.length === 0;
+}
+
+function renderParentPaymentDueReminder(children, payments) {
+    const card = document.getElementById("paymentDueCard");
+    const amount = document.getElementById("paymentDueAmount");
+    const status = document.getElementById("paymentDueStatus");
+    const dateText = document.getElementById("paymentDueDate");
+    const monthText = document.getElementById("paymentDueMonth");
+    const action = document.getElementById("paymentDueAction");
+
+    if (!card || !amount || !status || !dateText) return;
+
+    const currentPeriod = getCurrentPaymentPeriod();
+
+    const currentPeriodInfo = {
+        year: currentPeriod.year,
+        month: currentPeriod.month,
+        key: step77MonthKey(
+            currentPeriod.year,
+            currentPeriod.month
+        )
+    };
+
+    const eligibleChildren = children.filter(
+        child => child.status !== "Rejected"
     );
 
-    const rejectedRecords = currentMonthPayments.filter(
-        payment => payment.status === "Rejected"
+    const uniquePayments =
+        step77UniquePayments(payments);
+
+    const paymentPeriods = uniquePayments
+        .map(payment => step77ParsePaymentPeriod(payment.month))
+        .filter(Boolean);
+
+    const childStartPeriods = eligibleChildren
+        .map(child =>
+            step77ParseChildStartPeriod(child.createdAt)
+        )
+        .filter(Boolean);
+
+    const possibleStartPeriods = [
+        ...paymentPeriods,
+        ...childStartPeriods
+    ].filter(period =>
+        step77ComparePeriods(period, currentPeriodInfo) <= 0
     );
 
-    const dueDate = `${MUTHAQUS_PAYMENT_DUE_DAY} ${period.label}`;
+    const earliestStartPeriod =
+        possibleStartPeriods.length > 0
+            ? possibleStartPeriods
+                .slice()
+                .sort(step77ComparePeriods)[0]
+            : currentPeriodInfo;
+
+    const monthRange = step77BuildMonthRange(
+        earliestStartPeriod,
+        currentPeriodInfo
+    );
+
+    const paymentGroups = new Map();
+
+    uniquePayments.forEach(payment => {
+        const period = step77ParsePaymentPeriod(
+            payment.month
+        );
+
+        if (!period) return;
+
+        if (!paymentGroups.has(period.key)) {
+            paymentGroups.set(period.key, []);
+        }
+
+        paymentGroups.get(period.key).push(payment);
+    });
+
+    const monthSummaries = monthRange.map(period => {
+        const monthPayments =
+            paymentGroups.get(period.key) || [];
+
+        const expected = step77ExpectedAmountForPeriod(
+            eligibleChildren,
+            period,
+            earliestStartPeriod
+        );
+
+        const totalForStatus = paymentStatus => {
+            return monthPayments
+                .filter(
+                    payment =>
+                        payment.status === paymentStatus
+                )
+                .reduce(
+                    (sum, payment) =>
+                        sum + Number(payment.amount || 0),
+                    0
+                );
+        };
+
+        const paid = totalForStatus("Paid");
+        const pending = totalForStatus("Pending");
+        const rejected = totalForStatus("Rejected");
+        const remaining = Math.max(0, expected - paid);
+
+        return {
+            period,
+            expected,
+            paid,
+            pending,
+            rejected,
+            remaining,
+            payments: monthPayments
+        };
+    });
+
+    const currentSummary =
+        monthSummaries.find(
+            item => item.period.key === currentPeriodInfo.key
+        ) || {
+            period: currentPeriodInfo,
+            expected: eligibleChildren.reduce(
+                (sum, child) =>
+                    sum + Number(child.monthlyAmount || 0),
+                0
+            ),
+            paid: 0,
+            pending: 0,
+            rejected: 0,
+            remaining: eligibleChildren.reduce(
+                (sum, child) =>
+                    sum + Number(child.monthlyAmount || 0),
+                0
+            ),
+            payments: []
+        };
+
+    /*
+     * A previous month is outstanding when:
+     * - an amount was expected,
+     * - approved payments are still below that amount, and
+     * - there is no pending submission covering the remaining balance.
+     */
+    const previousSummaries = monthSummaries.filter(
+        item =>
+            step77ComparePeriods(
+                item.period,
+                currentPeriodInfo
+            ) < 0
+    );
+
+    const outstandingPastMonths =
+        previousSummaries
+            .filter(item => {
+                if (item.expected <= 0) return false;
+                if (item.remaining <= 0) return false;
+
+                return item.pending < item.remaining;
+            })
+            .map(item => ({
+                ...item,
+                outstanding: Math.max(
+                    0,
+                    item.remaining - item.pending
+                )
+            }));
+
+    const pendingPastMonths =
+        previousSummaries.filter(item => {
+            if (item.expected <= 0) return false;
+            if (item.remaining <= 0) return false;
+
+            return item.pending >= item.remaining;
+        });
+
+    const previousOutstandingTotal =
+        outstandingPastMonths.reduce(
+            (sum, item) =>
+                sum + Number(item.outstanding || 0),
+            0
+        );
+
+    const currentPendingCoversBalance =
+        currentSummary.pending >=
+        currentSummary.remaining &&
+        currentSummary.remaining > 0;
+
+    const currentOutstanding =
+        currentSummary.remaining > 0 &&
+        !currentPendingCoversBalance
+            ? Math.max(
+                0,
+                currentSummary.remaining -
+                currentSummary.pending
+            )
+            : 0;
+
+    const totalOutstanding =
+        previousOutstandingTotal +
+        currentOutstanding;
+
+    const breakdown = step77EnsureArrearsBreakdown(
+        card,
+        dateText
+    );
+
+    step77RenderArrearsBreakdown(
+        breakdown,
+        outstandingPastMonths,
+        pendingPastMonths
+    );
 
     card.classList.remove(
         "is-paid",
         "is-pending",
         "is-overdue",
         "is-rejected",
-        "is-empty"
+        "is-empty",
+        "is-arrears"
     );
 
     if (monthText) {
-        monthText.innerText = period.label;
+        monthText.innerText = currentPeriod.label;
     }
 
     /*
-     * Fully paid:
-     * Use the real total of all Paid records for the current month.
+     * Previous unpaid months always take priority in the reminder,
+     * even when the current month is already Paid.
      */
+    if (previousOutstandingTotal > 0) {
+        card.classList.add(
+            "is-overdue",
+            "is-arrears"
+        );
+
+        status.innerText =
+            outstandingPastMonths.length === 1
+                ? "1 Month Overdue"
+                : `${outstandingPastMonths.length} Months Overdue`;
+
+        amount.innerText =
+            `RM${totalOutstanding.toFixed(2)}`;
+
+        const monthNames = outstandingPastMonths
+            .slice(-3)
+            .map(item =>
+                step77PeriodLabel(item.period, true)
+            )
+            .join(", ");
+
+        const extraCount =
+            Math.max(
+                0,
+                outstandingPastMonths.length - 3
+            );
+
+        dateText.innerText =
+            extraCount > 0
+                ? `Outstanding balance from ${monthNames} and ${extraCount} earlier month${extraCount > 1 ? "s" : ""}`
+                : `Outstanding balance from ${monthNames}`;
+
+        if (currentSummary.pending > 0) {
+            dateText.innerText +=
+                ". Current payment is under review.";
+        } else if (
+            currentSummary.paid >= currentSummary.expected &&
+            currentSummary.expected > 0
+        ) {
+            dateText.innerText +=
+                ". Current month is already paid.";
+        }
+
+        if (action) {
+            action.innerText = "Pay Outstanding Balance";
+            action.href = "upload-payment.html";
+        }
+
+        return;
+    }
+
+    if (pendingPastMonths.length > 0) {
+        card.classList.add("is-pending");
+        status.innerText = "Under Review";
+
+        const pendingPastTotal =
+            pendingPastMonths.reduce(
+                (sum, item) =>
+                    sum + Number(item.pending || 0),
+                0
+            );
+
+        amount.innerText =
+            `RM${pendingPastTotal.toFixed(2)}`;
+
+        dateText.innerText =
+            pendingPastMonths.length === 1
+                ? `${step77PeriodLabel(pendingPastMonths[0].period)} payment is waiting for approval`
+                : `${pendingPastMonths.length} previous payments are waiting for approval`;
+
+        if (action) {
+            action.innerText = "View Submissions";
+            action.href = "#paymentHistorySection";
+        }
+
+        return;
+    }
+
+    if (eligibleChildren.length === 0) {
+        card.classList.add("is-empty");
+        status.innerText = "Not Available";
+        amount.innerText = "No Child";
+        dateText.innerText =
+            "Register a child to receive monthly reminders.";
+
+        if (breakdown) {
+            breakdown.hidden = true;
+        }
+
+        if (action) {
+            action.innerText = "Register Child";
+            action.href = "add-student.html";
+        }
+
+        return;
+    }
+
     if (
-        paidAmount > 0 &&
+        currentSummary.paid > 0 &&
         (
-            monthlyAmount <= 0 ||
-            paidAmount >= monthlyAmount
+            currentSummary.expected <= 0 ||
+            currentSummary.paid >= currentSummary.expected
         )
     ) {
         card.classList.add("is-paid");
         status.innerText = "Paid";
-        amount.innerText = `RM${paidAmount.toFixed(2)}`;
+        amount.innerText =
+            `RM${currentSummary.paid.toFixed(2)}`;
 
         dateText.innerText =
-            paidRecords.length > 1
-                ? `${period.label} payment completed across ${paidRecords.length} records`
-                : `${period.label} payment completed`;
+            currentSummary.payments.filter(
+                payment => payment.status === "Paid"
+            ).length > 1
+                ? `${currentPeriod.label} payment completed across ${
+                    currentSummary.payments.filter(
+                        payment => payment.status === "Paid"
+                    ).length
+                } records`
+                : `${currentPeriod.label} payment completed`;
 
         if (action) {
             action.innerText = "View Payment History";
@@ -8599,27 +9156,25 @@ function renderParentPaymentDueReminder(children, payments) {
         return;
     }
 
-    /*
-     * Some money is already approved, but the monthly total is not complete.
-     */
-    if (paidAmount > 0) {
+    if (currentSummary.paid > 0) {
         card.classList.add("is-pending");
         status.innerText = "Partially Paid";
-        amount.innerText = `RM${paidAmount.toFixed(2)}`;
+        amount.innerText =
+            `RM${currentSummary.paid.toFixed(2)}`;
 
         dateText.innerText =
-            monthlyAmount > 0
-                ? `RM${paidAmount.toFixed(2)} paid of RM${monthlyAmount.toFixed(2)}`
-                : `${period.label} payment is partially completed`;
+            currentSummary.expected > 0
+                ? `RM${currentSummary.paid.toFixed(2)} paid of RM${currentSummary.expected.toFixed(2)}`
+                : `${currentPeriod.label} payment is partially completed`;
 
         if (action) {
             action.innerText =
-                pendingAmount > 0
+                currentSummary.pending > 0
                     ? "View Submission"
                     : "Upload Remaining Payment";
 
             action.href =
-                pendingAmount > 0
+                currentSummary.pending > 0
                     ? "#paymentHistorySection"
                     : "upload-payment.html";
         }
@@ -8627,27 +9182,26 @@ function renderParentPaymentDueReminder(children, payments) {
         return;
     }
 
-    /*
-     * One or more current-month receipts are waiting for admin review.
-     * Show the total submitted amount rather than only one record.
-     */
-    if (pendingAmount > 0 || pendingRecords.length > 0) {
+    if (
+        currentSummary.pending > 0 ||
+        currentSummary.payments.some(
+            payment => payment.status === "Pending"
+        )
+    ) {
         card.classList.add("is-pending");
         status.innerText = "Under Review";
 
         amount.innerText =
-            pendingAmount > 0
-                ? `RM${pendingAmount.toFixed(2)}`
+            currentSummary.pending > 0
+                ? `RM${currentSummary.pending.toFixed(2)}`
                 : (
-                    monthlyAmount > 0
-                        ? `RM${monthlyAmount.toFixed(2)}`
+                    currentSummary.expected > 0
+                        ? `RM${currentSummary.expected.toFixed(2)}`
                         : "Submitted"
                 );
 
         dateText.innerText =
-            pendingRecords.length > 1
-                ? `${pendingRecords.length} receipts submitted — waiting for admin approval`
-                : "Receipt submitted — waiting for admin approval";
+            "Receipt submitted — waiting for admin approval";
 
         if (action) {
             action.innerText = "View Submission";
@@ -8657,19 +9211,21 @@ function renderParentPaymentDueReminder(children, payments) {
         return;
     }
 
-    /*
-     * A rejected current-month payment needs a new receipt.
-     */
-    if (rejectedAmount > 0 || rejectedRecords.length > 0) {
+    if (
+        currentSummary.rejected > 0 ||
+        currentSummary.payments.some(
+            payment => payment.status === "Rejected"
+        )
+    ) {
         card.classList.add("is-rejected");
         status.innerText = "Action Needed";
 
         amount.innerText =
-            monthlyAmount > 0
-                ? `RM${monthlyAmount.toFixed(2)}`
+            currentSummary.expected > 0
+                ? `RM${currentSummary.expected.toFixed(2)}`
                 : (
-                    rejectedAmount > 0
-                        ? `RM${rejectedAmount.toFixed(2)}`
+                    currentSummary.rejected > 0
+                        ? `RM${currentSummary.rejected.toFixed(2)}`
                         : "Resubmit"
                 );
 
@@ -8684,22 +9240,10 @@ function renderParentPaymentDueReminder(children, payments) {
         return;
     }
 
-    if (eligibleChildren.length === 0) {
-        card.classList.add("is-empty");
-        status.innerText = "Not Available";
-        amount.innerText = "No Child";
-        dateText.innerText =
-            "Register a child to receive monthly reminders.";
+    const dueDate =
+        `${MUTHAQUS_PAYMENT_DUE_DAY} ${currentPeriod.label}`;
 
-        if (action) {
-            action.innerText = "Register Child";
-            action.href = "add-student.html";
-        }
-
-        return;
-    }
-
-    if (period.day > MUTHAQUS_PAYMENT_DUE_DAY) {
+    if (currentPeriod.day > MUTHAQUS_PAYMENT_DUE_DAY) {
         card.classList.add("is-overdue");
         status.innerText = "Overdue";
         dateText.innerText = `Due date was ${dueDate}`;
@@ -8709,8 +9253,8 @@ function renderParentPaymentDueReminder(children, payments) {
     }
 
     amount.innerText =
-        monthlyAmount > 0
-            ? `RM${monthlyAmount.toFixed(2)}`
+        currentSummary.expected > 0
+            ? `RM${currentSummary.expected.toFixed(2)}`
             : "Fee Pending";
 
     if (action) {
@@ -9206,3 +9750,4 @@ window.addEventListener("load", function () {
 
 // MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH
 
+// MUTHAQUS_STEP77_PREVIOUS_MONTH_ARREARS_REMINDER
