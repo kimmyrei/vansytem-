@@ -14992,3 +14992,606 @@ body.muthaqus-security-warning-open {
 
 /* MUTHAQUS_STEP80_PAYMENT_ARREARS_MANAGEMENT */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN
+   ========================================================= */
+
+body.step81-admin-students,
+body.step81-admin-payments {
+    background:
+        radial-gradient(circle at 94% 3%, rgba(39, 120, 208, 0.09), transparent 28%),
+        #f3f7fc !important;
+}
+
+/* ---------- Student Management ---------- */
+.step81-student-management-section {
+    width: 100%;
+    padding: 28px;
+    border: 1px solid #d6e4f2;
+    border-radius: 28px;
+    background: #ffffff;
+    box-shadow: 0 19px 50px rgba(15, 60, 104, 0.09);
+}
+
+.step81-student-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.step81-student-section-head h2 {
+    margin: 5px 0 5px;
+    color: #143f73;
+    font-size: 30px;
+    letter-spacing: -0.045em;
+}
+
+.step81-student-section-head p {
+    max-width: 690px;
+    margin: 0;
+    color: #6f8397;
+    line-height: 1.6;
+}
+
+.step81-student-count {
+    min-width: 112px;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    padding: 13px 17px;
+    border: 1px solid #d7e5f3;
+    border-radius: 18px;
+    background: #f6faff;
+    color: #71859a;
+    font-size: 10px;
+    font-weight: 850;
+}
+
+.step81-student-count span {
+    color: #143f73;
+    font-size: 24px;
+    font-weight: 950;
+}
+
+.step81-student-filter {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(180px, .55fr) minmax(170px, .5fr) auto;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 19px;
+    padding: 15px;
+    border: 1px solid #dbe7f3;
+    border-radius: 19px;
+    background: linear-gradient(180deg, #fafdff, #f5f9fd);
+}
+
+.step81-student-filter label {
+    display: block;
+    margin-bottom: 7px;
+    color: #526c83;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.step81-student-filter input,
+.step81-student-filter select {
+    width: 100%;
+    min-height: 46px;
+    margin: 0;
+    border-radius: 13px;
+    background: #ffffff;
+}
+
+.step81-student-filter .btn {
+    min-height: 46px;
+    margin: 0;
+}
+
+.step81-student-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.step81-student-card {
+    min-width: 0;
+    display: grid;
+    gap: 17px;
+    padding: 21px;
+    overflow: hidden;
+    border: 1px solid #d8e6f3;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 97% 3%, rgba(39, 120, 208, 0.075), transparent 29%),
+        #ffffff;
+    box-shadow: 0 12px 31px rgba(15, 60, 104, 0.075);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.step81-student-card:hover {
+    transform: translateY(-2px);
+    border-color: #bcd4ea;
+    box-shadow: 0 17px 39px rgba(15, 60, 104, 0.12);
+}
+
+.step81-student-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 13px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8eff6;
+}
+
+.step81-student-identity {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.step81-student-identity > span {
+    width: 54px;
+    min-width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #cfe0f1;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #eaf4ff, #dcecff);
+    color: #185a9c;
+    font-size: 22px;
+    font-weight: 950;
+}
+
+.step81-student-identity small,
+.step81-student-identity h3,
+.step81-student-identity p {
+    display: block;
+}
+
+.step81-student-identity small {
+    margin-bottom: 4px;
+    color: #2c74ba;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.step81-student-identity h3 {
+    margin: 0 0 4px;
+    color: #143f73;
+    font-size: 18px;
+    overflow-wrap: anywhere;
+}
+
+.step81-student-identity p {
+    margin: 0;
+    color: #8293a4;
+    font-size: 9px;
+    overflow-wrap: anywhere;
+}
+
+.step81-student-statuses {
+    flex: 0 0 auto;
+    display: grid;
+    justify-items: end;
+    gap: 7px;
+}
+
+.step81-student-statuses .badge {
+    min-width: 84px;
+    justify-content: center;
+}
+
+.step81-student-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.step81-student-info-grid > div {
+    min-width: 0;
+    min-height: 112px;
+    position: relative;
+    padding: 14px 14px 13px 49px;
+    border: 1px solid #dce8f3;
+    border-radius: 17px;
+    background: #f8fbff;
+}
+
+.step81-student-info-grid > div > span:first-child {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #eaf3ff;
+    font-size: 14px;
+}
+
+.step81-student-info-grid small,
+.step81-student-info-grid strong,
+.step81-student-info-grid p {
+    display: block;
+}
+
+.step81-student-info-grid small {
+    margin-bottom: 6px;
+    color: #75899d;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.step81-student-info-grid strong {
+    color: #1b466c;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.step81-student-info-grid p {
+    margin: 4px 0 0;
+    color: #6e8296;
+    font-size: 10px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.step81-student-control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.step81-control-card {
+    min-width: 0;
+    display: grid;
+    gap: 11px;
+    padding: 15px;
+    border: 1px solid #d7e5f3;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #fbfdff, #f4f9ff);
+}
+
+.step81-control-card.amount {
+    border-color: #cfe7d8;
+    background: linear-gradient(180deg, #fbfffd, #f1fbf5);
+}
+
+.step81-control-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.step81-control-title > span {
+    width: 39px;
+    min-width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #eaf3ff;
+    font-size: 18px;
+}
+
+.step81-control-card.amount .step81-control-title > span {
+    background: #e9f9ef;
+}
+
+.step81-control-title small,
+.step81-control-title strong {
+    display: block;
+}
+
+.step81-control-title small {
+    margin-bottom: 3px;
+    color: #7b8ea1;
+    font-size: 8.5px;
+    font-weight: 800;
+}
+
+.step81-control-title strong {
+    color: #143f73;
+    font-size: 12px;
+}
+
+.step81-control-card input {
+    width: 100%;
+    min-height: 46px;
+    margin: 0;
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+.step81-control-card button {
+    width: 100%;
+    min-height: 43px;
+    margin: 0;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #2f80d5, #1762b4);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    box-shadow: 0 9px 21px rgba(23, 98, 180, .15);
+}
+
+.step81-control-card.amount button {
+    background: linear-gradient(180deg, #2aaf69, #16864a);
+    box-shadow: 0 9px 21px rgba(22, 134, 74, .14);
+}
+
+.step81-money-input {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+}
+
+.step81-money-input > span {
+    color: #176c43;
+    font-weight: 950;
+}
+
+.step81-money-input input {
+    text-align: right;
+}
+
+.step81-student-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    padding-top: 2px;
+}
+
+.step81-action {
+    min-width: 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    border: 0;
+    border-radius: 13px;
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(20, 63, 115, .09);
+}
+
+.step81-action.accept { background: linear-gradient(180deg, #24b663, #14934b); }
+.step81-action.active { background: linear-gradient(180deg, #efb449, #df9120); }
+.step81-action.reject { background: linear-gradient(180deg, #ef4b52, #d52c34); }
+.step81-action.remove { background: linear-gradient(180deg, #a72e3b, #831b27); }
+.step81-action:disabled { opacity: .46; cursor: not-allowed; box-shadow: none; }
+
+.step81-student-empty {
+    grid-column: 1 / -1;
+    min-height: 230px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    padding: 24px;
+    border: 1px dashed #cadceb;
+    border-radius: 21px;
+    background: #f8fbff;
+    text-align: center;
+}
+
+.step81-student-empty > span { font-size: 36px; }
+.step81-student-empty strong { color: #143f73; }
+.step81-student-empty p { margin: 0; color: #71859a; }
+
+/* ---------- Payment Arrears ---------- */
+body.step81-admin-payments .step80-arrears-section {
+    padding: 30px;
+    border-radius: 29px;
+    background:
+        radial-gradient(circle at 95% 3%, rgba(218, 52, 67, .10), transparent 27%),
+        linear-gradient(145deg, #ffffff, #fbfdff);
+}
+
+body.step81-admin-payments .step80-arrears-summary article {
+    min-height: 108px;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 9px 24px rgba(15, 60, 104, .06);
+}
+
+.step81-arrears-card {
+    position: relative;
+    padding-top: 0 !important;
+    overflow: hidden;
+    border-radius: 23px !important;
+}
+
+.step81-arrears-priority {
+    margin: 0 -19px;
+    padding: 10px 19px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+}
+
+.step81-arrears-priority.urgent {
+    background: linear-gradient(90deg, #fff0f2, #fff8f9);
+    color: #a72531;
+    border-bottom: 1px solid #efc7cc;
+}
+
+.step81-arrears-priority.review {
+    background: linear-gradient(90deg, #fff8e8, #fffdf6);
+    color: #855b0c;
+    border-bottom: 1px solid #efd391;
+}
+
+.step81-arrears-priority strong {
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.75);
+    white-space: nowrap;
+}
+
+body.step81-admin-payments .step80-arrears-money > div {
+    min-height: 84px;
+    display: grid;
+    align-content: center;
+}
+
+body.step81-admin-payments .step80-arrears-actions .btn {
+    min-height: 45px;
+    font-size: 10.5px;
+}
+
+/* Parent arrears card extra stability */
+.step70-payment-due-card.is-arrears .step77-month-chip-list {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+}
+
+.step70-payment-due-card.is-arrears .step77-month-chip {
+    min-width: 0 !important;
+    width: 100% !important;
+    white-space: normal !important;
+}
+
+.step70-payment-due-card.is-arrears .step77-chip-month {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+@media (max-width: 1180px) {
+    .step81-student-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+    body.step81-admin-students .app-main,
+    body.step81-admin-payments .app-main {
+        padding-left: 11px !important;
+        padding-right: 11px !important;
+    }
+
+    .step81-student-management-section {
+        padding: 16px;
+        border-radius: 21px;
+    }
+
+    .step81-student-section-head {
+        display: block;
+        margin-bottom: 14px;
+    }
+
+    .step81-student-section-head h2 { font-size: 23px; }
+
+    .step81-student-count {
+        width: 100%;
+        grid-template-columns: auto auto;
+        justify-content: center;
+        align-items: center;
+        margin-top: 12px;
+    }
+
+    .step81-student-count span { font-size: 19px; }
+
+    .step81-student-filter {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .step81-student-filter input,
+    .step81-student-filter select,
+    .step81-student-filter .btn {
+        min-height: 47px;
+        font-size: 16px;
+    }
+
+    .step81-student-grid { grid-template-columns: 1fr; gap: 11px; }
+
+    .step81-student-card {
+        gap: 14px;
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .step81-student-card-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .step81-student-statuses {
+        display: flex;
+        flex-wrap: wrap;
+        justify-items: initial;
+    }
+
+    .step81-student-statuses .badge { min-width: 0; }
+
+    .step81-student-info-grid,
+    .step81-student-control-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .step81-student-info-grid > div { min-height: 100px; }
+
+    .step81-control-card { padding: 13px; }
+    .step81-control-card input { font-size: 16px; }
+
+    .step81-student-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .step81-action { min-height: 45px; font-size: 11px; }
+
+    body.step81-admin-payments .step80-arrears-section {
+        padding: 16px;
+        border-radius: 21px;
+    }
+
+    .step81-arrears-priority {
+        margin: 0 -15px;
+        padding: 10px 15px;
+    }
+
+    .step70-payment-due-card.is-arrears .step77-month-chip-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 430px) {
+    .step81-student-info-grid,
+    .step81-student-control-grid,
+    .step81-student-actions,
+    .step70-payment-due-card.is-arrears .step77-month-chip-list {
+        grid-template-columns: 1fr !important;
+    }
+
+    .step81-student-identity > span {
+        width: 48px;
+        min-width: 48px;
+        height: 48px;
+    }
+}
+
+/* MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN */

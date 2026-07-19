@@ -7,7 +7,7 @@
     <title>Student Management | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page-admin-students step67-admin-students">
+<body class="page-admin-students step67-admin-students step81-admin-students">
 
 <div class="app-shell">
     
@@ -96,42 +96,62 @@
             <div class="stat-card pro-stat"><span>🏫</span><h3>Total Schools</h3><h2 id="adminTotalSchools">0</h2></div>
         </section>
 
-        <section class="table-box table-box-pro admin-record-section">
-            <div class="table-header">
+        <section class="step81-student-management-section">
+            <div class="step81-student-section-head">
                 <div>
-                    <h2>Registered Students</h2>
-                    <p>Students added by parents will appear here.</p>
+                    <span class="page-kicker">REGISTERED STUDENTS</span>
+                    <h2>Student Records</h2>
+                    <p>Review student details, billing settings and approval status in organised cards.</p>
+                </div>
+
+                <div class="step81-student-count">
+                    <span id="studentVisibleCount">0</span>
+                    Records
                 </div>
             </div>
 
-            <div class="table-scroll-shell admin-record-table-shell">
-                <table class="admin-record-table student-record-table step67-student-table">
-                    <colgroup>
-                        <col class="step67-student-col">
-                        <col class="step67-parent-col">
-                        <col class="step67-school-col">
-                        <col class="step67-class-col">
-                        <col class="step67-session-col">
-                        <col class="step67-status-col">
-                        <col class="step78-start-col">
-                        <col class="step67-amount-col">
-                        <col class="step67-actions-col">
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Parent</th>
-                            <th>School / KAFA</th>
-                            <th>Class</th>
-                            <th>Session</th>
-                            <th>Status</th>
-                            <th>Service Start</th>
-                            <th>Amount (RM)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminStudentsTable"></tbody>
-                </table>
+            <div class="step81-student-filter">
+                <div class="step81-search-field">
+                    <label for="studentRecordSearch">Search student</label>
+                    <input
+                        id="studentRecordSearch"
+                        type="search"
+                        placeholder="Student, parent, school, phone or email..."
+                        oninput="renderAdminStudentCards()"
+                    >
+                </div>
+
+                <div>
+                    <label for="studentStatusFilter">Student status</label>
+                    <select id="studentStatusFilter" onchange="renderAdminStudentCards()">
+                        <option value="">All statuses</option>
+                        <option value="Pending Review">Pending Review</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Active">Active</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="studentSessionFilter">Session</label>
+                    <select id="studentSessionFilter" onchange="renderAdminStudentCards()">
+                        <option value="">All sessions</option>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Not applicable">Not applicable</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-outline-pro" type="button" onclick="resetAdminStudentFilters()">
+                    Reset
+                </button>
+            </div>
+
+            <div id="adminStudentsGrid" class="step81-student-grid">
+                <div class="step81-student-empty loading">
+                    <span>⏳</span>
+                    <strong>Loading student records...</strong>
+                </div>
             </div>
         </section>
     </main>
@@ -141,4 +161,4 @@
 <script>loadAdminStudents();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP78_SERVICE_START_MONTH_ARREARS_FIX -->
+<!-- MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN -->

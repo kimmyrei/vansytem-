@@ -2227,7 +2227,12 @@ function renderAdminArrearsManagement() {
             .join("");
 
         list.innerHTML += `
-            <article class="step80-arrears-card">
+            <article class="step80-arrears-card step81-arrears-card">
+                <div class="step81-arrears-priority ${record.outstanding > 0 ? "urgent" : "review"}">
+                    <span>${record.outstanding > 0 ? "Payment attention required" : "Submission under review"}</span>
+                    <strong>${record.overdueMonths.length + record.pendingMonths.length} month${record.overdueMonths.length + record.pendingMonths.length === 1 ? "" : "s"}</strong>
+                </div>
+
                 <header class="step80-arrears-card-head">
                     <div class="step80-arrears-parent">
                         <span>${initial}</span>
@@ -2833,14 +2838,241 @@ async function resetDefaultRules() {
 // MUTAHUS_STEP12_RULES_MONGODB
 
 
-async function loadAdminStudents() {
-    const table = document.getElementById("adminStudentsTable");
+function step81StudentSearchText(child) {
+    return [
+        child.name,
+        child.id,
+        child.parentName,
+        child.parentPhone,
+        child.parentEmail,
+        child.school,
+        child.kafa,
+        child.classYear,
+        child.session,
+        child.status,
+        child.paymentStatus
+    ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+}
 
-    if (table) {
-        table.innerHTML = `
-            <tr class="admin-mobile-empty-row">
-                <td colspan="9" class="empty-row">Loading student records...</td>
-            </tr>
+function renderAdminStudentCards() {
+    const container = document.getElementById("adminStudentsGrid");
+    if (!container) return;
+
+    const search = String(
+        document.getElementById("studentRecordSearch")?.value || ""
+    ).trim().toLowerCase();
+
+    const statusFilter =
+        document.getElementById("studentStatusFilter")?.value || "";
+
+    const sessionFilter =
+        document.getElementById("studentSessionFilter")?.value || "";
+
+    const children = (window.adminStudentsData || []).filter(child => {
+        const matchesSearch = !search || step81StudentSearchText(child).includes(search);
+        const matchesStatus = !statusFilter || (child.status || "Pending Review") === statusFilter;
+        const matchesSession = !sessionFilter || (child.session || "Not applicable") === sessionFilter;
+        return matchesSearch && matchesStatus && matchesSession;
+    });
+
+    const count = document.getElementById("studentVisibleCount");
+    if (count) count.innerText = children.length;
+
+    container.innerHTML = "";
+
+    if (!children.length) {
+        container.innerHTML = `
+            <div class="step81-student-empty">
+                <span>🎒</span>
+                <strong>No matching student record</strong>
+                <p>Try changing the search or filter settings.</p>
+            </div>
+        `;
+        return;
+    }
+
+    children.forEach(child => {
+        const status = child.status || "Pending Review";
+        const paymentStatus = child.paymentStatus || "Unpaid";
+        const statusClass = getStudentStatusBadgeClass(status);
+        const paymentClass = getPaymentBadgeClass(paymentStatus);
+        const sessionClass =
+            child.session === "Morning"
+                ? "morning"
+                : child.session === "Afternoon"
+                ? "afternoon"
+                : "unpaid";
+        const amount = Number(child.monthlyAmount || 0);
+        const serviceStartMonth =
+            child.serviceStartMonth ||
+            step78MonthInputFromDate(child.createdAt) ||
+            "";
+        const initial = String(child.name || "S").trim().charAt(0).toUpperCase();
+
+        container.innerHTML += `
+            <article class="step81-student-card">
+                <header class="step81-student-card-head">
+                    <div class="step81-student-identity">
+                        <span>${mutahusSafeHtml(initial)}</span>
+                        <div>
+                            <small>Registered Student</small>
+                            <h3>${mutahusSafeHtml(child.name || "-")}</h3>
+                            <p>ID: ${mutahusSafeHtml(child.id || "-")}</p>
+                        </div>
+                    </div>
+
+                    <div class="step81-student-statuses">
+                        <span class="badge ${statusClass}">${mutahusSafeHtml(status)}</span>
+                        <span class="badge ${paymentClass}">${mutahusSafeHtml(paymentStatus)}</span>
+                    </div>
+                </header>
+
+                <div class="step81-student-info-grid">
+                    <div>
+                        <span>👨‍👩‍👧</span>
+                        <small>Parent</small>
+                        <strong>${mutahusSafeHtml(child.parentName || "-")}</strong>
+                        <p>${mutahusSafeHtml(child.parentPhone || "-")}</p>
+                        <p>${mutahusSafeHtml(child.parentEmail || "-")}</p>
+                    </div>
+
+                    <div>
+                        <span>🏫</span>
+                        <small>School / KAFA</small>
+                        <strong>${mutahusSafeHtml(child.school || "-")}</strong>
+                        <p>${child.kafa ? `KAFA: ${mutahusSafeHtml(child.kafa)}${child.kafaSession ? ` (${mutahusSafeHtml(child.kafaSession)})` : ""}` : "KAFA: Not applicable"}</p>
+                    </div>
+
+                    <div>
+                        <span>📚</span>
+                        <small>Class</small>
+                        <strong>${mutahusSafeHtml(child.classYear || "-")}</strong>
+                    </div>
+
+                    <div>
+                        <span>🕘</span>
+                        <small>Session</small>
+                        <span class="badge ${sessionClass}">${mutahusSafeHtml(child.session || "Not applicable")}</span>
+                    </div>
+                </div>
+
+                <div class="step81-student-control-grid">
+                    <section class="step81-control-card start">
+                        <div class="step81-control-title">
+                            <span>📅</span>
+                            <div>
+                                <small>Billing begins from</small>
+                                <strong>Service Start Month</strong>
+                            </div>
+                        </div>
+
+                        <input
+                            type="month"
+                            id="serviceStart_${child.id}"
+                            value="${serviceStartMonth}"
+                            min="2026-01"
+                            aria-label="Service start month for ${mutahusSafeHtml(child.name || "student")}"
+                        >
+
+                        <button type="button" onclick="updateStudentServiceStartMonth('${child.id}')">
+                            Save Start Month
+                        </button>
+                    </section>
+
+                    <section class="step81-control-card amount">
+                        <div class="step81-control-title">
+                            <span>💳</span>
+                            <div>
+                                <small>Parent monthly charge</small>
+                                <strong>Monthly Fee</strong>
+                            </div>
+                        </div>
+
+                        <div class="step81-money-input">
+                            <span>RM</span>
+                            <input
+                                type="number"
+                                id="amount_${child.id}"
+                                value="${amount > 0 ? amount.toFixed(2) : ""}"
+                                min="0"
+                                step="0.01"
+                                inputmode="decimal"
+                                placeholder="0.00"
+                                aria-label="Monthly amount for ${mutahusSafeHtml(child.name || "student")}"
+                            >
+                        </div>
+
+                        <button type="button" onclick="updateStudentAmount('${child.id}')">
+                            Save Monthly Fee
+                        </button>
+                    </section>
+                </div>
+
+                <footer class="step81-student-actions">
+                    <button
+                        class="step81-action accept"
+                        type="button"
+                        onclick="updateStudentStatus('${child.id}', 'Accepted')"
+                        ${status === "Accepted" ? "disabled" : ""}
+                    >
+                        <span>✓</span> Accept
+                    </button>
+
+                    <button
+                        class="step81-action active"
+                        type="button"
+                        onclick="updateStudentStatus('${child.id}', 'Active')"
+                        ${status === "Active" ? "disabled" : ""}
+                    >
+                        <span>●</span> Mark Active
+                    </button>
+
+                    <button
+                        class="step81-action reject"
+                        type="button"
+                        onclick="updateStudentStatus('${child.id}', 'Rejected')"
+                        ${status === "Rejected" ? "disabled" : ""}
+                    >
+                        <span>×</span> Reject
+                    </button>
+
+                    <button
+                        class="step81-action remove"
+                        type="button"
+                        onclick="removeStudent('${child.id}')"
+                    >
+                        <span>🗑</span> Remove
+                    </button>
+                </footer>
+            </article>
+        `;
+    });
+}
+
+function resetAdminStudentFilters() {
+    const search = document.getElementById("studentRecordSearch");
+    const status = document.getElementById("studentStatusFilter");
+    const session = document.getElementById("studentSessionFilter");
+
+    if (search) search.value = "";
+    if (status) status.value = "";
+    if (session) session.value = "";
+
+    renderAdminStudentCards();
+}
+
+async function loadAdminStudents() {
+    const grid = document.getElementById("adminStudentsGrid");
+
+    if (grid) {
+        grid.innerHTML = `
+            <div class="step81-student-empty loading">
+                <span>⏳</span>
+                <strong>Loading student records...</strong>
+            </div>
         `;
     }
 
@@ -2848,20 +3080,8 @@ async function loadAdminStudents() {
         const response = await fetch("/api/admin-students");
         const result = await response.json();
 
-        console.log("ADMIN STUDENTS RESULT:", result);
-
         if (!result.success) {
-            alert(result.message || "Failed to load students.");
-
-            if (table) {
-                table.innerHTML = `
-                    <tr class="admin-mobile-empty-row">
-                        <td colspan="9" class="empty-row">Failed to load students.</td>
-                    </tr>
-                `;
-            }
-
-            return;
+            throw new Error(result.message || "Failed to load students.");
         }
 
         const children = result.students || [];
@@ -2872,203 +3092,29 @@ async function loadAdminStudents() {
             totalSchools: 0
         };
 
-        const totalEl = document.getElementById("adminTotalStudents");
-        const morningEl = document.getElementById("adminMorningStudents");
-        const afternoonEl = document.getElementById("adminAfternoonStudents");
-        const schoolEl = document.getElementById("adminTotalSchools");
+        window.adminStudentsData = children;
 
-        if (totalEl) totalEl.innerText = summary.totalStudents || 0;
-        if (morningEl) morningEl.innerText = summary.morningCount || 0;
-        if (afternoonEl) afternoonEl.innerText = summary.afternoonCount || 0;
-        if (schoolEl) schoolEl.innerText = summary.totalSchools || 0;
+        const values = {
+            adminTotalStudents: summary.totalStudents || 0,
+            adminMorningStudents: summary.morningCount || 0,
+            adminAfternoonStudents: summary.afternoonCount || 0,
+            adminTotalSchools: summary.totalSchools || 0
+        };
 
-        if (!table) return;
-
-        table.innerHTML = "";
-
-        if (children.length === 0) {
-            table.innerHTML = `
-                <tr class="admin-mobile-empty-row">
-                    <td colspan="9" class="empty-row">
-                        <div class="mutahus-empty-state">
-                            <span>🎒</span>
-                            <strong>No students registered yet.</strong>
-                            <small>Students added by parents will appear here.</small>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        children.forEach(child => {
-            const sessionClass =
-                child.session === "Morning"
-                    ? "morning"
-                    : child.session === "Afternoon"
-                    ? "afternoon"
-                    : "unpaid";
-
-            const status = child.status || "Pending Review";
-            const statusClass = getStudentStatusBadgeClass(status);
-            const paymentStatus = child.paymentStatus || "Unpaid";
-            const paymentClass = getPaymentBadgeClass(paymentStatus);
-            const amount = Number(child.monthlyAmount || 0);
-            const serviceStartMonth =
-                child.serviceStartMonth ||
-                step78MonthInputFromDate(child.createdAt) ||
-                "";
-
-            table.innerHTML += `
-                <tr class="admin-record-row student-record-row">
-                    <td data-label="Student">
-                        <div class="record-main-identity">
-                            <span class="record-avatar">🎒</span>
-                            <div>
-                                <strong>${child.name || "-"}</strong>
-                                <small>ID: ${child.id || "-"}</small>
-                            </div>
-                        </div>
-                    </td>
-
-                    <td data-label="Parent">
-                        <strong>${child.parentName || "-"}</strong>
-                        <small>${child.parentPhone || "-"}</small>
-                        <small>${child.parentEmail || "-"}</small>
-                    </td>
-
-                    <td data-label="School / KAFA">
-                        <strong>${child.school || "-"}</strong>
-                        <small>
-                            ${
-                                child.kafa
-                                    ? `KAFA: ${child.kafa}${child.kafaSession ? ` (${child.kafaSession})` : ""}`
-                                    : "KAFA: Not applicable"
-                            }
-                        </small>
-                    </td>
-
-                    <td data-label="Class">
-                        <strong>${child.classYear || "-"}</strong>
-                    </td>
-
-                    <td data-label="Session">
-                        <span class="badge ${sessionClass}">${child.session || "Not applicable"}</span>
-                    </td>
-
-                    <td data-label="Status">
-                        <div class="record-status-stack">
-                            <span class="badge ${statusClass}">${status}</span>
-                            <span class="badge ${paymentClass}">${paymentStatus}</span>
-                        </div>
-                    </td>
-
-                    <td data-label="Service Start">
-                        <div class="step78-service-start-box">
-                            <label for="serviceStart_${child.id}">
-                                Start month
-                            </label>
-
-                            <input
-                                type="month"
-                                id="serviceStart_${child.id}"
-                                value="${serviceStartMonth}"
-                                min="2026-01"
-                                aria-label="Service start month for ${child.name || "student"}"
-                            >
-
-                            <button
-                                type="button"
-                                onclick="updateStudentServiceStartMonth('${child.id}')"
-                            >
-                                Save Start Month
-                            </button>
-                        </div>
-
-                        <small class="record-support-text">
-                            Unpaid reminders begin from this month.
-                        </small>
-                    </td>
-
-                    <td data-label="Monthly Amount">
-                        <div class="student-amount-box mobile-student-amount">
-                            <span>RM</span>
-                            <input
-                                type="number"
-                                id="amount_${child.id}"
-                                value="${amount > 0 ? amount.toFixed(2) : ""}"
-                                min="0"
-                                step="0.01"
-                                inputmode="decimal"
-                                placeholder="0.00"
-                                aria-label="Monthly amount for ${child.name || "student"}"
-                            >
-                            <button type="button" onclick="updateStudentAmount('${child.id}')">
-                                Save
-                            </button>
-                        </div>
-                        <small class="record-support-text">
-                            ${
-                                amount > 0
-                                    ? "This is the parent's monthly payment amount."
-                                    : "Set an amount before the parent uploads payment."
-                            }
-                        </small>
-                    </td>
-
-                    <td data-label="Actions" class="record-action-cell">
-                        <div class="action-row mobile-admin-action-grid student-mobile-actions">
-                            <button
-                                class="small-btn edit"
-                                type="button"
-                                onclick="updateStudentStatus('${child.id}', 'Accepted')"
-                                ${status === "Accepted" ? "disabled" : ""}
-                            >
-                                Accept
-                            </button>
-
-                            <button
-                                class="small-btn danger"
-                                type="button"
-                                onclick="updateStudentStatus('${child.id}', 'Rejected')"
-                                ${status === "Rejected" ? "disabled" : ""}
-                            >
-                                Reject
-                            </button>
-
-                            <button
-                                class="small-btn warning"
-                                type="button"
-                                onclick="updateStudentStatus('${child.id}', 'Active')"
-                                ${status === "Active" ? "disabled" : ""}
-                            >
-                                Mark Active
-                            </button>
-
-                            <button
-                                class="small-btn danger remove-record-btn"
-                                type="button"
-                                onclick="removeStudent('${child.id}')"
-                            >
-                                Remove Student
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
+        Object.entries(values).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.innerText = value;
         });
 
-        if (typeof applyStudentFilters === "function") {
-            applyStudentFilters();
-        }
+        renderAdminStudentCards();
     } catch (error) {
-        alert("Admin students error: " + error.message);
-
-        if (table) {
-            table.innerHTML = `
-                <tr class="admin-mobile-empty-row">
-                    <td colspan="9" class="empty-row">Failed to load students.</td>
-                </tr>
+        if (grid) {
+            grid.innerHTML = `
+                <div class="step81-student-empty">
+                    <span>⚠️</span>
+                    <strong>Unable to load student records</strong>
+                    <p>${mutahusSafeHtml(error.message)}</p>
+                </div>
             `;
         }
     }
@@ -10929,3 +10975,6 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP79_ARREARS_ADMIN_STUDENTS_POLISH
 
 // MUTHAQUS_STEP80_PAYMENT_ARREARS_MANAGEMENT
+
+
+// MUTHAQUS_STEP81_PREMIUM_ADMIN_UI_REDESIGN
