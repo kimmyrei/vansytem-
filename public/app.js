@@ -5630,154 +5630,101 @@ function exportBusinessAnalyticsCSV() {
 }
 
 (function installAdminOperationsNavigation() {
-    const operationLinks = [
+    const navItems = [
         {
             href: "admin-maintenance.html",
-            icon: "🔧",
-            label: "Maintenance"
+            label: "Maintenance",
+            icon: `
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M14.7 6.3a4 4 0 0 0-5-5L12 3.6 9.6 6 7.3 3.7a4 4 0 0 0 5 5L4 17l3 3 7.7-8.3a4 4 0 0 0 5-5L17.4 9 15 6.6l2.3-2.3a4 4 0 0 0-2.6 2z"/>
+                </svg>
+            `
         },
         {
             href: "admin-analytics.html",
-            icon: "📈",
-            label: "Analytics"
+            label: "Analytics",
+            icon: `
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/>
+                    <path d="M2 19h21"/>
+                </svg>
+            `
         }
     ];
 
-    function currentPageName() {
+    function currentPage() {
         return String(
-            window.location.pathname
-                .split("/")
-                .pop() || ""
-        )
-            .split("?")[0]
-            .toLowerCase();
+            window.location.pathname.split("/").pop() || ""
+        ).split("?")[0].toLowerCase();
     }
 
-    function removeOperationLinksFromParentPortal() {
-        document
-            .querySelectorAll(
-                '.sidebar-menu a[href="admin-maintenance.html"], ' +
-                '.sidebar-menu a[href="admin-analytics.html"], ' +
-                '.parent-side a[href="admin-maintenance.html"], ' +
-                '.parent-side a[href="admin-analytics.html"]'
-            )
-            .forEach(link => link.remove());
+    function isAdminPage() {
+        const page = currentPage();
+        return page.startsWith("admin-") ||
+            Boolean(document.querySelector(".admin-side"));
     }
 
-    function addAdminOperationLinks() {
-        const page = currentPageName();
-        const isAdminPage =
-            page.startsWith("admin-") ||
-            document.body.classList.contains(
-                "page-admin-dashboard"
-            ) ||
-            document.body.classList.contains(
-                "page-admin-students"
-            ) ||
-            document.body.classList.contains(
-                "page-admin-parents"
-            ) ||
-            document.body.classList.contains(
-                "page-admin-payments"
-            ) ||
-            document.body.classList.contains(
-                "page-admin-settings"
-            ) ||
-            document.body.classList.contains(
-                "step94-maintenance-page"
-            ) ||
-            document.body.classList.contains(
-                "step95-analytics-page"
-            );
+    function removeFromParentPortal() {
+        document.querySelectorAll(
+            '.parent-side a[href="admin-maintenance.html"], ' +
+            '.parent-side a[href="admin-analytics.html"], ' +
+            'body:not(.step94-maintenance-page):not(.step95-analytics-page) ' +
+            '.sidebar-menu a.step98-admin-tools-link'
+        ).forEach(link => {
+            if (!isAdminPage()) link.remove();
+        });
+    }
 
-        if (!isAdminPage) {
-            removeOperationLinksFromParentPortal();
+    function normaliseAdminLinks() {
+        if (!isAdminPage()) {
+            removeFromParentPortal();
             return;
         }
 
-        document
-            .querySelectorAll(
-                ".admin-side .sidebar-menu"
-            )
-            .forEach(menu => {
-                const settings =
-                    menu.querySelector(
-                        'a[href="admin-settings.html"]'
-                    );
+        const page = currentPage();
 
-                operationLinks.forEach(item => {
-                    let link =
-                        menu.querySelector(
-                            `a[href="${item.href}"]`
-                        );
+        document.querySelectorAll(".admin-side .sidebar-menu").forEach(menu => {
+            const settings = menu.querySelector('a[href="admin-settings.html"]');
 
-                    if (!link) {
-                        link =
-                            document.createElement(
-                                "a"
-                            );
+            navItems.forEach(item => {
+                let link = menu.querySelector(`a[href="${item.href}"]`);
 
-                        link.href = item.href;
+                if (!link) {
+                    link = document.createElement("a");
+                    link.href = item.href;
 
-                        if (settings) {
-                            menu.insertBefore(
-                                link,
-                                settings
-                            );
-                        } else {
-                            menu.appendChild(link);
-                        }
+                    if (settings) {
+                        menu.insertBefore(link, settings);
+                    } else {
+                        menu.appendChild(link);
                     }
+                }
 
-                    link.classList.add(
-                        "step96-admin-operation-link"
-                    );
+                link.className = link.className
+                    .split(/\s+/)
+                    .filter(name => name && name !== "active" && name !== "step96-admin-operation-link")
+                    .join(" ");
 
-                    link.innerHTML = `
-                        <span class="step96-admin-nav-icon" aria-hidden="true">
-                            ${item.icon}
-                        </span>
+                link.classList.add("step98-admin-tools-link");
 
-                        <span class="step96-admin-nav-label">
-                            ${item.label}
-                        </span>
-                    `;
+                if (page === item.href) {
+                    link.classList.add("active");
+                }
 
-                    if (page === item.href) {
-                        link.classList.add(
-                            "active"
-                        );
-                    }
-                });
+                link.innerHTML = `
+                    <span class="step98-admin-tools-icon">${item.icon}</span>
+                    <span class="step98-admin-tools-label">${item.label}</span>
+                `;
             });
+        });
     }
 
-    removeOperationLinksFromParentPortal();
-    addAdminOperationLinks();
+    removeFromParentPortal();
+    normaliseAdminLinks();
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
-            removeOperationLinksFromParentPortal();
-            addAdminOperationLinks();
-        }
-    );
-
-    window.addEventListener(
-        "load",
-        () => {
-            removeOperationLinksFromParentPortal();
-            addAdminOperationLinks();
-        }
-    );
-
-    window.setTimeout(
-        () => {
-            removeOperationLinksFromParentPortal();
-            addAdminOperationLinks();
-        },
-        150
-    );
+    document.addEventListener("DOMContentLoaded", normaliseAdminLinks);
+    window.addEventListener("load", normaliseAdminLinks);
+    window.setTimeout(normaliseAdminLinks, 100);
 })();
 
 const MUTHAQUS_ADMIN_MAX_LOGIN_ATTEMPTS = 5;
@@ -13632,68 +13579,97 @@ function step77RenderArrearsBreakdown(
     if (!breakdown) return;
 
     const visibleOutstanding = outstandingMonths.slice(-4);
-    const hiddenOutstandingCount =
-        Math.max(0, outstandingMonths.length - visibleOutstanding.length);
+    const hiddenOutstandingCount = Math.max(
+        0,
+        outstandingMonths.length - visibleOutstanding.length
+    );
 
-    const outstandingHtml = visibleOutstanding
+    const outstandingRows = visibleOutstanding
         .map(item => `
-            <div class="step77-month-chip overdue">
-                <span class="step77-chip-month">${mutahusSafeHtml(step77PeriodLabel(item.period, true))}</span>
-                <b>RM${item.outstanding.toFixed(2)}</b>
-            </div>
+            <article class="step98-arrears-row overdue">
+                <div class="step98-arrears-row-main">
+                    <span class="step98-arrears-row-icon">📅</span>
+                    <div>
+                        <strong>${mutahusSafeHtml(step77PeriodLabel(item.period))}</strong>
+                        <small>Outstanding payment</small>
+                    </div>
+                </div>
+
+                <b class="step98-arrears-value">
+                    RM${Number(item.outstanding || 0).toFixed(2)}
+                </b>
+            </article>
         `)
         .join("");
 
-    const pendingHtml = pendingPastMonths
+    const pendingRows = pendingPastMonths
         .slice(-2)
         .map(item => `
-            <div class="step77-month-chip pending">
-                <span class="step77-chip-month">${mutahusSafeHtml(step77PeriodLabel(item.period, true))}</span>
-                <b>Under Review</b>
-            </div>
+            <article class="step98-arrears-row review">
+                <div class="step98-arrears-row-main">
+                    <span class="step98-arrears-row-icon">⏳</span>
+                    <div>
+                        <strong>${mutahusSafeHtml(step77PeriodLabel(item.period))}</strong>
+                        <small>Receipt submitted</small>
+                    </div>
+                </div>
+
+                <b class="step98-arrears-value">
+                    Under Review
+                </b>
+            </article>
         `)
         .join("");
 
-    const moreHtml = hiddenOutstandingCount > 0
+    const moreRow = hiddenOutstandingCount > 0
         ? `
-            <div class="step77-month-chip more">
-                <span class="step77-chip-month">More unpaid month${hiddenOutstandingCount > 1 ? "s" : ""}</span>
-                <b>+${hiddenOutstandingCount}</b>
-            </div>
+            <article class="step98-arrears-row more">
+                <div class="step98-arrears-row-main">
+                    <span class="step98-arrears-row-icon">＋</span>
+                    <div>
+                        <strong>
+                            ${hiddenOutstandingCount} earlier unpaid
+                            ${hiddenOutstandingCount === 1 ? "month" : "months"}
+                        </strong>
+                        <small>Included in the total outstanding balance</small>
+                    </div>
+                </div>
+
+                <b class="step98-arrears-value">
+                    +${hiddenOutstandingCount}
+                </b>
+            </article>
         `
         : "";
 
-    const totalVisibleMonths =
-        outstandingMonths.length +
-        pendingPastMonths.length;
+    const totalMonths =
+        outstandingMonths.length + pendingPastMonths.length;
+
+    breakdown.className =
+        "step77-due-breakdown step98-arrears-panel";
 
     breakdown.innerHTML = `
-        <div class="step77-breakdown-title">
-            <span class="step77-breakdown-icon">!</span>
-
-            <div>
-                <strong>Outstanding payment details</strong>
-                <small>
-                    Review the months below before making payment.
-                </small>
+        <header class="step98-arrears-panel-head">
+            <div class="step98-arrears-heading">
+                <span>!</span>
+                <div>
+                    <strong>Payment breakdown</strong>
+                    <small>Every outstanding month is listed clearly below.</small>
+                </div>
             </div>
 
-            <b class="step96-overdue-month-count">
-                ${totalVisibleMonths}
-                ${totalVisibleMonths === 1 ? "month" : "months"}
+            <b class="step98-arrears-count">
+                ${totalMonths}
+                ${totalMonths === 1 ? "month" : "months"}
             </b>
-        </div>
+        </header>
 
-        <div class="step77-month-chip-list">
-            ${outstandingHtml}
-            ${pendingHtml}
-            ${moreHtml}
+        <div class="step98-arrears-list">
+            ${outstandingRows}
+            ${pendingRows}
+            ${moreRow}
         </div>
     `;
-
-    breakdown.hidden =
-        outstandingMonths.length === 0 &&
-        pendingPastMonths.length === 0;
 }
 
 function renderParentPaymentDueReminder(children, payments) {
