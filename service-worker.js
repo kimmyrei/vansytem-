@@ -1,5 +1,5 @@
 const CACHE_VERSION =
-    "muthaqus-pwa-v109110-2";
+    "muthaqus-pwa-v109110-3";
 
 const STATIC_CACHE =
     `${CACHE_VERSION}-static`;
@@ -380,3 +380,5 @@ self.addEventListener(
 );
 
 // MUTHAQUS_UPDATE_BANNER_REPEAT_FIX
+
+// MUTHAQUS_MINIMAL_MOBILE_QUICK_VIEW

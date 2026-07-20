@@ -16979,3 +16979,862 @@ document.addEventListener(
 // MUTHAQUS_STEP109_110_UPDATE_PUSH_NOTIFICATIONS
 
 // MUTHAQUS_UPDATE_BANNER_REPEAT_FIX
+
+/* =========================================================
+   MUTHAQUS — MINIMAL MOBILE QUICK VIEW
+   ========================================================= */
+
+const MUTHAQUS_MOBILE_VIEW_BREAKPOINT =
+    860;
+
+const MUTHAQUS_MOBILE_VIEW_STORAGE =
+    "muthaqus_mobile_quick_view:";
+
+let muthaqusMobileViewState =
+    null;
+
+function getMuthaqusCurrentPageName() {
+    return String(
+        window.location.pathname
+            .split("/")
+            .pop() ||
+        "index.html"
+    )
+        .split("?")[0]
+        .toLowerCase();
+}
+
+function getMuthaqusMobileViewConfig(
+    page
+) {
+    const configs = {
+        "admin-settings.html": [
+            {
+                icon: "◐",
+                label: "Theme",
+                selectors: [
+                    ".muthaqus-appearance-panel"
+                ]
+            },
+            {
+                icon: "📱",
+                label: "App",
+                selectors: [
+                    ".muthaqus-install-settings-card"
+                ]
+            },
+            {
+                icon: "🔔",
+                label: "Alerts",
+                selectors: [
+                    ".muthaqus-push-admin-panel"
+                ]
+            },
+            {
+                icon: "🛡️",
+                label: "Security",
+                selectors: [
+                    ".step84-security-overview"
+                ]
+            },
+            {
+                icon: "👤",
+                label: "Account",
+                selectors: [
+                    ".step84-settings-card.account"
+                ]
+            },
+            {
+                icon: "🔒",
+                label: "Password",
+                selectors: [
+                    ".step84-settings-card.password"
+                ]
+            },
+            {
+                icon: "💾",
+                label: "Backup",
+                selectors: [
+                    ".step89-recovery-section"
+                ]
+            },
+            {
+                icon: "📋",
+                label: "Activity",
+                selectors: [
+                    ".step84-activity-section"
+                ]
+            }
+        ],
+
+        "parent-profile.html": [
+            {
+                icon: "👤",
+                label: "Overview",
+                selectors: [
+                    ".step70-profile-overview"
+                ]
+            },
+            {
+                icon: "◐",
+                label: "Theme",
+                selectors: [
+                    ".muthaqus-parent-theme-card"
+                ]
+            },
+            {
+                icon: "📱",
+                label: "App",
+                selectors: [
+                    ".muthaqus-parent-install-card"
+                ]
+            },
+            {
+                icon: "🔔",
+                label: "Alerts",
+                selectors: [
+                    ".muthaqus-parent-push-card"
+                ]
+            },
+            {
+                icon: "✏️",
+                label: "Profile",
+                selectors: [
+                    ".step70-profile-form-card"
+                ]
+            },
+            {
+                icon: "🔒",
+                label: "Password",
+                selectors: [
+                    ".step70-security-form-card"
+                ]
+            }
+        ],
+
+        "admin-maintenance.html": [
+            {
+                icon: "📊",
+                label: "Overview",
+                selectors: [
+                    ".step94-summary"
+                ]
+            },
+            {
+                icon: "＋",
+                label: "Add Expense",
+                selectors: [
+                    "#expenseFormCard"
+                ]
+            },
+            {
+                icon: "🧾",
+                label: "Records",
+                selectors: [
+                    ".step94-record-card"
+                ]
+            }
+        ],
+
+        "admin-analytics.html": [
+            {
+                icon: "📊",
+                label: "Overview",
+                selectors: [
+                    ".step95-kpis"
+                ]
+            },
+            {
+                icon: "💰",
+                label: "Revenue",
+                selectors: [
+                    ".step95-grid > .step95-panel:nth-child(1)"
+                ]
+            },
+            {
+                icon: "✅",
+                label: "Payments",
+                selectors: [
+                    ".step95-grid > .step95-panel:nth-child(2)"
+                ]
+            },
+            {
+                icon: "💸",
+                label: "Expenses",
+                selectors: [
+                    ".step95-grid > .step95-panel:nth-child(3)"
+                ]
+            },
+            {
+                icon: "🔮",
+                label: "Forecast",
+                selectors: [
+                    ".step95-grid > .step95-panel:nth-child(4)"
+                ]
+            }
+        ]
+    };
+
+    return configs[page] || null;
+}
+
+function getMuthaqusGenericMobilePages() {
+    return new Set([
+        "admin-dashboard.html",
+        "admin-students.html",
+        "admin-parents.html",
+        "admin-announcements.html",
+        "admin-rules.html",
+        "parent-dashboard.html",
+        "add-student.html",
+        "parent-rules.html"
+    ]);
+}
+
+function cleanMuthaqusMobileLabel(
+    value,
+    fallback
+) {
+    const text =
+        String(value || "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+    if (!text) {
+        return fallback;
+    }
+
+    return text
+        .replace(
+            /^(overview|summary)\s*[:-]?\s*/i,
+            ""
+        )
+        .slice(0, 26);
+}
+
+function getMuthaqusSectionIcon(
+    label,
+    index
+) {
+    const value =
+        String(label || "")
+            .toLowerCase();
+
+    if (
+        value.includes("payment") ||
+        value.includes("bill")
+    ) {
+        return "💳";
+    }
+
+    if (
+        value.includes("student") ||
+        value.includes("child")
+    ) {
+        return "🎒";
+    }
+
+    if (
+        value.includes("parent")
+    ) {
+        return "👨‍👩‍👧";
+    }
+
+    if (
+        value.includes("announcement") ||
+        value.includes("notice")
+    ) {
+        return "📢";
+    }
+
+    if (
+        value.includes("rule")
+    ) {
+        return "📘";
+    }
+
+    if (
+        value.includes("record") ||
+        value.includes("history")
+    ) {
+        return "🧾";
+    }
+
+    if (
+        value.includes("form") ||
+        value.includes("add") ||
+        value.includes("register")
+    ) {
+        return "＋";
+    }
+
+    if (
+        value.includes("summary") ||
+        value.includes("dashboard") ||
+        value.includes("overview")
+    ) {
+        return "📊";
+    }
+
+    return [
+        "📌",
+        "📋",
+        "⚙️",
+        "📁",
+        "✓"
+    ][index % 5];
+}
+
+function buildMuthaqusGenericConfig(
+    page
+) {
+    if (
+        !getMuthaqusGenericMobilePages()
+            .has(page)
+    ) {
+        return null;
+    }
+
+    const main =
+        document.querySelector(
+            ".app-main"
+        );
+
+    if (!main) {
+        return null;
+    }
+
+    const sections =
+        Array.from(
+            main.children
+        ).filter(element => {
+            if (
+                element.tagName !== "SECTION"
+            ) {
+                return false;
+            }
+
+            return !element.matches(
+                ".page-hero-bar, " +
+                ".mobile-bottom-nav, " +
+                ".step94-quick-links"
+            );
+        });
+
+    if (sections.length < 2) {
+        return null;
+    }
+
+    return sections.map(
+        (element, index) => {
+            const title =
+                element.querySelector(
+                    "h2, h3, .page-kicker"
+                );
+
+            const label =
+                cleanMuthaqusMobileLabel(
+                    title?.textContent,
+                    `Section ${index + 1}`
+                );
+
+            const selectorId =
+                `muthaqus-mobile-section-${index + 1}`;
+
+            if (!element.id) {
+                element.id =
+                    selectorId;
+            }
+
+            return {
+                icon:
+                    getMuthaqusSectionIcon(
+                        label,
+                        index
+                    ),
+                label,
+                selectors: [
+                    `#${element.id}`
+                ]
+            };
+        }
+    );
+}
+
+function resolveMuthaqusMobileSections(
+    config
+) {
+    if (!Array.isArray(config)) {
+        return [];
+    }
+
+    return config
+        .map((item, index) => {
+            const elements = [];
+            const seen = new Set();
+
+            (
+                item.selectors || []
+            ).forEach(selector => {
+                document
+                    .querySelectorAll(
+                        selector
+                    )
+                    .forEach(element => {
+                        if (
+                            seen.has(element)
+                        ) {
+                            return;
+                        }
+
+                        seen.add(element);
+                        elements.push(element);
+                    });
+            });
+
+            if (
+                elements.length === 0
+            ) {
+                return null;
+            }
+
+            return {
+                key:
+                    String(
+                        item.key ||
+                        item.label ||
+                        index
+                    )
+                        .toLowerCase()
+                        .replace(
+                            /[^a-z0-9]+/g,
+                            "-"
+                        ),
+                icon:
+                    item.icon || "📌",
+                label:
+                    item.label ||
+                    `Section ${index + 1}`,
+                elements
+            };
+        })
+        .filter(Boolean);
+}
+
+function createMuthaqusMobileQuickView(
+    page,
+    sections
+) {
+    const existing =
+        document.getElementById(
+            "muthaqusMobileQuickView"
+        );
+
+    if (existing) {
+        return existing;
+    }
+
+    const menu =
+        document.createElement(
+            "nav"
+        );
+
+    menu.id =
+        "muthaqusMobileQuickView";
+
+    menu.className =
+        "muthaqus-mobile-quick-view";
+
+    menu.setAttribute(
+        "aria-label",
+        "Quick page sections"
+    );
+
+    menu.innerHTML = `
+        <div class="muthaqus-mobile-view-heading">
+            <div>
+                <strong>Quick View</strong>
+                <small>
+                    Tap a section to show it
+                </small>
+            </div>
+
+            <span
+                id="muthaqusMobileActiveLabel"
+            >
+                ${sections[0].label}
+            </span>
+        </div>
+
+        <div
+            class="muthaqus-mobile-view-buttons"
+            role="tablist"
+        >
+            ${sections
+                .map(
+                    section => `
+                        <button
+                            type="button"
+                            role="tab"
+                            data-mobile-view-key="${section.key}"
+                            aria-selected="false"
+                        >
+                            <span>${section.icon}</span>
+                            <small>${section.label}</small>
+                        </button>
+                    `
+                )
+                .join("")}
+        </div>
+    `;
+
+    const hero =
+        document.querySelector(
+            ".app-main > .page-hero-bar"
+        );
+
+    if (hero) {
+        hero.insertAdjacentElement(
+            "afterend",
+            menu
+        );
+    } else {
+        const main =
+            document.querySelector(
+                ".app-main"
+            );
+
+        main?.prepend(menu);
+    }
+
+    menu
+        .querySelectorAll(
+            "[data-mobile-view-key]"
+        )
+        .forEach(button => {
+            button.addEventListener(
+                "click",
+                () => {
+                    activateMuthaqusMobileSection(
+                        button.getAttribute(
+                            "data-mobile-view-key"
+                        ),
+                        {
+                            userInitiated: true
+                        }
+                    );
+                }
+            );
+        });
+
+    return menu;
+}
+
+function getMuthaqusSavedMobileSection(
+    page,
+    sections
+) {
+    let stored = "";
+
+    try {
+        stored =
+            sessionStorage.getItem(
+                MUTHAQUS_MOBILE_VIEW_STORAGE +
+                page
+            ) || "";
+    } catch (error) {
+        stored = "";
+    }
+
+    if (
+        sections.some(
+            section =>
+                section.key === stored
+        )
+    ) {
+        return stored;
+    }
+
+    return sections[0]?.key || "";
+}
+
+function activateMuthaqusMobileSection(
+    key,
+    options = {}
+) {
+    const state =
+        muthaqusMobileViewState;
+
+    if (
+        !state ||
+        !state.sections.length
+    ) {
+        return;
+    }
+
+    const selected =
+        state.sections.find(
+            section =>
+                section.key === key
+        ) ||
+        state.sections[0];
+
+    state.sections.forEach(section => {
+        const active =
+            section.key ===
+            selected.key;
+
+        section.elements.forEach(
+            element => {
+                element.classList.toggle(
+                    "muthaqus-mobile-panel-hidden",
+                    !active
+                );
+
+                element.classList.toggle(
+                    "muthaqus-mobile-panel-active",
+                    active
+                );
+
+                element.setAttribute(
+                    "aria-hidden",
+                    String(!active)
+                );
+            }
+        );
+    });
+
+    state.menu
+        .querySelectorAll(
+            "[data-mobile-view-key]"
+        )
+        .forEach(button => {
+            const active =
+                button.getAttribute(
+                    "data-mobile-view-key"
+                ) === selected.key;
+
+            button.classList.toggle(
+                "active",
+                active
+            );
+
+            button.setAttribute(
+                "aria-selected",
+                String(active)
+            );
+
+            if (active) {
+                button.scrollIntoView({
+                    behavior:
+                        options.userInitiated
+                            ? "smooth"
+                            : "auto",
+                    block: "nearest",
+                    inline: "center"
+                });
+            }
+        });
+
+    const label =
+        document.getElementById(
+            "muthaqusMobileActiveLabel"
+        );
+
+    if (label) {
+        label.textContent =
+            selected.label;
+    }
+
+    try {
+        sessionStorage.setItem(
+            MUTHAQUS_MOBILE_VIEW_STORAGE +
+            state.page,
+            selected.key
+        );
+    } catch (error) {
+        console.warn(
+            "Mobile section preference could not be saved:",
+            error.message
+        );
+    }
+
+    if (options.userInitiated) {
+        const top =
+            state.menu
+                .getBoundingClientRect()
+                .top +
+            window.scrollY -
+            8;
+
+        window.scrollTo({
+            top:
+                Math.max(0, top),
+            behavior: "smooth"
+        });
+    }
+
+    window.setTimeout(
+        () => {
+            window.dispatchEvent(
+                new Event("resize")
+            );
+        },
+        80
+    );
+}
+
+function showAllMuthaqusMobileSections() {
+    if (!muthaqusMobileViewState) {
+        return;
+    }
+
+    muthaqusMobileViewState
+        .sections
+        .forEach(section => {
+            section.elements.forEach(
+                element => {
+                    element.classList.remove(
+                        "muthaqus-mobile-panel-hidden",
+                        "muthaqus-mobile-panel-active"
+                    );
+
+                    element.removeAttribute(
+                        "aria-hidden"
+                    );
+                }
+            );
+        });
+
+    muthaqusMobileViewState
+        .menu
+        .classList.add(
+            "desktop-hidden"
+        );
+
+    document.body.classList.remove(
+        "muthaqus-mobile-compact-active"
+    );
+}
+
+function enableMuthaqusMobileQuickView() {
+    const page =
+        getMuthaqusCurrentPageName();
+
+    let config =
+        getMuthaqusMobileViewConfig(
+            page
+        );
+
+    if (!config) {
+        config =
+            buildMuthaqusGenericConfig(
+                page
+            );
+    }
+
+    const sections =
+        resolveMuthaqusMobileSections(
+            config
+        );
+
+    if (sections.length < 2) {
+        return;
+    }
+
+    const menu =
+        createMuthaqusMobileQuickView(
+            page,
+            sections
+        );
+
+    muthaqusMobileViewState = {
+        page,
+        menu,
+        sections
+    };
+
+    const mobile =
+        window.innerWidth <=
+        MUTHAQUS_MOBILE_VIEW_BREAKPOINT;
+
+    if (!mobile) {
+        showAllMuthaqusMobileSections();
+        return;
+    }
+
+    menu.classList.remove(
+        "desktop-hidden"
+    );
+
+    document.body.classList.add(
+        "muthaqus-mobile-compact-active"
+    );
+
+    activateMuthaqusMobileSection(
+        getMuthaqusSavedMobileSection(
+            page,
+            sections
+        )
+    );
+}
+
+function refreshMuthaqusMobileQuickView() {
+    if (!muthaqusMobileViewState) {
+        enableMuthaqusMobileQuickView();
+        return;
+    }
+
+    const mobile =
+        window.innerWidth <=
+        MUTHAQUS_MOBILE_VIEW_BREAKPOINT;
+
+    if (!mobile) {
+        showAllMuthaqusMobileSections();
+        return;
+    }
+
+    muthaqusMobileViewState
+        .menu
+        .classList.remove(
+            "desktop-hidden"
+        );
+
+    document.body.classList.add(
+        "muthaqus-mobile-compact-active"
+    );
+
+    activateMuthaqusMobileSection(
+        getMuthaqusSavedMobileSection(
+            muthaqusMobileViewState.page,
+            muthaqusMobileViewState.sections
+        )
+    );
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        window.setTimeout(
+            enableMuthaqusMobileQuickView,
+            120
+        );
+    }
+);
+
+window.addEventListener(
+    "resize",
+    () => {
+        window.clearTimeout(
+            window.muthaqusMobileViewResizeTimer
+        );
+
+        window.muthaqusMobileViewResizeTimer =
+            window.setTimeout(
+                refreshMuthaqusMobileQuickView,
+                120
+            );
+    }
+);
+
+/* MUTHAQUS_MINIMAL_MOBILE_QUICK_VIEW */

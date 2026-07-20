@@ -23817,3 +23817,603 @@ html[data-theme="dark"]
 
 /* MUTHAQUS_STEP109_110_UPDATE_PUSH_NOTIFICATIONS */
 
+
+
+/* =========================================================
+   MUTHAQUS — MINIMAL MOBILE QUICK VIEW
+   ========================================================= */
+
+.muthaqus-mobile-quick-view {
+    display: none;
+}
+
+.muthaqus-mobile-quick-view.desktop-hidden {
+    display: none !important;
+}
+
+.muthaqus-mobile-panel-hidden {
+    display: none !important;
+}
+
+@media (max-width: 860px) {
+    body.muthaqus-mobile-compact-active
+    .app-main {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        padding-bottom:
+            calc(
+                88px +
+                env(safe-area-inset-bottom)
+            )
+            !important;
+    }
+
+    .muthaqus-mobile-quick-view {
+        position: sticky;
+        z-index: 175;
+        top:
+            max(
+                7px,
+                env(safe-area-inset-top)
+            );
+        display: grid;
+        gap: 9px;
+        margin: 0 0 13px;
+        padding: 11px;
+        overflow: hidden;
+        border: 1px solid #d4e3f0;
+        border-radius: 18px;
+        background:
+            rgba(
+                255,
+                255,
+                255,
+                0.94
+            );
+        box-shadow:
+            0 12px 28px
+            rgba(
+                15,
+                60,
+                104,
+                0.12
+            );
+        backdrop-filter: blur(14px);
+    }
+
+    .muthaqus-mobile-view-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 0 2px;
+    }
+
+    .muthaqus-mobile-view-heading strong,
+    .muthaqus-mobile-view-heading small {
+        display: block;
+    }
+
+    .muthaqus-mobile-view-heading strong {
+        margin-bottom: 1px;
+        color: #143f73;
+        font-size: 11px;
+        font-weight: 950;
+    }
+
+    .muthaqus-mobile-view-heading small {
+        color: #7b8fa3;
+        font-size: 7.5px;
+        font-weight: 700;
+    }
+
+    #muthaqusMobileActiveLabel {
+        max-width: 45%;
+        padding: 5px 8px;
+        overflow: hidden;
+        border: 1px solid #d6e5f2;
+        border-radius: 999px;
+        background: #eff6fd;
+        color: #286493;
+        font-size: 7.5px;
+        font-weight: 950;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .muthaqus-mobile-view-buttons {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding: 1px 1px 3px;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+    }
+
+    .muthaqus-mobile-view-buttons::-webkit-scrollbar {
+        display: none;
+    }
+
+    .muthaqus-mobile-view-buttons button {
+        min-width: 86px;
+        min-height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        flex: 0 0 auto;
+        padding: 8px 10px;
+        border: 1px solid #d8e5f1;
+        border-radius: 14px;
+        background: #f7faff;
+        color: #587188;
+        cursor: pointer;
+        scroll-snap-align: center;
+    }
+
+    .muthaqus-mobile-view-buttons button > span {
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #e8f1fa;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .muthaqus-mobile-view-buttons button small {
+        overflow: hidden;
+        color: inherit;
+        font-size: 8px;
+        font-weight: 900;
+        line-height: 1.15;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .muthaqus-mobile-view-buttons button.active {
+        border-color: #4389ca;
+        background:
+            linear-gradient(
+                145deg,
+                #216db4,
+                #155995
+            );
+        color: #ffffff;
+        box-shadow:
+            0 8px 18px
+            rgba(
+                22,
+                95,
+                168,
+                0.20
+            );
+    }
+
+    .muthaqus-mobile-view-buttons
+    button.active > span {
+        background:
+            rgba(
+                255,
+                255,
+                255,
+                0.17
+            );
+    }
+
+    .muthaqus-mobile-panel-active {
+        animation:
+            muthaqusMobilePanelIn
+            0.22s ease both;
+    }
+
+    @keyframes muthaqusMobilePanelIn {
+        from {
+            opacity: 0;
+            transform:
+                translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform:
+                translateY(0);
+        }
+    }
+
+    /* Compact page hero */
+    body.muthaqus-mobile-compact-active
+    .page-hero-bar {
+        min-height: 0 !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 11px !important;
+        margin-bottom: 12px !important;
+        padding: 16px !important;
+        border-radius: 19px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .page-hero-bar h1 {
+        margin:
+            4px 0 4px
+            !important;
+        font-size: 25px !important;
+        line-height: 1.05 !important;
+        letter-spacing:
+            -0.035em
+            !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .page-hero-bar p {
+        display:
+            -webkit-box
+            !important;
+        max-width: 100%;
+        margin: 0 !important;
+        overflow: hidden;
+        font-size: 10px !important;
+        line-height: 1.45 !important;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .page-hero-bar
+    .page-kicker {
+        font-size: 8px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .hero-actions {
+        width: 100%;
+        display: flex !important;
+        gap: 7px !important;
+        overflow-x: auto;
+        padding-bottom: 1px;
+        scrollbar-width: none;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .hero-actions::-webkit-scrollbar {
+        display: none;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .hero-actions .btn,
+    body.muthaqus-mobile-compact-active
+    .hero-actions button,
+    body.muthaqus-mobile-compact-active
+    .hero-actions a {
+        min-width: max-content;
+        min-height: 38px !important;
+        padding:
+            0 12px
+            !important;
+        border-radius: 11px !important;
+        font-size: 9px !important;
+    }
+
+    /* Hide duplicate quick links on phone */
+    body.muthaqus-mobile-compact-active
+    .step94-quick-links {
+        display: none !important;
+    }
+
+    /* Remove large empty grids when only one child is active */
+    body.muthaqus-mobile-compact-active
+    .step70-profile-layout,
+    body.muthaqus-mobile-compact-active
+    .step70-profile-forms,
+    body.muthaqus-mobile-compact-active
+    .step94-layout,
+    body.muthaqus-mobile-compact-active
+    .step95-grid,
+    body.muthaqus-mobile-compact-active
+    .step84-settings-grid {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* Compact cards and sections */
+    body.muthaqus-mobile-compact-active
+    .app-main :is(
+        .form-card-pro,
+        .step70-profile-overview,
+        .step84-settings-card,
+        .step89-recovery-section,
+        .step84-activity-section,
+        .muthaqus-appearance-panel,
+        .muthaqus-install-settings-card,
+        .muthaqus-push-admin-panel,
+        .muthaqus-parent-theme-card,
+        .muthaqus-parent-install-card,
+        .muthaqus-parent-push-card,
+        .step94-form-card,
+        .step94-record-card,
+        .step95-panel,
+        .dashboard-section,
+        .step82-payment-history-section,
+        .step80-arrears-section
+    ) {
+        margin: 0 !important;
+        padding: 16px !important;
+        border-radius: 19px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .app-main :is(
+        .form-header,
+        .step84-activity-head,
+        .step89-recovery-head,
+        .muthaqus-push-panel-head
+    ) {
+        margin-bottom: 12px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .app-main :is(
+        .form-header h2,
+        .step84-activity-head h2,
+        .step89-recovery-head h2,
+        .muthaqus-push-panel-head h2
+    ) {
+        margin:
+            3px 0 4px
+            !important;
+        font-size: 19px !important;
+        line-height: 1.15 !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .app-main :is(
+        .form-header p,
+        .step84-activity-head p,
+        .step89-recovery-head p,
+        .muthaqus-push-panel-head p
+    ) {
+        font-size: 9px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Summary cards: compact two-column layout */
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis,
+        .stats.stats-pro,
+        .parent-dashboard-mini-cards
+    ) {
+        display: grid !important;
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            )
+            !important;
+        gap: 9px !important;
+        margin: 0 !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis,
+        .stats.stats-pro,
+        .parent-dashboard-mini-cards
+    ) > article,
+    body.muthaqus-mobile-compact-active
+    .parent-mini-card {
+        min-height: 105px !important;
+        padding: 13px !important;
+        border-radius: 16px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis
+    ) > article > span {
+        width: 34px !important;
+        min-width: 34px !important;
+        height: 34px !important;
+        font-size: 15px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis,
+        .stats.stats-pro
+    ) strong,
+    body.muthaqus-mobile-compact-active
+    .parent-mini-content h2 {
+        font-size: 20px !important;
+        line-height: 1.05 !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis,
+        .stats.stats-pro
+    ) small,
+    body.muthaqus-mobile-compact-active
+    .parent-mini-content p {
+        font-size: 8px !important;
+        line-height: 1.35 !important;
+    }
+
+    /* Forms */
+    body.muthaqus-mobile-compact-active
+    :is(
+        input,
+        select,
+        textarea
+    ) {
+        min-height: 43px !important;
+        border-radius: 11px !important;
+        font-size: 12px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    textarea {
+        min-height: 96px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .field-group,
+    body.muthaqus-mobile-compact-active
+    form {
+        gap: 10px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    label {
+        margin-bottom: 5px !important;
+        font-size: 9px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .btn,
+    body.muthaqus-mobile-compact-active
+    form button {
+        min-height: 42px !important;
+        border-radius: 11px !important;
+        font-size: 10px !important;
+    }
+
+    /* Keep update and install controls above bottom navigation */
+    body.muthaqus-mobile-compact-active
+    .muthaqus-update-banner {
+        bottom:
+            calc(
+                79px +
+                env(safe-area-inset-bottom)
+            )
+            !important;
+    }
+}
+
+/* Extra-small phone */
+@media (max-width: 390px) {
+    .muthaqus-mobile-view-buttons button {
+        min-width: 79px;
+        padding:
+            7px 8px;
+    }
+
+    .muthaqus-mobile-view-heading small {
+        display: none;
+    }
+
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis,
+        .stats.stats-pro,
+        .parent-dashboard-mini-cards
+    ) {
+        grid-template-columns:
+            1fr 1fr
+            !important;
+        gap: 7px !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    :is(
+        .step84-security-overview,
+        .step94-summary,
+        .step95-kpis,
+        .stats.stats-pro,
+        .parent-dashboard-mini-cards
+    ) > article,
+    body.muthaqus-mobile-compact-active
+    .parent-mini-card {
+        min-height: 98px !important;
+        padding: 11px !important;
+    }
+}
+
+/* Dark mode */
+@media (max-width: 860px) {
+    html[data-theme="dark"]
+    .muthaqus-mobile-quick-view {
+        border-color: #2b4158 !important;
+        background:
+            rgba(
+                15,
+                29,
+                45,
+                0.95
+            )
+            !important;
+        box-shadow:
+            0 14px 32px
+            rgba(
+                0,
+                0,
+                0,
+                0.30
+            )
+            !important;
+    }
+
+    html[data-theme="dark"]
+    .muthaqus-mobile-view-heading strong {
+        color: #eaf2fb !important;
+    }
+
+    html[data-theme="dark"]
+    .muthaqus-mobile-view-heading small {
+        color: #9fb1c4 !important;
+    }
+
+    html[data-theme="dark"]
+    #muthaqusMobileActiveLabel {
+        border-color: #35516d !important;
+        background: #182d43 !important;
+        color: #9fd3fb !important;
+    }
+
+    html[data-theme="dark"]
+    .muthaqus-mobile-view-buttons button {
+        border-color: #314a63 !important;
+        background: #142438 !important;
+        color: #b6c8d9 !important;
+    }
+
+    html[data-theme="dark"]
+    .muthaqus-mobile-view-buttons
+    button > span {
+        background: #1b3249 !important;
+    }
+
+    html[data-theme="dark"]
+    .muthaqus-mobile-view-buttons
+    button.active {
+        border-color: #5ea4e7 !important;
+        background:
+            linear-gradient(
+                145deg,
+                #276fae,
+                #184e7d
+            )
+            !important;
+        color: #ffffff !important;
+    }
+}
+
+/* MUTHAQUS_MINIMAL_MOBILE_QUICK_VIEW */
+
