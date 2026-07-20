@@ -24417,3 +24417,47 @@ html[data-theme="dark"]
 
 /* MUTHAQUS_MINIMAL_MOBILE_QUICK_VIEW */
 
+
+
+/* =========================================================
+   MUTHAQUS — MOBILE QUICK VIEW STABILITY FIX
+   ========================================================= */
+
+@media (max-width: 860px) {
+    .muthaqus-mobile-quick-view {
+        position: relative !important;
+        top: auto !important;
+        scroll-margin-top: 0 !important;
+    }
+
+    .muthaqus-mobile-view-buttons {
+        overscroll-behavior-inline: contain;
+        scroll-behavior: auto !important;
+        touch-action: pan-x;
+    }
+
+    .muthaqus-mobile-view-buttons button {
+        scroll-snap-align: none !important;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .app-main {
+        overflow-anchor: none;
+    }
+
+    body.muthaqus-mobile-compact-active
+    .muthaqus-mobile-panel-active {
+        scroll-margin-top: 0 !important;
+    }
+}
+
+/* Register Child keeps its original mobile layout. */
+body:has(
+    form[onsubmit*="addStudent"]
+)
+.muthaqus-mobile-quick-view {
+    display: none !important;
+}
+
+/* MUTHAQUS_MOBILE_QUICK_VIEW_STABLE_FIX */
+

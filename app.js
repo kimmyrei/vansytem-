@@ -16981,7 +16981,7 @@ document.addEventListener(
 // MUTHAQUS_UPDATE_BANNER_REPEAT_FIX
 
 /* =========================================================
-   MUTHAQUS — MINIMAL MOBILE QUICK VIEW
+   MUTHAQUS — STABLE MINIMAL MOBILE QUICK VIEW
    ========================================================= */
 
 const MUTHAQUS_MOBILE_VIEW_BREAKPOINT =
@@ -16992,6 +16992,9 @@ const MUTHAQUS_MOBILE_VIEW_STORAGE =
 
 let muthaqusMobileViewState =
     null;
+
+let muthaqusMobileViewWasActive =
+    false;
 
 function getMuthaqusCurrentPageName() {
     return String(
@@ -17186,7 +17189,6 @@ function getMuthaqusGenericMobilePages() {
         "admin-announcements.html",
         "admin-rules.html",
         "parent-dashboard.html",
-        "add-student.html",
         "parent-rules.html"
     ]);
 }
@@ -17234,9 +17236,7 @@ function getMuthaqusSectionIcon(
         return "🎒";
     }
 
-    if (
-        value.includes("parent")
-    ) {
+    if (value.includes("parent")) {
         return "👨‍👩‍👧";
     }
 
@@ -17247,9 +17247,7 @@ function getMuthaqusSectionIcon(
         return "📢";
     }
 
-    if (
-        value.includes("rule")
-    ) {
+    if (value.includes("rule")) {
         return "📘";
     }
 
@@ -17283,6 +17281,83 @@ function getMuthaqusSectionIcon(
         "📁",
         "✓"
     ][index % 5];
+}
+
+function mergeUnnamedMuthaqusSections(
+    items
+) {
+    const output = [];
+
+    items.forEach(item => {
+        const unnamed =
+            /^section\s+\d+$/i.test(
+                String(item.label || "")
+            );
+
+        if (!unnamed) {
+            output.push(item);
+            return;
+        }
+
+        /*
+         * Keep unnamed introductory content together with
+         * the next meaningful section. This removes
+         * "Section 1" and lets parents see overview +
+         * children immediately in one clean view.
+         */
+        item.mergeIntoNext = true;
+        output.push(item);
+    });
+
+    for (
+        let index = 0;
+        index < output.length;
+        index += 1
+    ) {
+        const item = output[index];
+
+        if (!item.mergeIntoNext) {
+            continue;
+        }
+
+        const nextIndex =
+            output.findIndex(
+                (candidate, candidateIndex) =>
+                    candidateIndex > index &&
+                    !candidate.mergeIntoNext
+            );
+
+        if (nextIndex !== -1) {
+            output[nextIndex].selectors = [
+                ...item.selectors,
+                ...output[nextIndex].selectors
+            ];
+
+            output.splice(index, 1);
+            index -= 1;
+            continue;
+        }
+
+        if (index > 0) {
+            output[index - 1].selectors = [
+                ...output[index - 1].selectors,
+                ...item.selectors
+            ];
+
+            output.splice(index, 1);
+            index -= 1;
+        }
+    }
+
+    return output.map(item => {
+        const copy = {
+            ...item
+        };
+
+        delete copy.mergeIntoNext;
+
+        return copy;
+    });
 }
 
 function buildMuthaqusGenericConfig(
@@ -17325,39 +17400,41 @@ function buildMuthaqusGenericConfig(
         return null;
     }
 
-    return sections.map(
-        (element, index) => {
-            const title =
-                element.querySelector(
-                    "h2, h3, .page-kicker"
-                );
+    const items =
+        sections.map(
+            (element, index) => {
+                const title =
+                    element.querySelector(
+                        "h2, h3, .page-kicker"
+                    );
 
-            const label =
-                cleanMuthaqusMobileLabel(
-                    title?.textContent,
-                    `Section ${index + 1}`
-                );
+                const label =
+                    cleanMuthaqusMobileLabel(
+                        title?.textContent,
+                        `Section ${index + 1}`
+                    );
 
-            const selectorId =
-                `muthaqus-mobile-section-${index + 1}`;
+                if (!element.id) {
+                    element.id =
+                        `muthaqus-mobile-section-${index + 1}`;
+                }
 
-            if (!element.id) {
-                element.id =
-                    selectorId;
+                return {
+                    icon:
+                        getMuthaqusSectionIcon(
+                            label,
+                            index
+                        ),
+                    label,
+                    selectors: [
+                        `#${element.id}`
+                    ]
+                };
             }
+        );
 
-            return {
-                icon:
-                    getMuthaqusSectionIcon(
-                        label,
-                        index
-                    ),
-                label,
-                selectors: [
-                    `#${element.id}`
-                ]
-            };
-        }
+    return mergeUnnamedMuthaqusSections(
+        items
     );
 }
 
@@ -17381,9 +17458,7 @@ function resolveMuthaqusMobileSections(
                         selector
                     )
                     .forEach(element => {
-                        if (
-                            seen.has(element)
-                        ) {
+                        if (seen.has(element)) {
                             return;
                         }
 
@@ -17422,7 +17497,6 @@ function resolveMuthaqusMobileSections(
 }
 
 function createMuthaqusMobileQuickView(
-    page,
     sections
 ) {
     const existing =
@@ -17454,14 +17528,10 @@ function createMuthaqusMobileQuickView(
         <div class="muthaqus-mobile-view-heading">
             <div>
                 <strong>Quick View</strong>
-                <small>
-                    Tap a section to show it
-                </small>
+                <small>Tap to change section</small>
             </div>
 
-            <span
-                id="muthaqusMobileActiveLabel"
-            >
+            <span id="muthaqusMobileActiveLabel">
                 ${sections[0].label}
             </span>
         </div>
@@ -17499,12 +17569,11 @@ function createMuthaqusMobileQuickView(
             menu
         );
     } else {
-        const main =
-            document.querySelector(
+        document
+            .querySelector(
                 ".app-main"
-            );
-
-        main?.prepend(menu);
+            )
+            ?.prepend(menu);
     }
 
     menu
@@ -17579,6 +17648,9 @@ function activateMuthaqusMobileSection(
         ) ||
         state.sections[0];
 
+    state.activeKey =
+        selected.key;
+
     state.sections.forEach(section => {
         const active =
             section.key ===
@@ -17623,17 +17695,6 @@ function activateMuthaqusMobileSection(
                 "aria-selected",
                 String(active)
             );
-
-            if (active) {
-                button.scrollIntoView({
-                    behavior:
-                        options.userInitiated
-                            ? "smooth"
-                            : "auto",
-                    block: "nearest",
-                    inline: "center"
-                });
-            }
         });
 
     const label =
@@ -17659,29 +17720,19 @@ function activateMuthaqusMobileSection(
         );
     }
 
+    /*
+     * Do not use scrollIntoView or window.scrollTo here.
+     * They caused the page to jump upward and the horizontal
+     * Quick View list to return to the left during normal scrolling.
+     */
     if (options.userInitiated) {
-        const top =
-            state.menu
-                .getBoundingClientRect()
-                .top +
-            window.scrollY -
-            8;
+        const firstElement =
+            selected.elements[0];
 
-        window.scrollTo({
-            top:
-                Math.max(0, top),
-            behavior: "smooth"
+        firstElement?.focus?.({
+            preventScroll: true
         });
     }
-
-    window.setTimeout(
-        () => {
-            window.dispatchEvent(
-                new Event("resize")
-            );
-        },
-        80
-    );
 }
 
 function showAllMuthaqusMobileSections() {
@@ -17715,6 +17766,9 @@ function showAllMuthaqusMobileSections() {
     document.body.classList.remove(
         "muthaqus-mobile-compact-active"
     );
+
+    muthaqusMobileViewWasActive =
+        false;
 }
 
 function enableMuthaqusMobileQuickView() {
@@ -17744,14 +17798,14 @@ function enableMuthaqusMobileQuickView() {
 
     const menu =
         createMuthaqusMobileQuickView(
-            page,
             sections
         );
 
     muthaqusMobileViewState = {
         page,
         menu,
-        sections
+        sections,
+        activeKey: ""
     };
 
     const mobile =
@@ -17770,6 +17824,9 @@ function enableMuthaqusMobileQuickView() {
     document.body.classList.add(
         "muthaqus-mobile-compact-active"
     );
+
+    muthaqusMobileViewWasActive =
+        true;
 
     activateMuthaqusMobileSection(
         getMuthaqusSavedMobileSection(
@@ -17804,12 +17861,23 @@ function refreshMuthaqusMobileQuickView() {
         "muthaqus-mobile-compact-active"
     );
 
-    activateMuthaqusMobileSection(
-        getMuthaqusSavedMobileSection(
-            muthaqusMobileViewState.page,
-            muthaqusMobileViewState.sections
-        )
-    );
+    /*
+     * Mobile browsers fire resize events while the address bar
+     * expands or collapses during scrolling. Re-activating the
+     * section on every resize caused the jump-to-top loop.
+     */
+    if (!muthaqusMobileViewWasActive) {
+        muthaqusMobileViewWasActive =
+            true;
+
+        activateMuthaqusMobileSection(
+            muthaqusMobileViewState.activeKey ||
+            getMuthaqusSavedMobileSection(
+                muthaqusMobileViewState.page,
+                muthaqusMobileViewState.sections
+            )
+        );
+    }
 }
 
 document.addEventListener(
@@ -17832,9 +17900,9 @@ window.addEventListener(
         window.muthaqusMobileViewResizeTimer =
             window.setTimeout(
                 refreshMuthaqusMobileQuickView,
-                120
+                180
             );
     }
 );
 
-/* MUTHAQUS_MINIMAL_MOBILE_QUICK_VIEW */
+/* MUTHAQUS_MOBILE_QUICK_VIEW_STABLE_FIX */
