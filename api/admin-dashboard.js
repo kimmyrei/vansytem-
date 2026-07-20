@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const bcrypt = require("bcryptjs");
+const webpush = require("web-push");
 const { connectToDatabase } = require("./_db");
 
 function cleanDate(value) {
@@ -224,10 +225,26 @@ async function postAnnouncement(db, data, res) {
 
   const result = await db.collection("announcements").insertOne(announcement);
 
+  const pushNotification =
+    await sendMuthaqusPushToQuery(
+      db,
+      {},
+      {
+        type,
+        title,
+        message,
+        url:
+          "/parent-dashboard.html",
+        tag:
+          `muthaqus-announcement-${result.insertedId.toString()}`
+      }
+    );
+
   return res.status(200).json({
     success: true,
     message: "Announcement posted successfully.",
-    announcementId: result.insertedId
+    announcementId: result.insertedId,
+    pushNotification
   });
 }
 
@@ -1262,12 +1279,552 @@ async function deleteVanExpense(db, data, req, res) {
   });
 }
 
+
+function getMuthaqusVapidConfiguration() {
+  const publicKey = String(
+    process.env.VAPID_PUBLIC_KEY || ""
+  ).trim();
+
+  const privateKey = String(
+    process.env.VAPID_PRIVATE_KEY || ""
+  ).trim();
+
+  let email = String(
+    process.env.VAPID_EMAIL ||
+    "mailto:admin@muthaqusglobal.com"
+  ).trim();
+
+  if (email && !email.startsWith("mailto:")) {
+    email = `mailto:${email}`;
+  }
+
+  return {
+    publicKey,
+    privateKey,
+    email,
+    configured: Boolean(
+      publicKey && privateKey
+    )
+  };
+}
+
+function setupMuthaqusWebPush() {
+  const config =
+    getMuthaqusVapidConfiguration();
+
+  if (!config.configured) {
+    return config;
+  }
+
+  webpush.setVapidDetails(
+    config.email,
+    config.publicKey,
+    config.privateKey
+  );
+
+  return config;
+}
+
+function cleanPushText(value, maxLength = 240) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function buildMuthaqusPushPayload(data = {}) {
+  const type = cleanPushText(
+    data.type ||
+    "General Announcement",
+    60
+  );
+
+  const title = cleanPushText(
+    data.title ||
+    "MUTHAQUS Notification",
+    80
+  );
+
+  const body = cleanPushText(
+    data.message ||
+    data.body ||
+    "You have a new update.",
+    240
+  );
+
+  const url = String(
+    data.url ||
+    "/parent-dashboard.html"
+  ).startsWith("/")
+    ? String(
+        data.url ||
+        "/parent-dashboard.html"
+      )
+    : "/parent-dashboard.html";
+
+  return JSON.stringify({
+    type,
+    title,
+    body,
+    url,
+    icon:
+      "/icons/muthaqus-icon-192.png",
+    badge:
+      "/icons/muthaqus-icon-64.png",
+    tag:
+      data.tag ||
+      `muthaqus-${type
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")}`,
+    requireInteraction:
+      type === "Emergency Notice"
+  });
+}
+
+async function sendMuthaqusPushToQuery(
+  db,
+  query,
+  data
+) {
+  const config =
+    setupMuthaqusWebPush();
+
+  if (!config.configured) {
+    return {
+      configured: false,
+      sent: 0,
+      failed: 0,
+      totalSubscriptions: 0,
+      message:
+        "VAPID environment variables are not configured."
+    };
+  }
+
+  const subscriptions =
+    await db
+      .collection("push_subscriptions")
+      .find({
+        enabled: true,
+        ...query
+      })
+      .toArray();
+
+  const payload =
+    buildMuthaqusPushPayload(data);
+
+  let sent = 0;
+  let failed = 0;
+
+  await Promise.all(
+    subscriptions.map(async item => {
+      try {
+        await webpush.sendNotification(
+          item.subscription,
+          payload
+        );
+
+        sent += 1;
+
+        await db
+          .collection("push_subscriptions")
+          .updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                lastSentAt:
+                  new Date(),
+                lastError: "",
+                updatedAt:
+                  new Date()
+              }
+            }
+          );
+      } catch (error) {
+        failed += 1;
+
+        const expired =
+          error.statusCode === 404 ||
+          error.statusCode === 410;
+
+        await db
+          .collection("push_subscriptions")
+          .updateOne(
+            { _id: item._id },
+            {
+              $set: {
+                enabled:
+                  expired
+                    ? false
+                    : item.enabled,
+                lastError:
+                  error.message,
+                updatedAt:
+                  new Date()
+              }
+            }
+          );
+      }
+    })
+  );
+
+  return {
+    configured: true,
+    sent,
+    failed,
+    totalSubscriptions:
+      subscriptions.length
+  };
+}
+
+async function sendMuthaqusPushToParent(
+  db,
+  data,
+  notification
+) {
+  const conditions = [];
+
+  const parentId =
+    cleanPushText(
+      data.parentId,
+      120
+    );
+
+  const parentEmail =
+    cleanPushText(
+      data.parentEmail,
+      160
+    ).toLowerCase();
+
+  if (parentId) {
+    conditions.push({
+      parentId
+    });
+  }
+
+  if (parentEmail) {
+    conditions.push({
+      parentEmail
+    });
+  }
+
+  if (conditions.length === 0) {
+    return {
+      configured:
+        getMuthaqusVapidConfiguration()
+          .configured,
+      sent: 0,
+      failed: 0,
+      totalSubscriptions: 0
+    };
+  }
+
+  return sendMuthaqusPushToQuery(
+    db,
+    {
+      $or: conditions
+    },
+    notification
+  );
+}
+
+async function getMuthaqusVapidPublicKey(
+  res
+) {
+  const config =
+    getMuthaqusVapidConfiguration();
+
+  if (!config.configured) {
+    return res.status(503).json({
+      success: false,
+      configured: false,
+      message:
+        "Push notifications need VAPID setup in Vercel Environment Variables."
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    configured: true,
+    publicKey:
+      config.publicKey
+  });
+}
+
+async function getMuthaqusPushSummary(
+  db,
+  res
+) {
+  const config =
+    getMuthaqusVapidConfiguration();
+
+  const enabledSubscriptions =
+    await db
+      .collection("push_subscriptions")
+      .countDocuments({
+        enabled: true
+      });
+
+  const uniqueParents =
+    (
+      await db
+        .collection("push_subscriptions")
+        .distinct(
+          "parentId",
+          {
+            enabled: true,
+            parentId: {
+              $ne: ""
+            }
+          }
+        )
+    ).length;
+
+  return res.status(200).json({
+    success: true,
+    configured:
+      config.configured,
+    enabledSubscriptions,
+    uniqueParents
+  });
+}
+
+async function saveMuthaqusPushSubscription(
+  db,
+  data,
+  res
+) {
+  const subscription =
+    data.subscription || {};
+
+  const endpoint =
+    cleanPushText(
+      subscription.endpoint,
+      2000
+    );
+
+  if (!endpoint) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Push subscription endpoint is missing."
+    });
+  }
+
+  const parentId =
+    cleanPushText(
+      data.parentId,
+      120
+    );
+
+  const parentEmail =
+    cleanPushText(
+      data.parentEmail,
+      160
+    ).toLowerCase();
+
+  const parentName =
+    cleanPushText(
+      data.parentName,
+      160
+    );
+
+  await db
+    .collection("push_subscriptions")
+    .updateOne(
+      { endpoint },
+      {
+        $set: {
+          endpoint,
+          parentId,
+          parentEmail,
+          parentName,
+          subscription,
+          userAgent:
+            cleanPushText(
+              data.userAgent,
+              700
+            ),
+          enabled: true,
+          lastError: "",
+          updatedAt:
+            new Date()
+        },
+        $setOnInsert: {
+          createdAt:
+            new Date()
+        }
+      },
+      {
+        upsert: true
+      }
+    );
+
+  return res.status(200).json({
+    success: true,
+    message:
+      "Phone notifications have been enabled."
+  });
+}
+
+async function deleteMuthaqusPushSubscription(
+  db,
+  data,
+  res
+) {
+  const endpoint =
+    cleanPushText(
+      data.endpoint,
+      2000
+    );
+
+  if (!endpoint) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Push subscription endpoint is required."
+    });
+  }
+
+  await db
+    .collection("push_subscriptions")
+    .updateOne(
+      { endpoint },
+      {
+        $set: {
+          enabled: false,
+          updatedAt:
+            new Date()
+        }
+      }
+    );
+
+  return res.status(200).json({
+    success: true,
+    message:
+      "Phone notifications have been disabled."
+  });
+}
+
+async function sendMuthaqusManualPush(
+  db,
+  data,
+  req,
+  res
+) {
+  const type =
+    cleanPushText(
+      data.type,
+      60
+    ) ||
+    "General Announcement";
+
+  const title =
+    cleanPushText(
+      data.title,
+      80
+    );
+
+  const message =
+    cleanPushText(
+      data.message,
+      240
+    );
+
+  const targetParentEmail =
+    cleanPushText(
+      data.targetParentEmail,
+      160
+    ).toLowerCase();
+
+  if (!title || !message) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Notification title and message are required."
+    });
+  }
+
+  const query =
+    targetParentEmail
+      ? {
+          parentEmail:
+            targetParentEmail
+        }
+      : {};
+
+  const result =
+    await sendMuthaqusPushToQuery(
+      db,
+      query,
+      {
+        type,
+        title,
+        message,
+        url:
+          data.url ||
+          "/parent-dashboard.html",
+        tag:
+          `muthaqus-manual-${Date.now()}`
+      }
+    );
+
+  if (!result.configured) {
+    return res.status(503).json({
+      success: false,
+      ...result
+    });
+  }
+
+  if (
+    typeof recordAdminActivity ===
+    "function"
+  ) {
+    await recordAdminActivity(
+      db,
+      {
+        adminUsername:
+          data.adminUsername ||
+          "admin",
+        adminName:
+          data.adminName ||
+          "Admin",
+        category:
+          "Announcements",
+        action:
+          "Phone notification sent",
+        target:
+          targetParentEmail ||
+          "All subscribed parents",
+        details:
+          `${type}: ${title}. Sent to ${result.sent} device(s).`
+      },
+      req
+    );
+  }
+
+  return res.status(200).json({
+    success: true,
+    message:
+      "Phone notification sent.",
+    ...result
+  });
+}
+
+
 module.exports = async function handler(req, res) {
   try {
     const { db } = await connectToDatabase();
 
     if (req.method === "GET") {
       const action = (req.query.action || "").trim();
+
+      if (action === "vapid-public-key") {
+        return getMuthaqusVapidPublicKey(res);
+      }
+
+      if (action === "push-summary") {
+        return getMuthaqusPushSummary(db, res);
+      }
 
       if (action === "announcements") {
         return getAnnouncements(db, res);
@@ -1306,6 +1863,18 @@ module.exports = async function handler(req, res) {
 
       if (action === "change-admin-password") {
         return changeAdminPassword(db, data, res, req);
+      }
+
+      if (action === "save-push-subscription") {
+        return saveMuthaqusPushSubscription(db, data, res);
+      }
+
+      if (action === "delete-push-subscription") {
+        return deleteMuthaqusPushSubscription(db, data, res);
+      }
+
+      if (action === "send-push-notification") {
+        return sendMuthaqusManualPush(db, data, req, res);
       }
 
       if (action === "post-announcement") {
@@ -1379,3 +1948,5 @@ module.exports = async function handler(req, res) {
 // MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE
 
 // MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS
+
+// MUTHAQUS_STEP109_110_UPDATE_PUSH_NOTIFICATIONS

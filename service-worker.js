@@ -1,5 +1,5 @@
 const CACHE_VERSION =
-    "muthaqus-pwa-v108-1";
+    "muthaqus-pwa-v109110-1";
 
 const STATIC_CACHE =
     `${CACHE_VERSION}-static`;
@@ -30,9 +30,6 @@ self.addEventListener(
                 .open(STATIC_CACHE)
                 .then(cache =>
                     cache.addAll(CORE_FILES)
-                )
-                .then(() =>
-                    self.skipWaiting()
                 )
         );
     }
@@ -68,6 +65,18 @@ self.addEventListener(
     }
 );
 
+self.addEventListener(
+    "message",
+    event => {
+        if (
+            event.data?.type ===
+            "SKIP_WAITING"
+        ) {
+            self.skipWaiting();
+        }
+    }
+);
+
 async function pageNetworkFirst(
     request
 ) {
@@ -91,6 +100,39 @@ async function pageNetworkFirst(
             await cache.match(request) ||
             await caches.match(
                 "/offline.html"
+            )
+        );
+    }
+}
+
+async function assetNetworkFirst(
+    request
+) {
+    const cache =
+        await caches.open(
+            STATIC_CACHE
+        );
+
+    try {
+        const response =
+            await fetch(request);
+
+        if (response.ok) {
+            cache.put(
+                request,
+                response.clone()
+            );
+        }
+
+        return response;
+    } catch (error) {
+        return (
+            await cache.match(request) ||
+            new Response(
+                "",
+                {
+                    status: 504
+                }
             )
         );
     }
@@ -175,6 +217,18 @@ self.addEventListener(
         }
 
         if (
+            url.pathname === "/app.js" ||
+            url.pathname === "/style.css" ||
+            url.pathname ===
+                "/service-worker.js"
+        ) {
+            event.respondWith(
+                assetNetworkFirst(request)
+            );
+            return;
+        }
+
+        if (
             [
                 "style",
                 "script",
@@ -192,5 +246,135 @@ self.addEventListener(
                 )
             );
         }
+    }
+);
+
+self.addEventListener(
+    "push",
+    event => {
+        let data = {};
+
+        try {
+            data = event.data
+                ? event.data.json()
+                : {};
+        } catch (error) {
+            data = {
+                title:
+                    "MUTHAQUS Notification",
+                body:
+                    event.data?.text() ||
+                    "You have a new update."
+            };
+        }
+
+        const title =
+            data.title ||
+            "MUTHAQUS Notification";
+
+        const options = {
+            body:
+                data.body ||
+                data.message ||
+                "You have a new update.",
+            icon:
+                data.icon ||
+                "/icons/muthaqus-icon-192.png",
+            badge:
+                data.badge ||
+                "/icons/muthaqus-icon-64.png",
+            image:
+                data.image || undefined,
+            tag:
+                data.tag ||
+                `muthaqus-${Date.now()}`,
+            renotify:
+                data.renotify !== false,
+            requireInteraction:
+                Boolean(
+                    data.requireInteraction
+                ),
+            vibrate: [
+                180,
+                80,
+                180
+            ],
+            data: {
+                url:
+                    data.url ||
+                    "/parent-dashboard.html",
+                type:
+                    data.type ||
+                    "General Announcement"
+            },
+            actions: [
+                {
+                    action: "open",
+                    title: "Open"
+                },
+                {
+                    action: "dismiss",
+                    title: "Dismiss"
+                }
+            ]
+        };
+
+        event.waitUntil(
+            self.registration
+                .showNotification(
+                    title,
+                    options
+                )
+        );
+    }
+);
+
+self.addEventListener(
+    "notificationclick",
+    event => {
+        event.notification.close();
+
+        if (
+            event.action === "dismiss"
+        ) {
+            return;
+        }
+
+        const target =
+            new URL(
+                event.notification
+                    .data?.url ||
+                "/parent-dashboard.html",
+                self.location.origin
+            ).href;
+
+        event.waitUntil(
+            self.clients
+                .matchAll({
+                    type: "window",
+                    includeUncontrolled: true
+                })
+                .then(clients => {
+                    const existing =
+                        clients.find(client =>
+                            client.url.startsWith(
+                                self.location.origin
+                            )
+                        );
+
+                    if (existing) {
+                        return existing
+                            .focus()
+                            .then(() =>
+                                existing.navigate(
+                                    target
+                                )
+                            );
+                    }
+
+                    return self.clients
+                        .openWindow(target);
+                })
+        );
     }
 );

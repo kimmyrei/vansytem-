@@ -1,13 +1,13 @@
 {
-  "name": "mutahus-global-vercel-public",
-  "version": "1.0.0",
-  "description": "Mutahus Global school van service website using Vercel API routes and MongoDB Atlas",
+  "name": "muthaqus-global",
+  "version": "1.1.0",
+  "private": true,
   "scripts": {
-    "build": "echo \"Static site files are in public folder\"",
-    "dev": "vercel dev"
+    "generate-vapid": "node scripts/generate-vapid-keys.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "mongodb": "^6.8.0"
+    "mongodb": "^6.8.0",
+    "web-push": "^3.6.7"
   }
 }

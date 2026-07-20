@@ -15702,3 +15702,1182 @@ document.addEventListener(
 );
 
 // MUTHAQUS_STEP108_INSTALLABLE_MOBILE_APP
+
+const MUTHAQUS_UPDATE_SIGNATURE_KEY =
+    "muthaqus_last_code_signature";
+
+const MUTHAQUS_PENDING_SIGNATURE_KEY =
+    "muthaqus_pending_code_signature";
+
+let muthaqusWaitingWorker =
+    null;
+
+let muthaqusUpdateReloading =
+    false;
+
+function createMuthaqusUpdateBanner() {
+    let banner =
+        document.getElementById(
+            "muthaqusUpdateBanner"
+        );
+
+    if (banner) {
+        return banner;
+    }
+
+    banner =
+        document.createElement(
+            "aside"
+        );
+
+    banner.id =
+        "muthaqusUpdateBanner";
+
+    banner.className =
+        "muthaqus-update-banner";
+
+    banner.hidden = true;
+
+    banner.innerHTML = `
+        <span class="muthaqus-update-icon">
+            ↻
+        </span>
+
+        <div class="muthaqus-update-copy">
+            <strong>New update available</strong>
+
+            <small>
+                A newer version of MUTHAQUS is ready.
+            </small>
+        </div>
+
+        <button
+            type="button"
+            class="muthaqus-update-now"
+            onclick="installMuthaqusUpdate()"
+        >
+            Update Now
+        </button>
+
+        <button
+            type="button"
+            class="muthaqus-update-close"
+            onclick="dismissMuthaqusUpdate()"
+            aria-label="Dismiss update"
+        >
+            ×
+        </button>
+    `;
+
+    document.body.appendChild(
+        banner
+    );
+
+    return banner;
+}
+
+function showMuthaqusUpdateBanner(
+    waitingWorker = null,
+    signature = ""
+) {
+    if (waitingWorker) {
+        muthaqusWaitingWorker =
+            waitingWorker;
+    }
+
+    if (signature) {
+        try {
+            localStorage.setItem(
+                MUTHAQUS_PENDING_SIGNATURE_KEY,
+                signature
+            );
+        } catch (error) {
+            console.warn(
+                "Update signature could not be stored:",
+                error.message
+            );
+        }
+    }
+
+    const banner =
+        createMuthaqusUpdateBanner();
+
+    banner.hidden = false;
+
+    document.body.classList.add(
+        "muthaqus-update-visible"
+    );
+}
+
+function dismissMuthaqusUpdate() {
+    const banner =
+        document.getElementById(
+            "muthaqusUpdateBanner"
+        );
+
+    if (banner) {
+        banner.hidden = true;
+    }
+
+    document.body.classList.remove(
+        "muthaqus-update-visible"
+    );
+}
+
+async function clearMuthaqusAppCaches() {
+    if (!("caches" in window)) {
+        return;
+    }
+
+    try {
+        const keys =
+            await caches.keys();
+
+        await Promise.all(
+            keys
+                .filter(key =>
+                    key.startsWith(
+                        "muthaqus-pwa-"
+                    )
+                )
+                .map(key =>
+                    caches.delete(key)
+                )
+        );
+    } catch (error) {
+        console.warn(
+            "App cache cleanup failed:",
+            error.message
+        );
+    }
+}
+
+async function installMuthaqusUpdate() {
+    if (muthaqusUpdateReloading) {
+        return;
+    }
+
+    muthaqusUpdateReloading = true;
+
+    const button =
+        document.querySelector(
+            ".muthaqus-update-now"
+        );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            "Updating...";
+    }
+
+    let pendingSignature = "";
+
+    try {
+        pendingSignature =
+            localStorage.getItem(
+                MUTHAQUS_PENDING_SIGNATURE_KEY
+            ) || "";
+    } catch (error) {
+        pendingSignature = "";
+    }
+
+    await clearMuthaqusAppCaches();
+
+    if (muthaqusWaitingWorker) {
+        muthaqusWaitingWorker.postMessage({
+            type: "SKIP_WAITING"
+        });
+    }
+
+    if (pendingSignature) {
+        try {
+            localStorage.setItem(
+                MUTHAQUS_UPDATE_SIGNATURE_KEY,
+                pendingSignature
+            );
+
+            localStorage.removeItem(
+                MUTHAQUS_PENDING_SIGNATURE_KEY
+            );
+        } catch (error) {
+            console.warn(
+                "Updated signature could not be saved:",
+                error.message
+            );
+        }
+    }
+
+    /*
+     * If a waiting worker exists, controllerchange will reload.
+     * Otherwise reload with a cache-busting query after a short delay.
+     */
+    window.setTimeout(() => {
+        if (!document.hidden) {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            url.searchParams.set(
+                "updated",
+                Date.now().toString()
+            );
+
+            window.location.replace(
+                url.toString()
+            );
+        }
+    }, 900);
+}
+
+function getMuthaqusHeaderSignature(
+    response
+) {
+    return [
+        response.headers.get("etag") || "",
+        response.headers.get("last-modified") || "",
+        response.headers.get("content-length") || ""
+    ].join("|");
+}
+
+async function fetchMuthaqusAssetSignature(
+    path
+) {
+    try {
+        const response =
+            await fetch(
+                `${path}${
+                    path.includes("?")
+                        ? "&"
+                        : "?"
+                }update_check=${Date.now()}`,
+                {
+                    method: "HEAD",
+                    cache: "no-store",
+                    credentials: "same-origin"
+                }
+            );
+
+        if (!response.ok) {
+            return "";
+        }
+
+        return (
+            path +
+            ":" +
+            getMuthaqusHeaderSignature(
+                response
+            )
+        );
+    } catch (error) {
+        return "";
+    }
+}
+
+async function checkMuthaqusCodeUpdate(
+    options = {}
+) {
+    if (
+        !navigator.onLine ||
+        document.hidden
+    ) {
+        return;
+    }
+
+    const currentPage =
+        window.location.pathname || "/index.html";
+
+    const signatures =
+        await Promise.all([
+            fetchMuthaqusAssetSignature(
+                "/app.js"
+            ),
+            fetchMuthaqusAssetSignature(
+                "/style.css"
+            ),
+            fetchMuthaqusAssetSignature(
+                currentPage
+            )
+        ]);
+
+    const signature =
+        signatures
+            .filter(Boolean)
+            .join("||");
+
+    if (!signature) {
+        return;
+    }
+
+    let previous = "";
+
+    try {
+        previous =
+            localStorage.getItem(
+                MUTHAQUS_UPDATE_SIGNATURE_KEY
+            ) || "";
+    } catch (error) {
+        previous = "";
+    }
+
+    if (!previous) {
+        try {
+            localStorage.setItem(
+                MUTHAQUS_UPDATE_SIGNATURE_KEY,
+                signature
+            );
+        } catch (error) {
+            console.warn(
+                "Initial update signature could not be saved:",
+                error.message
+            );
+        }
+
+        return;
+    }
+
+    if (
+        signature !== previous &&
+        !options.silent
+    ) {
+        showMuthaqusUpdateBanner(
+            null,
+            signature
+        );
+    }
+}
+
+function observeMuthaqusServiceWorkerUpdate(
+    registration
+) {
+    if (!registration) {
+        return;
+    }
+
+    if (
+        registration.waiting &&
+        navigator.serviceWorker.controller
+    ) {
+        showMuthaqusUpdateBanner(
+            registration.waiting
+        );
+    }
+
+    registration.addEventListener(
+        "updatefound",
+        () => {
+            const worker =
+                registration.installing;
+
+            if (!worker) {
+                return;
+            }
+
+            worker.addEventListener(
+                "statechange",
+                () => {
+                    if (
+                        worker.state === "installed" &&
+                        navigator.serviceWorker.controller
+                    ) {
+                        showMuthaqusUpdateBanner(
+                            worker
+                        );
+                    }
+                }
+            );
+        }
+    );
+}
+
+/*
+ * Overrides the Step 108 registration function.
+ * The new worker waits until the user presses Update Now.
+ */
+async function registerMuthaqusServiceWorker() {
+    if (
+        !("serviceWorker" in navigator) ||
+        !window.isSecureContext
+    ) {
+        return null;
+    }
+
+    try {
+        const registration =
+            await navigator.serviceWorker.register(
+                "/service-worker.js",
+                {
+                    scope: "/",
+                    updateViaCache: "none"
+                }
+            );
+
+        observeMuthaqusServiceWorkerUpdate(
+            registration
+        );
+
+        await registration.update();
+
+        return registration;
+    } catch (error) {
+        console.warn(
+            "Service worker error:",
+            error.message
+        );
+
+        return null;
+    }
+}
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener(
+        "controllerchange",
+        () => {
+            if (muthaqusUpdateReloading) {
+                window.location.reload();
+            }
+        }
+    );
+}
+
+function startMuthaqusUpdateChecks() {
+    window.setTimeout(
+        checkMuthaqusCodeUpdate,
+        1800
+    );
+
+    window.setInterval(
+        checkMuthaqusCodeUpdate,
+        30 * 60 * 1000
+    );
+}
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+        if (!document.hidden) {
+            checkMuthaqusCodeUpdate();
+        }
+    }
+);
+
+window.addEventListener(
+    "focus",
+    () => {
+        checkMuthaqusCodeUpdate();
+    }
+);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    startMuthaqusUpdateChecks
+);
+
+
+/* =========================================================
+   PUSH NOTIFICATIONS
+   ========================================================= */
+
+function muthaqusBase64ToUint8Array(
+    base64String
+) {
+    const padding =
+        "=".repeat(
+            (
+                4 -
+                base64String.length % 4
+            ) % 4
+        );
+
+    const base64 =
+        (
+            base64String +
+            padding
+        )
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+
+    const rawData =
+        window.atob(base64);
+
+    const output =
+        new Uint8Array(
+            rawData.length
+        );
+
+    for (
+        let index = 0;
+        index < rawData.length;
+        index += 1
+    ) {
+        output[index] =
+            rawData.charCodeAt(index);
+    }
+
+    return output;
+}
+
+function isMuthaqusPushSupported() {
+    return (
+        "serviceWorker" in navigator &&
+        "PushManager" in window &&
+        "Notification" in window
+    );
+}
+
+async function getMuthaqusVapidPublicKey() {
+    const response =
+        await fetch(
+            "/api/admin-dashboard?action=vapid-public-key",
+            {
+                cache: "no-store"
+            }
+        );
+
+    const result =
+        await response.json();
+
+    if (
+        !response.ok ||
+        !result.success ||
+        !result.publicKey
+    ) {
+        throw new Error(
+            result.message ||
+            "Push notification setup is incomplete."
+        );
+    }
+
+    return result.publicKey;
+}
+
+function getMuthaqusCurrentParentForPush() {
+    if (
+        typeof getCurrentParent ===
+        "function"
+    ) {
+        return getCurrentParent();
+    }
+
+    return null;
+}
+
+async function syncMuthaqusParentPushStatus() {
+    const status =
+        document.getElementById(
+            "muthaqusPushStatus"
+        );
+
+    const enable =
+        document.getElementById(
+            "muthaqusPushEnable"
+        );
+
+    const disable =
+        document.getElementById(
+            "muthaqusPushDisable"
+        );
+
+    if (!status) {
+        return;
+    }
+
+    if (!isMuthaqusPushSupported()) {
+        status.className =
+            "muthaqus-push-state unsupported";
+
+        status.innerHTML = `
+            <strong>Not supported</strong>
+            <small>
+                Use Chrome, Edge or an installed iPhone Home Screen app.
+            </small>
+        `;
+
+        if (enable) {
+            enable.disabled = true;
+        }
+
+        if (disable) {
+            disable.disabled = true;
+        }
+
+        return;
+    }
+
+    try {
+        const registration =
+            await navigator.serviceWorker.ready;
+
+        const subscription =
+            await registration
+                .pushManager
+                .getSubscription();
+
+        const enabled =
+            Notification.permission ===
+                "granted" &&
+            Boolean(subscription);
+
+        status.className =
+            `muthaqus-push-state ${
+                enabled
+                    ? "enabled"
+                    : Notification.permission ===
+                        "denied"
+                    ? "blocked"
+                    : "disabled"
+            }`;
+
+        if (enabled) {
+            status.innerHTML = `
+                <strong>Notifications are on</strong>
+                <small>
+                    This device can receive MUTHAQUS alerts.
+                </small>
+            `;
+        } else if (
+            Notification.permission ===
+            "denied"
+        ) {
+            status.innerHTML = `
+                <strong>Permission blocked</strong>
+                <small>
+                    Allow notifications from your browser or phone settings.
+                </small>
+            `;
+        } else {
+            status.innerHTML = `
+                <strong>Notifications are off</strong>
+                <small>
+                    Turn them on to receive important van updates.
+                </small>
+            `;
+        }
+
+        if (enable) {
+            enable.disabled =
+                enabled ||
+                Notification.permission ===
+                    "denied";
+        }
+
+        if (disable) {
+            disable.disabled =
+                !subscription;
+        }
+    } catch (error) {
+        status.className =
+            "muthaqus-push-state disabled";
+
+        status.innerHTML = `
+            <strong>Notifications are off</strong>
+            <small>
+                Press Enable Notifications to set up this device.
+            </small>
+        `;
+    }
+}
+
+async function enableMuthaqusPushNotifications() {
+    const parent =
+        getMuthaqusCurrentParentForPush();
+
+    if (!parent) {
+        showMuthaqusPwaToast(
+            "Please log in to Parent Portal first.",
+            "offline"
+        );
+        return;
+    }
+
+    if (!isMuthaqusPushSupported()) {
+        showMuthaqusPwaToast(
+            "Push notifications are not supported in this browser.",
+            "offline"
+        );
+        return;
+    }
+
+    const button =
+        document.getElementById(
+            "muthaqusPushEnable"
+        );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            "Setting up...";
+    }
+
+    try {
+        const permission =
+            await Notification
+                .requestPermission();
+
+        if (permission !== "granted") {
+            throw new Error(
+                "Notification permission was not allowed."
+            );
+        }
+
+        const registration =
+            await registerMuthaqusServiceWorker() ||
+            await navigator.serviceWorker.ready;
+
+        const publicKey =
+            await getMuthaqusVapidPublicKey();
+
+        let subscription =
+            await registration
+                .pushManager
+                .getSubscription();
+
+        if (!subscription) {
+            subscription =
+                await registration
+                    .pushManager
+                    .subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey:
+                            muthaqusBase64ToUint8Array(
+                                publicKey
+                            )
+                    });
+        }
+
+        const response =
+            await fetch(
+                "/api/admin-dashboard",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        action:
+                            "save-push-subscription",
+                        parentId:
+                            String(
+                                parent.id || ""
+                            ),
+                        parentEmail:
+                            String(
+                                parent.email || ""
+                            ),
+                        parentName:
+                            String(
+                                parent.name || ""
+                            ),
+                        userAgent:
+                            navigator.userAgent,
+                        subscription:
+                            subscription.toJSON()
+                    })
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+            throw new Error(
+                result.message ||
+                "Notification setup failed."
+            );
+        }
+
+        showMuthaqusPwaToast(
+            "Phone notifications are now active.",
+            "success"
+        );
+    } catch (error) {
+        showMuthaqusPwaToast(
+            error.message,
+            "offline"
+        );
+    } finally {
+        if (button) {
+            button.textContent =
+                "Enable Notifications";
+        }
+
+        syncMuthaqusParentPushStatus();
+    }
+}
+
+async function disableMuthaqusPushNotifications() {
+    if (!isMuthaqusPushSupported()) {
+        return;
+    }
+
+    const button =
+        document.getElementById(
+            "muthaqusPushDisable"
+        );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            "Turning off...";
+    }
+
+    try {
+        const registration =
+            await navigator.serviceWorker.ready;
+
+        const subscription =
+            await registration
+                .pushManager
+                .getSubscription();
+
+        if (subscription) {
+            await fetch(
+                "/api/admin-dashboard",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        action:
+                            "delete-push-subscription",
+                        endpoint:
+                            subscription.endpoint
+                    })
+                }
+            );
+
+            await subscription.unsubscribe();
+        }
+
+        showMuthaqusPwaToast(
+            "Phone notifications have been turned off.",
+            "success"
+        );
+    } catch (error) {
+        showMuthaqusPwaToast(
+            error.message,
+            "offline"
+        );
+    } finally {
+        if (button) {
+            button.textContent =
+                "Turn Off";
+        }
+
+        syncMuthaqusParentPushStatus();
+    }
+}
+
+const MUTHAQUS_PUSH_TEMPLATES = {
+    "General Announcement": {
+        title: "MUTHAQUS Update",
+        message:
+            "A new update is available in Parent Portal.",
+        url: "/parent-dashboard.html"
+    },
+    "Payment Reminder": {
+        title: "Monthly Payment Reminder",
+        message:
+            "Please review your monthly payment status in Parent Portal.",
+        url: "/parent-dashboard.html"
+    },
+    "Delay Notice": {
+        title: "Van Delay Notice",
+        message:
+            "The school van may arrive later than usual. Please check the latest announcement.",
+        url: "/parent-dashboard.html"
+    },
+    "Route Update": {
+        title: "Route Update",
+        message:
+            "There is an update to the school van route. Please check Parent Portal.",
+        url: "/parent-dashboard.html"
+    },
+    "Emergency Notice": {
+        title: "Important Notice",
+        message:
+            "An important van service notice has been posted. Please open Parent Portal now.",
+        url: "/parent-dashboard.html"
+    },
+    "Holiday Notice": {
+        title: "Holiday Notice",
+        message:
+            "Please review the latest school van holiday announcement.",
+        url: "/parent-dashboard.html"
+    }
+};
+
+function applyMuthaqusPushTemplate() {
+    const type =
+        document.getElementById(
+            "muthaqusPushType"
+        )?.value ||
+        "General Announcement";
+
+    const template =
+        MUTHAQUS_PUSH_TEMPLATES[type] ||
+        MUTHAQUS_PUSH_TEMPLATES[
+            "General Announcement"
+        ];
+
+    const title =
+        document.getElementById(
+            "muthaqusPushTitle"
+        );
+
+    const message =
+        document.getElementById(
+            "muthaqusPushMessage"
+        );
+
+    const url =
+        document.getElementById(
+            "muthaqusPushUrl"
+        );
+
+    if (title) {
+        title.value =
+            template.title;
+    }
+
+    if (message) {
+        message.value =
+            template.message;
+    }
+
+    if (url) {
+        url.value =
+            template.url;
+    }
+}
+
+async function loadMuthaqusPushAdminSummary() {
+    const card =
+        document.getElementById(
+            "muthaqusPushAdminStatus"
+        );
+
+    const count =
+        document.getElementById(
+            "muthaqusPushSubscriberCount"
+        );
+
+    if (!card) {
+        return;
+    }
+
+    try {
+        const response =
+            await fetch(
+                "/api/admin-dashboard?action=push-summary",
+                {
+                    cache: "no-store"
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+            throw new Error(
+                result.message ||
+                "Push status is unavailable."
+            );
+        }
+
+        card.className =
+            `muthaqus-admin-push-status ${
+                result.configured
+                    ? "ready"
+                    : "setup"
+            }`;
+
+        card.innerHTML = result.configured
+            ? `
+                <strong>Push service is ready</strong>
+                <small>
+                    Parents can subscribe and receive phone notifications.
+                </small>
+            `
+            : `
+                <strong>VAPID setup required</strong>
+                <small>
+                    Add the three VAPID environment variables in Vercel.
+                </small>
+            `;
+
+        if (count) {
+            count.textContent =
+                String(
+                    result.enabledSubscriptions ||
+                    0
+                );
+        }
+    } catch (error) {
+        card.className =
+            "muthaqus-admin-push-status setup";
+
+        card.innerHTML = `
+            <strong>Push setup unavailable</strong>
+            <small>${error.message}</small>
+        `;
+    }
+}
+
+async function sendMuthaqusAdminPush(
+    event
+) {
+    event?.preventDefault();
+
+    const type =
+        document.getElementById(
+            "muthaqusPushType"
+        )?.value || "";
+
+    const title =
+        document.getElementById(
+            "muthaqusPushTitle"
+        )?.value.trim() || "";
+
+    const message =
+        document.getElementById(
+            "muthaqusPushMessage"
+        )?.value.trim() || "";
+
+    const url =
+        document.getElementById(
+            "muthaqusPushUrl"
+        )?.value.trim() ||
+        "/parent-dashboard.html";
+
+    const targetEmail =
+        document.getElementById(
+            "muthaqusPushTargetEmail"
+        )?.value.trim() || "";
+
+    const button =
+        document.getElementById(
+            "muthaqusPushSendButton"
+        );
+
+    if (!title || !message) {
+        showMuthaqusPwaToast(
+            "Please enter notification title and message.",
+            "offline"
+        );
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            "Sending...";
+    }
+
+    try {
+        const admin =
+            typeof getCurrentAdmin ===
+                "function"
+                ? getCurrentAdmin()
+                : null;
+
+        const response =
+            await fetch(
+                "/api/admin-dashboard",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        action:
+                            "send-push-notification",
+                        type,
+                        title,
+                        message,
+                        url,
+                        targetParentEmail:
+                            targetEmail,
+                        adminUsername:
+                            admin?.username ||
+                            "admin",
+                        adminName:
+                            admin?.name ||
+                            "Admin"
+                    })
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+            throw new Error(
+                result.message ||
+                "Notification could not be sent."
+            );
+        }
+
+        showMuthaqusPwaToast(
+            `Notification sent to ${result.sent || 0} device(s).`,
+            "success"
+        );
+
+        loadMuthaqusPushAdminSummary();
+    } catch (error) {
+        showMuthaqusPwaToast(
+            error.message,
+            "offline"
+        );
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent =
+                "Send Phone Notification";
+        }
+    }
+}
+
+function initialiseMuthaqusPushPages() {
+    if (
+        document.getElementById(
+            "muthaqusPushStatus"
+        )
+    ) {
+        syncMuthaqusParentPushStatus();
+    }
+
+    if (
+        document.getElementById(
+            "muthaqusPushAdminStatus"
+        )
+    ) {
+        applyMuthaqusPushTemplate();
+        loadMuthaqusPushAdminSummary();
+    }
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        window.setTimeout(
+            initialiseMuthaqusPushPages,
+            250
+        );
+    }
+);
+
+// MUTHAQUS_STEP109_110_UPDATE_PUSH_NOTIFICATIONS

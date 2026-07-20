@@ -173,6 +173,146 @@
             </button>
         </section>
 
+
+        <section class="muthaqus-push-admin-panel">
+            <div class="muthaqus-push-panel-head">
+                <div>
+                    <span class="page-kicker">
+                        PHONE NOTIFICATIONS
+                    </span>
+
+                    <h2>
+                        Push Notification Centre
+                    </h2>
+
+                    <p>
+                        Send important alerts to subscribed
+                        Parent Portal devices. New announcements
+                        are also sent automatically.
+                    </p>
+                </div>
+
+                <div class="muthaqus-push-subscriber-pill">
+                    <span id="muthaqusPushSubscriberCount">0</span>
+                    Active Devices
+                </div>
+            </div>
+
+            <div
+                id="muthaqusPushAdminStatus"
+                class="muthaqus-admin-push-status"
+            >
+                <strong>Checking push service...</strong>
+                <small>Please wait a moment.</small>
+            </div>
+
+            <form
+                class="muthaqus-push-form"
+                onsubmit="sendMuthaqusAdminPush(event)"
+            >
+                <div class="muthaqus-push-form-grid">
+                    <div>
+                        <label for="muthaqusPushType">
+                            Notification Type
+                        </label>
+
+                        <select
+                            id="muthaqusPushType"
+                            onchange="applyMuthaqusPushTemplate()"
+                        >
+                            <option>General Announcement</option>
+                            <option>Payment Reminder</option>
+                            <option>Delay Notice</option>
+                            <option>Route Update</option>
+                            <option>Emergency Notice</option>
+                            <option>Holiday Notice</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="muthaqusPushTargetEmail">
+                            Parent Email
+                            <small>(optional)</small>
+                        </label>
+
+                        <input
+                            id="muthaqusPushTargetEmail"
+                            type="email"
+                            placeholder="Leave blank to notify everyone"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="muthaqusPushTitle">
+                            Notification Title
+                        </label>
+
+                        <input
+                            id="muthaqusPushTitle"
+                            type="text"
+                            maxlength="80"
+                            required
+                        >
+                    </div>
+
+                    <div>
+                        <label for="muthaqusPushUrl">
+                            Open Page
+                        </label>
+
+                        <select id="muthaqusPushUrl">
+                            <option value="/parent-dashboard.html">
+                                Parent Dashboard
+                            </option>
+
+                            <option value="/upload-payment.html">
+                                Payment Page
+                            </option>
+
+                            <option value="/parent-rules.html">
+                                Service Rules
+                            </option>
+
+                            <option value="/parent-profile.html">
+                                My Profile
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="muthaqusPushMessage">
+                        Notification Message
+                    </label>
+
+                    <textarea
+                        id="muthaqusPushMessage"
+                        rows="4"
+                        maxlength="240"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="muthaqus-push-form-actions">
+                    <button
+                        id="muthaqusPushSendButton"
+                        type="submit"
+                        class="btn btn-primary-pro"
+                    >
+                        Send Phone Notification
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-pro"
+                        onclick="applyMuthaqusPushTemplate()"
+                    >
+                        Reset Template
+                    </button>
+                </div>
+            </form>
+        </section>
+
         <section class="step84-security-overview">
             <article>
                 <span>🛡️</span>
@@ -472,3 +612,4 @@
 <!-- MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE -->
 <!-- MUTHAQUS_STEP101_SEPARATE_ADMIN_PARENT_DARK_MODE -->
 <!-- MUTHAQUS_STEP108_INSTALLABLE_MOBILE_APP -->
+<!-- MUTHAQUS_STEP109_110_UPDATE_PUSH_NOTIFICATIONS -->
