@@ -15704,16 +15704,59 @@ document.addEventListener(
 // MUTHAQUS_STEP108_INSTALLABLE_MOBILE_APP
 
 const MUTHAQUS_UPDATE_SIGNATURE_KEY =
-    "muthaqus_last_code_signature";
+    "muthaqus_core_code_signature_v2";
 
 const MUTHAQUS_PENDING_SIGNATURE_KEY =
-    "muthaqus_pending_code_signature";
+    "muthaqus_pending_code_signature_v2";
+
+const MUTHAQUS_UPDATE_SUPPRESS_KEY =
+    "muthaqus_update_suppress_until";
 
 let muthaqusWaitingWorker =
     null;
 
 let muthaqusUpdateReloading =
     false;
+
+let muthaqusControllerReloaded =
+    false;
+
+function getMuthaqusUpdateSuppressUntil() {
+    try {
+        return Number(
+            localStorage.getItem(
+                MUTHAQUS_UPDATE_SUPPRESS_KEY
+            ) || 0
+        );
+    } catch (error) {
+        return 0;
+    }
+}
+
+function suppressMuthaqusUpdateBanner(
+    duration = 30000
+) {
+    try {
+        localStorage.setItem(
+            MUTHAQUS_UPDATE_SUPPRESS_KEY,
+            String(
+                Date.now() + duration
+            )
+        );
+    } catch (error) {
+        console.warn(
+            "Update suppression could not be saved:",
+            error.message
+        );
+    }
+}
+
+function isMuthaqusUpdateSuppressed() {
+    return (
+        Date.now() <
+        getMuthaqusUpdateSuppressUntil()
+    );
+}
 
 function createMuthaqusUpdateBanner() {
     let banner =
@@ -15780,6 +15823,13 @@ function showMuthaqusUpdateBanner(
     waitingWorker = null,
     signature = ""
 ) {
+    if (
+        isMuthaqusUpdateSuppressed() ||
+        muthaqusUpdateReloading
+    ) {
+        return;
+    }
+
     if (waitingWorker) {
         muthaqusWaitingWorker =
             waitingWorker;
@@ -15822,6 +15872,14 @@ function dismissMuthaqusUpdate() {
     document.body.classList.remove(
         "muthaqus-update-visible"
     );
+
+    /*
+     * Avoid showing the same banner immediately
+     * when the user changes page.
+     */
+    suppressMuthaqusUpdateBanner(
+        10 * 60 * 1000
+    );
 }
 
 async function clearMuthaqusAppCaches() {
@@ -15850,84 +15908,6 @@ async function clearMuthaqusAppCaches() {
             error.message
         );
     }
-}
-
-async function installMuthaqusUpdate() {
-    if (muthaqusUpdateReloading) {
-        return;
-    }
-
-    muthaqusUpdateReloading = true;
-
-    const button =
-        document.querySelector(
-            ".muthaqus-update-now"
-        );
-
-    if (button) {
-        button.disabled = true;
-        button.textContent =
-            "Updating...";
-    }
-
-    let pendingSignature = "";
-
-    try {
-        pendingSignature =
-            localStorage.getItem(
-                MUTHAQUS_PENDING_SIGNATURE_KEY
-            ) || "";
-    } catch (error) {
-        pendingSignature = "";
-    }
-
-    await clearMuthaqusAppCaches();
-
-    if (muthaqusWaitingWorker) {
-        muthaqusWaitingWorker.postMessage({
-            type: "SKIP_WAITING"
-        });
-    }
-
-    if (pendingSignature) {
-        try {
-            localStorage.setItem(
-                MUTHAQUS_UPDATE_SIGNATURE_KEY,
-                pendingSignature
-            );
-
-            localStorage.removeItem(
-                MUTHAQUS_PENDING_SIGNATURE_KEY
-            );
-        } catch (error) {
-            console.warn(
-                "Updated signature could not be saved:",
-                error.message
-            );
-        }
-    }
-
-    /*
-     * If a waiting worker exists, controllerchange will reload.
-     * Otherwise reload with a cache-busting query after a short delay.
-     */
-    window.setTimeout(() => {
-        if (!document.hidden) {
-            const url =
-                new URL(
-                    window.location.href
-                );
-
-            url.searchParams.set(
-                "updated",
-                Date.now().toString()
-            );
-
-            window.location.replace(
-                url.toString()
-            );
-        }
-    }, 900);
 }
 
 function getMuthaqusHeaderSignature(
@@ -15974,19 +15954,12 @@ async function fetchMuthaqusAssetSignature(
     }
 }
 
-async function checkMuthaqusCodeUpdate(
-    options = {}
-) {
-    if (
-        !navigator.onLine ||
-        document.hidden
-    ) {
-        return;
-    }
-
-    const currentPage =
-        window.location.pathname || "/index.html";
-
+async function getMuthaqusCoreSignature() {
+    /*
+     * Do not include the current HTML page.
+     * Every page has different headers, which caused
+     * the update banner to reappear after navigation.
+     */
     const signatures =
         await Promise.all([
             fetchMuthaqusAssetSignature(
@@ -15996,14 +15969,137 @@ async function checkMuthaqusCodeUpdate(
                 "/style.css"
             ),
             fetchMuthaqusAssetSignature(
-                currentPage
+                "/service-worker.js"
+            ),
+            fetchMuthaqusAssetSignature(
+                "/manifest.webmanifest"
             )
         ]);
 
+    return signatures
+        .filter(Boolean)
+        .join("||");
+}
+
+async function saveMuthaqusInstalledSignature(
+    preferredSignature = ""
+) {
     const signature =
-        signatures
-            .filter(Boolean)
-            .join("||");
+        preferredSignature ||
+        await getMuthaqusCoreSignature();
+
+    if (!signature) {
+        return;
+    }
+
+    try {
+        localStorage.setItem(
+            MUTHAQUS_UPDATE_SIGNATURE_KEY,
+            signature
+        );
+
+        localStorage.removeItem(
+            MUTHAQUS_PENDING_SIGNATURE_KEY
+        );
+    } catch (error) {
+        console.warn(
+            "Installed update signature could not be saved:",
+            error.message
+        );
+    }
+}
+
+async function installMuthaqusUpdate() {
+    if (muthaqusUpdateReloading) {
+        return;
+    }
+
+    muthaqusUpdateReloading = true;
+
+    dismissMuthaqusUpdate();
+
+    /*
+     * Give the new page enough time to initialise
+     * without showing the same update again.
+     */
+    suppressMuthaqusUpdateBanner(
+        60 * 1000
+    );
+
+    const button =
+        document.querySelector(
+            ".muthaqus-update-now"
+        );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            "Updating...";
+    }
+
+    let pendingSignature = "";
+
+    try {
+        pendingSignature =
+            localStorage.getItem(
+                MUTHAQUS_PENDING_SIGNATURE_KEY
+            ) || "";
+    } catch (error) {
+        pendingSignature = "";
+    }
+
+    /*
+     * Store the page-independent core signature before reload.
+     * This prevents another page from being treated as a new update.
+     */
+    await saveMuthaqusInstalledSignature(
+        pendingSignature
+    );
+
+    await clearMuthaqusAppCaches();
+
+    if (muthaqusWaitingWorker) {
+        muthaqusWaitingWorker.postMessage({
+            type: "SKIP_WAITING"
+        });
+    }
+
+    window.setTimeout(() => {
+        if (
+            !muthaqusControllerReloaded &&
+            !document.hidden
+        ) {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            url.searchParams.set(
+                "updated",
+                Date.now().toString()
+            );
+
+            window.location.replace(
+                url.toString()
+            );
+        }
+    }, 1200);
+}
+
+async function checkMuthaqusCodeUpdate(
+    options = {}
+) {
+    if (
+        !navigator.onLine ||
+        document.hidden ||
+        isMuthaqusUpdateSuppressed() ||
+        muthaqusUpdateReloading
+    ) {
+        return;
+    }
+
+    const signature =
+        await getMuthaqusCoreSignature();
 
     if (!signature) {
         return;
@@ -16021,18 +16117,9 @@ async function checkMuthaqusCodeUpdate(
     }
 
     if (!previous) {
-        try {
-            localStorage.setItem(
-                MUTHAQUS_UPDATE_SIGNATURE_KEY,
-                signature
-            );
-        } catch (error) {
-            console.warn(
-                "Initial update signature could not be saved:",
-                error.message
-            );
-        }
-
+        await saveMuthaqusInstalledSignature(
+            signature
+        );
         return;
     }
 
@@ -16056,7 +16143,8 @@ function observeMuthaqusServiceWorkerUpdate(
 
     if (
         registration.waiting &&
-        navigator.serviceWorker.controller
+        navigator.serviceWorker.controller &&
+        !isMuthaqusUpdateSuppressed()
     ) {
         showMuthaqusUpdateBanner(
             registration.waiting
@@ -16078,7 +16166,8 @@ function observeMuthaqusServiceWorkerUpdate(
                 () => {
                     if (
                         worker.state === "installed" &&
-                        navigator.serviceWorker.controller
+                        navigator.serviceWorker.controller &&
+                        !isMuthaqusUpdateSuppressed()
                     ) {
                         showMuthaqusUpdateBanner(
                             worker
@@ -16090,10 +16179,6 @@ function observeMuthaqusServiceWorkerUpdate(
     );
 }
 
-/*
- * Overrides the Step 108 registration function.
- * The new worker waits until the user presses Update Now.
- */
 async function registerMuthaqusServiceWorker() {
     if (
         !("serviceWorker" in navigator) ||
@@ -16133,7 +16218,17 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener(
         "controllerchange",
         () => {
-            if (muthaqusUpdateReloading) {
+            if (
+                muthaqusUpdateReloading &&
+                !muthaqusControllerReloaded
+            ) {
+                muthaqusControllerReloaded =
+                    true;
+
+                suppressMuthaqusUpdateBanner(
+                    60 * 1000
+                );
+
                 window.location.reload();
             }
         }
@@ -16143,7 +16238,7 @@ if ("serviceWorker" in navigator) {
 function startMuthaqusUpdateChecks() {
     window.setTimeout(
         checkMuthaqusCodeUpdate,
-        1800
+        2200
     );
 
     window.setInterval(
@@ -16176,6 +16271,7 @@ document.addEventListener(
 
 /* =========================================================
    PUSH NOTIFICATIONS
+
    ========================================================= */
 
 function muthaqusBase64ToUint8Array(
@@ -16881,3 +16977,5 @@ document.addEventListener(
 );
 
 // MUTHAQUS_STEP109_110_UPDATE_PUSH_NOTIFICATIONS
+
+// MUTHAQUS_UPDATE_BANNER_REPEAT_FIX
