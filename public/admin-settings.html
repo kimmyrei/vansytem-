@@ -85,6 +85,54 @@
             <a href="admin-analytics.html"><span>📈</span><div><strong>Business Analytics</strong><small>Revenue, costs, profit and forecasts</small></div></a>
         </section>
 
+
+        <section class="muthaqus-appearance-panel">
+            <div class="muthaqus-appearance-copy">
+                <span class="muthaqus-appearance-icon">◐</span>
+
+                <div>
+                    <span class="page-kicker">APPEARANCE</span>
+                    <h2>Display Theme</h2>
+                    <p>
+                        Your selected theme is saved on this device
+                        and applied automatically to every system page.
+                    </p>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="muthaqus-theme-toggle"
+                data-muthaqus-theme-toggle
+                aria-pressed="false"
+                onclick="toggleMuthaqusTheme()"
+            >
+                <span
+                    class="muthaqus-theme-toggle-icon"
+                    data-theme-icon
+                    aria-hidden="true"
+                >
+                    🌙
+                </span>
+
+                <span class="muthaqus-theme-toggle-copy">
+                    <strong data-theme-title>
+                        Switch to Dark Mode
+                    </strong>
+
+                    <small data-theme-description>
+                        Use a darker interface that is easier on the eyes.
+                    </small>
+                </span>
+
+                <span class="muthaqus-theme-switch" aria-hidden="true">
+                    <span></span>
+                </span>
+
+                <b data-theme-state>Off</b>
+            </button>
+        </section>
+
         <section class="step84-security-overview">
             <article>
                 <span>🛡️</span>
@@ -380,4 +428,5 @@
 <script>loadAdminSettingsPage();</script>
 </body>
 </html>
+<!-- MUTHAQUS_STEP100_GLOBAL_DARK_MODE -->
 <!-- MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE -->

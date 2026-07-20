@@ -1,3 +1,203 @@
+const MUTHAQUS_THEME_KEY = "muthaqus_global_theme";
+
+function getMuthaqusTheme() {
+    try {
+        return localStorage.getItem(
+            MUTHAQUS_THEME_KEY
+        ) === "dark"
+            ? "dark"
+            : "light";
+    } catch (error) {
+        return "light";
+    }
+}
+
+function applyMuthaqusTheme(
+    theme,
+    options = {}
+) {
+    const selected =
+        theme === "dark"
+            ? "dark"
+            : "light";
+
+    const root =
+        document.documentElement;
+
+    if (options.animate) {
+        root.classList.add(
+            "muthaqus-theme-changing"
+        );
+
+        window.setTimeout(() => {
+            root.classList.remove(
+                "muthaqus-theme-changing"
+            );
+        }, 320);
+    }
+
+    root.setAttribute(
+        "data-theme",
+        selected
+    );
+
+    root.style.colorScheme =
+        selected;
+
+    document.body?.setAttribute(
+        "data-theme",
+        selected
+    );
+
+    const themeMeta =
+        document.querySelector(
+            'meta[name="theme-color"]'
+        );
+
+    if (themeMeta) {
+        themeMeta.setAttribute(
+            "content",
+            selected === "dark"
+                ? "#07111f"
+                : "#143f73"
+        );
+    }
+
+    syncMuthaqusThemeControls();
+}
+
+function setMuthaqusTheme(theme) {
+    const selected =
+        theme === "dark"
+            ? "dark"
+            : "light";
+
+    try {
+        localStorage.setItem(
+            MUTHAQUS_THEME_KEY,
+            selected
+        );
+    } catch (error) {
+        console.warn(
+            "Theme preference could not be saved:",
+            error.message
+        );
+    }
+
+    applyMuthaqusTheme(
+        selected,
+        {
+            animate: true
+        }
+    );
+}
+
+function toggleMuthaqusTheme() {
+    setMuthaqusTheme(
+        getMuthaqusTheme() === "dark"
+            ? "light"
+            : "dark"
+    );
+}
+
+function syncMuthaqusThemeControls() {
+    const isDark =
+        document.documentElement
+            .getAttribute("data-theme") ===
+        "dark";
+
+    document
+        .querySelectorAll(
+            "[data-muthaqus-theme-toggle]"
+        )
+        .forEach(button => {
+            button.classList.toggle(
+                "is-dark",
+                isDark
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                String(isDark)
+            );
+
+            const icon =
+                button.querySelector(
+                    "[data-theme-icon]"
+                );
+
+            const title =
+                button.querySelector(
+                    "[data-theme-title]"
+                );
+
+            const description =
+                button.querySelector(
+                    "[data-theme-description]"
+                );
+
+            const state =
+                button.querySelector(
+                    "[data-theme-state]"
+                );
+
+            if (icon) {
+                icon.innerText =
+                    isDark ? "☀️" : "🌙";
+            }
+
+            if (title) {
+                title.innerText =
+                    isDark
+                        ? "Switch to Light Mode"
+                        : "Switch to Dark Mode";
+            }
+
+            if (description) {
+                description.innerText =
+                    isDark
+                        ? "Dark mode is active across the whole system."
+                        : "Use a darker interface that is easier on the eyes.";
+            }
+
+            if (state) {
+                state.innerText =
+                    isDark ? "On" : "Off";
+            }
+        });
+}
+
+(function applySavedMuthaqusThemeEarly() {
+    applyMuthaqusTheme(
+        getMuthaqusTheme()
+    );
+})();
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        applyMuthaqusTheme(
+            getMuthaqusTheme()
+        );
+    }
+);
+
+window.addEventListener(
+    "storage",
+    event => {
+        if (
+            event.key ===
+            MUTHAQUS_THEME_KEY
+        ) {
+            applyMuthaqusTheme(
+                event.newValue === "dark"
+                    ? "dark"
+                    : "light"
+            );
+        }
+    }
+);
+
 /* VanSystem localStorage connection file
    This is for testing on Netlify without database.
    Data is saved only in the same browser/device.
@@ -14719,3 +14919,5 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP93_94_95_DUPLICATE_MAINTENANCE_ANALYTICS
 
 // MUTHAQUS_STEP96_ADMIN_NAV_PARENT_PAYMENT_REMINDER_POLISH
+
+// MUTHAQUS_STEP100_GLOBAL_DARK_MODE

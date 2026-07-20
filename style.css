@@ -20958,3 +20958,876 @@ body.step99-compact-parent-summary .step98-arrears-row.more {
 
 /* MUTHAQUS_STEP99_COMPACT_PARENT_SUMMARY_LAYOUT */
 
+
+
+/* =========================================================
+   MUTHAQUS GLOBAL DARK MODE
+   ========================================================= */
+
+:root {
+    --muthaqus-light-page: #eef5fc;
+    --muthaqus-dark-page: #07111f;
+    --muthaqus-dark-surface: #0f1d2d;
+    --muthaqus-dark-surface-2: #142438;
+    --muthaqus-dark-surface-3: #192b40;
+    --muthaqus-dark-border: #2b4158;
+    --muthaqus-dark-text: #eaf2fb;
+    --muthaqus-dark-muted: #9eb1c5;
+    --muthaqus-dark-blue: #68aef2;
+    --muthaqus-dark-input: #0b1827;
+    --muthaqus-dark-danger: #ff8792;
+    --muthaqus-dark-success: #62d99a;
+}
+
+html {
+    background: var(--muthaqus-light-page);
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+    background: var(--muthaqus-dark-page);
+}
+
+html.muthaqus-theme-changing *,
+html.muthaqus-theme-changing *::before,
+html.muthaqus-theme-changing *::after {
+    transition:
+        background-color 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease
+        !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.muthaqus-theme-changing *,
+    html.muthaqus-theme-changing *::before,
+    html.muthaqus-theme-changing *::after {
+        transition: none !important;
+    }
+}
+
+/* Appearance card */
+.muthaqus-appearance-panel {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(330px, 0.74fr);
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 21px;
+    overflow: hidden;
+    border: 1px solid #d5e4f2;
+    border-radius: 23px;
+    background:
+        radial-gradient(
+            circle at 96% 2%,
+            rgba(40, 121, 209, 0.12),
+            transparent 31%
+        ),
+        #ffffff;
+    box-shadow:
+        0 13px 34px
+        rgba(15, 60, 104, 0.075);
+}
+
+.muthaqus-appearance-copy {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.muthaqus-appearance-icon {
+    width: 58px;
+    min-width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #cfe1f2;
+    border-radius: 19px;
+    background:
+        linear-gradient(
+            145deg,
+            #e8f3ff,
+            #f6faff
+        );
+    color: #175b9e;
+    font-size: 27px;
+    font-weight: 950;
+}
+
+.muthaqus-appearance-copy h2 {
+    margin: 4px 0 5px;
+    color: #143f73;
+    font-size: 21px;
+}
+
+.muthaqus-appearance-copy p {
+    margin: 0;
+    max-width: 620px;
+    color: #6d8195;
+    font-size: 10px;
+    line-height: 1.55;
+}
+
+.muthaqus-parent-theme-card {
+    display: grid;
+    gap: 16px;
+}
+
+.muthaqus-theme-toggle {
+    width: 100%;
+    min-width: 0;
+    min-height: 82px;
+    display: grid;
+    grid-template-columns:
+        48px minmax(0, 1fr)
+        48px auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid #d3e2ef;
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            145deg,
+            #f7fbff,
+            #edf5fe
+        );
+    color: #143f73;
+    text-align: left;
+    cursor: pointer;
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.9);
+}
+
+.muthaqus-theme-toggle:hover {
+    border-color: #91bce2;
+    transform: translateY(-1px);
+}
+
+.muthaqus-theme-toggle-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #ffffff;
+    font-size: 22px;
+    box-shadow:
+        0 7px 17px
+        rgba(15, 60, 104, 0.09);
+}
+
+.muthaqus-theme-toggle-copy {
+    min-width: 0;
+}
+
+.muthaqus-theme-toggle-copy strong,
+.muthaqus-theme-toggle-copy small {
+    display: block;
+}
+
+.muthaqus-theme-toggle-copy strong {
+    margin-bottom: 4px;
+    color: #143f73;
+    font-size: 13px;
+    font-weight: 950;
+}
+
+.muthaqus-theme-toggle-copy small {
+    color: #6d8195;
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.muthaqus-theme-switch {
+    width: 48px;
+    height: 27px;
+    position: relative;
+    display: block;
+    border-radius: 999px;
+    background: #b9c9d8;
+    box-shadow:
+        inset 0 2px 5px
+        rgba(15, 60, 104, 0.18);
+}
+
+.muthaqus-theme-switch > span {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow:
+        0 3px 8px
+        rgba(14, 38, 64, 0.24);
+    transition:
+        transform 0.22s ease;
+}
+
+.muthaqus-theme-toggle > b {
+    min-width: 34px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: #e5eef7;
+    color: #547089;
+    font-size: 8px;
+    font-weight: 950;
+    text-align: center;
+}
+
+.muthaqus-theme-toggle.is-dark {
+    border-color: #456587;
+    background:
+        linear-gradient(
+            145deg,
+            #15273b,
+            #0d1c2d
+        );
+}
+
+.muthaqus-theme-toggle.is-dark
+.muthaqus-theme-toggle-copy strong {
+    color: #f0f6fd;
+}
+
+.muthaqus-theme-toggle.is-dark
+.muthaqus-theme-toggle-copy small {
+    color: #a9bbce;
+}
+
+.muthaqus-theme-toggle.is-dark
+.muthaqus-theme-toggle-icon {
+    background: #20364f;
+}
+
+.muthaqus-theme-toggle.is-dark
+.muthaqus-theme-switch {
+    background:
+        linear-gradient(
+            90deg,
+            #2a73bd,
+            #4ca1ec
+        );
+}
+
+.muthaqus-theme-toggle.is-dark
+.muthaqus-theme-switch > span {
+    transform: translateX(21px);
+}
+
+.muthaqus-theme-toggle.is-dark > b {
+    background: #234564;
+    color: #dcedfc;
+}
+
+/* Main page foundation */
+html[data-theme="dark"] body {
+    background:
+        radial-gradient(
+            circle at 92% 3%,
+            rgba(41, 112, 180, 0.13),
+            transparent 28%
+        ),
+        var(--muthaqus-dark-page)
+        !important;
+    color: var(--muthaqus-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-shell,
+html[data-theme="dark"]
+.app-main {
+    background: transparent
+        !important;
+}
+
+html[data-theme="dark"]
+.app-main {
+    color: var(--muthaqus-dark-text)
+        !important;
+}
+
+/* Sidebar stays rich navy, but gains darker depth */
+html[data-theme="dark"]
+.pro-sidebar {
+    border-right-color: #263d54
+        !important;
+    background:
+        linear-gradient(
+            180deg,
+            #102b46,
+            #071a2c
+        )
+        !important;
+}
+
+html[data-theme="dark"]
+.sidebar-menu a {
+    color: #c9d9e8 !important;
+}
+
+html[data-theme="dark"]
+.sidebar-menu a:hover,
+html[data-theme="dark"]
+.sidebar-menu a.active {
+    border-color: #79b8ed
+        !important;
+    background: #244664
+        !important;
+    color: #ffffff
+        !important;
+}
+
+html[data-theme="dark"]
+.mobile-app-header,
+html[data-theme="dark"]
+.mobile-bottom-nav {
+    border-color: var(--muthaqus-dark-border)
+        !important;
+    background: #0d1c2c
+        !important;
+}
+
+/* All common surfaces */
+html[data-theme="dark"]
+.app-main :is(
+    .page-hero-bar,
+    .stat-card,
+    .pro-stat,
+    .form-card-pro,
+    .dashboard-card,
+    .dashboard-section,
+    .admin-record-table-shell,
+    .parent-mini-card,
+    .s64-card,
+    .modal-content,
+    .dialog-card,
+    .step70-profile-overview,
+    .step70-payment-due-card,
+    .step70-due-breakdown,
+    .step80-arrears-section,
+    .step80-arrears-card,
+    .step81-student-card,
+    .step82-family-card,
+    .step82-child-card,
+    .step82-monthly-tracker,
+    .step82-payment-history-section,
+    .step82-month-panel,
+    .step82-month-account-card,
+    .step82-payment-month-group,
+    .step82-payment-record-card,
+    .step84-settings-card,
+    .step84-security-overview article,
+    .step84-activity-section,
+    .step84-activity-item,
+    .step89-recovery-section,
+    .step89-backup-info,
+    .step89-restore-card,
+    .step94-form-card,
+    .step94-record-card,
+    .step94-expense-card,
+    .step94-summary article,
+    .step94-quick-links a,
+    .step95-panel,
+    .step95-kpis article,
+    .step86-closing-report,
+    .step86-attention-panel,
+    .muthaqus-appearance-panel
+) {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+    background:
+        var(--muthaqus-dark-surface)
+        !important;
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+    box-shadow:
+        0 16px 38px
+        rgba(0, 0, 0, 0.22)
+        !important;
+}
+
+/* Catch remaining project cards and panels */
+html[data-theme="dark"]
+.app-main
+[class*="card"]:not(
+    .btn
+):not(
+    [class*="status"]
+):not(
+    [class*="badge"]
+),
+html[data-theme="dark"]
+.app-main
+[class*="panel"]:not(
+    .mobile-bottom-nav
+),
+html[data-theme="dark"]
+.app-main
+[class*="box"]:not(
+    input
+):not(
+    textarea
+) {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+}
+
+/* Headings and normal copy */
+html[data-theme="dark"]
+.app-main :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    .form-header h2,
+    .page-hero-bar h1
+) {
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-main :is(
+    p,
+    small,
+    .helper-text,
+    .muted,
+    .page-hero-bar p,
+    .form-header p
+) {
+    color:
+        var(--muthaqus-dark-muted)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-main
+.page-kicker {
+    color:
+        var(--muthaqus-dark-blue)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-main label {
+    color: #c6d5e4
+        !important;
+}
+
+/* Fields */
+html[data-theme="dark"]
+:is(
+    input,
+    select,
+    textarea
+) {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+    background:
+        var(--muthaqus-dark-input)
+        !important;
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    input,
+    textarea
+)::placeholder {
+    color: #6f8398
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    input,
+    select,
+    textarea
+):focus {
+    border-color: #5c9fe0
+        !important;
+    box-shadow:
+        0 0 0 3px
+        rgba(82, 155, 225, 0.16)
+        !important;
+}
+
+/* Tables */
+html[data-theme="dark"]
+table,
+html[data-theme="dark"]
+thead,
+html[data-theme="dark"]
+tbody,
+html[data-theme="dark"]
+tr,
+html[data-theme="dark"]
+th,
+html[data-theme="dark"]
+td {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+}
+
+html[data-theme="dark"]
+table,
+html[data-theme="dark"]
+tbody,
+html[data-theme="dark"]
+td {
+    background:
+        var(--muthaqus-dark-surface)
+        !important;
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+thead,
+html[data-theme="dark"]
+th {
+    background: #173451
+        !important;
+    color: #f0f6fc
+        !important;
+}
+
+html[data-theme="dark"]
+tr:hover td {
+    background: #172a3e
+        !important;
+}
+
+/* Inner boxes, chips, summaries */
+html[data-theme="dark"]
+.app-main :is(
+    .step70-profile-contact-list > div,
+    .step70-profile-completion,
+    .step70-security-note,
+    .step80-arrears-filter,
+    .step80-arrears-money > div,
+    .step81-student-filter,
+    .step82-family-metrics > div,
+    .step82-family-bulk-actions,
+    .step82-child-information > div,
+    .step82-child-settings > section,
+    .step82-month-summary article,
+    .step82-month-filter,
+    .step82-history-filter,
+    .step82-month-account-card,
+    .step82-month-amounts > div,
+    .step82-payment-record-info > div,
+    .step84-admin-profile,
+    .step84-info-list > div,
+    .step84-activity-filter,
+    .step84-activity-summary article,
+    .step89-backup-preview,
+    .step89-restore-controls,
+    .step94-filter,
+    .step94-expense-details > div,
+    .step95-status-list > div,
+    .step95-expense-breakdown article,
+    .step95-forecast > div,
+    .step86-rate-panel,
+    .step86-attention-item
+) {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+    background:
+        var(--muthaqus-dark-surface-2)
+        !important;
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+}
+
+/* Buttons */
+html[data-theme="dark"]
+.btn-light-pro,
+html[data-theme="dark"]
+.btn-outline-pro {
+    border-color: #496886
+        !important;
+    background: #142a3f
+        !important;
+    color: #dceaf7
+        !important;
+}
+
+html[data-theme="dark"]
+.btn-light-pro:hover,
+html[data-theme="dark"]
+.btn-outline-pro:hover {
+    background: #1c3954
+        !important;
+}
+
+/* Parent payment card in dark mode */
+html[data-theme="dark"]
+.step70-payment-due-card {
+    border-color: #5a3541
+        !important;
+    background:
+        linear-gradient(
+            145deg,
+            #211720,
+            #161824
+        )
+        !important;
+}
+
+html[data-theme="dark"]
+.step70-due-card-top {
+    border-bottom-color: #51323d
+        !important;
+}
+
+html[data-theme="dark"]
+.step70-due-breakdown {
+    border-color: #56333e
+        !important;
+    background: #241820
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.overdue {
+    border-color: #65404a
+        !important;
+    background: #2a1c24
+        !important;
+    color: #ffc1c7
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.pending {
+    border-color: #69572e
+        !important;
+    background: #2b2618
+        !important;
+    color: #f7d77c
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.more {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+    background:
+        var(--muthaqus-dark-surface-2)
+        !important;
+    color: #b7c9da
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip b {
+    background: #492630
+        !important;
+    color: #ffbec5
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.pending b {
+    background: #4b3c17
+        !important;
+    color: #ffe18b
+        !important;
+}
+
+html[data-theme="dark"]
+.parent-mini-card {
+    background:
+        linear-gradient(
+            145deg,
+            #102031,
+            #0d1a29
+        )
+        !important;
+}
+
+html[data-theme="dark"]
+.parent-mini-icon,
+html[data-theme="dark"]
+.muthaqus-appearance-icon {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+    background: #1b3249
+        !important;
+    color: #89c4f4
+        !important;
+}
+
+/* Auth and public pages */
+html[data-theme="dark"]
+:is(
+    .auth-card,
+    .login-card,
+    .register-card,
+    .landing-card,
+    .portal-card,
+    .faq-card,
+    .public-card
+) {
+    border-color:
+        var(--muthaqus-dark-border)
+        !important;
+    background:
+        var(--muthaqus-dark-surface)
+        !important;
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+    box-shadow:
+        0 17px 42px
+        rgba(0, 0, 0, 0.24)
+        !important;
+}
+
+/* Scrollbars */
+html[data-theme="dark"] {
+    scrollbar-color:
+        #496b8b
+        #0b1725;
+}
+
+html[data-theme="dark"]
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+html[data-theme="dark"]
+::-webkit-scrollbar-track {
+    background: #0b1725;
+}
+
+html[data-theme="dark"]
+::-webkit-scrollbar-thumb {
+    border: 2px solid #0b1725;
+    border-radius: 999px;
+    background: #496b8b;
+}
+
+/* Theme button itself inside dark page */
+html[data-theme="dark"]
+.muthaqus-appearance-copy h2 {
+    color:
+        var(--muthaqus-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+.muthaqus-appearance-copy p {
+    color:
+        var(--muthaqus-dark-muted)
+        !important;
+}
+
+/* Responsive theme control */
+@media (max-width: 920px) {
+    .muthaqus-appearance-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .muthaqus-appearance-panel {
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .muthaqus-appearance-copy {
+        align-items: flex-start;
+    }
+
+    .muthaqus-appearance-icon {
+        width: 50px;
+        min-width: 50px;
+        height: 50px;
+        border-radius: 16px;
+        font-size: 23px;
+    }
+
+    .muthaqus-theme-toggle {
+        grid-template-columns:
+            43px minmax(0, 1fr)
+            46px;
+        gap: 10px;
+        min-height: 76px;
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .muthaqus-theme-toggle-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 13px;
+        font-size: 19px;
+    }
+
+    .muthaqus-theme-toggle-copy strong {
+        font-size: 12px;
+    }
+
+    .muthaqus-theme-toggle-copy small {
+        font-size: 8.5px;
+    }
+
+    .muthaqus-theme-toggle > b {
+        grid-column: 2 / -1;
+        justify-self: end;
+        margin-top: -3px;
+    }
+}
+
+@media (max-width: 390px) {
+    .muthaqus-theme-toggle {
+        grid-template-columns:
+            40px minmax(0, 1fr);
+    }
+
+    .muthaqus-theme-switch {
+        grid-column: 1;
+        justify-self: center;
+        width: 44px;
+    }
+
+    .muthaqus-theme-toggle.is-dark
+    .muthaqus-theme-switch > span {
+        transform: translateX(17px);
+    }
+
+    .muthaqus-theme-toggle > b {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+/* MUTHAQUS_STEP100_GLOBAL_DARK_MODE */
+

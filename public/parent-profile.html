@@ -159,6 +159,49 @@
             </aside>
 
             <div class="step70-profile-forms">
+                <article class="form-card-pro muthaqus-parent-theme-card">
+                    <div class="form-header">
+                        <span class="page-kicker">APPEARANCE</span>
+                        <h2>Display Theme</h2>
+                        <p>
+                            Choose a comfortable display theme.
+                            The same theme will be used on every Parent Portal page.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="muthaqus-theme-toggle"
+                        data-muthaqus-theme-toggle
+                        aria-pressed="false"
+                        onclick="toggleMuthaqusTheme()"
+                    >
+                        <span
+                            class="muthaqus-theme-toggle-icon"
+                            data-theme-icon
+                            aria-hidden="true"
+                        >
+                            🌙
+                        </span>
+
+                        <span class="muthaqus-theme-toggle-copy">
+                            <strong data-theme-title>
+                                Switch to Dark Mode
+                            </strong>
+
+                            <small data-theme-description>
+                                Use a darker interface that is easier on the eyes.
+                            </small>
+                        </span>
+
+                        <span class="muthaqus-theme-switch" aria-hidden="true">
+                            <span></span>
+                        </span>
+
+                        <b data-theme-state>Off</b>
+                    </button>
+                </article>
+
                 <article class="form-card-pro step70-profile-form-card">
                     <div class="form-header">
                         <span class="page-kicker">CONTACT DETAILS</span>
@@ -294,4 +337,5 @@
 <script>loadParentProfilePage();</script>
 </body>
 </html>
+<!-- MUTHAQUS_STEP100_GLOBAL_DARK_MODE -->
 <!-- MUTHAQUS_STEP70_PARENT_PROFILE_POLISH -->
