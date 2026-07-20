@@ -15151,3 +15151,554 @@ window.addEventListener("load", function () {
 // MUTHAQUS_STEP96_ADMIN_NAV_PARENT_PAYMENT_REMINDER_POLISH
 
 // MUTHAQUS_STEP101_SEPARATE_ADMIN_PARENT_DARK_MODE
+
+const MUTHAQUS_PWA = {
+    prompt: null,
+    installed() {
+        return window.matchMedia(
+            "(display-mode: standalone)"
+        ).matches ||
+        window.navigator.standalone === true;
+    },
+    ios() {
+        return /iphone|ipad|ipod/i.test(
+            navigator.userAgent
+        );
+    },
+    safari() {
+        return /safari/i.test(navigator.userAgent) &&
+            !/crios|chrome|android|edgios|fxios/i.test(
+                navigator.userAgent
+            );
+    }
+};
+
+function ensureMuthaqusPwaHead() {
+    const head = document.head;
+    if (!head) return;
+
+    const ensureLink = (
+        rel,
+        href,
+        attributes = {}
+    ) => {
+        let link = head.querySelector(
+            `link[rel="${rel}"]`
+        );
+
+        if (!link) {
+            link = document.createElement("link");
+            link.rel = rel;
+            head.appendChild(link);
+        }
+
+        link.href = href;
+
+        Object.entries(attributes).forEach(
+            ([key, value]) =>
+                link.setAttribute(key, value)
+        );
+    };
+
+    const ensureMeta = (
+        name,
+        content
+    ) => {
+        let meta = head.querySelector(
+            `meta[name="${name}"]`
+        );
+
+        if (!meta) {
+            meta = document.createElement("meta");
+            meta.name = name;
+            head.appendChild(meta);
+        }
+
+        meta.content = content;
+    };
+
+    ensureLink(
+        "manifest",
+        "/manifest.webmanifest"
+    );
+
+    ensureLink(
+        "apple-touch-icon",
+        "/icons/muthaqus-apple-touch-icon.png",
+        {
+            sizes: "180x180"
+        }
+    );
+
+    ensureLink(
+        "icon",
+        "/icons/muthaqus-icon-64.png",
+        {
+            sizes: "64x64",
+            type: "image/png"
+        }
+    );
+
+    ensureMeta(
+        "application-name",
+        "MUTHAQUS Van System"
+    );
+
+    ensureMeta(
+        "apple-mobile-web-app-capable",
+        "yes"
+    );
+
+    ensureMeta(
+        "apple-mobile-web-app-status-bar-style",
+        "black-translucent"
+    );
+
+    ensureMeta(
+        "apple-mobile-web-app-title",
+        "MUTHAQUS"
+    );
+
+    ensureMeta(
+        "mobile-web-app-capable",
+        "yes"
+    );
+}
+
+function createMuthaqusPwaUi() {
+    if (
+        document.getElementById(
+            "muthaqusInstallPill"
+        )
+    ) {
+        return;
+    }
+
+    const pill = document.createElement(
+        "button"
+    );
+
+    pill.id = "muthaqusInstallPill";
+    pill.type = "button";
+    pill.className =
+        "muthaqus-install-pill";
+    pill.hidden = true;
+    pill.innerHTML = `
+        <span>↓</span>
+        <div>
+            <strong>Install App</strong>
+            <small>Add to Home Screen</small>
+        </div>
+    `;
+    pill.onclick = openMuthaqusInstall;
+    document.body.appendChild(pill);
+
+    const modal = document.createElement(
+        "div"
+    );
+
+    modal.id = "muthaqusInstallModal";
+    modal.className =
+        "muthaqus-install-modal";
+    modal.hidden = true;
+    modal.innerHTML = `
+        <section
+            class="muthaqus-install-dialog"
+            role="dialog"
+            aria-modal="true"
+        >
+            <button
+                type="button"
+                class="muthaqus-install-close"
+                onclick="closeMuthaqusInstall()"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+            <div class="muthaqus-install-app-icon">
+                🚐
+            </div>
+
+            <span class="page-kicker">
+                MOBILE APP
+            </span>
+
+            <h2>Install MUTHAQUS</h2>
+
+            <p>
+                Add the van system to your Home Screen
+                and open it in full-screen app mode.
+            </p>
+
+            <div class="muthaqus-install-benefits">
+                <div>📱 <b>Home Screen</b></div>
+                <div>⚡ <b>Faster Access</b></div>
+                <div>📶 <b>Offline Page</b></div>
+            </div>
+
+            <div
+                id="muthaqusIosSteps"
+                class="muthaqus-ios-steps"
+                hidden
+            >
+                <strong>iPhone / iPad</strong>
+                <ol>
+                    <li>Tap Safari Share.</li>
+                    <li>Choose Add to Home Screen.</li>
+                    <li>Tap Add.</li>
+                </ol>
+            </div>
+
+            <button
+                id="muthaqusNativeInstall"
+                type="button"
+                class="btn btn-primary-pro"
+                onclick="triggerMuthaqusInstall()"
+            >
+                Install Now
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-outline-pro"
+                onclick="closeMuthaqusInstall()"
+            >
+                Maybe Later
+            </button>
+        </section>
+    `;
+
+    modal.onclick = event => {
+        if (event.target === modal) {
+            closeMuthaqusInstall();
+        }
+    };
+
+    document.body.appendChild(modal);
+}
+
+function syncMuthaqusInstallUi() {
+    const installed =
+        MUTHAQUS_PWA.installed();
+
+    const available =
+        Boolean(MUTHAQUS_PWA.prompt) ||
+        (
+            MUTHAQUS_PWA.ios() &&
+            MUTHAQUS_PWA.safari()
+        );
+
+    const pill = document.getElementById(
+        "muthaqusInstallPill"
+    );
+
+    if (pill) {
+        pill.hidden =
+            installed || !available;
+    }
+
+    document
+        .querySelectorAll(
+            "[data-muthaqus-install]"
+        )
+        .forEach(button => {
+            const title = button.querySelector(
+                "[data-install-title]"
+            );
+
+            const text = button.querySelector(
+                "[data-install-text]"
+            );
+
+            const state = button.querySelector(
+                "[data-install-state]"
+            );
+
+            button.disabled = installed;
+            button.classList.toggle(
+                "is-installed",
+                installed
+            );
+
+            if (installed) {
+                if (title) {
+                    title.textContent =
+                        "App Installed";
+                }
+
+                if (text) {
+                    text.textContent =
+                        "MUTHAQUS is already installed on this device.";
+                }
+
+                if (state) {
+                    state.textContent =
+                        "Installed";
+                }
+            } else {
+                if (title) {
+                    title.textContent =
+                        "Install Mobile App";
+                }
+
+                if (text) {
+                    text.textContent =
+                        available
+                            ? "Add MUTHAQUS to this device for faster access."
+                            : "Open in Chrome or Safari to install the app.";
+                }
+
+                if (state) {
+                    state.textContent =
+                        available
+                            ? "Available"
+                            : "Ready";
+                }
+            }
+        });
+}
+
+function openMuthaqusInstall() {
+    createMuthaqusPwaUi();
+
+    if (MUTHAQUS_PWA.installed()) {
+        showMuthaqusPwaToast(
+            "MUTHAQUS is already installed.",
+            "success"
+        );
+        return;
+    }
+
+    const ios =
+        MUTHAQUS_PWA.ios() &&
+        MUTHAQUS_PWA.safari();
+
+    if (
+        MUTHAQUS_PWA.prompt &&
+        !ios
+    ) {
+        triggerMuthaqusInstall();
+        return;
+    }
+
+    const modal = document.getElementById(
+        "muthaqusInstallModal"
+    );
+
+    const steps = document.getElementById(
+        "muthaqusIosSteps"
+    );
+
+    const nativeButton =
+        document.getElementById(
+            "muthaqusNativeInstall"
+        );
+
+    if (!modal) return;
+
+    modal.hidden = false;
+    document.body.classList.add(
+        "muthaqus-modal-open"
+    );
+
+    if (steps) {
+        steps.hidden = !ios;
+    }
+
+    if (nativeButton) {
+        nativeButton.hidden =
+            ios ||
+            !MUTHAQUS_PWA.prompt;
+    }
+}
+
+function closeMuthaqusInstall() {
+    const modal = document.getElementById(
+        "muthaqusInstallModal"
+    );
+
+    if (modal) {
+        modal.hidden = true;
+    }
+
+    document.body.classList.remove(
+        "muthaqus-modal-open"
+    );
+}
+
+async function triggerMuthaqusInstall() {
+    if (!MUTHAQUS_PWA.prompt) {
+        openMuthaqusInstall();
+        return;
+    }
+
+    const prompt = MUTHAQUS_PWA.prompt;
+    MUTHAQUS_PWA.prompt = null;
+
+    closeMuthaqusInstall();
+    prompt.prompt();
+
+    try {
+        const result = await prompt.userChoice;
+
+        if (result.outcome === "accepted") {
+            showMuthaqusPwaToast(
+                "Installing MUTHAQUS...",
+                "success"
+            );
+        }
+    } catch (error) {
+        console.warn(
+            "Install prompt error:",
+            error.message
+        );
+    }
+
+    syncMuthaqusInstallUi();
+}
+
+function showMuthaqusPwaToast(
+    message,
+    type = "info"
+) {
+    let toast = document.getElementById(
+        "muthaqusPwaToast"
+    );
+
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "muthaqusPwaToast";
+        document.body.appendChild(toast);
+    }
+
+    toast.className =
+        `muthaqus-pwa-toast ${type}`;
+
+    toast.innerHTML = `
+        <span>
+            ${
+                type === "success"
+                    ? "✓"
+                    : type === "offline"
+                    ? "!"
+                    : "i"
+            }
+        </span>
+
+        <strong>${String(message || "")}</strong>
+    `;
+
+    toast.hidden = false;
+
+    clearTimeout(
+        window.muthaqusPwaToastTimer
+    );
+
+    window.muthaqusPwaToastTimer =
+        setTimeout(() => {
+            toast.hidden = true;
+        }, 3600);
+}
+
+async function registerMuthaqusServiceWorker() {
+    if (
+        !("serviceWorker" in navigator) ||
+        !window.isSecureContext
+    ) {
+        return;
+    }
+
+    try {
+        const registration =
+            await navigator.serviceWorker.register(
+                "/service-worker.js",
+                {
+                    scope: "/"
+                }
+            );
+
+        registration.update();
+    } catch (error) {
+        console.warn(
+            "Service worker error:",
+            error.message
+        );
+    }
+}
+
+function initialiseMuthaqusPwa() {
+    ensureMuthaqusPwaHead();
+    createMuthaqusPwaUi();
+
+    if (MUTHAQUS_PWA.installed()) {
+        document.body.classList.add(
+            "muthaqus-standalone-app"
+        );
+    }
+
+    syncMuthaqusInstallUi();
+    registerMuthaqusServiceWorker();
+}
+
+window.addEventListener(
+    "beforeinstallprompt",
+    event => {
+        event.preventDefault();
+        MUTHAQUS_PWA.prompt = event;
+        syncMuthaqusInstallUi();
+    }
+);
+
+window.addEventListener(
+    "appinstalled",
+    () => {
+        MUTHAQUS_PWA.prompt = null;
+
+        document.body.classList.add(
+            "muthaqus-standalone-app"
+        );
+
+        closeMuthaqusInstall();
+        syncMuthaqusInstallUi();
+
+        showMuthaqusPwaToast(
+            "MUTHAQUS installed successfully.",
+            "success"
+        );
+    }
+);
+
+window.addEventListener(
+    "online",
+    () =>
+        showMuthaqusPwaToast(
+            "Connection restored.",
+            "success"
+        )
+);
+
+window.addEventListener(
+    "offline",
+    () =>
+        showMuthaqusPwaToast(
+            "You are offline. Saved pages remain available.",
+            "offline"
+        )
+);
+
+document.addEventListener(
+    "keydown",
+    event => {
+        if (event.key === "Escape") {
+            closeMuthaqusInstall();
+        }
+    }
+);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initialiseMuthaqusPwa
+);
+
+// MUTHAQUS_STEP108_INSTALLABLE_MOBILE_APP

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+    <meta name="theme-color" content="#143f73">
+    <title>Offline | MUTHAQUS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            margin: 0;
+            padding: 22px;
+            background:
+                radial-gradient(
+                    circle at 90% 4%,
+                    rgba(55, 138, 218, 0.20),
+                    transparent 31%
+                ),
+                #07111f;
+            color: #eaf2fb;
+            font-family:
+                system-ui,
+                -apple-system,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        main {
+            width: min(100%, 460px);
+            padding: 30px;
+            border: 1px solid #2b4158;
+            border-radius: 28px;
+            background: #0f1d2d;
+            box-shadow:
+                0 28px 80px
+                rgba(0, 0, 0, 0.35);
+            text-align: center;
+        }
+
+        .icon {
+            width: 78px;
+            height: 78px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 18px;
+            border: 1px solid #35516d;
+            border-radius: 24px;
+            background: #1b3249;
+            font-size: 36px;
+        }
+
+        small {
+            color: #69b4f5;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.09em;
+        }
+
+        h1 {
+            margin: 7px 0 9px;
+            font-size: 30px;
+        }
+
+        p {
+            margin: 0 auto 22px;
+            color: #9fb1c4;
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .actions {
+            display: grid;
+            gap: 9px;
+        }
+
+        button,
+        a {
+            min-height: 47px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        button {
+            border: 0;
+            background:
+                linear-gradient(
+                    180deg,
+                    #2e7fd4,
+                    #175da8
+                );
+            color: #ffffff;
+        }
+
+        a {
+            border: 1px solid #496b89;
+            background: #142a3f;
+            color: #dceaf7;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="icon">📶</div>
+
+        <small>MUTHAQUS MOBILE APP</small>
+
+        <h1>You’re Offline</h1>
+
+        <p>
+            Previously opened pages may still work,
+            but live records and payment updates need
+            an internet connection.
+        </p>
+
+        <div class="actions">
+            <button
+                type="button"
+                onclick="window.location.reload()"
+            >
+                Try Again
+            </button>
+
+            <a href="/index.html">
+                Open Saved Home Page
+            </a>
+        </div>
+    </main>
+</body>
+</html>
