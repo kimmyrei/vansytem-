@@ -94,8 +94,8 @@
                     <span class="page-kicker">APPEARANCE</span>
                     <h2>Display Theme</h2>
                     <p>
-                        Your selected theme is saved on this device
-                        and applied automatically to every system page.
+                        Your Admin theme is saved on this device
+                        and applied only to Admin Control pages.
                     </p>
                 </div>
             </div>
@@ -104,8 +104,9 @@
                 type="button"
                 class="muthaqus-theme-toggle"
                 data-muthaqus-theme-toggle
+                data-theme-scope="admin"
                 aria-pressed="false"
-                onclick="toggleMuthaqusTheme()"
+                onclick="toggleMuthaqusTheme(this)"
             >
                 <span
                     class="muthaqus-theme-toggle-icon"
@@ -428,5 +429,6 @@
 <script>loadAdminSettingsPage();</script>
 </body>
 </html>
-<!-- MUTHAQUS_STEP100_GLOBAL_DARK_MODE -->
+
 <!-- MUTHAQUS_STEP84_86_89_SECURITY_REPORT_BACKUP_RESTORE -->
+<!-- MUTHAQUS_STEP101_SEPARATE_ADMIN_PARENT_DARK_MODE -->

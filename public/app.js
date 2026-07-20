@@ -1,10 +1,108 @@
-const MUTHAQUS_THEME_KEY = "muthaqus_global_theme";
+const MUTHAQUS_ADMIN_THEME_KEY =
+    "muthaqus_admin_theme";
 
-function getMuthaqusTheme() {
+const MUTHAQUS_PARENT_THEME_KEY =
+    "muthaqus_parent_theme";
+
+const MUTHAQUS_OLD_THEME_KEY =
+    "muthaqus_global_theme";
+
+function getMuthaqusPortalScope() {
+    const buttonScope =
+        document
+            .querySelector(
+                "[data-muthaqus-theme-toggle]" +
+                "[data-theme-scope]"
+            )
+            ?.getAttribute(
+                "data-theme-scope"
+            );
+
+    if (
+        buttonScope === "admin" ||
+        buttonScope === "parent"
+    ) {
+        return buttonScope;
+    }
+
+    const page = String(
+        window.location.pathname
+            .split("/")
+            .pop() || ""
+    )
+        .split("?")[0]
+        .toLowerCase();
+
+    const bodyClass =
+        String(
+            document.body?.className || ""
+        ).toLowerCase();
+
+    const adminPage =
+        page.startsWith("admin-") ||
+        page === "admin-login.html" ||
+        page === "admin-maintenance.html" ||
+        page === "admin-analytics.html" ||
+        bodyClass.includes("admin-") ||
+        bodyClass.includes("admin ");
+
+    if (adminPage) {
+        return "admin";
+    }
+
+    const parentPageNames = new Set([
+        "parent-dashboard.html",
+        "parent-profile.html",
+        "parent-rules.html",
+        "parent-login.html",
+        "parent-register.html",
+        "add-student.html",
+        "upload-payment.html",
+        "payment-history.html"
+    ]);
+
+    const parentPage =
+        page.startsWith("parent-") ||
+        parentPageNames.has(page) ||
+        bodyClass.includes("parent-") ||
+        bodyClass.includes("parent ");
+
+    if (parentPage) {
+        return "parent";
+    }
+
+    return "public";
+}
+
+function getMuthaqusThemeStorageKey(
+    scope = getMuthaqusPortalScope()
+) {
+    if (scope === "admin") {
+        return MUTHAQUS_ADMIN_THEME_KEY;
+    }
+
+    if (scope === "parent") {
+        return MUTHAQUS_PARENT_THEME_KEY;
+    }
+
+    return "";
+}
+
+function getMuthaqusTheme(
+    scope = getMuthaqusPortalScope()
+) {
+    const key =
+        getMuthaqusThemeStorageKey(
+            scope
+        );
+
+    if (!key) {
+        return "light";
+    }
+
     try {
-        return localStorage.getItem(
-            MUTHAQUS_THEME_KEY
-        ) === "dark"
+        return localStorage.getItem(key) ===
+            "dark"
             ? "dark"
             : "light";
     } catch (error) {
@@ -16,6 +114,10 @@ function applyMuthaqusTheme(
     theme,
     options = {}
 ) {
+    const scope =
+        options.scope ||
+        getMuthaqusPortalScope();
+
     const selected =
         theme === "dark"
             ? "dark"
@@ -41,12 +143,22 @@ function applyMuthaqusTheme(
         selected
     );
 
+    root.setAttribute(
+        "data-theme-scope",
+        scope
+    );
+
     root.style.colorScheme =
         selected;
 
     document.body?.setAttribute(
         "data-theme",
         selected
+    );
+
+    document.body?.setAttribute(
+        "data-theme-scope",
+        scope
     );
 
     const themeMeta =
@@ -66,7 +178,55 @@ function applyMuthaqusTheme(
     syncMuthaqusThemeControls();
 }
 
-function setMuthaqusTheme(theme) {
+function resolveMuthaqusThemeScope(
+    source
+) {
+    if (
+        source === "admin" ||
+        source === "parent"
+    ) {
+        return source;
+    }
+
+    if (
+        source &&
+        typeof source.getAttribute ===
+            "function"
+    ) {
+        const explicit =
+            source.getAttribute(
+                "data-theme-scope"
+            );
+
+        if (
+            explicit === "admin" ||
+            explicit === "parent"
+        ) {
+            return explicit;
+        }
+    }
+
+    return getMuthaqusPortalScope();
+}
+
+function setMuthaqusTheme(
+    theme,
+    scopeSource
+) {
+    const scope =
+        resolveMuthaqusThemeScope(
+            scopeSource
+        );
+
+    const key =
+        getMuthaqusThemeStorageKey(
+            scope
+        );
+
+    if (!key) {
+        return;
+    }
+
     const selected =
         theme === "dark"
             ? "dark"
@@ -74,7 +234,7 @@ function setMuthaqusTheme(theme) {
 
     try {
         localStorage.setItem(
-            MUTHAQUS_THEME_KEY,
+            key,
             selected
         );
     } catch (error) {
@@ -84,33 +244,54 @@ function setMuthaqusTheme(theme) {
         );
     }
 
-    applyMuthaqusTheme(
-        selected,
-        {
-            animate: true
-        }
-    );
+    if (
+        scope ===
+        getMuthaqusPortalScope()
+    ) {
+        applyMuthaqusTheme(
+            selected,
+            {
+                animate: true,
+                scope
+            }
+        );
+    }
+
+    syncMuthaqusThemeControls();
 }
 
-function toggleMuthaqusTheme() {
+function toggleMuthaqusTheme(
+    source
+) {
+    const scope =
+        resolveMuthaqusThemeScope(
+            source
+        );
+
     setMuthaqusTheme(
-        getMuthaqusTheme() === "dark"
+        getMuthaqusTheme(scope) ===
+            "dark"
             ? "light"
-            : "dark"
+            : "dark",
+        scope
     );
 }
 
 function syncMuthaqusThemeControls() {
-    const isDark =
-        document.documentElement
-            .getAttribute("data-theme") ===
-        "dark";
-
     document
         .querySelectorAll(
             "[data-muthaqus-theme-toggle]"
         )
         .forEach(button => {
+            const scope =
+                resolveMuthaqusThemeScope(
+                    button
+                );
+
+            const isDark =
+                getMuthaqusTheme(scope) ===
+                "dark";
+
             button.classList.toggle(
                 "is-dark",
                 isDark
@@ -156,8 +337,16 @@ function syncMuthaqusThemeControls() {
             if (description) {
                 description.innerText =
                     isDark
-                        ? "Dark mode is active across the whole system."
-                        : "Use a darker interface that is easier on the eyes.";
+                        ? (
+                            scope === "admin"
+                                ? "Dark mode is active on Admin Control pages."
+                                : "Dark mode is active on Parent Portal pages."
+                        )
+                        : (
+                            scope === "admin"
+                                ? "Use dark mode only across Admin Control."
+                                : "Use dark mode only across Parent Portal."
+                        );
             }
 
             if (state) {
@@ -167,17 +356,44 @@ function syncMuthaqusThemeControls() {
         });
 }
 
-(function applySavedMuthaqusThemeEarly() {
+(function prepareSeparateMuthaqusThemes() {
+    try {
+        /*
+         * Remove the old shared preference once.
+         * Admin and Parent now keep independent settings.
+         */
+        localStorage.removeItem(
+            MUTHAQUS_OLD_THEME_KEY
+        );
+    } catch (error) {
+        console.warn(
+            "Old theme preference could not be cleared:",
+            error.message
+        );
+    }
+
+    const scope =
+        getMuthaqusPortalScope();
+
     applyMuthaqusTheme(
-        getMuthaqusTheme()
+        getMuthaqusTheme(scope),
+        {
+            scope
+        }
     );
 })();
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+        const scope =
+            getMuthaqusPortalScope();
+
         applyMuthaqusTheme(
-            getMuthaqusTheme()
+            getMuthaqusTheme(scope),
+            {
+                scope
+            }
         );
     }
 );
@@ -185,18 +401,32 @@ document.addEventListener(
 window.addEventListener(
     "storage",
     event => {
+        const scope =
+            getMuthaqusPortalScope();
+
+        const activeKey =
+            getMuthaqusThemeStorageKey(
+                scope
+            );
+
         if (
-            event.key ===
-            MUTHAQUS_THEME_KEY
+            activeKey &&
+            event.key === activeKey
         ) {
             applyMuthaqusTheme(
                 event.newValue === "dark"
                     ? "dark"
-                    : "light"
+                    : "light",
+                {
+                    scope
+                }
             );
         }
+
+        syncMuthaqusThemeControls();
     }
 );
+
 
 /* VanSystem localStorage connection file
    This is for testing on Netlify without database.
@@ -14920,4 +15150,4 @@ window.addEventListener("load", function () {
 
 // MUTHAQUS_STEP96_ADMIN_NAV_PARENT_PAYMENT_REMINDER_POLISH
 
-// MUTHAQUS_STEP100_GLOBAL_DARK_MODE
+// MUTHAQUS_STEP101_SEPARATE_ADMIN_PARENT_DARK_MODE

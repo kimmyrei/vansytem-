@@ -21829,5 +21829,1020 @@ html[data-theme="dark"]
     }
 }
 
-/* MUTHAQUS_STEP100_GLOBAL_DARK_MODE */
+
+
+/* =========================================================
+   MUTHAQUS — SEPARATE ADMIN/PARENT DARK MODE
+   ========================================================= */
+
+:root {
+    --mq-dark-page: #07111f;
+    --mq-dark-surface: #0f1d2d;
+    --mq-dark-surface-2: #142438;
+    --mq-dark-surface-3: #1a2d43;
+    --mq-dark-border: #2b4158;
+    --mq-dark-text: #eaf2fb;
+    --mq-dark-muted: #9fb1c4;
+    --mq-dark-accent: #69b4f5;
+}
+
+/* Independent theme settings:
+   Admin theme affects Admin pages only.
+   Parent theme affects Parent pages only. */
+html[data-theme="dark"] body {
+    background:
+        radial-gradient(
+            circle at 91% 4%,
+            rgba(40, 113, 181, 0.16),
+            transparent 30%
+        ),
+        var(--mq-dark-page)
+        !important;
+    color: var(--mq-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-shell,
+html[data-theme="dark"]
+.app-main {
+    background: transparent
+        !important;
+    color: var(--mq-dark-text)
+        !important;
+}
+
+/* Automatically replace old white/light card surfaces. */
+html[data-theme="dark"] .hero-img,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .form-container,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .table-box,
+html[data-theme="dark"] .unpaid,
+html[data-theme="dark"] .announcement,
+html[data-theme="dark"] .tagline,
+html[data-theme="dark"] .mini-dashboard,
+html[data-theme="dark"] .feature-card,
+html[data-theme="dark"] .payment-card,
+html[data-theme="dark"] .cta-section,
+html[data-theme="dark"] .login-page,
+html[data-theme="dark"] .login-badge,
+html[data-theme="dark"] .login-benefits div,
+html[data-theme="dark"] .morning,
+html[data-theme="dark"] .afternoon,
+html[data-theme="dark"] .form-page,
+html[data-theme="dark"] .announcement-form-card,
+html[data-theme="dark"] .urgent-box,
+html[data-theme="dark"] .important-box,
+html[data-theme="dark"] .normal-box,
+html[data-theme="dark"] .payment-upload-page,
+html[data-theme="dark"] .bank-card,
+html[data-theme="dark"] .payment-status-box,
+html[data-theme="dark"] .quick-panel,
+html[data-theme="dark"] .quick-action,
+html[data-theme="dark"] .admin-login-page,
+html[data-theme="dark"] .admin-demo-box,
+html[data-theme="dark"] .notice-box,
+html[data-theme="dark"] .nav-admin,
+html[data-theme="dark"] .business-hero,
+html[data-theme="dark"] .business-badge,
+html[data-theme="dark"] .secondary-cta,
+html[data-theme="dark"] .business-trust div,
+html[data-theme="dark"] .overview-card,
+html[data-theme="dark"] .business-feature-card,
+html[data-theme="dark"] .process-card,
+html[data-theme="dark"] .process-section,
+html[data-theme="dark"] .payment-btn,
+html[data-theme="dark"] .admin-mini-grid div,
+html[data-theme="dark"] .final-cta,
+html[data-theme="dark"] .family-hero,
+html[data-theme="dark"] .route-visual,
+html[data-theme="dark"] .route-point {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] /* ===== MUTHAQUS GLOBAL ENTERPRISE COVERED SCHOOLS SECTION ===== */ .covered-schools-section,
+html[data-theme="dark"] .school-card,
+html[data-theme="dark"] .school-icon,
+html[data-theme="dark"] /* ===== CLEAN CHILD REGISTRATION PAGE ===== */ .child-register-page,
+html[data-theme="dark"] .route-step,
+html[data-theme="dark"] .route-step span,
+html[data-theme="dark"] .child-register-card input,
+html[data-theme="dark"] .child-register-card select,
+html[data-theme="dark"] .child-register-card textarea,
+html[data-theme="dark"] .service-card-header span,
+html[data-theme="dark"] .payment-page-pro,
+html[data-theme="dark"] .payment-steps-card,
+html[data-theme="dark"] .payment-step,
+html[data-theme="dark"] .modern-payment-form input,
+html[data-theme="dark"] .modern-payment-form select,
+html[data-theme="dark"] .modern-payment-form textarea,
+html[data-theme="dark"] .upload-box,
+html[data-theme="dark"] .upload-box input,
+html[data-theme="dark"] .verify-page,
+html[data-theme="dark"] .verify-card,
+html[data-theme="dark"] .verify-email-box,
+html[data-theme="dark"] .resend-btn,
+html[data-theme="dark"] .demo-code-box,
+html[data-theme="dark"] .admin-pill,
+html[data-theme="dark"] .feature-pro-card,
+html[data-theme="dark"] .school-pro-card,
+html[data-theme="dark"] .process-pro-card,
+html[data-theme="dark"] .payment-process-mini,
+html[data-theme="dark"] .payment-process-mini span,
+html[data-theme="dark"] .cta-pro,
+html[data-theme="dark"] .demo-box-pro,
+html[data-theme="dark"] .page-hero-bar,
+html[data-theme="dark"] .route-step-pro span,
+html[data-theme="dark"] .upload-box-pro input,
+html[data-theme="dark"] .history-count-pill,
+html[data-theme="dark"] .announcement-card-pro,
+html[data-theme="dark"] .faq-card-pro,
+html[data-theme="dark"] .faq-question,
+html[data-theme="dark"] .faq-question strong,
+html[data-theme="dark"] .faq-card-pro.open .faq-question,
+html[data-theme="dark"] .approval-status-guide,
+html[data-theme="dark"] .approval-status-card,
+html[data-theme="dark"] .approval-status-card span,
+html[data-theme="dark"] .rules-hero,
+html[data-theme="dark"] .rule-card {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .rule-icon,
+html[data-theme="dark"] .admin-rule-icon,
+html[data-theme="dark"] .table-box::-webkit-scrollbar-thumb,
+html[data-theme="dark"] .table-box-pro::-webkit-scrollbar-thumb,
+html[data-theme="dark"] .modal-close-btn,
+html[data-theme="dark"] .mutahus-skip-link,
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .taskbar-links a.mutahus-current-link,
+html[data-theme="dark"] .invoice-download-btn,
+html[data-theme="dark"] .invoice-download-btn.is-disabled,
+html[data-theme="dark"] .invoice-admin-btn,
+html[data-theme="dark"] .profile-overview-card,
+html[data-theme="dark"] .profile-mini-card,
+html[data-theme="dark"] .profile-quick-links a,
+html[data-theme="dark"] .parent-rules-card,
+html[data-theme="dark"] .record-avatar,
+html[data-theme="dark"] .record-number-pill,
+html[data-theme="dark"] /* MUTHAQUS_STEP62_ADMIN_MOBILE_RECORD_CARDS */ /* ========================================================= MUTHAQUS_STEP63_ADMIN_LOGIN_PDF_RECENT_PAYMENT_POLISH ========================================================= */ /* ---------- Admin Login ---------- */ .page-admin-login,
+html[data-theme="dark"] .page-admin-login .admin-login-security-badge,
+html[data-theme="dark"] .page-admin-login .admin-login-icon,
+html[data-theme="dark"] .page-admin-login .auth-card-pro input,
+html[data-theme="dark"] .muthaqus-receipt-card,
+html[data-theme="dark"] .muthaqus-receipt-image,
+html[data-theme="dark"] .muthaqus-receipt-pdf-object,
+html[data-theme="dark"] .muthaqus-mobile-pdf-card,
+html[data-theme="dark"] .muthaqus-pdf-icon,
+html[data-theme="dark"] .recent-payment-avatar,
+html[data-theme="dark"] .admin-dashboard-payment-heading > span,
+html[data-theme="dark"] /* MUTHAQUS_STEP63_ADMIN_LOGIN_PDF_RECENT_PAYMENT_POLISH */ /* MUTHAQUS_STEP64_PAYMENT_ANNOUNCEMENT_RULES_POLISH */ .s64-card,
+html[data-theme="dark"] .s64-count,
+html[data-theme="dark"] .s64-person>span,
+html[data-theme="dark"] .s64-empty-card,
+html[data-theme="dark"] .s64-ann-card,
+html[data-theme="dark"] .s64-ann-title>span,
+html[data-theme="dark"] .s64-rule-card,
+html[data-theme="dark"] .s64-rule-icon,
+html[data-theme="dark"] .step67-settings-hero,
+html[data-theme="dark"] .step67-settings-card,
+html[data-theme="dark"] .step67-heading-icon,
+html[data-theme="dark"] .step67-heading-icon.backup,
+html[data-theme="dark"] .step67-heading-icon.password,
+html[data-theme="dark"] .step67-admin-profile,
+html[data-theme="dark"] .step67-quick-links a {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .step67-password-warning,
+html[data-theme="dark"] .step68-record-count,
+html[data-theme="dark"] .step68-child-card,
+html[data-theme="dark"] .step68-payment-card,
+html[data-theme="dark"] .step68-child-identity > span,
+html[data-theme="dark"] .step68-empty-panel,
+html[data-theme="dark"] .muthaqus-security-card,
+html[data-theme="dark"] .muthaqus-security-icon,
+html[data-theme="dark"] .muthaqus-security-countdown,
+html[data-theme="dark"] .muthaqus-session-expired-notice > span,
+html[data-theme="dark"] /* MUTHAQUS_STEP69_AUTO_SIGN_OUT_SECURITY */ /* ========================================================= MUTHAQUS_STEP70_PARENT_DUE_PROFILE_CHILD_RULES_POLISH ========================================================= */ .step70-parent-hero,
+html[data-theme="dark"] .step70-payment-due-card,
+html[data-theme="dark"] .step70-due-card-top > span,
+html[data-theme="dark"] .step70-due-card-top b,
+html[data-theme="dark"] .step70-payment-due-card.is-paid,
+html[data-theme="dark"] .step70-payment-due-card.is-paid .step70-due-card-top b,
+html[data-theme="dark"] .step70-payment-due-card.is-pending .step70-due-card-top b,
+html[data-theme="dark"] .step70-payment-due-card.is-overdue,
+html[data-theme="dark"] .step70-payment-due-card.is-rejected,
+html[data-theme="dark"] .step70-payment-due-card.is-overdue .step70-due-card-top b,
+html[data-theme="dark"] .step70-payment-due-card.is-rejected .step70-due-card-top b,
+html[data-theme="dark"] .step70-dashboard-section,
+html[data-theme="dark"] .step70-empty-announcement > span,
+html[data-theme="dark"] .step70-child-identity > span,
+html[data-theme="dark"] .step70-profile-overview,
+html[data-theme="dark"] .step70-profile-completion,
+html[data-theme="dark"] .step70-progress-track,
+html[data-theme="dark"] .step70-profile-quick-actions a,
+html[data-theme="dark"] .step70-security-form-card,
+html[data-theme="dark"] /* ---------- Register Child ---------- */ .step70-child-progress-card,
+html[data-theme="dark"] .step70-form-section,
+html[data-theme="dark"] .step70-form-section input,
+html[data-theme="dark"] .step70-form-section select,
+html[data-theme="dark"] .step70-form-section textarea,
+html[data-theme="dark"] .step70-child-help-card,
+html[data-theme="dark"] .step70-side-icon,
+html[data-theme="dark"] .step70-review-card,
+html[data-theme="dark"] .step70-review-step b,
+html[data-theme="dark"] .step70-whatsapp-help,
+html[data-theme="dark"] .step70-rules-main-card,
+html[data-theme="dark"] .step70-public-rule-card,
+html[data-theme="dark"] .step70-rule-icon,
+html[data-theme="dark"] .step70-rules-loading,
+html[data-theme="dark"] .step70-safety-card,
+html[data-theme="dark"] /* --------------------------------------------------------- Page headers {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] /* MUTHAQUS_STEP76_FRIENDLY_TEXT_ALL_MOBILE_POLISH */ /* ========================================================= MUTHAQUS_STEP77_PREVIOUS_MONTH_ARREARS_REMINDER ========================================================= */ .step70-payment-due-card.is-arrears,
+html[data-theme="dark"] .step77-month-chip.overdue,
+html[data-theme="dark"] .step77-month-chip.more,
+html[data-theme="dark"] .step78-service-start-box,
+html[data-theme="dark"] .step78-service-start-box input,
+html[data-theme="dark"] .step77-breakdown-icon,
+html[data-theme="dark"] .step77-month-chip.overdue b,
+html[data-theme="dark"] .step77-month-chip.more b,
+html[data-theme="dark"] /* Admin arrears section */ .step80-arrears-section,
+html[data-theme="dark"] .step80-arrears-count,
+html[data-theme="dark"] .step80-arrears-card,
+html[data-theme="dark"] .step80-arrears-parent > span,
+html[data-theme="dark"] .step80-arrears-status.overdue,
+html[data-theme="dark"] .step80-arrears-status.review,
+html[data-theme="dark"] .step80-arrears-money > div,
+html[data-theme="dark"] .step80-arrears-money > div:first-child,
+html[data-theme="dark"] .step80-arrears-children span,
+html[data-theme="dark"] .step80-admin-month-chip.overdue,
+html[data-theme="dark"] .step80-admin-month-chip.review,
+html[data-theme="dark"] .step80-arrears-empty,
+html[data-theme="dark"] /* Outstanding upload page */ .step80-arrears-upload-panel,
+html[data-theme="dark"] .step80-arrears-upload-head > span,
+html[data-theme="dark"] .step80-arrears-upload-months > div,
+html[data-theme="dark"] /* ---------- Student Management ---------- */ .step81-student-management-section,
+html[data-theme="dark"] .step81-student-count,
+html[data-theme="dark"] .step81-student-card,
+html[data-theme="dark"] .step81-student-identity > span,
+html[data-theme="dark"] .step81-student-empty,
+html[data-theme="dark"] .step81-arrears-priority.urgent,
+html[data-theme="dark"] .step81-arrears-priority.review,
+html[data-theme="dark"] .step82-student-counts > div,
+html[data-theme="dark"] .step82-family-card,
+html[data-theme="dark"] .step82-parent-avatar,
+html[data-theme="dark"] .step82-view-children,
+html[data-theme="dark"] .step82-view-children b,
+html[data-theme="dark"] .step82-family-bulk-actions,
+html[data-theme="dark"] .step82-family-children,
+html[data-theme="dark"] .step82-family-children-head > span,
+html[data-theme="dark"] .step82-child-card,
+html[data-theme="dark"] .step82-child-identity > span,
+html[data-theme="dark"] .step82-child-settings > section,
+html[data-theme="dark"] .step82-child-settings > section.fee,
+html[data-theme="dark"] .step82-setting-title > span,
+html[data-theme="dark"] .step82-child-settings input,
+html[data-theme="dark"] /* ---------------- Monthly payment tracker ---------------- */ .step82-monthly-tracker {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .step82-payment-history-section,
+html[data-theme="dark"] .step82-month-selector,
+html[data-theme="dark"] .step82-month-selector select,
+html[data-theme="dark"] .step82-month-panel,
+html[data-theme="dark"] .step82-month-panel.needs-payment,
+html[data-theme="dark"] .step82-month-panel > header,
+html[data-theme="dark"] .step82-month-panel.needs-payment > header,
+html[data-theme="dark"] .step82-month-panel > header > div > span,
+html[data-theme="dark"] .step82-month-panel.needs-payment > header > div > span,
+html[data-theme="dark"] .step82-month-panel > header > b,
+html[data-theme="dark"] .step82-month-panel.needs-payment > header > b,
+html[data-theme="dark"] .step82-month-account-card,
+html[data-theme="dark"] .step82-month-parent > span,
+html[data-theme="dark"] .step82-month-status.review,
+html[data-theme="dark"] .step82-month-status.partial,
+html[data-theme="dark"] .step82-month-status.unpaid,
+html[data-theme="dark"] .step82-month-children span,
+html[data-theme="dark"] .step82-month-empty,
+html[data-theme="dark"] /* ---------------- Payment history grouped by month ---------------- */ .step82-history-count,
+html[data-theme="dark"] .step82-payment-month-group,
+html[data-theme="dark"] .step82-payment-month-heading > span,
+html[data-theme="dark"] .step82-payment-record-grid,
+html[data-theme="dark"] .step82-payment-record-card,
+html[data-theme="dark"] .step82-payment-person > span,
+html[data-theme="dark"] /* MUTHAQUS_STEP82_FAMILY_STUDENT_MONTHLY_PAYMENT_SYSTEM */ /* ========================================================= MUTHAQUS SECURITY,
+html[data-theme="dark"] REPORT & RECOVERY SECURITY,
+html[data-theme="dark"] MONTHLY REPORT,
+html[data-theme="dark"] BACKUP & RESTORE ========================================================= */ /* Login Security */ .step84-login-status,
+html[data-theme="dark"] .step84-login-status.warning,
+html[data-theme="dark"] /* Settings Security Overview */ .step84-settings-hero,
+html[data-theme="dark"] .step84-security-overview article,
+html[data-theme="dark"] .step84-security-overview article > span,
+html[data-theme="dark"] .step84-settings-card,
+html[data-theme="dark"] .step84-card-heading > span,
+html[data-theme="dark"] .step84-admin-profile,
+html[data-theme="dark"] .step84-password-form input,
+html[data-theme="dark"] .step84-activity-section,
+html[data-theme="dark"] .step89-recovery-section,
+html[data-theme="dark"] .step86-closing-report,
+html[data-theme="dark"] .step84-activity-count,
+html[data-theme="dark"] .step84-activity-icon,
+html[data-theme="dark"] .step84-category,
+html[data-theme="dark"] .step84-activity-empty,
+html[data-theme="dark"] .step86-report-empty,
+html[data-theme="dark"] /* Backup & Restore */ .step89-recovery-section {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .step89-restore-card,
+html[data-theme="dark"] .step89-large-icon,
+html[data-theme="dark"] .step89-restore-title > span,
+html[data-theme="dark"] .step89-file-drop,
+html[data-theme="dark"] .step89-confirm-check,
+html[data-theme="dark"] /* Step 86: Monthly Closing Report */ .step86-closing-report,
+html[data-theme="dark"] .step86-rate-panel,
+html[data-theme="dark"] .step86-trend.positive,
+html[data-theme="dark"] .step86-trend.negative,
+html[data-theme="dark"] .step86-progress-track,
+html[data-theme="dark"] .step86-attention-panel,
+html[data-theme="dark"] .step86-attention-panel > header,
+html[data-theme="dark"] .step86-attention-panel > header > div > span,
+html[data-theme="dark"] .step86-report-status.review,
+html[data-theme="dark"] .step86-report-status.partial,
+html[data-theme="dark"] .step86-report-status.unpaid,
+html[data-theme="dark"] .step93-duplicate-badge,
+html[data-theme="dark"] .step93-safe-badge,
+html[data-theme="dark"] .step95-kpis article,
+html[data-theme="dark"] .step95-kpis article > span,
+html[data-theme="dark"] .step94-form-card,
+html[data-theme="dark"] .step94-record-card,
+html[data-theme="dark"] .step95-panel,
+html[data-theme="dark"] .step94-heading > span,
+html[data-theme="dark"] .step95-panel-head > span,
+html[data-theme="dark"] .step94-form-grid input,
+html[data-theme="dark"] .step94-form-grid select,
+html[data-theme="dark"] .step94-form-grid textarea,
+html[data-theme="dark"] .step94-visible,
+html[data-theme="dark"] .step94-expense-card,
+html[data-theme="dark"] .step94-expense-card header > span,
+html[data-theme="dark"] .step94-empty,
+html[data-theme="dark"] .step95-hero-actions select,
+html[data-theme="dark"] .step95-bars > div > div,
+html[data-theme="dark"] .step95-expense-breakdown article,
+html[data-theme="dark"] .step95-expense-breakdown article > span,
+html[data-theme="dark"] .step95-forecast > div,
+html[data-theme="dark"] .step94-quick-links a,
+html[data-theme="dark"] .step94-quick-links a > span,
+html[data-theme="dark"] /* --------------------------------------------------------- Parent Payment Due Reminder — clean premium card --------------------------------------------------------- */ .step70-payment-due-card,
+html[data-theme="dark"] .step70-payment-due-card.is-arrears,
+html[data-theme="dark"] .step70-payment-due-card.is-arrears .step70-due-card-top > span,
+html[data-theme="dark"] .step70-payment-due-card.is-overdue .step70-due-card-top > span,
+html[data-theme="dark"] .step70-payment-due-card.is-rejected .step70-due-card-top > span,
+html[data-theme="dark"] /* Breakdown becomes a compact {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .step96-overdue-month-count,
+html[data-theme="dark"] .step77-month-chip b,
+html[data-theme="dark"] /* Premium clean Payment Due Reminder */ .page-parent-dashboard .step70-payment-due-card,
+html[data-theme="dark"] .step77-due-breakdown,
+html[data-theme="dark"] /* Brand-new Payment Due breakdown; independent from old chip styles. */ .step98-arrears-panel,
+html[data-theme="dark"] .step98-arrears-heading > span,
+html[data-theme="dark"] .step98-arrears-count,
+html[data-theme="dark"] .step98-arrears-value,
+html[data-theme="dark"] /* Appearance card */ .muthaqus-appearance-panel,
+html[data-theme="dark"] .muthaqus-appearance-icon,
+html[data-theme="dark"] .muthaqus-theme-toggle,
+html[data-theme="dark"] .muthaqus-theme-toggle-icon,
+html[data-theme="dark"] .muthaqus-theme-switch > span,
+html[data-theme="dark"] .muthaqus-theme-toggle > b {
+    background: #0f1d2d !important;
+    border-color: #2b4158 !important;
+    color: #eaf2fb !important;
+}
+
+
+html[data-theme="dark"] .trust-row div,
+html[data-theme="dark"] .after-register-info,
+html[data-theme="dark"] .announcement-preview-card,
+html[data-theme="dark"] .payment-note,
+html[data-theme="dark"] .admin-feature-list div,
+html[data-theme="dark"] .admin-preview-card,
+html[data-theme="dark"] .route-summary-card,
+html[data-theme="dark"] .service-checklist div,
+html[data-theme="dark"] .secure-note,
+html[data-theme="dark"] .bank-detail-box,
+html[data-theme="dark"] .route-preview-clean,
+html[data-theme="dark"] .route-item,
+html[data-theme="dark"] .info-list-pro div,
+html[data-theme="dark"] .info-grid-pro div,
+html[data-theme="dark"] .route-summary-pro,
+html[data-theme="dark"] .rules-admin-note,
+html[data-theme="dark"] .parent-detail-content,
+html[data-theme="dark"] .parent-info-card,
+html[data-theme="dark"] .parent-detail-section,
+html[data-theme="dark"] /* ===== MONGODB STEP 2 NOTE ===== */ .mongodb-note,
+html[data-theme="dark"] .rules-list-pro .rule-card-pro,
+html[data-theme="dark"] .rules-list-pro .rule-icon,
+html[data-theme="dark"] .rules-side-note-pro,
+html[data-theme="dark"] .rules-side-note-pro > span,
+html[data-theme="dark"] .page-admin-login .admin-login-safe-note,
+html[data-theme="dark"] .muthaqus-receipt-note,
+html[data-theme="dark"] .page-admin-dashboard .admin-recent-payment-row,
+html[data-theme="dark"] .page-admin-dashboard .admin-recent-empty-row td,
+html[data-theme="dark"] .s64-filter,
+html[data-theme="dark"] .s64-parent-preview,
+html[data-theme="dark"] .s64-parent-preview.urgent,
+html[data-theme="dark"] .s64-parent-preview.important,
+html[data-theme="dark"] .s64-payment-row,
+html[data-theme="dark"] .step67-info-list > div,
+html[data-theme="dark"] .step67-backup-summary > div,
+html[data-theme="dark"] .step67-security-note,
+html[data-theme="dark"] .step68-parent-detail-content,
+html[data-theme="dark"] .step68-contact-actions,
+html[data-theme="dark"] .step68-contact-actions a,
+html[data-theme="dark"] .step68-parent-summary article,
+html[data-theme="dark"] .step68-parent-summary article > span,
+html[data-theme="dark"] .step68-detail-section,
+html[data-theme="dark"] .step68-detail-list > div,
+html[data-theme="dark"] .step70-profile-contact-list > div,
+html[data-theme="dark"] .step70-profile-contact-list > div > span {
+    background: #142438 !important;
+    border-color: #314a63 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .step70-security-note,
+html[data-theme="dark"] .step70-submit-note,
+html[data-theme="dark"] .step70-rules-note-card,
+html[data-theme="dark"] .step70-rules-summary article,
+html[data-theme="dark"] .step70-rules-summary article > span,
+html[data-theme="dark"] .step70-parent-child-row,
+html[data-theme="dark"] .step80-arrears-summary article,
+html[data-theme="dark"] .step80-arrears-summary article > span,
+html[data-theme="dark"] .step80-arrears-filter,
+html[data-theme="dark"] .step80-arrears-filter input,
+html[data-theme="dark"] .step80-arrears-filter select,
+html[data-theme="dark"] .step81-student-filter,
+html[data-theme="dark"] .step81-student-filter input,
+html[data-theme="dark"] .step81-student-filter select,
+html[data-theme="dark"] .step81-student-info-grid > div,
+html[data-theme="dark"] .step81-student-info-grid > div > span:first-child,
+html[data-theme="dark"] .step81-control-card,
+html[data-theme="dark"] .step81-control-card.amount,
+html[data-theme="dark"] .step81-control-title > span,
+html[data-theme="dark"] .step81-control-card.amount .step81-control-title > span,
+html[data-theme="dark"] .step81-control-card input,
+html[data-theme="dark"] .step82-family-metrics > div,
+html[data-theme="dark"] .step82-child-information > div,
+html[data-theme="dark"] .step82-month-summary article,
+html[data-theme="dark"] .step82-month-summary article > span,
+html[data-theme="dark"] .step82-month-filter,
+html[data-theme="dark"] .step82-history-filter,
+html[data-theme="dark"] .step82-month-filter input,
+html[data-theme="dark"] .step82-month-filter select,
+html[data-theme="dark"] .step82-history-filter input,
+html[data-theme="dark"] .step82-history-filter select,
+html[data-theme="dark"] .step82-month-amounts > div,
+html[data-theme="dark"] .step82-payment-month-group > summary,
+html[data-theme="dark"] .step82-payment-month-summary span,
+html[data-theme="dark"] .step82-payment-month-summary strong,
+html[data-theme="dark"] .step82-payment-month-summary b,
+html[data-theme="dark"] .step82-payment-record-info > div,
+html[data-theme="dark"] .step84-info-list > div,
+html[data-theme="dark"] .step84-activity-summary article,
+html[data-theme="dark"] .step84-activity-summary article > span,
+html[data-theme="dark"] .step84-activity-filter,
+html[data-theme="dark"] .step84-activity-filter input,
+html[data-theme="dark"] .step84-activity-filter select,
+html[data-theme="dark"] .step84-activity-item,
+html[data-theme="dark"] .step89-backup-info {
+    background: #142438 !important;
+    border-color: #314a63 !important;
+    color: #eaf2fb !important;
+}
+
+html[data-theme="dark"] .step89-backup-info > div:not(.step89-private-note),
+html[data-theme="dark"] .step89-private-note,
+html[data-theme="dark"] .step89-backup-preview,
+html[data-theme="dark"] .step89-backup-preview header > span,
+html[data-theme="dark"] .step89-backup-preview header b,
+html[data-theme="dark"] .step89-preview-counts > div,
+html[data-theme="dark"] .step89-restore-controls select,
+html[data-theme="dark"] .step89-restore-controls input,
+html[data-theme="dark"] .step86-report-controls select,
+html[data-theme="dark"] .step86-report-summary article,
+html[data-theme="dark"] .step86-report-summary article > span,
+html[data-theme="dark"] .step86-report-summary .collected,
+html[data-theme="dark"] .step86-report-summary .outstanding,
+html[data-theme="dark"] .step86-report-summary .rate,
+html[data-theme="dark"] .step86-attention-item,
+html[data-theme="dark"] .step94-summary article,
+html[data-theme="dark"] .step94-summary article > span,
+html[data-theme="dark"] .step94-filter,
+html[data-theme="dark"] .step94-expense-details > div,
+html[data-theme="dark"] .step94-expense-note,
+html[data-theme="dark"] .step95-status-list > div,
+html[data-theme="dark"] structured payment list. */ .step77-due-breakdown,
+html[data-theme="dark"] .step98-arrears-row.overdue,
+html[data-theme="dark"] .step98-arrears-row.review,
+html[data-theme="dark"] .step98-arrears-row.more,
+html[data-theme="dark"] .step98-arrears-row-icon,
+html[data-theme="dark"] .step98-arrears-row.review .step98-arrears-row-icon,
+html[data-theme="dark"] .step98-arrears-row.more .step98-arrears-row-icon,
+html[data-theme="dark"] .step98-arrears-row.review .step98-arrears-value,
+html[data-theme="dark"] .step98-arrears-row.more .step98-arrears-value {
+    background: #142438 !important;
+    border-color: #314a63 !important;
+    color: #eaf2fb !important;
+}
+
+
+/* Strong coverage for remaining cards and containers. */
+html[data-theme="dark"]
+.app-main :is(
+    article[class],
+    fieldset,
+    .page-hero-bar,
+    .form-card-pro,
+    .stat-card,
+    .pro-stat,
+    .modal-content,
+    .dialog-card,
+    .table-container,
+    .table-wrapper,
+    .admin-record-table-shell,
+    [class$="-card"],
+    [class*="-card "],
+    [class$="-panel"],
+    [class*="-panel "],
+    [class$="-box"],
+    [class*="-box "],
+    [class$="-shell"],
+    [class*="-shell "],
+    [class$="-overview"],
+    [class*="-overview "],
+    [class$="-tracker"],
+    [class*="-tracker "],
+    [class$="-history"],
+    [class*="-history "]
+) {
+    border-color:
+        var(--mq-dark-border)
+        !important;
+    background:
+        var(--mq-dark-surface)
+        !important;
+    color:
+        var(--mq-dark-text)
+        !important;
+    box-shadow:
+        0 16px 38px
+        rgba(0, 0, 0, 0.24)
+        !important;
+}
+
+/* Nested boxes should be a slightly lighter dark shade. */
+html[data-theme="dark"]
+.app-main :is(
+    [class$="-item"],
+    [class*="-item "],
+    [class$="-row"],
+    [class*="-row "],
+    [class$="-details"],
+    [class*="-details "],
+    [class$="-info"],
+    [class*="-info "],
+    [class$="-metric"],
+    [class*="-metric "],
+    [class$="-filter"],
+    [class*="-filter "],
+    [class$="-controls"],
+    [class*="-controls "],
+    [class$="-preview"],
+    [class*="-preview "],
+    [class$="-note"],
+    [class*="-note "]
+) {
+    border-color: #314a63
+        !important;
+    background:
+        var(--mq-dark-surface-2)
+        !important;
+    color:
+        var(--mq-dark-text)
+        !important;
+}
+
+/* Remove visible white gaps inside tables and records. */
+html[data-theme="dark"]
+:is(
+    table,
+    thead,
+    tbody,
+    tr,
+    th,
+    td
+) {
+    border-color:
+        var(--mq-dark-border)
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    table,
+    tbody,
+    tr,
+    td
+) {
+    background:
+        var(--mq-dark-surface)
+        !important;
+    color:
+        var(--mq-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    thead,
+    th
+) {
+    background: #173451
+        !important;
+    color: #f4f8fc
+        !important;
+}
+
+html[data-theme="dark"]
+tbody tr:nth-child(even) td {
+    background: #122237
+        !important;
+}
+
+html[data-theme="dark"]
+tbody tr:hover td {
+    background: #1a3047
+        !important;
+}
+
+/* Clear and consistent typography. */
+html[data-theme="dark"]
+.app-main :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    strong,
+    .form-header h2,
+    .page-hero-bar h1
+) {
+    color:
+        var(--mq-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-main :is(
+    p,
+    small,
+    .helper-text,
+    .muted,
+    .page-hero-bar p,
+    .form-header p
+) {
+    color:
+        var(--mq-dark-muted)
+        !important;
+}
+
+html[data-theme="dark"]
+.app-main
+.page-kicker {
+    color:
+        var(--mq-dark-accent)
+        !important;
+}
+
+/* Form controls. */
+html[data-theme="dark"]
+:is(
+    input,
+    select,
+    textarea
+) {
+    border-color: #38536d
+        !important;
+    background: #0a1725
+        !important;
+    color:
+        var(--mq-dark-text)
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    input,
+    textarea
+)::placeholder {
+    color: #6f8398
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    input,
+    select,
+    textarea
+):focus {
+    border-color: #64acf0
+        !important;
+    box-shadow:
+        0 0 0 3px
+        rgba(82, 155, 225, 0.18)
+        !important;
+}
+
+/* Light buttons must not stay white in dark mode. */
+html[data-theme="dark"]
+:is(
+    .btn-light-pro,
+    .btn-outline-pro,
+    .secondary-btn,
+    .outline-btn
+) {
+    border-color: #496b89
+        !important;
+    background: #142a3f
+        !important;
+    color: #dceaf7
+        !important;
+}
+
+html[data-theme="dark"]
+:is(
+    .btn-light-pro,
+    .btn-outline-pro,
+    .secondary-btn,
+    .outline-btn
+):hover {
+    background: #1c3954
+        !important;
+}
+
+/* Icons remain visible without bright white squares. */
+html[data-theme="dark"]
+.app-main :is(
+    [class$="-icon"],
+    [class*="-icon "],
+    .parent-mini-icon,
+    .muthaqus-appearance-icon,
+    .muthaqus-theme-toggle-icon
+) {
+    border-color: #35516d
+        !important;
+    background: #1b3249
+        !important;
+    color: #8bc7f6
+        !important;
+}
+
+/* Status colours remain meaningful. */
+html[data-theme="dark"]
+.badge.paid,
+html[data-theme="dark"]
+.status-paid {
+    border-color: #2e7852
+        !important;
+    background: #173c2b
+        !important;
+    color: #8ae4b3
+        !important;
+}
+
+html[data-theme="dark"]
+.badge.pending,
+html[data-theme="dark"]
+.status-pending {
+    border-color: #80651f
+        !important;
+    background: #423515
+        !important;
+    color: #ffe18b
+        !important;
+}
+
+html[data-theme="dark"]
+.badge.rejected,
+html[data-theme="dark"]
+.status-rejected {
+    border-color: #7f3e48
+        !important;
+    background: #47242b
+        !important;
+    color: #ffb1b9
+        !important;
+}
+
+/* Payment Due Reminder: fully systematic dark palette. */
+html[data-theme="dark"]
+.step70-payment-due-card {
+    border-color: #613a46
+        !important;
+    background:
+        linear-gradient(
+            145deg,
+            #231820,
+            #151923
+        )
+        !important;
+}
+
+html[data-theme="dark"]
+.step70-due-card-top {
+    border-bottom-color: #583542
+        !important;
+}
+
+html[data-theme="dark"]
+.step70-due-breakdown {
+    border-color: #613a46
+        !important;
+    background: #251921
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.overdue {
+    border-color: #70434d
+        !important;
+    background: #2b1d25
+        !important;
+    color: #ffc2c8
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.pending {
+    border-color: #75602d
+        !important;
+    background: #2d2718
+        !important;
+    color: #f8d97c
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.more {
+    border-color:
+        var(--mq-dark-border)
+        !important;
+    background:
+        var(--mq-dark-surface-2)
+        !important;
+    color: #b7c9da
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip b {
+    background: #4d2933
+        !important;
+    color: #ffc2c8
+        !important;
+}
+
+html[data-theme="dark"]
+.step77-month-chip.pending b {
+    background: #4b3d18
+        !important;
+    color: #ffe38f
+        !important;
+}
+
+/* Maintenance and Analytics. */
+html[data-theme="dark"]
+.step94-expense-card,
+html[data-theme="dark"]
+.step95-panel,
+html[data-theme="dark"]
+.step94-form-card,
+html[data-theme="dark"]
+.step94-record-card {
+    background:
+        var(--mq-dark-surface)
+        !important;
+}
+
+html[data-theme="dark"]
+.step94-expense-details > div,
+html[data-theme="dark"]
+.step95-status-list > div,
+html[data-theme="dark"]
+.step95-expense-breakdown article,
+html[data-theme="dark"]
+.step95-forecast > div {
+    border-color: #314a63
+        !important;
+    background:
+        var(--mq-dark-surface-2)
+        !important;
+}
+
+/* Theme control is attractive in both modes. */
+html[data-theme="dark"]
+.muthaqus-appearance-panel {
+    background:
+        linear-gradient(
+            145deg,
+            #0f1d2d,
+            #12253a
+        )
+        !important;
+}
+
+html[data-theme="dark"]
+.muthaqus-theme-toggle {
+    border-color: #456587
+        !important;
+    background:
+        linear-gradient(
+            145deg,
+            #15273b,
+            #0d1c2d
+        )
+        !important;
+}
+
+/* Remove remaining white pseudo-decoration in dark mode. */
+html[data-theme="dark"]
+.app-main
+[class]::before,
+html[data-theme="dark"]
+.app-main
+[class]::after {
+    border-color:
+        var(--mq-dark-border);
+}
+
+/* Mobile navigation and mobile page header. */
+html[data-theme="dark"]
+.mobile-app-header,
+html[data-theme="dark"]
+.mobile-bottom-nav {
+    border-color:
+        var(--mq-dark-border)
+        !important;
+    background: #0d1c2c
+        !important;
+    color:
+        var(--mq-dark-text)
+        !important;
+}
+
+@media (max-width: 860px) {
+    html[data-theme="dark"]
+    .app-main {
+        background:
+            var(--mq-dark-page)
+            !important;
+    }
+
+    html[data-theme="dark"]
+    .mobile-bottom-nav a {
+        color: #9fb4c8
+            !important;
+    }
+
+    html[data-theme="dark"]
+    .mobile-bottom-nav a.active {
+        color: #83c4f6
+            !important;
+    }
+}
+
+/* MUTHAQUS_STEP101_SEPARATE_ADMIN_PARENT_DARK_MODE */
 
