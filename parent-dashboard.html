@@ -7,7 +7,7 @@
     <title>Parent Dashboard | MUTHAQUS GLOBAL ENTERPRISE</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page-parent-dashboard step70-parent-dashboard step71-parent-mobile-dashboard">
+<body class="page-parent-dashboard step70-parent-dashboard step71-parent-mobile-dashboard step99-compact-parent-summary">
 
 <div class="app-shell">
     
@@ -121,21 +121,30 @@
                 <small>View guide</small>
             </a>
         </section>
+        <section class="step99-parent-overview">
+            <div class="step99-summary-grid">
+                <article class="step99-summary-card children-card">
+                    <div class="step99-summary-icon">🎒</div>
 
-        <section class="stats stats-pro step70-parent-stats">
-            <article class="stat-card pro-stat">
-                <span>🎒</span>
-                <h3>My Children</h3>
-                <h2 id="totalChildren">0</h2>
-                <small>Registered under this account</small>
-            </article>
+                    <div class="step99-summary-copy">
+                        <span>CHILD RECORDS</span>
+                        <h3>My Children</h3>
+                        <div class="step99-summary-number" id="totalChildren">0</div>
+                        <p>Registered under this account</p>
+                    </div>
+                </article>
 
-            <article class="stat-card pro-stat">
-                <span>⏳</span>
-                <h3>Pending Payment</h3>
-                <h2 id="pendingPayment">0</h2>
-                <small>Waiting for admin review</small>
-            </article>
+                <article class="step99-summary-card pending-card">
+                    <div class="step99-summary-icon">⏳</div>
+
+                    <div class="step99-summary-copy">
+                        <span>PAYMENT REVIEW</span>
+                        <h3>Pending Payment</h3>
+                        <div class="step99-summary-number" id="pendingPayment">0</div>
+                        <p>Waiting for admin review</p>
+                    </div>
+                </article>
+            </div>
 
             <article
                 class="stat-card pro-stat step70-payment-due-card"
@@ -290,3 +299,4 @@
 </body>
 </html>
 <!-- MUTHAQUS_STEP71_PARENT_DASHBOARD_MOBILE_POLISH -->
+<!-- MUTHAQUS_STEP99_COMPACT_PARENT_SUMMARY_LAYOUT -->

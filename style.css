@@ -20712,3 +20712,249 @@ body.muthaqus-step76 .step70-due-action {
 
 /* MUTHAQUS_STEP98_REBUILT_ADMIN_NAV_PAYMENT_DUE */
 
+
+
+/* =========================================================
+   MUTHAQUS_STEP99_COMPACT_PARENT_SUMMARY_LAYOUT
+   ========================================================= */
+
+/* Stop the small summary cards from stretching to the payment card height. */
+body.step99-compact-parent-summary .step99-parent-overview {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 0.78fr) minmax(560px, 1.22fr);
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+body.step99-compact-parent-summary .step99-summary-grid {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: stretch;
+}
+
+body.step99-compact-parent-summary .step99-summary-card {
+    position: relative;
+    isolation: isolate;
+    min-width: 0;
+    min-height: 178px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    overflow: hidden;
+    border: 1px solid #d8e6f3;
+    border-radius: 23px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 13px 31px rgba(15, 60, 104, 0.075);
+}
+
+body.step99-compact-parent-summary .step99-summary-card::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -32px;
+    right: -32px;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background: rgba(38, 114, 183, 0.065);
+}
+
+body.step99-compact-parent-summary .step99-summary-card.pending-card::before {
+    background: rgba(219, 159, 43, 0.085);
+}
+
+body.step99-compact-parent-summary .step99-summary-icon {
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #d3e3f3;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #edf5ff, #f8fbff);
+    font-size: 23px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+body.step99-compact-parent-summary .pending-card .step99-summary-icon {
+    border-color: #eadcad;
+    background: linear-gradient(145deg, #fff8e8, #fffdf8);
+}
+
+body.step99-compact-parent-summary .step99-summary-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+body.step99-compact-parent-summary .step99-summary-copy > span {
+    display: block;
+    margin: 1px 0 5px;
+    color: #2a73b7;
+    font-size: 8px;
+    font-weight: 950;
+    letter-spacing: 0.075em;
+}
+
+body.step99-compact-parent-summary .pending-card .step99-summary-copy > span {
+    color: #94670f;
+}
+
+body.step99-compact-parent-summary .step99-summary-copy h3 {
+    margin: 0 0 11px;
+    color: #345675;
+    font-size: 17px;
+    font-weight: 850;
+    line-height: 1.3;
+}
+
+body.step99-compact-parent-summary .step99-summary-number {
+    margin: 0 0 8px;
+    color: #143f73;
+    font-size: 39px;
+    font-weight: 950;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+}
+
+body.step99-compact-parent-summary .step99-summary-copy p {
+    margin: 0;
+    color: #71869a;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Keep Payment Due Card independent from summary-card height. */
+body.step99-compact-parent-summary .step99-parent-overview > .step70-payment-due-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    align-self: start !important;
+}
+
+/* Wider card uses two clear columns without becoming excessively tall. */
+body.step99-compact-parent-summary .step98-arrears-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+body.step99-compact-parent-summary .step98-arrears-row.more {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 1320px) {
+    body.step99-compact-parent-summary .step99-parent-overview {
+        grid-template-columns: 1fr;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    body.step99-compact-parent-summary .step99-summary-card {
+        min-height: 150px;
+    }
+}
+
+@media (max-width: 860px) {
+    body.step99-compact-parent-summary .step99-parent-overview {
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-card {
+        min-height: 145px;
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        padding: 15px;
+        border-radius: 19px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-icon {
+        width: 45px;
+        min-width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        font-size: 20px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-copy h3 {
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-number {
+        font-size: 32px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-copy p {
+        font-size: 10px;
+    }
+
+    body.step99-compact-parent-summary .step98-arrears-list {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.step99-compact-parent-summary .step98-arrears-row.more {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 520px) {
+    body.step99-compact-parent-summary .step99-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-card {
+        min-height: 0;
+        grid-template-columns: 48px minmax(0, 1fr);
+        align-items: center;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-icon {
+        grid-row: 1 / span 1;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-copy {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 12px;
+        align-items: center;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-copy > span,
+    body.step99-compact-parent-summary .step99-summary-copy h3,
+    body.step99-compact-parent-summary .step99-summary-copy p {
+        grid-column: 1;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-number {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        margin: 0;
+        font-size: 34px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-copy > span {
+        margin-bottom: 3px;
+    }
+
+    body.step99-compact-parent-summary .step99-summary-copy h3 {
+        margin-bottom: 3px;
+    }
+}
+
+/* MUTHAQUS_STEP99_COMPACT_PARENT_SUMMARY_LAYOUT */
+
