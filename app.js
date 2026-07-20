@@ -17139,6 +17139,39 @@ function getMuthaqusMobileViewConfig(
             }
         ],
 
+        "admin-payments.html": [
+            {
+                icon: "📊",
+                label: "Overview",
+                selectors: [
+                    ".stats.stats-pro",
+                    ".step82-monthly-tracker"
+                ]
+            },
+            {
+                icon: "📅",
+                label: "Month End",
+                selectors: [
+                    ".step86-closing-report"
+                ]
+            },
+            {
+                icon: "⚠️",
+                label: "Outstanding",
+                selectors: [
+                    ".step80-arrears-section"
+                ]
+            },
+            {
+                icon: "🧾",
+                label: "History",
+                selectors: [
+                    "#paymentRecordsSection"
+                ]
+            }
+        ],
+
+
         "admin-analytics.html": [
             {
                 icon: "📊",
@@ -17906,3 +17939,268 @@ window.addEventListener(
 );
 
 /* MUTHAQUS_MOBILE_QUICK_VIEW_STABLE_FIX */
+
+/* =========================================================
+   MUTHAQUS — ADMIN PAYMENT MOBILE SYSTEMATIC VIEW
+   ========================================================= */
+
+const MUTHAQUS_PAYMENT_PANEL_STORAGE =
+    "muthaqus_admin_payment_panel";
+
+function getMuthaqusPaymentPanelKey() {
+    try {
+        return (
+            sessionStorage.getItem(
+                MUTHAQUS_PAYMENT_PANEL_STORAGE
+            ) ||
+            "needs-payment"
+        );
+    } catch (error) {
+        return "needs-payment";
+    }
+}
+
+function saveMuthaqusPaymentPanelKey(
+    key
+) {
+    try {
+        sessionStorage.setItem(
+            MUTHAQUS_PAYMENT_PANEL_STORAGE,
+            key
+        );
+    } catch (error) {
+        console.warn(
+            "Payment panel preference could not be saved:",
+            error.message
+        );
+    }
+}
+
+function activateMuthaqusPaymentPanel(
+    key
+) {
+    const columns =
+        document.querySelector(
+            ".step82-month-columns"
+        );
+
+    const switcher =
+        document.getElementById(
+            "muthaqusPaymentPanelSwitcher"
+        );
+
+    if (
+        !columns ||
+        !switcher
+    ) {
+        return;
+    }
+
+    const selected =
+        key === "submitted"
+            ? "submitted"
+            : "needs-payment";
+
+    columns
+        .querySelectorAll(
+            ".step82-month-panel"
+        )
+        .forEach(panel => {
+            const active =
+                panel.classList.contains(
+                    selected
+                );
+
+            panel.classList.toggle(
+                "muthaqus-payment-panel-hidden",
+                !active
+            );
+
+            panel.classList.toggle(
+                "muthaqus-payment-panel-active",
+                active
+            );
+
+            panel.setAttribute(
+                "aria-hidden",
+                String(!active)
+            );
+        });
+
+    switcher
+        .querySelectorAll(
+            "[data-payment-panel]"
+        )
+        .forEach(button => {
+            const active =
+                button.getAttribute(
+                    "data-payment-panel"
+                ) === selected;
+
+            button.classList.toggle(
+                "active",
+                active
+            );
+
+            button.setAttribute(
+                "aria-selected",
+                String(active)
+            );
+        });
+
+    saveMuthaqusPaymentPanelKey(
+        selected
+    );
+}
+
+function installMuthaqusPaymentPanelSwitcher() {
+    if (
+        getMuthaqusCurrentPageName() !==
+        "admin-payments.html"
+    ) {
+        return;
+    }
+
+    const columns =
+        document.querySelector(
+            ".step82-month-columns"
+        );
+
+    if (
+        !columns ||
+        document.getElementById(
+            "muthaqusPaymentPanelSwitcher"
+        )
+    ) {
+        return;
+    }
+
+    const switcher =
+        document.createElement(
+            "div"
+        );
+
+    switcher.id =
+        "muthaqusPaymentPanelSwitcher";
+
+    switcher.className =
+        "muthaqus-payment-panel-switcher";
+
+    switcher.setAttribute(
+        "role",
+        "tablist"
+    );
+
+    switcher.innerHTML = `
+        <button
+            type="button"
+            data-payment-panel="needs-payment"
+            role="tab"
+            aria-selected="false"
+        >
+            <span>⚠️</span>
+            <div>
+                <strong>Need Payment</strong>
+                <small>
+                    Unpaid or incomplete
+                </small>
+            </div>
+        </button>
+
+        <button
+            type="button"
+            data-payment-panel="submitted"
+            role="tab"
+            aria-selected="false"
+        >
+            <span>✅</span>
+            <div>
+                <strong>Submitted</strong>
+                <small>
+                    Paid or under review
+                </small>
+            </div>
+        </button>
+    `;
+
+    columns.insertAdjacentElement(
+        "beforebegin",
+        switcher
+    );
+
+    switcher
+        .querySelectorAll(
+            "[data-payment-panel]"
+        )
+        .forEach(button => {
+            button.addEventListener(
+                "click",
+                () => {
+                    activateMuthaqusPaymentPanel(
+                        button.getAttribute(
+                            "data-payment-panel"
+                        )
+                    );
+                }
+            );
+        });
+
+    const applyMode = () => {
+        if (
+            window.innerWidth <=
+            MUTHAQUS_MOBILE_VIEW_BREAKPOINT
+        ) {
+            switcher.hidden = false;
+
+            activateMuthaqusPaymentPanel(
+                getMuthaqusPaymentPanelKey()
+            );
+        } else {
+            switcher.hidden = true;
+
+            columns
+                .querySelectorAll(
+                    ".step82-month-panel"
+                )
+                .forEach(panel => {
+                    panel.classList.remove(
+                        "muthaqus-payment-panel-hidden",
+                        "muthaqus-payment-panel-active"
+                    );
+
+                    panel.removeAttribute(
+                        "aria-hidden"
+                    );
+                });
+        }
+    };
+
+    applyMode();
+
+    window.addEventListener(
+        "resize",
+        () => {
+            window.clearTimeout(
+                window.muthaqusPaymentResizeTimer
+            );
+
+            window.muthaqusPaymentResizeTimer =
+                window.setTimeout(
+                    applyMode,
+                    180
+                );
+        }
+    );
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        window.setTimeout(
+            installMuthaqusPaymentPanelSwitcher,
+            180
+        );
+    }
+);
+
+/* MUTHAQUS_ADMIN_PAYMENT_MOBILE_SYSTEMATIC */
